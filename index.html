@@ -653,11 +653,18 @@ const App=()=>{
   /* ── 도시 좌표 ── */
   const getCityCoord=useCallback((city)=>{
     const c=(city||"").trim();
+    
+    // [추가] BYPASS_DICT에 있는 도시(예: 남양주)면, 그 허브(예: 서울)의 좌표를 가져오도록 우회
+    let lookupCity = c;
+    if (BYPASS_DICT[c]) {
+      lookupCity = BYPASS_DICT[c];
+    }
+
     // 섬 좌표 우선
-    if(ISLAND_COORDS[c]){return{lat:ISLAND_COORDS[c][0],lng:ISLAND_COORDS[c][1]};}
-    const e=aliasLinked?.[c];
+    if(ISLAND_COORDS[lookupCity]){return{lat:ISLAND_COORDS[lookupCity][0],lng:ISLAND_COORDS[lookupCity][1]};}
+    const e=aliasLinked?.[lookupCity];
     if(e?.main_node&&nodesMap?.[e.main_node]){const n=nodesMap[e.main_node];if(n.lat&&n.lng)return{lat:n.lat,lng:n.lng};}
-    const g=getCityGroup(c);
+    const g=getCityGroup(lookupCity);
     if(g)return{lat:g.lat,lng:g.lng};
     return{lat:35.5,lng:127.5};
   },[aliasLinked,nodesMap]);
