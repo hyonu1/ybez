@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>YBEZ by JHN</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.css');
+:root{
+  --blue:#007AFF;--blue2:#5AC8FA;--bg:#EEF3FA;
+  --sep:rgba(60,60,67,0.1);--card:#fff;
+  --gm:'GmarketSansMedium',sans-serif;
+  --pr:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1C1C1E;min-height:100dvh;}
+
+/* ── 대시보드 레이아웃 ── */
+.dashboard{display:grid;min-height:100dvh;grid-template-columns:1fr;gap:0;}
+@media(min-width:1100px){
+  .dashboard{grid-template-columns:3fr 4fr 3fr;grid-template-rows:100dvh;gap:0;overflow:hidden;}
+  .col-left{overflow-y:auto;border-right:1px solid var(--sep);}
+  .col-center{overflow-y:auto;}
+  .col-right{overflow-y:auto;border-left:1px solid var(--sep);}
+}
+@media(min-width:700px) and (max-width:1099px){
+  .dashboard{grid-template-columns:240px 1fr;grid-template-rows:100dvh;}
+  .col-left{overflow-y:auto;border-right:1px solid var(--sep);}
+  .col-center{overflow-y:auto;}
+  .col-right{display:none;}
+}
+
+.col-left{background:#F4F7FB;display:flex;flex-direction:column;}
+.col-center{background:#fff;display:flex;flex-direction:column;}
+.col-right{background:#F8FAFD;display:flex;flex-direction:column;}
+
+/* ── 섹션 헤더 ── */
+.sec-hdr{padding:14px 18px 10px;border-bottom:1px solid var(--sep);font-family:var(--gm);font-size:12px;font-weight:700;color:#8E8E93;letter-spacing:0.3px;display:flex;align-items:center;justify-content:space-between;}
+
+/* ── 지도 ── */
+#leaflet-map{flex:1;min-height:300px;}
+.leaflet-popup-content{font-family:var(--pr);font-weight:700;font-size:12px;}
+
+/* ── 출처 섹션 ── */
+.source-list{padding:12px 16px;display:flex;flex-direction:column;gap:6px;}
+.source-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#fff;border:1px solid var(--sep);}
+.source-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.source-url{font-size:10px;color:#6E7480;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.source-label{font-size:11px;font-weight:800;color:#1C1C1E;min-width:60px;}
+
+/* ── 입력 ── */
+.search-wrap{padding:16px 16px 12px;}
+.input-box{border-radius:16px;padding:0 14px 0 16px;display:flex;align-items:center;gap:12px;height:64px;border:2px solid rgba(0,122,255,0.15);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all .2s;font-family:var(--gm);}
+.input-box:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,0.1);}
+.input-inner{flex:1;min-width:0;}
+.input-label{font-size:10px;font-weight:700;color:#AEAEB2;text-transform:uppercase;letter-spacing:0.5px;}
+.input-field{width:100%;background:transparent;border:none;outline:none;font-family:var(--gm);font-weight:700;font-size:18px;color:#1C1C1E;}
+.input-field::placeholder{color:#D1D1D6;}
+.clear-btn{width:26px;height:26px;border-radius:50%;background:#E5E5EA;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.clear-btn:active{background:#C7C7CC;transform:scale(0.9);}
+
+/* ── 자동완성 ── */
+.sug-box{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid rgba(0,122,255,0.1);border-radius:16px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:200px;overflow-y:auto;font-family:var(--gm);}
+.sug-item{padding:10px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;border-bottom:1px solid rgba(0,0,0,0.03);}
+.sug-item:last-child{border-bottom:none;}
+.sug-item:hover,.sug-item.sel{background:rgba(0,122,255,0.05);}
+
+/* ── 상태바 ── */
+.status-bar{margin:0 16px 10px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;}
+.sb-idle{background:#F2F2F7;border:1px solid #E5E5EA;color:#AEAEB2;}
+.sb-done{background:linear-gradient(135deg,#E8F5FF,#D6EEFF);border:1px solid rgba(0,122,255,0.15);color:var(--blue);}
+
+/* ── 결과 카드 ── */
+.result-wrap{padding:0 16px 16px;flex:1;}
+.main-fare-card{border-radius:20px;padding:18px 18px 14px;background:linear-gradient(135deg,#fff,#F8FAFF);border:1px solid rgba(0,122,255,0.1);box-shadow:0 4px 16px rgba(0,122,255,0.06),0 2px 6px rgba(0,0,0,0.04);margin-bottom:10px;}
+.fare-amount{font-family:var(--gm);font-size:32px;font-weight:900;color:var(--blue);}
+.tag-badge{display:inline-flex;align-items:center;border-radius:6px;padding:2px 6px;font-size:10px;font-weight:800;border:1px solid transparent;font-family:var(--gm);}
+.tag-side{display:inline-flex;align-items:center;padding:0 3px;border-radius:3px;font-size:8px;font-weight:700;margin-left:2px;border:1px solid transparent;vertical-align:middle;line-height:1.5;}
+
+/* ── 하위터미널 카드 ── */
+.sub-card{border-radius:14px;padding:11px 14px;border:2px solid #EEEEEE;cursor:pointer;background:#FAFAFA;transition:all .15s;display:flex;justify-content:space-between;align-items:center;}
+.sub-card:hover{border-color:rgba(0,122,255,0.3);background:#F0F7FF;}
+.sub-card.selected{border-color:var(--blue);background:linear-gradient(135deg,#EEF6FF,#E6F2FF);box-shadow:0 2px 8px rgba(0,122,255,0.15);}
+.sub-grid{display:grid;gap:6px;margin-bottom:10px;}
+
+/* ── 출처 배지 ── */
+.src-badge{display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;background:#F0F7FF;color:#007AFF;border:1px solid rgba(0,122,255,0.2);font-family:var(--pr);}
+.src-badge.jne{background:#FFF7ED;color:#C2410C;border-color:rgba(194,65,12,0.2);}
+
+/* ── 감액 버튼 (ybez.html 스타일) ── */
+.deduct-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;padding:5px 11px;border-radius:9px;font-weight:800;cursor:pointer;z-index:10;font-family:var(--gm);transition:all .15s;background:linear-gradient(180deg,#288CFF,#007AFF 50%,#0056D6);color:#fff;border:none;box-shadow:0 2px 4px rgba(0,122,255,0.3),inset 0 1px 0 rgba(255,255,255,0.2);text-shadow:0 1px 1px rgba(0,0,0,0.2);white-space:nowrap;}
+.deduct-btn.active{background:linear-gradient(180deg,#C7DCFF,#EBF4FF);color:#8E8E93;border:1px solid #B3CCFF;box-shadow:inset 0 2px 4px rgba(0,0,0,0.12);text-shadow:none;transform:translate(-50%,calc(-50% + 1px));}
+.ship-input{text-align:right;background:#F8F9FA;width:70px;font-family:var(--gm);font-weight:700;outline:none;border:1px solid #E5E5EA;border-radius:8px;padding:5px;color:#1C1C1E;font-size:13px;transition:all .2s;}
+.ship-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 2px 6px rgba(0,122,255,0.12);}
+.confirm-btn{width:100%;margin-top:8px;height:38px;border-radius:12px;font-weight:800;font-size:13px;background:linear-gradient(180deg,#EBF4FF,#D6EAFF);color:var(--blue);border:1px solid rgba(0,122,255,0.2);cursor:pointer;font-family:var(--gm);}
+.confirm-btn:active{transform:scale(0.98);}
+
+/* ── 토글 (ybez.html 스타일) ── */
+.toggle-sw{width:44px;height:24px;border-radius:99px;transition:.25s;position:relative;flex-shrink:0;cursor:pointer;border:none;}
+.toggle-sw.on{background:#007AFF;}
+.toggle-sw.off{background:#E5E5EA;}
+.toggle-knob{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:.25s;box-shadow:0 2px 4px rgba(0,0,0,0.2);}
+.toggle-knob.on{transform:translateX(20px);}
+
+/* ── 등급 선택 ── */
+.grade-btn{flex:1;padding:10px 6px;border-radius:12px;border:2px solid #E5E5EA;background:#FAFAFA;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--gm);}
+.grade-btn.pre.sel{border-color:#F59E0B;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:0 2px 8px rgba(245,158,11,0.2);}
+.grade-btn.gen.sel{border-color:#6366F1;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);box-shadow:0 2px 8px rgba(99,102,241,0.15);}
+.grade-btn.exp.sel{border-color:#10B981;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);box-shadow:0 2px 8px rgba(16,185,129,0.15);}
+.grade-btn:not(.sel):hover{border-color:rgba(0,0,0,0.15);background:#fff;}
+.grade-radio{width:13px;height:13px;border-radius:50%;border:2px solid #D0D0D8;display:inline-flex;align-items:center;justify-content:center;margin-right:4px;vertical-align:middle;}
+.grade-radio.sel{border-color:currentColor;}
+.grade-radio.sel::after{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;display:block;}
+
+/* ── 모드 스위치 ── */
+.mode-wrap{background:#E5E5EA;border-radius:99px;width:100px;height:32px;position:relative;cursor:pointer;padding:3px;display:flex;user-select:none;}
+.mode-knob{position:absolute;top:3px;bottom:3px;width:calc(50% - 3px);background:#fff;border-radius:99px;transition:all .22s;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+.mode-knob.extra{left:3px;}
+.mode-knob.intra{left:calc(50%);}
+.mode-txt{flex:1;z-index:1;text-align:center;font-size:12px;font-weight:800;font-family:var(--gm);}
+.mode-txt.on{color:var(--blue);}
+.mode-txt.off{color:#8E8E93;}
+
+/* ── 버스 경로 표시 ── */
+.route-lbl{font-size:10px;font-weight:600;color:#AEAEB2;margin-top:2px;line-height:1.3;}
+
+/* ── 로딩 ── */
+.dot-pulse span{width:5px;height:5px;border-radius:50%;background:var(--blue);display:inline-block;animation:dp 1.2s ease-in-out infinite;}
+.dot-pulse span:nth-child(2){animation-delay:.2s;}
+.dot-pulse span:nth-child(3){animation-delay:.4s;}
+@keyframes dp{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1.1);opacity:1}}
+
+/* ── 빈 상태 ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:10px;color:#C7C7CC;}
+
+/* ── 모달 ── */
+.modal-bg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-box{background:#fff;border-radius:24px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,0.2);}
+.modal-hdr{background:linear-gradient(180deg,#288CFF,#007AFF);padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;}
+.modal-body{padding:16px 18px;}
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:99px;}
+
+/* ── 관내 모달 ── */
+.intra-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F2F2F7;}
+.intra-row:last-of-type{border-bottom:none;}
+
+/* ── 아이콘 bounce ── */
+@keyframes bounce-ic{0%,100%{transform:translateY(0)}50%{transform:translateY(-20%)}}
+.icon-bounce{animation:bounce-ic 2s infinite;display:inline-block;}
+
+/* 모바일: 지도/여비계산 숨기고 교통비만 */
+@media(max-width:699px){
+  .col-left{display:none !important;}
+  .col-right{display:none !important;}
+  .col-center{min-height:100dvh;}
+  .dashboard{display:flex;flex-direction:column;}
+  .mobile-src-tags{display:flex !important;}
+  .desktop-only{display:none !important;}
+}
+@media(min-width:700px){
+  .mobile-src-tags{display:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo}=React;
+
+/* ── 상수 ─────────────────────────────────────────────── */
+const ICONS={"광주":"🍉","목포":"⚓","여수":"🌉","순천":"🦩","나주":"🍐","광양":"💮","담양":"🎋","곡성":"🚂","구례":"🐻","고흥":"🚀","보성":"🍵","화순":"🗿","장흥":"🍄","강진":"🏺","해남":"🦖","영암":"🏎️","무안":"🧅","함평":"🦋","영광":"🐟","장성":"🍂","완도":"🦪","진도":"🐕","신안":"👼","남악":"🏛️","서울":"🏙️","동서울":"🏙️","센트럴시티":"🏛️","부산":"🌊","대구":"🍎","인천":"✈️","대전":"🍞","대전복합":"🍞","광양":"💮","전주":"🏘️","춘천":"🌲","원주":"🌲","강릉":"🌊","청주":"🍑","천안":"🌰","창원":"🌸","포항":"🦀"};
+const SRC_LABEL={"bustago":"버스타고","kobus":"코버스","tmoneygo":"티머니GO","asamaru":"아사마루","JNE2026":"JNE기준표","manual":"수동입력"};
+const SOURCES_INFO=[
+  {key:"bustago",  label:"버스타고", url:"bustago.or.kr",     color:"#2563EB"},
+  {key:"tmoneygo", label:"티머니GO", url:"txbus.t-money.co.kr",color:"#7C3AED"},
+  {key:"kobus",    label:"코버스",   url:"kobus.co.kr",        color:"#059669"},
+  {key:"asamaru",  label:"아사마루", url:"transportation.asamaru.net",color:"#D97706"},
+  {key:"JNE2026",  label:"전남여비기준표",url:"JNE fares (2026/1/1)", color:"#DC2626"},
+];
+
+/* ── JNE_FARES 하드코딩 (전남여비기준표 2026-01-01) ── */
+const JNE_FARES={
+  "광주":{"목포":{gen:7200,pre:9300},"여수":{gen:13000,pre:16800},"순천":{gen:8400,pre:11000},"나주":{gen:4300},"광양":{gen:8400,pre:10900},"담양":{gen:2900},"곡성":{gen:5500},"구례":{gen:9800},"고흥":{gen:16200,pre:21000},"보성":{gen:10500,pre:11500},"화순":{gen:2500},"장흥":{gen:11500,pre:14900},"강진":{gen:11700,pre:15200},"해남":{gen:13700,pre:16900},"영암":{gen:8700},"무안":{gen:6000,pre:7800},"함평":{gen:4500,pre:5800},"영광":{gen:7300,pre:9500},"장성":{gen:2400},"완도":{gen:20500,pre:24800},"진도":{gen:15300,pre:19900},"남악":{gen:7200,pre:9300}},
+  "목포":{"광주":{gen:7200,pre:9300},"여수":{gen:16500,pre:21400},"순천":{gen:11500,pre:15000},"나주":{gen:7300},"광양":{gen:13700,pre:17800},"담양":{gen:10100},"곡성":{gen:12700},"구례":{gen:17000},"고흥":{gen:18600},"보성":{gen:13500},"화순":{gen:9700},"장흥":{gen:10200},"강진":{gen:7800},"해남":{gen:8700},"영암":{gen:6400},"무안":{gen:3200},"함평":{gen:5100},"영광":{gen:8700},"장성":{gen:9600},"완도":{gen:15700},"진도":{gen:8300,pre:10800},"남악":{gen:1700}},
+  "여수":{"광주":{gen:13000,pre:16800},"목포":{gen:16500,pre:21400},"순천":{gen:5000},"나주":{gen:17300},"광양":{gen:7500},"담양":{gen:15900},"곡성":{gen:18500},"구례":{gen:10200},"고흥":{gen:13600},"보성":{gen:12800},"화순":{gen:15500},"장흥":{gen:16100},"강진":{gen:18500},"해남":{gen:21500},"영암":{gen:22400},"무안":{gen:19000},"함평":{gen:17500},"영광":{gen:20300},"장성":{gen:15400},"완도":{gen:28200},"진도":{gen:24800},"남악":{gen:15600,pre:20200}},
+  "순천":{"광주":{gen:8400,pre:11000},"목포":{gen:11500,pre:15000},"여수":{gen:5000},"나주":{gen:12700},"광양":{gen:2500},"담양":{gen:10100},"곡성":{gen:9400},"구례":{gen:5200},"고흥":{gen:8700},"보성":{gen:7900},"화순":{gen:9700},"장흥":{gen:11100},"강진":{gen:13500},"해남":{gen:16600},"영암":{gen:17500},"무안":{gen:14700,pre:18200},"함평":{gen:12900},"영광":{gen:15700},"장성":{gen:10800},"완도":{gen:23200},"진도":{gen:23900},"남악":{gen:10600,pre:13800}},
+  "나주":{"광주":{gen:4300},"목포":{gen:7300},"여수":{gen:17300},"순천":{gen:12700},"광양":{gen:12700},"담양":{gen:7200},"곡성":{gen:9800},"구례":{gen:14100},"고흥":{gen:20500},"보성":{gen:14800},"화순":{gen:6800},"장흥":{gen:9000},"강진":{gen:8200},"해남":{gen:9900},"영암":{gen:4400},"무안":{gen:4100},"함평":{gen:3700},"영광":{gen:7400},"장성":{gen:6700},"완도":{gen:16600},"진도":{gen:17200},"남악":{gen:9000}},
+  "광양":{"광주":{gen:8400,pre:10900},"목포":{gen:13700,pre:17800},"여수":{gen:7500},"순천":{gen:2500},"나주":{gen:12700},"담양":{gen:11300},"곡성":{gen:13900},"구례":{gen:7700},"고흥":{gen:10200},"보성":{gen:9900},"화순":{gen:10900},"장흥":{gen:13200},"강진":{gen:15600},"해남":{gen:19100},"영암":{gen:19500},"무안":{gen:14400},"함평":{gen:12900},"영광":{gen:15700},"장성":{gen:10800},"완도":{gen:25800},"진도":{gen:23400},"남악":{gen:11700}},
+  "담양":{"광주":{gen:2900},"목포":{gen:10100},"여수":{gen:15900},"순천":{gen:10100},"나주":{gen:7200},"광양":{gen:11300},"곡성":{gen:8400},"구례":{gen:12700},"고흥":{gen:19100},"보성":{gen:13400},"화순":{gen:8000},"장흥":{gen:14400},"강진":{gen:14600},"해남":{gen:16600},"영암":{gen:11600},"무안":{gen:8900},"함평":{gen:7400},"영광":{gen:10200},"장성":{gen:5300},"완도":{gen:23400},"진도":{gen:18200},"남악":{gen:10100}},
+  "곡성":{"광주":{gen:5500},"목포":{gen:12700},"여수":{gen:18500},"순천":{gen:9400},"나주":{gen:9800},"광양":{gen:13900},"담양":{gen:8400},"구례":{gen:4300},"고흥":{gen:21400},"보성":{gen:17300},"화순":{gen:8000},"장흥":{gen:17000},"강진":{gen:17200},"해남":{gen:19200},"영암":{gen:14200},"무안":{gen:11500},"함평":{gen:8800},"영광":{gen:12800},"장성":{gen:7900},"완도":{gen:23000},"진도":{gen:20800},"남악":{gen:12700}},
+  "구례":{"광주":{gen:9800},"목포":{gen:17000},"여수":{gen:10200},"순천":{gen:5200},"나주":{gen:14100},"광양":{gen:7700},"담양":{gen:12700},"곡성":{gen:4300},"고흥":{gen:13900},"보성":{gen:13100},"화순":{gen:12300},"장흥":{gen:16300},"강진":{gen:18700},"해남":{gen:21800},"영암":{gen:18500},"무안":{gen:15800},"함평":{gen:14300},"영광":{gen:17100},"장성":{gen:12200},"완도":{gen:28400},"진도":{gen:29100},"남악":{gen:19000}},
+  "고흥":{"광주":{gen:16200,pre:21000},"목포":{gen:18600},"여수":{gen:13600},"순천":{gen:8700},"나주":{gen:20500},"광양":{gen:10200},"담양":{gen:19100},"곡성":{gen:21400},"구례":{gen:13900},"보성":{gen:9900},"화순":{gen:13700},"장흥":{gen:13100},"강진":{gen:14200},"해남":{gen:18600},"영암":{gen:19500},"무안":{gen:22200},"함평":{gen:20700},"영광":{gen:23500},"장성":{gen:18600},"완도":{gen:25200},"진도":{gen:25900},"남악":{gen:23400}},
+  "보성":{"광주":{gen:10500,pre:11500},"목포":{gen:13500},"여수":{gen:12800},"순천":{gen:7900},"나주":{gen:14800},"광양":{gen:9900},"담양":{gen:13400},"곡성":{gen:17300},"구례":{gen:13100},"고흥":{gen:9900},"화순":{gen:7800},"장흥":{gen:3200},"강진":{gen:5700},"해남":{gen:8700},"영암":{gen:7800},"무안":{gen:16700},"함평":{gen:15000},"영광":{gen:17800},"장성":{gen:12900},"완도":{gen:15400},"진도":{gen:16000},"남악":{gen:13500}},
+  "화순":{"광주":{gen:2500},"목포":{gen:9700},"여수":{gen:15500},"순천":{gen:9700},"나주":{gen:6800},"광양":{gen:10900},"담양":{gen:8000},"곡성":{gen:8000},"구례":{gen:12300},"고흥":{gen:13700},"보성":{gen:7800},"장흥":{gen:10000},"강진":{gen:11400},"해남":{gen:16500},"영암":{gen:11200},"무안":{gen:8500},"함평":{gen:7000},"영광":{gen:9800},"장성":{gen:4900},"완도":{gen:23000},"진도":{gen:17800},"남악":{gen:9700}},
+  "장흥":{"광주":{gen:11500,pre:14900},"목포":{gen:10200},"여수":{gen:16100},"순천":{gen:11100},"나주":{gen:9000},"광양":{gen:13200},"담양":{gen:14400},"곡성":{gen:17000},"구례":{gen:16300},"고흥":{gen:13100},"보성":{gen:3200},"화순":{gen:10000},"강진":{gen:2400},"해남":{gen:5400},"영암":{gen:4600},"무안":{gen:13400},"함평":{gen:15300},"영광":{gen:18900},"장성":{gen:13900},"완도":{gen:12100},"진도":{gen:12700},"남악":{gen:10000}},
+  "강진":{"광주":{gen:11700,pre:15200},"목포":{gen:7800},"여수":{gen:18500},"순천":{gen:13500},"나주":{gen:8200},"광양":{gen:15600},"담양":{gen:14600},"곡성":{gen:17200},"구례":{gen:18700},"고흥":{gen:14200},"보성":{gen:5700},"화순":{gen:11400},"장흥":{gen:2400},"해남":{gen:3000},"영암":{gen:3900},"무안":{gen:11000},"함평":{gen:11600},"영광":{gen:16500},"장성":{gen:14100},"완도":{gen:7300},"진도":{gen:10300},"남악":{gen:7600}},
+  "해남":{"광주":{gen:13700,pre:16900},"목포":{gen:8700},"여수":{gen:21500},"순천":{gen:16600},"나주":{gen:9900},"광양":{gen:19100},"담양":{gen:16600},"곡성":{gen:19200},"구례":{gen:21800},"고흥":{gen:18600},"보성":{gen:8700},"화순":{gen:16500},"장흥":{gen:5400},"강진":{gen:3000},"영암":{gen:4900},"무안":{gen:11900},"함평":{gen:13800},"영광":{gen:17400},"장성":{gen:16100},"완도":{gen:6700,pre:8200},"진도":{gen:7300},"남악":{gen:8500}},
+  "영암":{"광주":{gen:8700},"목포":{gen:6400},"여수":{gen:22400},"순천":{gen:17500},"나주":{gen:4400},"광양":{gen:19500},"담양":{gen:11600},"곡성":{gen:14200},"구례":{gen:18500},"고흥":{gen:19500},"보성":{gen:7800},"화순":{gen:11200},"장흥":{gen:4600},"강진":{gen:3900},"해남":{gen:4900},"무안":{gen:9600},"함평":{gen:7700},"영광":{gen:11800},"장성":{gen:11100},"완도":{gen:11600},"진도":{gen:10300},"남악":{gen:3700}},
+  "무안":{"광주":{gen:6000,pre:7800},"목포":{gen:3200},"여수":{gen:19000},"순천":{gen:14700,pre:18200},"나주":{gen:4100},"광양":{gen:14400},"담양":{gen:8900},"곡성":{gen:11500},"구례":{gen:15800},"고흥":{gen:22200},"보성":{gen:16700},"화순":{gen:8500},"장흥":{gen:13400},"강진":{gen:11000},"해남":{gen:11900},"영암":{gen:9600},"함평":{gen:2500},"영광":{gen:5500},"장성":{gen:8400},"완도":{gen:18900},"진도":{gen:11500},"남악":{gen:3700}},
+  "함평":{"광주":{gen:4500,pre:5800},"목포":{gen:5100},"여수":{gen:17500},"순천":{gen:12900},"나주":{gen:3700},"광양":{gen:12900},"담양":{gen:7400},"곡성":{gen:8800},"구례":{gen:14300},"고흥":{gen:20700},"보성":{gen:15000},"화순":{gen:7000},"장흥":{gen:15300},"강진":{gen:11600},"해남":{gen:13800},"영암":{gen:7700},"무안":{gen:2500},"영광":{gen:3600},"장성":{gen:6900},"완도":{gen:20800},"진도":{gen:13400},"남악":{gen:6800}},
+  "영광":{"광주":{gen:7300,pre:9500},"목포":{gen:8700},"여수":{gen:20300},"순천":{gen:15700},"나주":{gen:7400},"광양":{gen:15700},"담양":{gen:10200},"곡성":{gen:12800},"구례":{gen:17100},"고흥":{gen:23500},"보성":{gen:17800},"화순":{gen:9800},"장흥":{gen:18900},"강진":{gen:16500},"해남":{gen:17400},"영암":{gen:11800},"무안":{gen:5500},"함평":{gen:3600},"장성":{gen:5900},"완도":{gen:24400},"진도":{gen:17000},"남악":{gen:8700}},
+  "장성":{"광주":{gen:2400},"목포":{gen:9600},"여수":{gen:15400},"순천":{gen:10800},"나주":{gen:6700},"광양":{gen:10800},"담양":{gen:5300},"곡성":{gen:7900},"구례":{gen:12200},"고흥":{gen:18600},"보성":{gen:12900},"화순":{gen:4900},"장흥":{gen:13900},"강진":{gen:14100},"해남":{gen:16100},"영암":{gen:11100},"무안":{gen:8400},"함평":{gen:6900},"영광":{gen:5900},"완도":{gen:22900},"진도":{gen:17700},"남악":{gen:9600}},
+  "완도":{"광주":{gen:20500,pre:24800},"목포":{gen:15700},"여수":{gen:28200},"순천":{gen:23200},"나주":{gen:16600},"광양":{gen:25800},"담양":{gen:23400},"곡성":{gen:23000},"구례":{gen:28400},"고흥":{gen:25200},"보성":{gen:15400},"화순":{gen:23000},"장흥":{gen:12100},"강진":{gen:7300},"해남":{gen:6700,pre:8200},"영암":{gen:11600},"무안":{gen:18900},"함평":{gen:20800},"영광":{gen:24400},"장성":{gen:22900},"진도":{gen:14000},"남악":{gen:15500}},
+  "진도":{"광주":{gen:15300,pre:19900},"목포":{gen:8300,pre:10800},"여수":{gen:24800},"순천":{gen:23900},"나주":{gen:17200},"광양":{gen:23400},"담양":{gen:18200},"곡성":{gen:20800},"구례":{gen:29100},"고흥":{gen:25900},"보성":{gen:16000},"화순":{gen:17800},"장흥":{gen:12700},"강진":{gen:10300},"해남":{gen:7300},"영암":{gen:10300},"무안":{gen:11500},"함평":{gen:13400},"영광":{gen:17000},"장성":{gen:17700},"완도":{gen:14000},"남악":{gen:10100}},
+  "남악":{"광주":{gen:7200,pre:9300},"목포":{gen:1700},"여수":{gen:15600,pre:20200},"순천":{gen:10600,pre:13800},"나주":{gen:9000},"광양":{gen:11700},"담양":{gen:10100},"곡성":{gen:12700},"구례":{gen:19000},"고흥":{gen:23400},"보성":{gen:13500},"화순":{gen:9700},"장흥":{gen:10000},"강진":{gen:7600},"해남":{gen:8500},"영암":{gen:3700},"무안":{gen:3700},"함평":{gen:6800},"영광":{gen:8700},"장성":{gen:9600},"완도":{gen:15500},"진도":{gen:10100}},
+};
+const JNE_CITIES=new Set(Object.keys(JNE_FARES));
+const isJNE=(c)=>JNE_CITIES.has((c||"").trim());
+
+/* ── 허브 그룹 ── */
+const HUB_GROUPS=[
+  {id:"전남서부",hubs:["광주","목포","남악","무안"],lat:35.16,lng:126.85},
+  {id:"전남동부",hubs:["순천","여수","광양"],lat:34.95,lng:127.49},
+  {id:"전북",hubs:["전주","군산","익산"],lat:35.82,lng:127.15},
+  {id:"충청",hubs:["대전복합","천안","청주","충주"],lat:36.40,lng:127.38},
+  {id:"수도권",hubs:["동서울","센트럴시티","수원","고양","인천종합","안양","성남","의정부"],lat:37.50,lng:127.00},
+  {id:"강원",hubs:["강릉","원주","춘천","속초","동해","양양"],lat:37.55,lng:128.20},
+  {id:"경남",hubs:["부산","부산서부사상","창원","진주","울산"],lat:35.18,lng:128.80},
+  {id:"경북",hubs:["동대구","포항","구미","안동","경주"],lat:36.10,lng:128.50},
+];
+const getCityGroup=(city)=>{const c=(city||"").trim();return HUB_GROUPS.find(g=>g.hubs.includes(c))||null;};
+const isForwardDir=(fr,to,cand)=>{const dx=to.lng-fr.lng,dy=to.lat-fr.lat,cx=cand.lng-fr.lng,cy=cand.lat-fr.lat;return dx*cx+dy*cy>0;};
+const distToLine=(fr,to,p)=>{const dx=to.lng-fr.lng,dy=to.lat-fr.lat,l=Math.sqrt(dx*dx+dy*dy)||1;return Math.abs(dy*p.lng-dx*p.lat+to.lng*fr.lat-to.lat*fr.lng)/l;};
+
+/* ── 도서지역 DB ── */
+const ISLAND_DB={
+  "신안":{hub:"목포",cost:0,type:"connected"},"신안교육청":{hub:"목포",cost:0,type:"connected"},
+  "압해":{hub:"목포",cost:2000,type:"connected"},"지도":{hub:"목포",cost:2000,type:"connected"},
+  "증도":{hub:"목포",cost:2000,type:"connected"},"임자":{hub:"목포",cost:2000,type:"connected"},
+  "팔금":{hub:"목포",cost:2000,type:"connected"},"암태":{hub:"목포",cost:2000,type:"connected"},
+  "자은":{hub:"목포",cost:2000,type:"connected"},"안좌":{hub:"목포",cost:2000,type:"connected"},
+  "비금":{hub:"목포",cost:2000,shipCost:1000,type:"ship",special:true},
+  "도초":{hub:"목포",cost:0,shipCost:1000,type:"ship",special:true},
+  "장산":{hub:"목포",cost:0,shipCost:1000,type:"ship"},"하의":{hub:"목포",cost:0,shipCost:1000,type:"ship"},
+  "신의":{hub:"목포",cost:0,shipCost:1000,type:"ship"},"흑산":{hub:"목포",cost:0,shipCost:1000,type:"ship"},
+  "홍도":{hub:"목포",cost:0,shipCost:1000,type:"ship"},"가거도":{hub:"목포",cost:0,shipCost:1000,type:"ship"},
+  "완도":{hub:"완도",cost:0,type:"connected",special:true},"군외":{hub:"완도",cost:0,type:"connected",special:true},
+  "신지":{hub:"완도",cost:0,type:"connected",special:true},"고금":{hub:"완도",cost:0,type:"connected",special:true},
+  "약산":{hub:"완도",cost:0,type:"connected",special:true},
+  "청산":{hub:"완도",cost:0,shipCost:1000,type:"ship"},"노화":{hub:"완도",cost:0,shipCost:1000,type:"ship"},
+  "보길":{hub:"완도",cost:0,shipCost:1000,type:"ship"},"소안":{hub:"완도",cost:0,shipCost:1000,type:"ship"},
+  "여서도":{hub:"완도",cost:0,shipCost:1000,type:"ship"},"금일":{hub:"완도",cost:0,shipCost:1000,type:"ship"},
+  "생일":{hub:"완도",cost:0,shipCost:1000,type:"ship"},
+  "진도조도":{hub:"진도",cost:0,shipCost:1000,type:"ship"},
+  "금당":{hub:"장흥",cost:0,shipCost:1000,type:"ship"},
+};
+const SAME_AREA=[
+  new Set(["목포","신안","신안교육청"]),new Set(["노화","보길"]),new Set(["비금","도초"]),
+  new Set(["압해","자은","팔금","암태","안좌","임자","지도","증도"]),
+  new Set(["군외","완도","고금","약산","신지"]),
+];
+
+/* ── 유틸 ── */
+const nz=(s)=>(s||"").trim();
+const fmt=(n)=>Number(n).toLocaleString("ko-KR");
+const CHOSUNG=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const cho=(s)=>{let r="";for(const c of s){const k=c.charCodeAt(0)-44032;if(k>=0&&k<11172)r+=CHOSUNG[Math.floor(k/588)];else r+=c;}return r;};
+const hav=(a,b,c,d)=>{const R=6371,dl=Math.PI/180*(c-a),dg=Math.PI/180*(d-b);return R*2*Math.atan2(Math.sqrt(Math.sin(dl/2)**2+Math.cos(Math.PI/180*a)*Math.cos(Math.PI/180*c)*Math.sin(dg/2)**2),Math.sqrt(1-(Math.sin(dl/2)**2+Math.cos(Math.PI/180*a)*Math.cos(Math.PI/180*c)*Math.sin(dg/2)**2)));};
+const tagStyle=(t)=>{const m={"자가용":"bg-gray-100 text-gray-700 border-gray-200","관용차":"bg-yellow-50 text-yellow-700 border-yellow-200","당일":"bg-gray-100 text-gray-800 border-gray-200","왕복":"bg-gray-100 text-gray-500 border-gray-200","여객선":"bg-blue-50 text-blue-700 border-blue-200","농어촌버스":"bg-green-50 text-green-700 border-green-200","편도":"bg-gray-100 text-gray-500 border-gray-200"};return m[t]||"bg-gray-50 text-gray-600 border-gray-100";};
+
+/* ── Toggle ── */
+const Toggle=({on,onChange})=>(
+  <button onClick={()=>onChange(!on)} className={`toggle-sw ${on?"on":"off"}`}>
+    <span className={`toggle-knob ${on?"on":""}`}/>
+  </button>
+);
+
+/* ── AutocompleteInput ── */
+const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
+  const [sug,setSug]=useState([]);
+  const [open,setOpen]=useState(false);
+  const [idx,setIdx]=useState(-1);
+  const boxRef=useRef(null);
+  const inRef=useRef(null);
+  const comp=useRef(false);
+  useEffect(()=>{
+    const v=nz(value);
+    if(!v||list.includes(v)){setSug([]);return;}
+    const isCho=/^[ㄱ-ㅎ]+$/.test(v);
+    setSug(list.filter(c=>isCho?cho(c).includes(v):c.includes(v)));
+  },[value,list]);
+  useEffect(()=>{
+    if(!open)return;
+    const h=(e)=>{if(boxRef.current&&!boxRef.current.contains(e.target)){setOpen(false);setIdx(-1);}};
+    document.addEventListener("pointerdown",h);
+    return()=>document.removeEventListener("pointerdown",h);
+  },[open]);
+  const pick=(c)=>{onSelect(c);setOpen(false);setSug([]);setIdx(-1);};
+  const clr=(e)=>{e.preventDefault();e.stopPropagation();onChange("");onSelect("");setOpen(false);setSug([]);setTimeout(()=>inRef.current?.focus(),0);};
+  return(
+    <div className="relative" ref={boxRef}>
+      <div className="input-box">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#AEAEB2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div className="input-inner">
+          {label&&<div className="input-label">{label}</div>}
+          <input ref={inRef} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
+            className="input-field" placeholder={placeholder} value={value||""}
+            onChange={e=>{const v=e.target.value;onChange(v);setIdx(-1);if(list.includes(nz(v))){onSelect(nz(v));setOpen(false);setSug([]);}else setOpen(true);}}
+            onFocus={()=>setOpen(true)}
+            onBlur={()=>setTimeout(()=>{setOpen(false);setIdx(-1);},200)}
+            onKeyDown={e=>{if(comp.current)return;if(!open||!sug.length)return;if(e.key==="ArrowDown"){e.preventDefault();setIdx(p=>p<sug.length-1?p+1:0);}else if(e.key==="ArrowUp"){e.preventDefault();setIdx(p=>p>0?p-1:sug.length-1);}else if(e.key==="Enter"){e.preventDefault();if(idx>=0)pick(sug[idx]);else if(sug.length)pick(sug[0]);}else if(e.key==="Escape"){setOpen(false);setIdx(-1);}}}
+            onCompositionStart={()=>{comp.current=true;}} onCompositionEnd={()=>{setTimeout(()=>{comp.current=false;},0);}}
+          />
+        </div>
+        {value&&<span className="text-xl icon-bounce" style={{flexShrink:0}}>{ICONS[nz(value)]||""}</span>}
+        {value?(<button className="clear-btn" onPointerDown={clr} onClick={clr} tabIndex={-1}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="3" strokeLinecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>):<div style={{width:26}}/>}
+      </div>
+      {open&&sug.length>0&&(
+        <div className="sug-box">
+          {sug.slice(0,8).map((c,i)=>(
+            <div key={c} className={`sug-item ${i===idx?"sel":""}`}
+              onPointerDown={()=>pick(c)}>
+              <span style={{fontFamily:"var(--gm)",fontWeight:700}}>{c}</span>
+              <span className="text-lg">{ICONS[c]||"🚌"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── SrcBadges ── */
+const SrcBadge=({src})=>{
+  const isJne=src==="JNE2026"||src==="manual";
+  return<span className={`src-badge ${isJne?"jne":""}`}>{SRC_LABEL[src]||src}</span>;
+};
+
+/* ── 지도 패널 ── */
+const MapPanel=({waypoints,routeSegs,showMap,setShowMap})=>{
+  const divRef=useRef(null);const mapRef=useRef(null);const lgRef=useRef(null);
+  useEffect(()=>{
+    if(!divRef.current||mapRef.current)return;
+    const L=window.L;if(!L)return;
+    const m=L.map(divRef.current,{center:[35.5,127.5],zoom:7,zoomControl:true});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap",maxZoom:18}).addTo(m);
+    lgRef.current=L.layerGroup().addTo(m);mapRef.current=m;
+    return()=>{if(mapRef.current){mapRef.current.remove();mapRef.current=null;}};
+  },[]);
+  useEffect(()=>{
+    const L=window.L;
+    if(!L||!lgRef.current||!mapRef.current)return;
+    lgRef.current.clearLayers();
+    if(!waypoints||!waypoints.length)return;
+    const pts=[];
+    waypoints.forEach((wp,i)=>{
+      if(!wp?.lat)return;
+      const isFirst=i===0,isLast=i===waypoints.length-1;
+      const color=isFirst?"#007AFF":isLast?"#34C759":"#FF9500";
+      const sz=isFirst||isLast?13:9;
+      const ic=L.divIcon({className:"",html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+      L.marker([wp.lat,wp.lng],{icon:ic}).bindPopup(`<b>${wp.name}</b>`).addTo(lgRef.current);
+      pts.push([wp.lat,wp.lng]);
+    });
+    const lc=["#007AFF","#FF9500","#FF3B30","#7C3AED"];
+    for(let i=0;i<waypoints.length-1;i++){
+      const a=waypoints[i],b=waypoints[i+1];
+      if(!a?.lat||!b?.lat)continue;
+      L.polyline([[a.lat,a.lng],[b.lat,b.lng]],{color:lc[i%lc.length],weight:3,opacity:0.75,dashArray:"7,4"}).addTo(lgRef.current);
+    }
+    if(pts.length>=2){try{mapRef.current.fitBounds(pts,{padding:[28,28],maxZoom:10});}catch(e){}}
+  },[waypoints]);
+  return(
+    <div style={{flex:1,minHeight:0,display:"flex",flexDirection:"column"}}>
+      <div ref={divRef} id="leaflet-map" style={{display:showMap?"flex":"none",flex:1}}/>
+      {!showMap&&<div style={{flex:1,background:"#F2F6FB",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:6,padding:20}}><span style={{fontSize:32}}>🗺️</span><span style={{fontSize:11,color:"#AEAEB2",fontWeight:700}}>지도 숨김</span></div>}
+      {showMap&&waypoints&&waypoints.length>=2&&<div style={{padding:"5px 14px",background:"#F0F6FF",borderTop:"1px solid rgba(0,122,255,0.1)",fontSize:10,fontWeight:700,color:"#6E7480",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{waypoints.map(w=>w.name).join(" → ")}</div>}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════════════
+   메인 앱
+══════════════════════════════════════════════════════ */
+const App=()=>{
+  /* 데이터 */
+  const [routesDB,setRoutesDB]=useState(null);
+  const [aliasLinked,setAliasLinked]=useState(null);
+  const [nodesMap,setNodesMap]=useState(null);
+  const [loaded,setLoaded]=useState(false);
+  const [dataErr,setDataErr]=useState("");
+
+  /* 검색 */
+  const [origin,setOrigin]=useState("");
+  const [dest,setDest]=useState("");
+  const [via,setVia]=useState("");
+  const [showVia,setShowVia]=useState(false);
+
+  /* 결과 */
+  const [result,setResult]=useState(null);         // 메인 여비 결과
+  const [subResults,setSubResults]=useState({depSubs:[],arrSubs:[]});   // 하위터미널 결과 (최대 5)
+  const [selSub,setSelSub]=useState(null);         // 선택된 하위터미널
+
+  /* UI */
+  const [calcSt,setCalcSt]=useState("idle");
+  const [smartResult,setSmartResult]=useState(null);
+  const [showDetail,setShowDetail]=useState(false);
+  const [intraCityOpen,setIntraCityOpen]=useState(false);
+  const [activeModal,setActiveModal]=useState(null);
+  const [shipFare,setShipFare]=useState(0);
+  const [manualTransport,setManualTransport]=useState(null);
+  const [showMap,setShowMap]=useState(true);
+  const [history,setHistory]=useState(()=>{try{return JSON.parse(localStorage.getItem('ybez_hist')||'[]');}catch{return[];}});
+  const [showHist,setShowHist]=useState(false);
+  const addHistory=(o,d,gen)=>{
+    setHistory(prev=>{
+      const e={from:o,to:d,gen,ts:Date.now()};
+      const filtered=prev.filter(h=>!(h.from===o&&h.to===d)).slice(0,9);
+      const next=[e,...filtered];
+      try{localStorage.setItem('ybez_hist',JSON.stringify(next));}catch{}
+      return next;
+    });
+  };
+  const [grade,setGrade]=useState("gen"); // gen/pre
+
+  /* 감액 */
+  const [ded,setDed]=useState({gov_vehicle:false,meal_1:false,meal_2:false,meal_3:false,meal_half:false,transport_proof:false,transport_gov_vehicle:false,transport_passenger:false});
+  const [intraDed,setIntraDed]=useState({shortTime:false,govVehicle:false});
+  const resetDed=()=>setDed({gov_vehicle:false,meal_1:false,meal_2:false,meal_3:false,meal_half:false,transport_proof:false,transport_gov_vehicle:false,transport_passenger:false});
+
+  /* showHist 외부 클릭 닫기 */
+  useEffect(()=>{
+    if(!showHist)return;
+    const h=()=>setShowHist(false);
+    document.addEventListener('pointerdown',h);
+    return()=>document.removeEventListener('pointerdown',h);
+  },[showHist]);
+
+  /* 데이터 로드 */
+  useEffect(()=>{
+    Promise.all([
+      fetch("master/routes.json").then(r=>{if(!r.ok)throw new Error("routes.json 없음");return r.json();}),
+      fetch("master/alias_linked.json").then(r=>{if(!r.ok)throw new Error("alias_linked.json 없음");return r.json();}),
+      fetch("master/nodes.json").then(r=>r.ok?r.json():null).catch(()=>null),
+    ]).then(([rt,al,nd])=>{
+      setRoutesDB(rt); setAliasLinked(al);
+      if(nd){const m={};nd.forEach(n=>m[n.node_id]=n);setNodesMap(m);}
+      setLoaded(true);
+    }).catch(e=>setDataErr(e.message));
+  },[]);
+
+  /* 도시 목록 */
+  const cityList=useMemo(()=>{
+    const ak=aliasLinked?Object.keys(aliasLinked):[];
+    const ik=Object.keys(ISLAND_DB).filter(k=>!ak.includes(k));
+    return[...new Set([...ak,...ik])].sort();
+  },[aliasLinked]);
+
+  /* 노드 해석 */
+  const resolveNodes=useCallback((city)=>{
+    if(!aliasLinked)return[];
+    const c=nz(city);
+    if(aliasLinked[c]) return aliasLinked[c].node_ids||[aliasLinked[c].main_node].filter(Boolean);
+    for(const[k,v]of Object.entries(aliasLinked)){
+      if(k.includes(c)||c.includes(k)) return v.node_ids||[v.main_node].filter(Boolean);
+    }
+    if(nodesMap) return Object.values(nodesMap).filter(n=>(n.display_name||"").includes(c)||(c&&(n.display_name||"").includes(c))).map(n=>n.node_id);
+    return[];
+  },[aliasLinked,nodesMap]);
+
+  /* name→nodeId 맵 */
+  const name2node=useMemo(()=>{
+    if(!nodesMap)return{};
+    const m={};
+    // 1패스: display_name 우선 (덮어쓰기)
+    for(const n of Object.values(nodesMap)){
+      const k=nz(n.display_name);if(k)m[k]=n.node_id;
+    }
+    // 2패스: alias (없을 때만)
+    for(const n of Object.values(nodesMap)){
+      for(const names of Object.values(n.aliases||{})){
+        if(Array.isArray(names))for(const nm of names){
+          const kk=nz(nm);if(kk&&!m[kk])m[kk]=n.node_id;
+        }
+      }
+    }
+    return m;
+  },[nodesMap]);
+
+  /* routes 직접 조회 */
+  const PREF_SRC=new Set(["bustago","tmoneygo","kobus"]);
+  /* sources에서 우선소스 있으면 asamaru 숨김 */
+  const dispSrcs=(srcs)=>{
+    const hasPref=(srcs||[]).some(s=>PREF_SRC.has(s));
+    return hasPref?(srcs||[]).filter(s=>PREF_SRC.has(s)||s==="JNE2026"):(srcs||[]);
+  };
+
+  const lookupRoute=useCallback((fromCity,toCity,prefOnly=false,minFare=0)=>{
+    if(!routesDB)return null;
+    const fNodes=resolveNodes(fromCity);
+    const tNodes=resolveNodes(toCity);
+    let best=null;
+    for(const dep of fNodes)for(const arr of tNodes){
+      if(dep===arr)continue;
+      const[a,b]=[dep,arr].sort();
+      const rt=routesDB[`${a}_${b}`];
+      if(rt?.fares){
+        const gen=rt.fares["일반"]||rt.fares["고속"]||null;
+        const pre=rt.fares["우등"]||rt.fares["프리미엄"]||null;
+        const srcs=rt.sources||[];
+        if(!gen||gen<minFare)continue;
+        if(prefOnly&&!srcs.some(s=>PREF_SRC.has(s)))continue;
+        if(gen&&(!best||gen<best.gen))
+          best={gen,pre,depId:dep,arrId:arr,sources:dispSrcs(srcs),all_sources:srcs,dr:rt.display_route||""};
+      }
+    }
+    return best;
+  },[routesDB,resolveNodes]);
+
+  /* JNE fallback 포함 요금 조회 (prefOnly: asamaru 제외 모드) */
+  const lookupFare=useCallback((fromCity,toCity,prefOnly=false,minFare=0)=>{
+    const fc=nz(fromCity);const tc=nz(toCity);
+    const rt=lookupRoute(fromCity,toCity,prefOnly,minFare);
+    if(rt) return rt;
+    if(prefOnly) return null; // JNE는 우선소스 모드에서 제외
+    if(JNE_FARES[fc]?.[tc]) return{...JNE_FARES[fc][tc],depId:null,arrId:null,sources:["JNE2026"],all_sources:["JNE2026"],dr:`${fc}→${tc}`};
+    if(JNE_FARES[tc]?.[fc]) return{...JNE_FARES[tc][fc],depId:null,arrId:null,sources:["JNE2026"],all_sources:["JNE2026"],dr:`${tc}→${fc}`};
+    return null;
+  },[lookupRoute]);
+
+  /* ── 도시 좌표 ── */
+  const getCityCoord=useCallback((city)=>{
+    const c=(city||"").trim();
+    const e=aliasLinked?.[c];
+    if(e?.main_node&&nodesMap?.[e.main_node]){const n=nodesMap[e.main_node];if(n.lat&&n.lng)return{lat:n.lat,lng:n.lng};}
+    const g=getCityGroup(c);
+    if(g)return{lat:g.lat,lng:g.lng};
+    return{lat:35.5,lng:127.5};
+  },[aliasLinked,nodesMap]);
+
+  /* ── 스마트 라우팅 ── */
+  const findSmartRoute=useCallback((fromCity,toCity)=>{
+    const fc=(fromCity||"").trim(),tc=(toCity||"").trim();
+    const fcrd=getCityCoord(fc),tcrd=getCityCoord(tc);
+    const fg=getCityGroup(fc),tg=getCityGroup(tc);
+    const PENALTY=3000;
+    const routeList=[];
+    const lf=(a,b)=>lookupFare(a,b,false,0);
+    const addRoute=(path,segs)=>{
+      if(!segs.length)return;
+      const totalGen=segs.reduce((s,sg)=>s+sg.gen,0);
+      const transfers=segs.length-1;
+      routeList.push({path,segs,totalGen,transfers,totalOpt:totalGen+transfers*PENALTY});
+    };
+    const d=lf(fc,tc);
+    if(d)addRoute([fc,tc],[{...d,from:fc,to:tc}]);
+    const cands=HUB_GROUPS.filter(g=>{
+      if(fg&&g.id===fg.id)return false;
+      if(tg&&g.id===tg.id)return false;
+      return isForwardDir(fcrd,tcrd,{lat:g.lat,lng:g.lng});
+    }).sort((a,b)=>distToLine(fcrd,tcrd,{lat:a.lat,lng:a.lng})-distToLine(fcrd,tcrd,{lat:b.lat,lng:b.lng}));
+
+    // 목적지 그룹 직접 경유
+    if(tg){for(const h of tg.hubs){if(h===tc)continue;const s1=lf(fc,h),s2=lf(h,tc);if(s1&&s2)addRoute([fc,h,tc],[{...s1,from:fc,to:h},{...s2,from:h,to:tc}]);}}
+
+    // 출발지가 그룹에 속하면: 같은 그룹 내 허브 경유 (역방향 문제 해결)
+    if(fg){
+      for(const fhub of fg.hubs){
+        if(fhub===fc)continue;
+        const sf=lf(fc,fhub);if(!sf)continue;
+        const sd=lf(fhub,tc);if(sd)addRoute([fc,fhub,tc],[{...sf,from:fc,to:fhub},{...sd,from:fhub,to:tc}]);
+        if(tg){for(const th of tg.hubs){if(th===fhub)continue;const s12=lf(fhub,th),s2t=lf(th,tc);if(s12&&s2t)addRoute([fc,fhub,th,tc],[{...sf,from:fc,to:fhub},{...s12,from:fhub,to:th},{...s2t,from:th,to:tc}]);}}
+        for(const g of cands.slice(0,3)){for(const h of g.hubs){const s1=lf(fhub,h);if(!s1)continue;const s2=lf(h,tc);if(s2)addRoute([fc,fhub,h,tc],[{...sf,from:fc,to:fhub},{...s1,from:fhub,to:h},{...s2,from:h,to:tc}]);}}
+      }
+    }
+
+    // 중간 그룹 1개
+    for(const g of cands.slice(0,5)){
+      for(const h of g.hubs){
+        const s1=lf(fc,h);if(!s1)continue;
+        const s2=lf(h,tc);if(s2)addRoute([fc,h,tc],[{...s1,from:fc,to:h},{...s2,from:h,to:tc}]);
+        if(tg){for(const th of tg.hubs){if(th===h)continue;const s12=lf(h,th),s2t=lf(th,tc);if(s12&&s2t)addRoute([fc,h,th,tc],[{...s1,from:fc,to:h},{...s12,from:h,to:th},{...s2t,from:th,to:tc}]);}}
+      }
+    }
+    for(let i=0;i<Math.min(cands.length,4);i++){const g1=cands[i];
+      for(let j=i+1;j<Math.min(cands.length,5);j++){const g2=cands[j];
+        if(!isForwardDir({lat:g1.lat,lng:g1.lng},tcrd,{lat:g2.lat,lng:g2.lng}))continue;
+        for(const h1 of g1.hubs){const s1=lf(fc,h1);if(!s1)continue;
+          for(const h2 of g2.hubs){const s12=lf(h1,h2);if(!s12)continue;const s2=lf(h2,tc);
+            if(s2)addRoute([fc,h1,h2,tc],[{...s1,from:fc,to:h1},{...s12,from:h1,to:h2},{...s2,from:h2,to:tc}]);}}}}
+    if(!routeList.length)return null;
+    const cheapest=[...routeList].sort((a,b)=>a.totalGen-b.totalGen)[0];
+    const optimal=[...routeList].sort((a,b)=>a.totalOpt-b.totalOpt)[0];
+    const same=cheapest.path.join("→")===optimal.path.join("→");
+    return{cheapest,optimal,same};
+  },[lookupFare,getCityCoord]);
+
+  /* 하위터미널 탐색 - 출발/도착 모두, 전남 권역만 */
+  const findSubResults=useCallback((fromCity,toCity)=>{
+    if(!aliasLinked||!routesDB)return{depSubs:[],arrSubs:[]};
+    const fc=nz(fromCity);const tc=nz(toCity);
+    // 전남 권역 여부
+    const isJneFrom=isJNE(fc);const isJneTo=isJNE(tc);
+    const fEntry=aliasLinked[fc];const tEntry=aliasLinked[tc];
+    const mainFNodes=new Set(resolveNodes(fromCity));
+    const mainTNodes=new Set(resolveNodes(toCity));
+    const PREF=PREF_SRC;
+
+    const makeSub=(depId,arrId,depLabel,arrLabel)=>{
+      if(!depId||!arrId||depId===arrId)return null;
+      const[a,b]=[depId,arrId].sort();
+      const rt=routesDB[`${a}_${b}`];
+      if(!rt?.fares)return null;
+      const gen=rt.fares["일반"]||rt.fares["고속"]||null;
+      const pre=rt.fares["우등"]||rt.fares["프리미엄"]||null;
+      if(!gen)return null;
+      const ss=rt.sources||[];
+      const hasPref=ss.some(s=>PREF.has(s));
+      const ds=hasPref?ss.filter(s=>PREF.has(s)):ss;
+      return{depName:depLabel,arrName:arrLabel,gen,pre,sources:ds};
+    };
+
+    const depSubs=[];
+    const arrSubs=[];
+
+    // ① 출발 하위터미널 (전남 출발지만)
+    if(isJneFrom&&fEntry?.terminals){
+      for(const termName of fEntry.terminals){
+        if(nz(termName)===fc)continue;
+        const subId=name2node[nz(termName)];
+        if(!subId||mainFNodes.has(subId))continue;
+        // 도착지 모든 노드와 매칭
+        for(const arr of mainTNodes){
+          const r=makeSub(subId,arr,termName,nodesMap?.[arr]?.display_name||tc);
+          if(r){depSubs.push(r);break;}
+        }
+      }
+    }
+
+    // ② 도착 하위터미널 (전남 도착지만)
+    if(isJneTo&&tEntry?.terminals){
+      for(const termName of tEntry.terminals){
+        if(nz(termName)===tc)continue;
+        const subId=name2node[nz(termName)];
+        if(!subId||mainTNodes.has(subId))continue;
+        for(const dep of mainFNodes){
+          const r=makeSub(dep,subId,nodesMap?.[dep]?.display_name||fc,termName);
+          if(r){arrSubs.push(r);break;}
+        }
+      }
+    }
+
+    return{
+      depSubs:depSubs.sort((a,b)=>a.gen-b.gen).slice(0,4),
+      arrSubs:arrSubs.sort((a,b)=>a.gen-b.gen).slice(0,4)
+    };
+  },[aliasLinked,routesDB,nodesMap,resolveNodes,name2node]);
+
+  /* 주 계산 */
+  const calcSegment=useCallback((fromRaw,toRaw)=>{
+    const from=nz(fromRaw);const to=nz(toRaw);
+    if(!from||!to)return null;
+    const fromI=ISLAND_DB[from];const toI=ISLAND_DB[to];
+    let sFrom=from,sTo=to,surcharge=0,shipCost=0;
+    if(fromI){sFrom=fromI.hub;shipCost+=(fromI.shipCost||0);surcharge+=(fromI.cost||0);}
+    if(toI){sTo=toI.hub;shipCost+=(toI.shipCost||0);surcharge+=(toI.cost||0);}
+    if(sFrom===sTo&&!(shipCost>0||surcharge>0))return{cost:0,gen:0,pre:null,surcharge:0,shipCost:0,sameArea:true};
+    const bd=lookupFare(sFrom,sTo);
+    if(!bd)return null;
+    // display_route가 이상할 때(같은 도시 이름 반복) → 원래 도시명으로 표시
+    const rawDr=bd.dr||`${sFrom}→${sTo}`;
+    const cleanDr=(rawDr.split('↔').length===2&&rawDr.split('↔')[0]===rawDr.split('↔')[1])?`${from}→${to}`:rawDr;
+    return{cost:bd.gen+surcharge,gen:bd.gen,pre:bd.pre||null,surcharge,shipCost,sources:bd.sources||[],dr:cleanDr,depId:bd.depId,arrId:bd.arrId};
+  },[lookupFare]);
+
+  const performCalc=useCallback((o=origin,d=dest,viaCity=via)=>{
+    resetDed();setShipFare(0);setManualTransport(null);setSubResults({depSubs:[],arrSubs:[]});setSelSub(null);setSmartResult(null);
+    const from=nz(o);const to=nz(d);
+    if(!from||!to){setCalcSt("idle");setResult(null);return;}
+    for(const g of SAME_AREA)if(g.has(from)&&g.has(to)){setIntraCityOpen(true);setCalcSt("idle");return;}
+    setCalcSt("working");
+    setTimeout(()=>{
+      const viaN=nz(viaCity);
+      let res=null;
+      if(!viaN){
+        const seg=calcSegment(o,d);
+        if(seg&&!seg.sameArea){
+          res={...seg,origin:o,dest:d,via:null,routeLabel:`${from}→${to}`,multiHop:null};
+          setManualTransport((seg.gen+seg.surcharge)*2);
+          setShipFare(seg.shipCost*2);
+        } else if(!seg||seg.sameArea){
+          // JNE fallback (직통)
+          const jne=JNE_FARES[from]?.[to]||JNE_FARES[to]?.[from];
+          if(jne){
+            res={gen:jne.gen,pre:jne.pre||null,cost:jne.gen,surcharge:0,shipCost:0,
+                 sources:["JNE2026"],dr:`${from}→${to}`,routeLabel:`${from}→${to}`,
+                 origin:o,dest:d,via:null,multiHop:null};
+            setManualTransport(res.gen*2);
+          } else {
+            // 다구간 탐색: 1) 우선소스만, 2) 전체
+            const sr=findSmartRoute(from,to);
+            setSmartResult(sr||null);
+            if(sr){
+              const best=sr.cheapest;
+              const allSrcs=[...new Set(best.segs.flatMap(s=>s.sources||[]))];
+              res={gen:best.totalGen,pre:null,cost:best.totalGen,surcharge:0,shipCost:0,
+                   sources:allSrcs,dr:best.path.join("→"),routeLabel:best.path.join(" → "),
+                   origin:o,dest:d,via:null,multiHop:{segs:best.segs,path:best.path}};
+              setManualTransport(best.totalGen*2);
+            }
+          }
+        }
+      } else {
+        const s1=calcSegment(o,viaN);const s2=calcSegment(viaN,d);
+        if(s1&&s2){
+          const totGen=s1.gen+s2.gen;const totSur=s1.surcharge+s2.surcharge;const totShip=s1.shipCost+s2.shipCost;
+          res={gen:totGen,pre:(s1.pre||s1.gen)+(s2.pre||s2.gen),cost:totGen+totSur,surcharge:totSur,
+               shipCost:totShip,sources:[...(s1.sources||[]),...(s2.sources||[])].filter((v,i,a)=>a.indexOf(v)===i),
+               dr:`${nz(o)}→${viaN}→${nz(d)}`,routeLabel:`${nz(o)}→${viaN}→${nz(d)}`,
+               origin:o,dest:d,via:viaN,seg1:s1,seg2:s2,multiHop:null};
+          setManualTransport((totGen+totSur)*2);setShipFare(totShip*2);
+        }
+      }
+      setResult(res);
+      if(res&&!res.multiHop)setSubResults(findSubResults(o,d));
+      else setSubResults({depSubs:[],arrSubs:[]});
+      if(res)addHistory(o,d,res.gen);
+      setCalcSt(res?"done":"idle");
+    },50);
+  },[calcSegment,findSubResults,findSmartRoute,addHistory,origin,dest,via]);
+
+  /* 선택 등급 요금 */
+  const selectedFare=useMemo(()=>{
+    if(!result)return 0;
+    const base=selSub||(result?{gen:result.gen,pre:result.pre}:null);
+    if(!base)return 0;
+    if(grade==="pre"&&base.pre)return base.pre;
+    return base.gen;
+  },[result,selSub,grade]);
+
+  /* 여비 상세 계산 */
+  const detailCost=useMemo(()=>{
+    const daily=ded.gov_vehicle?12500:25000;
+    const meal=ded.meal_3?0:ded.meal_1?16670:ded.meal_2?8330:ded.meal_half?12500:25000;
+    const tCost=ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger?0:(manualTransport!=null?manualTransport:selectedFare*2);
+    return{daily,meal,transport:tCost,total:daily+meal+tCost+(shipFare||0)};
+  },[ded,manualTransport,selectedFare,shipFare]);
+
+  const mealLbl=()=>{if(ded.meal_1)return"(-8,330)";if(ded.meal_2)return"(-16,670)";if(ded.meal_3)return"(-25,000)";if(ded.meal_half)return"(-12,500)";return"";};
+
+  const modalContent=(key)=>{
+    const dTag=<b>{dest}</b>;
+    if(key==="daily")return{title:"일비",desc:<span>출장지 {dTag} 내 소액 경비</span>,items:[{id:"gov_vehicle",label:"공용·임차차량(전세버스 등) 이용"}]};
+    if(key==="meal")return{title:"식비",desc:"출장 중 식사 비용 감액",items:[{id:"meal_1",label:"1식 감액"},{id:"meal_2",label:"2식 감액"},{id:"meal_3",label:"전액 감액"},{id:"meal_half",label:"½ 감액"}]};
+    if(key==="transport")return{title:"교통비",desc:<span>근무지→ {dTag} 이동비</span>,items:[{id:"transport_proof",label:"증거서류 미제출·부적정"},{id:"transport_gov_vehicle",label:"관용·임차차량 이용"},{id:"transport_passenger",label:"동료 차량 동승",sub:"동승자 교통비 미지급"}]};
+  };
+
+  /* 메인 요금 표시 여부: 전남광주 관내면 일반/우등 분리, 관외면 최솟값 하나 */
+  const bothJNE=isJNE(nz(origin))&&isJNE(nz(dest));
+
+  /* 지도용 노드 */
+  const mapWaypoints=useMemo(()=>{
+    if(!result)return[];
+    const bp=smartResult?.cheapest?.path||result?.multiHop?.path;
+    if(bp&&bp.length>=2)return bp.map((city,i)=>({name:city,...getCityCoord(city),isHub:i>0&&i<bp.length-1}));
+    return[{name:origin,...getCityCoord(nz(origin))},{name:dest,...getCityCoord(nz(dest))}];
+  },[result,smartResult,origin,dest,getCityCoord]);
+
+  /* 하위터미널 선택 시 교통비 업데이트 */
+  useEffect(()=>{
+    if(!result)return;
+    if(selSub){
+      const fare=grade==="pre"&&selSub.pre?selSub.pre:selSub.gen;
+      setManualTransport(fare*2);
+    } else {
+      const fare=grade==="pre"&&result.pre?result.pre:result.gen;
+      setManualTransport((fare+(result.surcharge||0))*2);
+    }
+  },[selSub,grade,result]);
+
+  if(!loaded&&!dataErr)return(
+    <div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:14}}>
+      <span style={{fontFamily:"var(--gm)",fontSize:36,fontWeight:900,color:"var(--blue)"}}>YBEZ</span>
+      <div className="dot-pulse flex gap-1.5">{[0,1,2].map(i=><span key={i} style={{animationDelay:`${i*.2}s`}}/>)}</div>
+      <p style={{fontSize:12,color:"#AEAEB2",fontWeight:700}}>노선 DB 로딩 중...</p>
+    </div>
+  );
+  if(dataErr)return(
+    <div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10,padding:20}}>
+      <span style={{fontSize:40}}>⚠️</span>
+      <p style={{fontWeight:900,fontSize:16}}>데이터 로딩 실패</p>
+      <p style={{fontSize:12,color:"#6E6E73",fontWeight:600,textAlign:"center"}}>{dataErr}</p>
+      <code style={{fontSize:11,color:"#AEAEB2"}}>python -m http.server 8080</code>
+    </div>
+  );
+
+  /* ── 렌더 ── */
+  return(
+    <div className="dashboard">
+
+      {/* ══ 왼쪽: 지도 + 출처 ══ */}
+      <div className="col-left">
+        <div className="sec-hdr">
+          <span>🗺️ 경로 지도</span>
+          <button onClick={()=>setShowMap(v=>!v)} style={{background:showMap?"var(--blue)":"#E5E5EA",color:showMap?"#fff":"#8E8E93",border:"none",borderRadius:8,padding:"3px 10px",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"var(--gm)"}}>
+            {showMap?"지도 끄기":"지도 켜기"}
+          </button>
+        </div>
+        <MapPanel waypoints={mapWaypoints} routeSegs={smartResult?.cheapest?.segs||(result?.multiHop?.segs)||[]} showMap={showMap} setShowMap={setShowMap}/>
+        <div className="sec-hdr" style={{marginTop:"auto"}}>
+          <span>📡 데이터 출처</span>
+          <span style={{fontSize:10,color:"#C7C7CC"}}>{Object.keys(routesDB||{}).length.toLocaleString()}개 노선</span>
+        </div>
+        {(()=>{
+          const segs=smartResult?.cheapest?.segs||(result?.multiHop?.segs)||[];
+          if(segs.length===0){
+            // 직통: result.sources 기반으로 표시
+            const srcs=result?.sources||[];
+            const srcInfo=SOURCES_INFO.filter(s=>srcs.includes(s.key));
+            return(
+              <div className="source-list">
+                {(srcInfo.length?srcInfo:SOURCES_INFO).map(s=>(
+                  <div key={s.key} className="source-item">
+                    <div className="source-dot" style={{background:s.color}}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="source-label">{s.label}</div>
+                      <div className="source-url">{s.url}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+          // 다구간: 소스별로 구간 그룹핑
+          const srcMap={};
+          segs.forEach(seg=>{
+            const src=(seg.sources||['asamaru'])[0];
+            if(!srcMap[src])srcMap[src]=[];
+            srcMap[src].push(`${seg.from}→${seg.to}`);
+          });
+          return(
+            <div className="source-list">
+              {Object.entries(srcMap).map(([src,routes])=>{
+                const info=SOURCES_INFO.find(s=>s.key===src)||{label:SRC_LABEL[src]||src,url:src,color:"#8E8E93"};
+                return(
+                  <div key={src} className="source-item" style={{flexDirection:"column",alignItems:"flex-start",gap:3}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,width:"100%"}}>
+                      <div className="source-dot" style={{background:info.color}}/>
+                      <span className="source-label">{info.label}</span>
+                    </div>
+                    <div style={{fontSize:10,color:"#6E7480",fontWeight:700,paddingLeft:16,lineHeight:1.6}}>
+                      {routes.join(", ")}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </div>
+
+      {/* ══ 가운데: 검색 + 결과 ══ */}
+      <div className="col-center">
+        {/* 헤더 */}
+        <div style={{padding:"14px 16px 10px",borderBottom:"1px solid var(--sep)",background:"rgba(255,255,255,0.95)",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
+          <div>
+            <div style={{fontFamily:"var(--gm)",fontSize:26,fontWeight:900,color:"var(--blue)"}}>YBEZ</div>
+            <div style={{fontSize:10,fontWeight:700,color:"#AEAEB2"}}>by JHN · 전남 여비 계산기</div>
+          </div>
+          <div className="mode-wrap" onClick={()=>setIntraCityOpen(!intraCityOpen)}>
+            <div className={`mode-knob ${intraCityOpen?"intra":"extra"}`}/>
+            <div className={`mode-txt ${!intraCityOpen?"on":"off"}`}>관외</div>
+            <div className={`mode-txt ${intraCityOpen?"on":"off"}`}>관내</div>
+          </div>
+        </div>
+
+        {/* 검색 입력 */}
+        <div className="search-wrap" style={{display:"flex",flexDirection:"column",gap:8}}>
+          <AcInput label="출발지" placeholder="출발지" value={origin}
+            onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList}/>
+          {!showVia?(
+            <button onClick={()=>setShowVia(true)} style={{height:28,borderRadius:9,border:"1px solid #E0E0E0",background:"#F5F5F5",color:"#AEAEB2",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--gm)"}}>+ 경유지 추가</button>
+          ):(
+            <AcInput label="경유지" placeholder="경유지 (선택)" value={via}
+              onChange={v=>{setVia(v);if(!v){setShowVia(false);performCalc(origin,dest,"");} }}
+              onSelect={c=>{if(!c){setShowVia(false);setVia("");performCalc(origin,dest,"");}else{setVia(c);performCalc(origin,dest,c);}}}
+              list={cityList}/>
+          )}
+          <AcInput label="도착지" placeholder="도착지" value={dest}
+            onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList}/>
+
+          {/* 상태바 */}
+          <div className={`status-bar ${calcSt==="done"?"sb-done":"sb-idle"}`}>
+            {calcSt==="working"?(
+              <><div className="dot-pulse flex gap-1">{[0,1,2].map(i=><span key={i} style={{animationDelay:`${i*.2}s`}}/>)}</div><span>노선 탐색 중...</span></>
+            ):calcSt==="done"?(
+              <span>✓ 전현우@USYES in Haenam 📱 050-6966-6696</span>
+            ):<span>초성 검색 가능 · {cityList.length}개 지역</span>}
+          </div>
+        </div>
+
+        {/* 결과 */}
+        <div className="result-wrap">
+          {result&&(
+            <>
+              {/* 메인 요금 카드 */}
+              <div className="main-fare-card">
+                <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
+                  {[ded.gov_vehicle?"관용차":"자가용","당일","왕복",result.surcharge>0?"농어촌버스":null,result.shipCost>0?"여객선":null,result.via?`${result.via} 경유`:null].filter(Boolean).map((t,i)=>(
+                    <span key={i} className={`tag-badge ${tagStyle(t)}`}>{t}</span>
+                  ))}
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:12}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{fontFamily:"var(--gm)",fontSize:13,fontWeight:700,color:"#6E6E73"}}>요금</span>
+                      <span className={`tag-side ${tagStyle("편도")}`}>편도</span>
+                    </div>
+                    <div className="route-lbl">{result.routeLabel}</div>
+
+                  </div>
+                  {/* 전남광주 관내: 일반/우등 분리 표시 */}
+                  {bothJNE?(
+                    <div style={{textAlign:"right"}}>
+                      {result.pre&&<div style={{fontSize:10,fontWeight:700,color:"#F59E0B"}}>우등 <span style={{fontFamily:"var(--gm)",fontSize:16,fontWeight:900}}>{fmt(result.pre)}</span>원</div>}
+                      <div style={{fontSize:10,fontWeight:700,color:"#6366F1"}}>일반 <span className="fare-amount" style={{fontSize:28}}>{fmt(result.gen)}</span>원</div>
+                    </div>
+                  ):(
+                    <div style={{textAlign:"right"}}>
+                      <div className="fare-amount">{fmt(result.gen)}</div>
+                      <div style={{fontSize:10,fontWeight:700,color:"#AEAEB2"}}>원 (편도)</div>
+                    </div>
+                  )}
+                </div>
+                {smartResult&&(()=>{
+                  const {cheapest,optimal,same}=smartResult;
+                  const SegRow=({seg})=>(<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 8px",marginBottom:2,borderRadius:8,background:"#F8FAFF",border:"1px solid rgba(0,122,255,0.07)"}}><div><span style={{fontSize:10,fontWeight:800,fontFamily:"var(--gm)",color:"#374151"}}>{seg.from}</span><span style={{color:"#C7C7CC",margin:"0 3px",fontSize:9}}>→</span><span style={{fontSize:10,fontWeight:800,fontFamily:"var(--gm)",color:"#374151"}}>{seg.to}</span></div><span style={{fontSize:12,fontWeight:900,color:"var(--blue)",fontFamily:"var(--gm)",marginLeft:6,flexShrink:0}}>{fmt(seg.gen)}원</span></div>);
+                  const RouteCard=({r,label,color})=>(<div><div style={{display:"flex",alignItems:"center",gap:5,marginBottom:5}}><span style={{fontSize:11,fontWeight:900,color,fontFamily:"var(--gm)"}}>{label}</span><span style={{fontSize:9,color:"#AEAEB2",fontWeight:700}}>{r.transfers}환승 · {fmt(r.totalGen)}원</span>{!same&&r.transfers>0&&<span style={{fontSize:9,color:"#F59E0B",fontWeight:700,marginLeft:3}}>패널티포함 {fmt(r.totalOpt)}원</span>}</div>{r.segs.map((seg,i)=><SegRow key={i} seg={seg}/>)}</div>);
+                  return(<div style={{marginTop:10,paddingTop:10,borderTop:"1px dashed #E5E5EA",display:"flex",flexDirection:"column",gap:8}}><RouteCard r={cheapest} label="💰 최저가" color="#059669"/>{!same&&<><div style={{height:1,background:"#F0F0F0"}}/><RouteCard r={optimal} label="⚡ 최적경로" color="#7C3AED"/></>}</div>);
+                })()}
+                {result.surcharge>0&&(
+                  <div style={{marginTop:8,paddingTop:8,borderTop:"1px dashed #E5E5EA",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{fontSize:12,fontWeight:700,color:"#059669"}}>농어촌버스 <span style={{fontSize:10,color:"#AEAEB2"}}>편도</span></span>
+                    <span style={{fontSize:14,fontWeight:800,color:"#059669"}}>{fmt(result.surcharge)}원</span>
+                  </div>
+                )}
+                {(result.shipCost>0||shipFare>0)&&(
+                  <div style={{marginTop:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{fontSize:12,fontWeight:700,color:"#2563EB"}}>여객선 <span style={{fontSize:10,color:"#AEAEB2"}}>왕복</span></span>
+                    <span style={{fontSize:14,fontWeight:800,color:"#2563EB"}}>{fmt(shipFare||result.shipCost*2)}원</span>
+                  </div>
+                )}
+                {!result.multiHop&&<div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #F2F2F7",textAlign:"right",fontSize:11,fontWeight:700,color:"#AEAEB2"}}>
+                  왕복 {fmt((selSub?selSub.gen:result.gen+(result.surcharge||0))*2)}원
+                </div>}
+                {/* 모바일 전용: 출처 태그 */}
+                {result&&(result.sources||[]).length>0&&(
+                  <div className="mobile-src-tags" style={{display:"none",flexWrap:"wrap",gap:4,marginTop:8}}>
+                    {[...new Set(result.sources||[])].map(s=>(
+                      <span key={s} style={{padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:800,background:"#F0F7FF",color:"#007AFF",border:"1px solid rgba(0,122,255,0.2)"}}>{SRC_LABEL[s]||s}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 하위터미널 */}
+              {(()=>{
+                const {depSubs=[],arrSubs=[]}=subResults||{};
+                const hasSubs=depSubs.length>0||arrSubs.length>0;
+                if(!hasSubs)return null;
+                const SubCard=({r,accentColor})=>(
+                  <div className={`sub-card ${selSub===r?"selected":""}`} onClick={()=>setSelSub(selSub===r?null:r)}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:11,fontWeight:800,fontFamily:"var(--gm)",color:"#1C1C1E"}}>
+                        <span style={{color:accentColor||"#7C3AED"}}>{r.depName}</span>
+                        <span style={{color:"#C7C7CC",margin:"0 3px",fontSize:10}}>→</span>
+                        <span style={{color:"#374151"}}>{r.arrName}</span>
+                      </div>
+                      <div style={{fontSize:9,color:"#AEAEB2",fontWeight:700,marginTop:2}}>
+                        {(r.sources||[]).map(s=>SRC_LABEL[s]||s).join("·")}
+                      </div>
+                    </div>
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      {r.pre&&<div style={{fontSize:9,fontWeight:700,color:"#F59E0B"}}>우등 {fmt(r.pre)}원</div>}
+                      <div style={{fontSize:14,fontWeight:900,color:"var(--blue)",fontFamily:"var(--gm)"}}>{fmt(r.gen)}<span style={{fontSize:9,marginLeft:1}}>원</span></div>
+                      {selSub===r&&<div style={{fontSize:9,color:"#007AFF",fontWeight:800,marginTop:1}}>✓ 선택됨</div>}
+                    </div>
+                  </div>
+                );
+                return(
+                  <div style={{marginTop:8}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#AEAEB2",marginBottom:6,display:"flex",alignItems:"center",gap:6}}>
+                      <span>인근 터미널 직통</span>
+                      <div style={{flex:1,height:1,background:"#EBEBEB"}}/>
+                      <span style={{fontSize:9,color:"#C7C7CC"}}>탭 → 교통비 반영</span>
+                    </div>
+                    {depSubs.length>0&&(
+                      <div style={{marginBottom:arrSubs.length?8:0}}>
+                        <div style={{fontSize:9,fontWeight:800,color:"#7C3AED",marginBottom:3,paddingLeft:2}}>
+                          📍 출발 ({nz(origin)}) 인근
+                        </div>
+                        <div className="sub-grid">{depSubs.map((r,i)=><SubCard key={"d"+i} r={r} accentColor="#7C3AED"/>)}</div>
+                      </div>
+                    )}
+                    {arrSubs.length>0&&(
+                      <div>
+                        <div style={{fontSize:9,fontWeight:800,color:"#059669",marginBottom:3,paddingLeft:2}}>
+                          🏁 도착 ({nz(dest)}) 인근
+                        </div>
+                        <div className="sub-grid">{arrSubs.map((r,i)=><SubCard key={"a"+i} r={r} accentColor="#059669"/>)}</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </>
+          )}
+          {!result&&calcSt==="idle"&&(
+            <div className="empty-state">
+              <span style={{fontSize:40}}>🚌</span>
+              <span style={{fontSize:13,fontWeight:700}}>출발지와 도착지를 입력하세요</span>
+              <span style={{fontSize:11}}>초성 검색 가능</span>
+            </div>
+          )}
+        {/* 가운데 하단 버튼 바 (데스크탑) */}
+        <div className="desktop-only" style={{padding:"10px 16px 14px",borderTop:"1px solid var(--sep)",display:"flex",gap:8,alignItems:"center",justifyContent:"center",background:"rgba(248,250,253,0.8)"}}>
+          {/* 지도 토글 */}
+          <button onClick={()=>setShowMap(v=>!v)} title={showMap?"지도 끄기":"지도 켜기"} style={{width:38,height:38,borderRadius:10,border:"1px solid #E0E0E8",background:showMap?"#EEF3FF":"#F5F5FA",color:showMap?"#5B5BD6":"#8E8E93",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
+          </button>
+          {/* 홈 (출발지 남기고 초기화) */}
+          <button onClick={()=>{setDest("");setVia("");setShowVia(false);setResult(null);setSubResults({depSubs:[],arrSubs:[]});setSelSub(null);setSmartResult(null);setCalcSt("idle");setShipFare(0);setManualTransport(null);setSmartResult(null);}} title="도착지만 초기화" style={{width:38,height:38,borderRadius:10,border:"1px solid #E0E0E8",background:"#F5F5FA",color:"#8E8E93",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>
+          {/* 히스토리 */}
+          <div style={{position:"relative"}}>
+            <button onClick={()=>setShowHist(v=>!v)} title="최근 검색" style={{width:38,height:38,borderRadius:10,border:showHist?"1px solid rgba(0,122,255,0.3)":"1px solid #E0E0E8",background:showHist?"#EEF3FF":"#F5F5FA",color:showHist?"var(--blue)":"#8E8E93",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+            </button>
+            {showHist&&history.length>0&&(
+              <div style={{position:"absolute",bottom:"calc(100% + 6px)",left:"50%",transform:"translateX(-50%)",background:"#fff",borderRadius:16,border:"1px solid rgba(0,122,255,0.12)",boxShadow:"0 8px 24px rgba(0,0,0,0.12)",padding:"6px 0",minWidth:220,zIndex:200}} onClick={e=>e.stopPropagation()}>
+                <div style={{fontSize:9,fontWeight:800,color:"#AEAEB2",padding:"4px 14px 6px",borderBottom:"1px solid #F2F2F7"}}>최근 검색</div>
+                {history.slice(0,10).map((h,i)=>(
+                  <div key={i} style={{padding:"8px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #F8F8F8",fontSize:12,fontWeight:700}} onClick={()=>{setOrigin(h.from);setDest(h.to);setShowHist(false);performCalc(h.from,h.to);}}>
+                    <span style={{color:"#374151"}}>{h.from} → {h.to}</span>
+                    <span style={{color:"var(--blue)",fontFamily:"var(--gm)",fontSize:11,marginLeft:8}}>{(h.gen||0).toLocaleString()}원</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      </div>
+
+      {/* ══ 오른쪽: 등급선택 + 여비계산 ══ */}
+      <div className="col-right">
+        {/* 등급 선택 */}
+        <div className="sec-hdr">일반/우등 선택</div>
+        <div style={{padding:"12px 14px",borderBottom:"1px solid var(--sep)"}}>
+          {result&&bothJNE?(
+            <div style={{display:"flex",gap:6}}>
+              {[["gen","일반","#6366F1"],["pre","우등","#F59E0B"]].map(([g,lbl,c])=>{
+                const fare=g==="gen"?result.gen:result.pre;
+                if(!fare)return null;
+                return(
+                  <button key={g} className={`grade-btn ${g} ${grade===g?"sel":""}`} onClick={()=>setGrade(g)} style={{color:grade===g?c:"#6E6E73"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",marginBottom:2}}>
+                      <span className={`grade-radio ${grade===g?"sel":""}`} style={{color:c,borderColor:grade===g?c:"#D0D0D8"}}/>
+                      <span style={{fontSize:11,fontWeight:800,fontFamily:"var(--gm)"}}>{lbl}</span>
+                    </div>
+                    <div style={{fontSize:17,fontWeight:900,fontFamily:"var(--gm)"}}>{fmt(selSub?(g==="pre"?selSub.pre||selSub.gen:selSub.gen):fare)}<span style={{fontSize:9,marginLeft:2}}>원</span></div>
+                  </button>
+                );
+              })}
+            </div>
+          ):(
+            result?(
+              <div style={{padding:"10px 12px",background:"#F8FAFF",borderRadius:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:12,fontWeight:700,color:"#6E6E73"}}>최저 요금</span>
+                <div>
+                  <span style={{fontSize:20,fontWeight:900,color:"var(--blue)",fontFamily:"var(--gm)"}}>{fmt(result.gen)}</span>
+                  <span style={{fontSize:11,marginLeft:2,color:"#AEAEB2"}}>원</span>
+                  <div style={{display:"flex",gap:3,marginTop:4,justifyContent:"flex-end",flexWrap:"wrap"}}>
+                    
+                  </div>
+                </div>
+              </div>
+            ):(
+              <div style={{padding:"14px 12px",textAlign:"center",color:"#C7C7CC",fontSize:11,fontWeight:700,lineHeight:1.6}}>출발지·도착지를<br/>먼저 조회하세요</div>
+            )
+          )}
+        </div>
+
+        {/* 여비계산 */}
+        <div className="sec-hdr">🧾 여비계산</div>
+        <DetailContent/>
+      </div>
+
+      {/* ── 모달들 ── */}
+      {intraCityOpen&&(
+        <div className="modal-bg" onClick={()=>setIntraCityOpen(false)}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-hdr">
+              <div>
+                <div style={{fontFamily:"var(--gm)",fontSize:17,fontWeight:900,color:"#fff"}}>관내 여비</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,0.7)",marginTop:2}}>같은 생활권 내 이동</div>
+              </div>
+              <button onClick={()=>setIntraCityOpen(false)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.6)",cursor:"pointer",fontSize:18}}>✕</button>
+            </div>
+            <div className="modal-body">
+              {[["일비","25,000원"],["식비","25,000원"],["교통비","실비"]].map(([l,a])=>(
+                <div key={l} className="intra-row"><span style={{fontWeight:700}}>{l}</span><span style={{fontWeight:900,color:"var(--blue)"}}>{a}</span></div>
+              ))}
+              <div className="intra-row"><span style={{fontSize:13,fontWeight:700,color:"#6E6E73"}}>공용차량 이용 시 일비</span><Toggle on={intraDed.govVehicle} onChange={v=>setIntraDed(p=>({...p,govVehicle:v}))}/></div>
+              <div className="intra-row"><span style={{fontSize:13,fontWeight:700,color:"#6E6E73"}}>4시간 미만</span><Toggle on={intraDed.shortTime} onChange={v=>setIntraDed(p=>({...p,shortTime:v}))}/></div>
+              <div style={{borderTop:"2px solid #F2F2F7",marginTop:8,paddingTop:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontWeight:900}}>일비 합계</span>
+                <span style={{fontFamily:"var(--gm)",fontSize:22,fontWeight:900,color:"var(--blue)"}}>{fmt(intraDed.shortTime?12500:intraDed.govVehicle?12500:25000)}원</span>
+              </div>
+              <button onClick={()=>setIntraCityOpen(false)} style={{width:"100%",marginTop:12,height:42,borderRadius:14,fontWeight:800,fontSize:14,background:"linear-gradient(180deg,#288CFF,#007AFF 50%,#0056D6)",color:"#fff",border:"none",cursor:"pointer",fontFamily:"var(--gm)"}}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {activeModal&&(()=>{
+        const mc=modalContent(activeModal);if(!mc)return null;
+        return(
+          <div className="modal-bg" onClick={()=>setActiveModal(null)}>
+            <div className="modal-box" onClick={e=>e.stopPropagation()}>
+              <div className="modal-hdr">
+                <div>
+                  <div style={{fontFamily:"var(--gm)",fontSize:17,fontWeight:900,color:"#fff"}}>{mc.title} 감액</div>
+                  <div style={{fontSize:11,color:"rgba(255,255,255,0.75)",marginTop:2}}>{mc.desc}</div>
+                </div>
+                <button onClick={()=>setActiveModal(null)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.6)",cursor:"pointer",fontSize:18}}>✕</button>
+              </div>
+              <div className="modal-body" style={{display:"flex",flexDirection:"column",gap:0}}>
+                {mc.items.map(item=>(
+                  <div key={item.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 0",borderBottom:"1px solid #F2F2F7"}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:14}}>{item.label}</div>
+                      {item.sub&&<div style={{fontSize:11,color:"#AEAEB2",fontWeight:600}}>{item.sub}</div>}
+                    </div>
+                    <Toggle on={ded[item.id]} onChange={()=>setDed(prev=>{
+                      const n={...prev};
+                      if(["meal_1","meal_2","meal_3","meal_half"].includes(item.id)&&!prev[item.id])
+                        ["meal_1","meal_2","meal_3","meal_half"].forEach(k=>n[k]=false);
+                      n[item.id]=!prev[item.id];
+                      if(item.id==="gov_vehicle")n.transport_gov_vehicle=n.gov_vehicle;
+                      if(item.id==="transport_gov_vehicle")n.gov_vehicle=n.transport_gov_vehicle;
+                      return n;
+                    })}/>
+                  </div>
+                ))}
+                <button onClick={()=>setActiveModal(null)} className="confirm-btn">확인</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+
+  /* DetailContent - 여비계산 패널 (ybez.html 스타일) */
+  function DetailContent(){
+    return(
+      <div style={{padding:"12px 14px",display:"flex",flexDirection:"column",gap:0}}>
+        {/* 일비 */}
+        <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",height:40}}>
+          <span style={{fontWeight:700,color:"#374151",fontSize:13,width:36}}>일비</span>
+          <button onClick={()=>setActiveModal("daily")} className={`deduct-btn ${ded.gov_vehicle?"active":""}`}>감액</button>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",flex:1}}>
+            <span style={{fontSize:14,fontWeight:700}}>{fmt(detailCost.daily)}원</span>
+            {ded.gov_vehicle&&<span style={{fontSize:10,color:"var(--blue)",fontWeight:700}}>(-12,500)</span>}
+          </div>
+        </div>
+        {/* 식비 */}
+        <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",height:40}}>
+          <span style={{fontWeight:700,color:"#374151",fontSize:13,width:36}}>식비</span>
+          <button onClick={()=>setActiveModal("meal")} className={`deduct-btn ${(ded.meal_1||ded.meal_2||ded.meal_3||ded.meal_half)?"active":""}`}>감액</button>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",flex:1}}>
+            <span style={{fontSize:14,fontWeight:700}}>{fmt(detailCost.meal)}원</span>
+            {mealLbl()&&<span style={{fontSize:10,color:"var(--blue)",fontWeight:700}}>{mealLbl()}</span>}
+          </div>
+        </div>
+        {/* 교통비 */}
+        <div style={{paddingTop:8,borderTop:"1px dashed #E5E5EA"}}>
+          <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:40}}>
+            <div style={{display:"flex",alignItems:"center",gap:2}}>
+              <span style={{fontWeight:700,color:"#374151",fontSize:13}}>교통비</span>
+              <span className={`tag-side ${tagStyle("왕복")}`}>왕복</span>
+            </div>
+            <button onClick={()=>setActiveModal("transport")} className={`deduct-btn ${ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger?"active":""}`}>감액</button>
+            <div style={{textAlign:"right",flex:1}}>
+              {!(ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger)?(
+                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:2}}>
+                  <div style={{display:"flex",alignItems:"center",gap:4}}>
+                    <input type="tel" className="ship-input"
+                      value={manualTransport==null||manualTransport===0?"":fmt(manualTransport)}
+                      onFocus={e=>e.target.select()}
+                      onChange={e=>{const v=e.target.value.replace(/,/g,"");setManualTransport(v===""?null:Number(v));}}
+                      placeholder="0"/>
+                    <span style={{fontSize:13,fontWeight:700}}>원</span>
+                  </div>
+                  {result?.surcharge>0&&<span style={{fontSize:9,fontWeight:700,color:"#059669"}}>({fmt(result.surcharge*2)}원 포함)</span>}
+                </div>
+              ):<span style={{fontSize:14,fontWeight:700,color:"#AEAEB2"}}>0원</span>}
+            </div>
+          </div>
+          {(shipFare>0||result?.isShipOnlyRoute)&&(
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:36,marginTop:4}}>
+              <span style={{fontWeight:700,color:"#374151",fontSize:13}}>기타교통비</span>
+              <div style={{display:"flex",alignItems:"center",gap:4}}>
+                <input type="tel" className="ship-input"
+                  value={shipFare===0?"":fmt(shipFare)}
+                  onFocus={e=>e.target.select()}
+                  onChange={e=>{const v=e.target.value.replace(/,/g,"");setShipFare(v===""?0:Number(v));}}
+                  placeholder="0"/>
+                <span style={{fontSize:13,fontWeight:700}}>원</span>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* 합계 */}
+        <div style={{paddingTop:10,borderTop:"2px solid #E5E5EA",display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+          <span style={{fontWeight:700,fontSize:13}}>합계</span>
+          <span style={{fontFamily:"var(--gm)",fontSize:24,fontWeight:900,color:"var(--blue)"}}>{fmt(detailCost.total)}<span style={{fontSize:13,marginLeft:2}}>원</span></span>
+        </div>
+        <button onClick={()=>setShowDetail(false)} className="confirm-btn">닫기</button>
+      </div>
+    );
+  }
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
