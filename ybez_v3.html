@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>YBEZ_BETA_TEST</title>
+<title>YBEZ 베타테스트</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -227,8 +227,13 @@ const HUB_GROUPS=[
   {id:"수도권",hubs:["동서울","센트럴시티","수원","고양","인천종합","안양","성남","의정부"],lat:37.50,lng:127.00},
   {id:"강원",hubs:["강릉","원주","춘천","속초","동해","양양"],lat:37.55,lng:128.20},
   {id:"경남",hubs:["부산","부산서부사상","창원","진주","울산"],lat:35.18,lng:128.80},
-  {id:"경북",hubs:["동대구","포항","구미","안동","경주"],lat:36.10,lng:128.50},
+  {id:"경북",hubs:["동대구","포항","구미","안동","경주","김천"],lat:36.10,lng:128.50},
 ];
+
+/* ── 수도권 생활권 도시 (alias_linked 없어도 수도권으로 안내) ── */
+const METRO_CITIES=new Set(["과천","의왕","군포","광명","시흥","하남","구리","남양주","양주","화성","평택","오산","용인","이천","여주","가평","양평","파주","김포","동두천","연천","포천","가평"]);
+/* ── 경북권 alias_linked 없는 도시 → 경북 허브로 안내 ── */
+const GYEONGBUK_CITIES=new Set(["김천","문경","상주","영주","영천","청도","칠곡","성주","고령","예천","봉화","울진","울릉","의성","청송","영양","군위"]);
 const getCityGroup=(city)=>{const c=(city||"").trim();return HUB_GROUPS.find(g=>g.hubs.includes(c))||null;};
 const isForwardDir=(fr,to,cand)=>{const dx=to.lng-fr.lng,dy=to.lat-fr.lat,cx=cand.lng-fr.lng,cy=cand.lat-fr.lat;return dx*cx+dy*cy>0;};
 const distToLine=(fr,to,p)=>{const dx=to.lng-fr.lng,dy=to.lat-fr.lat,l=Math.sqrt(dx*dx+dy*dy)||1;return Math.abs(dy*p.lng-dx*p.lat+to.lng*fr.lat-to.lat*fr.lng)/l;};
@@ -454,7 +459,9 @@ const App=()=>{
   const cityList=useMemo(()=>{
     const ak=aliasLinked?Object.keys(aliasLinked):[];
     const ik=Object.keys(ISLAND_DB).filter(k=>!ak.includes(k));
-    return[...new Set([...ak,...ik])].sort();
+    const metro=[...METRO_CITIES].filter(c=>!ak.includes(c));
+    const gyeob=[...GYEONGBUK_CITIES].filter(c=>!ak.includes(c));
+    return[...new Set([...ak,...ik,...metro,...gyeob])].sort();
   },[aliasLinked]);
 
   /* 노드 해석 */
@@ -462,10 +469,22 @@ const App=()=>{
     if(!aliasLinked)return[];
     const c=nz(city);
     if(aliasLinked[c]) return aliasLinked[c].node_ids||[aliasLinked[c].main_node].filter(Boolean);
+    // 수도권 생활권 → 동서울+센트럴시티로 대체
+    if(METRO_CITIES.has(c)){
+      const r=[];
+      ["동서울","센트럴시티","수원","안양"].forEach(h=>{if(aliasLinked[h])r.push(...(aliasLinked[h].node_ids||[aliasLinked[h].main_node].filter(Boolean)));});
+      return r;
+    }
+    // 경북 생활권 → 동대구+구미로 대체
+    if(GYEONGBUK_CITIES.has(c)){
+      const r=[];
+      ["동대구","구미"].forEach(h=>{if(aliasLinked[h])r.push(...(aliasLinked[h].node_ids||[aliasLinked[h].main_node].filter(Boolean)));});
+      return r;
+    }
     for(const[k,v]of Object.entries(aliasLinked)){
       if(k.includes(c)||c.includes(k)) return v.node_ids||[v.main_node].filter(Boolean);
     }
-    if(nodesMap) return Object.values(nodesMap).filter(n=>(n.display_name||"").includes(c)||(c&&(n.display_name||"").includes(c))).map(n=>n.node_id);
+    if(nodesMap) return Object.values(nodesMap).filter(n=>(n.display_name||"").includes(c)&&c.length>=2).map(n=>n.node_id);
     return[];
   },[aliasLinked,nodesMap]);
 
@@ -865,8 +884,8 @@ const App=()=>{
         {/* 헤더 */}
         <div style={{padding:"14px 16px 10px",borderBottom:"1px solid var(--sep)",background:"rgba(255,255,255,0.95)",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
           <div>
-            <div style={{fontFamily:"var(--gm)",fontSize:26,fontWeight:900,color:"var(--blue)"}}>YBEZ_BETA_TEST</div>
-            <div style={{fontSize:10,fontWeight:700,color:"#AEAEB2"}}>by 전현우@우수영초등학교</div>
+            <div style={{fontFamily:"var(--gm)",fontSize:26,fontWeight:900,color:"var(--blue)"}}>YBEZ</div>
+            <div style={{fontSize:10,fontWeight:700,color:"#AEAEB2"}}>전현우@우수영초등학교(050-6966-6696)</div>
           </div>
           <div className="mode-wrap" onClick={()=>setIntraCityOpen(!intraCityOpen)}>
             <div className={`mode-knob ${intraCityOpen?"intra":"extra"}`}/>
@@ -895,7 +914,7 @@ const App=()=>{
             {calcSt==="working"?(
               <><div className="dot-pulse flex gap-1">{[0,1,2].map(i=><span key={i} style={{animationDelay:`${i*.2}s`}}/>)}</div><span>노선 탐색 중...</span></>
             ):calcSt==="done"?(
-              <span>✓ 테스트중, 전현우@우수영초등학교로 메신저쪽지주세요(피드백 요청!!)</span>
+              <span>✓ 베타 테스트 중입니다. 오류 발견시 메신저 쪽지 등으로 바로 알려주세요. 부탁드립니다.</span>
             ):<span>초성 검색 가능 · {cityList.length}개 지역</span>}
           </div>
         </div>
@@ -1042,7 +1061,7 @@ const App=()=>{
               <div style={{position:"absolute",bottom:"calc(100% + 6px)",left:"50%",transform:"translateX(-50%)",background:"#fff",borderRadius:16,border:"1px solid rgba(0,122,255,0.12)",boxShadow:"0 8px 24px rgba(0,0,0,0.12)",padding:"6px 0",minWidth:220,zIndex:200}} onClick={e=>e.stopPropagation()}>
                 <div style={{fontSize:9,fontWeight:800,color:"#AEAEB2",padding:"4px 14px 6px",borderBottom:"1px solid #F2F2F7"}}>최근 검색</div>
                 {history.slice(0,10).map((h,i)=>(
-                  <div key={i} style={{padding:"8px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #F8F8F8",fontSize:12,fontWeight:700}} onClick={()=>{setOrigin(h.from);setDest(h.to);setShowHist(false);performCalc(h.from,h.to);}}>
+                  <div key={i} style={{padding:"8px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #F8F8F8",fontSize:12,fontWeight:700}} onClick={()=>{setOrigin(h.from);setDest(h.to);setShowHist(false);setShowMap(true);setShowDetail(true);performCalc(h.from,h.to);}}>
                     <span style={{color:"#374151"}}>{h.from} → {h.to}</span>
                     <span style={{color:"var(--blue)",fontFamily:"var(--gm)",fontSize:11,marginLeft:8}}>{(h.gen||0).toLocaleString()}원</span>
                   </div>
@@ -1110,14 +1129,14 @@ const App=()=>{
               <button onClick={()=>setIntraCityOpen(false)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.6)",cursor:"pointer",fontSize:18}}>✕</button>
             </div>
             <div className="modal-body">
-              {[["일비","25,000원"],["식비","25,000원"],["교통비","실비"]].map(([l,a])=>(
+              {[["일비","20,000원"],["식비","25,000원"],["교통비","실비"]].map(([l,a])=>(
                 <div key={l} className="intra-row"><span style={{fontWeight:700}}>{l}</span><span style={{fontWeight:900,color:"var(--blue)"}}>{a}</span></div>
               ))}
               <div className="intra-row"><span style={{fontSize:13,fontWeight:700,color:"#6E6E73"}}>공용차량 이용 시 일비</span><Toggle on={intraDed.govVehicle} onChange={v=>setIntraDed(p=>({...p,govVehicle:v}))}/></div>
               <div className="intra-row"><span style={{fontSize:13,fontWeight:700,color:"#6E6E73"}}>4시간 미만</span><Toggle on={intraDed.shortTime} onChange={v=>setIntraDed(p=>({...p,shortTime:v}))}/></div>
               <div style={{borderTop:"2px solid #F2F2F7",marginTop:8,paddingTop:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <span style={{fontWeight:900}}>일비 합계</span>
-                <span style={{fontFamily:"var(--gm)",fontSize:22,fontWeight:900,color:"var(--blue)"}}>{fmt(intraDed.shortTime?12500:intraDed.govVehicle?12500:25000)}원</span>
+                <span style={{fontFamily:"var(--gm)",fontSize:22,fontWeight:900,color:"var(--blue)"}}>{fmt(intraDed.shortTime?10000:intraDed.govVehicle?10000:20000)}원</span>
               </div>
               <button onClick={()=>setIntraCityOpen(false)} style={{width:"100%",marginTop:12,height:42,borderRadius:14,fontWeight:800,fontSize:14,background:"linear-gradient(180deg,#288CFF,#007AFF 50%,#0056D6)",color:"#fff",border:"none",cursor:"pointer",fontFamily:"var(--gm)"}}>확인</button>
             </div>
