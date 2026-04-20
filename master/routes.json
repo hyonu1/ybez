@@ -12446,17 +12446,6 @@
       "bustago"
     ]
   },
-  "NODE_0054_NODE_0202": {
-    "from": "NODE_0054",
-    "to": "NODE_0202",
-    "display_route": "고대세종↔해남",
-    "fares": {
-      "일반": 2900
-    },
-    "sources": [
-      "bustago"
-    ]
-  },
   "NODE_0054_NODE_0600": {
     "from": "NODE_0054",
     "to": "NODE_0600",
@@ -12507,17 +12496,6 @@
     "display_route": "고대세종↔우수영",
     "fares": {
       "일반": 1900
-    },
-    "sources": [
-      "bustago"
-    ]
-  },
-  "NODE_0059_NODE_0166": {
-    "from": "NODE_0059",
-    "to": "NODE_0166",
-    "display_route": "조치원↔강진",
-    "fares": {
-      "일반": 5900
     },
     "sources": [
       "bustago"
@@ -12606,17 +12584,6 @@
     "display_route": "조치원↔진도",
     "fares": {
       "일반": 4400
-    },
-    "sources": [
-      "bustago"
-    ]
-  },
-  "NODE_0059_NODE_0202": {
-    "from": "NODE_0059",
-    "to": "NODE_0202",
-    "display_route": "조치원↔해남",
-    "fares": {
-      "일반": 2900
     },
     "sources": [
       "bustago"
@@ -39600,7 +39567,6 @@
       "일반": 10100
     },
     "sources": [
-      "bustago",
       "tmoneygo"
     ]
   },
