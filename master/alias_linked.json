@@ -67,10 +67,12 @@
   },
   "익산": {
     "node_ids": [
-      "NODE_0159"
+      "NODE_0159",
+      "NODE_0568"
     ],
     "terminals": [
-      "익산"
+      "익산",
+      "원광대학교앞"
     ],
     "main_node": "NODE_0159",
     "unmatched": []
@@ -111,12 +113,14 @@
   },
   "충주": {
     "node_ids": [
-      "NODE_0090"
+      "NODE_0090",
+      "NODE_0407"
     ],
     "terminals": [
       "교통대",
       "수안보",
-      "충주"
+      "충주",
+      "건국"
     ],
     "main_node": "NODE_0090",
     "unmatched": [
@@ -128,14 +132,18 @@
     "node_ids": [
       "NODE_0146",
       "NODE_0525",
-      "NODE_0147"
+      "NODE_0147",
+      "NODE_0145",
+      "NODE_0528"
     ],
     "terminals": [
       "마산",
       "마산남부",
       "서상(남덕유산)",
       "진해",
-      "창원"
+      "창원",
+      "마산고속",
+      "정우상가"
     ],
     "main_node": "NODE_0525",
     "unmatched": []
@@ -246,12 +254,30 @@
   },
   "오산": {
     "node_ids": [
-      "NODE_0021"
+      "NODE_0021",
+      "NODE_0237",
+      "NODE_0239",
+      "NODE_0262",
+      "NODE_0241",
+      "NODE_0037",
+      "NODE_0240",
+      "NODE_0235",
+      "NODE_0236",
+      "NODE_0234"
     ],
     "terminals": [
       "세마역(오산)",
       "오산",
-      "원동"
+      "원동",
+      "세교한신더휴",
+      "오산대역후문",
+      "동탄역",
+      "호반써밋라포레(오산)",
+      "병점",
+      "운암주공1단지",
+      "오산초등학교",
+      "세교고인돌공원",
+      "교육지원청사거리(오산)"
     ],
     "main_node": "NODE_0021",
     "unmatched": []
@@ -285,10 +311,12 @@
   },
   "단양": {
     "node_ids": [
-      "NODE_0385"
+      "NODE_0385",
+      "NODE_0384"
     ],
     "terminals": [
       "단양",
+      "단양상진",
       "단양상진"
     ],
     "main_node": "NODE_0385",
@@ -298,12 +326,14 @@
   },
   "경산": {
     "node_ids": [
-      "NODE_0445"
+      "NODE_0445",
+      "NODE_0447"
     ],
     "terminals": [
       "경산",
       "대구대",
-      "하양"
+      "하양",
+      "영남대"
     ],
     "main_node": "NODE_0445",
     "unmatched": []
@@ -321,11 +351,15 @@
   },
   "안성": {
     "node_ids": [
-      "NODE_0014"
+      "NODE_0014",
+      "NODE_0015",
+      "NODE_0016"
     ],
     "terminals": [
       "안성",
-      "일죽"
+      "일죽",
+      "안성한경대학교",
+      "안성회관"
     ],
     "main_node": "NODE_0014",
     "unmatched": []
@@ -374,7 +408,8 @@
       "NODE_0402",
       "NODE_0403",
       "NODE_0087",
-      "NODE_0084"
+      "NODE_0084",
+      "NODE_0086"
     ],
     "terminals": [
       "구미복지",
@@ -384,7 +419,8 @@
       "청주공항",
       "청주대정류소",
       "청주북부터미널",
-      "청주사창"
+      "청주사창",
+      "청주고속"
     ],
     "main_node": "NODE_0402",
     "unmatched": [
@@ -450,10 +486,12 @@
   },
   "부여": {
     "node_ids": [
-      "NODE_0423"
+      "NODE_0423",
+      "NODE_0424"
     ],
     "terminals": [
-      "부여"
+      "부여",
+      "한국전통문화대"
     ],
     "main_node": "NODE_0423",
     "unmatched": []
@@ -614,14 +652,18 @@
     "node_ids": [
       "NODE_0010",
       "NODE_0217",
-      "NODE_0218"
+      "NODE_0218",
+      "NODE_0216",
+      "NODE_0023"
     ],
     "terminals": [
       "부곡",
       "수원",
       "수원터미널",
       "아주대",
-      "우만동"
+      "우만동",
+      "경제과학진흥원",
+      "영통입구(인천방면)"
     ],
     "main_node": "NODE_0010",
     "unmatched": [
@@ -687,13 +729,17 @@
   },
   "아산": {
     "node_ids": [
-      "NODE_0105"
+      "NODE_0105",
+      "NODE_0101",
+      "NODE_0106"
     ],
     "terminals": [
       "봉강교",
       "신창",
       "아산",
-      "아산(온양)"
+      "아산(온양)",
+      "배방환승",
+      "아산탕정사무소"
     ],
     "main_node": "NODE_0105",
     "unmatched": [
@@ -706,7 +752,8 @@
       "NODE_0184",
       "NODE_0605",
       "NODE_0183",
-      "NODE_0607"
+      "NODE_0607",
+      "NODE_0606"
     ],
     "terminals": [
       "곡천",
@@ -714,7 +761,8 @@
       "순천",
       "순천북부",
       "순천신대지구(CGV)",
-      "순천역"
+      "순천역",
+      "순천신대지구CGV"
     ],
     "main_node": "NODE_0184",
     "unmatched": [
@@ -764,10 +812,12 @@
   },
   "삼척": {
     "node_ids": [
-      "NODE_0064"
+      "NODE_0064",
+      "NODE_0313"
     ],
     "terminals": [
-      "삼척"
+      "삼척",
+      "삼척해변"
     ],
     "main_node": "NODE_0064",
     "unmatched": []
@@ -777,13 +827,15 @@
       "NODE_0192",
       "NODE_0614",
       "NODE_0615",
-      "NODE_0616"
+      "NODE_0616",
+      "NODE_0193"
     ],
     "terminals": [
       "고금",
       "당목",
       "완도",
-      "해양치유센터"
+      "해양치유센터",
+      "완도항"
     ],
     "main_node": "NODE_0192",
     "unmatched": []
@@ -826,7 +878,9 @@
       "NODE_0162",
       "NODE_0573",
       "NODE_0577",
-      "NODE_0642"
+      "NODE_0642",
+      "NODE_0575",
+      "NODE_0578"
     ],
     "terminals": [
       "남노송동",
@@ -835,7 +889,9 @@
       "전북(완주)혁신도시",
       "전주",
       "전주시외터미널",
-      "효자동"
+      "효자동",
+      "노송동",
+      "효자서부간이"
     ],
     "main_node": "NODE_0162",
     "unmatched": []
@@ -992,10 +1048,14 @@
   },
   "의정부": {
     "node_ids": [
-      "NODE_0029"
+      "NODE_0029",
+      "NODE_0246",
+      "NODE_0245"
     ],
     "terminals": [
-      "의정부"
+      "의정부",
+      "이마트의정부점",
+      "만가대사거리"
     ],
     "main_node": "NODE_0029",
     "unmatched": []
@@ -1040,7 +1100,10 @@
   "천안": {
     "node_ids": [
       "NODE_0113",
-      "NODE_0112"
+      "NODE_0112",
+      "NODE_0114",
+      "NODE_0108",
+      "NODE_0104"
     ],
     "terminals": [
       "구미공단",
@@ -1048,7 +1111,10 @@
       "쌍용동",
       "천안",
       "코리아텍",
-      "호산"
+      "호산",
+      "천안운동장",
+      "쌍용동",
+      "아산서부봉강교"
     ],
     "main_node": "NODE_0112",
     "unmatched": [
@@ -1094,10 +1160,12 @@
   },
   "울산": {
     "node_ids": [
-      "NODE_0048"
+      "NODE_0048",
+      "NODE_0280"
     ],
     "terminals": [
-      "울산"
+      "울산",
+      "효문"
     ],
     "main_node": "NODE_0048",
     "unmatched": []
@@ -1157,12 +1225,24 @@
       "NODE_0054",
       "NODE_0059",
       "NODE_0626",
-      "NODE_0055"
+      "NODE_0055",
+      "NODE_0406",
+      "NODE_0060",
+      "NODE_0405",
+      "NODE_0057",
+      "NODE_0304",
+      "NODE_0058"
     ],
     "terminals": [
       "남리",
       "세종",
-      "세종터미널"
+      "세종터미널",
+      "오송역(오스코)",
+      "홍대세종",
+      "오송역",
+      "세종시청",
+      "세종청사(하행)",
+      "세종연구단지"
     ],
     "main_node": "NODE_0054",
     "unmatched": []
@@ -1266,28 +1346,27 @@
   },
   "포항": {
     "node_ids": [
-      "NODE_0136"
+      "NODE_0488",
+      "NODE_0137"
     ],
     "terminals": [
-      "포항"
+      "포항",
+      "포항시청간이승차장"
     ],
-    "main_node": "NODE_0136",
+    "main_node": "NODE_0488",
     "unmatched": []
   },
   "안양": {
     "node_ids": [
-      "NODE_0228"
+      "NODE_0230",
+      "NODE_0214"
     ],
     "terminals": [
       "안양",
-      "안양역",
-      "청계"
+      "군포산본"
     ],
-    "main_node": "NODE_0228",
-    "unmatched": [
-      "안양",
-      "안양역"
-    ]
+    "main_node": "NODE_0230",
+    "unmatched": []
   },
   "양산": {
     "node_ids": [
@@ -1346,10 +1425,14 @@
   },
   "울산신복": {
     "node_ids": [
-      "NODE_0049"
+      "NODE_0049",
+      "NODE_0278",
+      "NODE_0277"
     ],
     "terminals": [
-      "울산신복"
+      "울산신복",
+      "울산법원앞",
+      "울산공업탑"
     ],
     "main_node": "NODE_0049",
     "unmatched": []
@@ -1428,10 +1511,14 @@
   },
   "이천": {
     "node_ids": [
-      "NODE_0031"
+      "NODE_0031",
+      "NODE_0030",
+      "NODE_0247"
     ],
     "terminals": [
-      "이천"
+      "이천",
+      "이천부발신하리",
+      "아미리"
     ],
     "main_node": "NODE_0031",
     "unmatched": []
@@ -1448,10 +1535,16 @@
   },
   "부산해운대": {
     "node_ids": [
-      "NODE_0294"
+      "NODE_0294",
+      "NODE_0293",
+      "NODE_0295",
+      "NODE_0296"
     ],
     "terminals": [
-      "부산해운대"
+      "부산해운대",
+      "경남마리나아파트",
+      "신세계백화점",
+      "장산역"
     ],
     "main_node": "NODE_0294",
     "unmatched": []
@@ -1501,10 +1594,12 @@
   },
   "광주진월동": {
     "node_ids": [
-      "NODE_0053"
+      "NODE_0053",
+      "NODE_0301"
     ],
     "terminals": [
-      "광주진월동"
+      "광주진월동",
+      "학동"
     ],
     "main_node": "NODE_0053",
     "unmatched": []
@@ -1541,10 +1636,12 @@
   },
   "송정역": {
     "node_ids": [
-      "NODE_0297"
+      "NODE_0297",
+      "NODE_0298"
     ],
     "terminals": [
-      "송정역"
+      "송정역",
+      "우산동(하남)"
     ],
     "main_node": "NODE_0297",
     "unmatched": []
@@ -1699,10 +1796,16 @@
   },
   "대전복합": {
     "node_ids": [
-      "NODE_0041"
+      "NODE_0041",
+      "NODE_0266",
+      "NODE_0042",
+      "NODE_0265"
     ],
     "terminals": [
-      "대전복합"
+      "대전복합",
+      "대전역(동광장)",
+      "대천청사",
+      "대전신흥"
     ],
     "main_node": "NODE_0041",
     "unmatched": []
@@ -1730,11 +1833,13 @@
   },
   "센트럴시티": {
     "node_ids": [
-      "NODE_0002"
+      "NODE_0002",
+      "NODE_0206"
     ],
     "terminals": [
       "센트럴시티",
-      "센트럴시티(서울)"
+      "센트럴시티(서울)",
+      "서울남부"
     ],
     "main_node": "NODE_0002",
     "unmatched": [
@@ -1743,10 +1848,12 @@
   },
   "동대구": {
     "node_ids": [
-      "NODE_0046"
+      "NODE_0046",
+      "NODE_0275"
     ],
     "terminals": [
-      "동대구"
+      "동대구",
+      "대구공항"
     ],
     "main_node": "NODE_0046",
     "unmatched": []
@@ -1783,20 +1890,30 @@
   },
   "부산서부": {
     "node_ids": [
-      "NODE_0051"
+      "NODE_0051",
+      "NODE_0290",
+      "NODE_0639",
+      "NODE_0288",
+      "NODE_0286"
     ],
     "terminals": [
-      "부산서부"
+      "부산서부",
+      "주례역",
+      "김해공항",
+      "동의대역",
+      "부산역"
     ],
     "main_node": "NODE_0051",
     "unmatched": []
   },
   "제천": {
     "node_ids": [
-      "NODE_0080"
+      "NODE_0080",
+      "NODE_0081"
     ],
     "terminals": [
-      "제천"
+      "제천",
+      "제천하소"
     ],
     "main_node": "NODE_0080",
     "unmatched": []
@@ -1809,6 +1926,618 @@
       "인천공항T1"
     ],
     "main_node": "NODE_0039",
+    "unmatched": []
+  },
+  "범계역": {
+    "node_ids": [
+      "NODE_0225",
+      "NODE_0214",
+      "NODE_0244",
+      "NODE_0227",
+      "NODE_0226"
+    ],
+    "terminals": [
+      "범계역",
+      "군포산본",
+      "고천",
+      "인덕원역",
+      "의왕내손동"
+    ],
+    "main_node": "NODE_0225",
+    "unmatched": []
+  },
+  "광정": {
+    "node_ids": [
+      "NODE_0416",
+      "NODE_0092"
+    ],
+    "terminals": [
+      "광정",
+      "정안알밤"
+    ],
+    "main_node": "NODE_0416",
+    "unmatched": []
+  },
+  "서대구": {
+    "node_ids": [
+      "NODE_0276",
+      "NODE_0047"
+    ],
+    "terminals": [
+      "서대구",
+      "대구북부"
+    ],
+    "main_node": "NODE_0276",
+    "unmatched": []
+  },
+  "안중": {
+    "node_ids": [
+      "NODE_0032",
+      "NODE_0253"
+    ],
+    "terminals": [
+      "안중",
+      "안중오거리"
+    ],
+    "main_node": "NODE_0032",
+    "unmatched": []
+  },
+  "영통입구(인천방면)": {
+    "node_ids": [
+      "NODE_0023",
+      "NODE_0024"
+    ],
+    "terminals": [
+      "영통입구(인천방면)",
+      "용인기흥역"
+    ],
+    "main_node": "NODE_0023",
+    "unmatched": []
+  },
+  "세마역(오산)": {
+    "node_ids": [
+      "NODE_0238",
+      "NODE_0262",
+      "NODE_0037"
+    ],
+    "terminals": [
+      "세마역(오산)",
+      "동탄역",
+      "병점"
+    ],
+    "main_node": "NODE_0238",
+    "unmatched": []
+  },
+  "김해장유환승": {
+    "node_ids": [
+      "NODE_0139",
+      "NODE_0497"
+    ],
+    "terminals": [
+      "김해장유환승",
+      "장유"
+    ],
+    "main_node": "NODE_0139",
+    "unmatched": []
+  },
+  "대전역(동광장)": {
+    "node_ids": [
+      "NODE_0266",
+      "NODE_0265"
+    ],
+    "terminals": [
+      "대전역(동광장)",
+      "대전신흥"
+    ],
+    "main_node": "NODE_0266",
+    "unmatched": []
+  },
+  "세교고인돌공원": {
+    "node_ids": [
+      "NODE_0236",
+      "NODE_0037",
+      "NODE_0262"
+    ],
+    "terminals": [
+      "세교고인돌공원",
+      "병점",
+      "동탄역"
+    ],
+    "main_node": "NODE_0236",
+    "unmatched": []
+  },
+  "경제과학진흥원": {
+    "node_ids": [
+      "NODE_0216",
+      "NODE_0023"
+    ],
+    "terminals": [
+      "경제과학진흥원",
+      "영통입구(인천방면)"
+    ],
+    "main_node": "NODE_0216",
+    "unmatched": []
+  },
+  "잠실역": {
+    "node_ids": [
+      "NODE_0207",
+      "NODE_0208"
+    ],
+    "terminals": [
+      "잠실역",
+      "장지역"
+    ],
+    "main_node": "NODE_0207",
+    "unmatched": []
+  },
+  "마산시외": {
+    "node_ids": [
+      "NODE_0526",
+      "NODE_0145"
+    ],
+    "terminals": [
+      "마산시외",
+      "마산고속"
+    ],
+    "main_node": "NODE_0526",
+    "unmatched": []
+  },
+  "삼례": {
+    "node_ids": [
+      "NODE_0562",
+      "NODE_0563",
+      "NODE_0163"
+    ],
+    "terminals": [
+      "삼례",
+      "삼봉지구",
+      "호남제일문"
+    ],
+    "main_node": "NODE_0562",
+    "unmatched": []
+  },
+  "오송역": {
+    "node_ids": [
+      "NODE_0405",
+      "NODE_0060"
+    ],
+    "terminals": [
+      "오송역",
+      "홍대세종"
+    ],
+    "main_node": "NODE_0405",
+    "unmatched": []
+  },
+  "의령공영": {
+    "node_ids": [
+      "NODE_0512",
+      "NODE_0515"
+    ],
+    "terminals": [
+      "의령공영",
+      "의령"
+    ],
+    "main_node": "NODE_0512",
+    "unmatched": []
+  },
+  "아산서부봉강교": {
+    "node_ids": [
+      "NODE_0104",
+      "NODE_0102"
+    ],
+    "terminals": [
+      "아산서부봉강교",
+      "선문대"
+    ],
+    "main_node": "NODE_0104",
+    "unmatched": []
+  },
+  "군포": {
+    "node_ids": [
+      "NODE_0215",
+      "NODE_0214"
+    ],
+    "terminals": [
+      "군포",
+      "군포산본"
+    ],
+    "main_node": "NODE_0215",
+    "unmatched": []
+  },
+  "전력IT단지": {
+    "node_ids": [
+      "NODE_0356",
+      "NODE_0345"
+    ],
+    "terminals": [
+      "전력IT단지",
+      "남면(추곡)"
+    ],
+    "main_node": "NODE_0356",
+    "unmatched": []
+  },
+  "호반써밋라포레(오산)": {
+    "node_ids": [
+      "NODE_0241",
+      "NODE_0037"
+    ],
+    "terminals": [
+      "호반써밋라포레(오산)",
+      "병점"
+    ],
+    "main_node": "NODE_0241",
+    "unmatched": []
+  },
+  "금마": {
+    "node_ids": [
+      "NODE_0566",
+      "NODE_0569"
+    ],
+    "terminals": [
+      "금마",
+      "익산왕궁"
+    ],
+    "main_node": "NODE_0566",
+    "unmatched": []
+  },
+  "교육지원청사거리(오산)": {
+    "node_ids": [
+      "NODE_0234",
+      "NODE_0262",
+      "NODE_0037"
+    ],
+    "terminals": [
+      "교육지원청사거리(오산)",
+      "동탄역",
+      "병점"
+    ],
+    "main_node": "NODE_0234",
+    "unmatched": []
+  },
+  "용인유림": {
+    "node_ids": [
+      "NODE_0028",
+      "NODE_0243",
+      "NODE_0242"
+    ],
+    "terminals": [
+      "용인유림",
+      "에버랜드",
+      "명지대"
+    ],
+    "main_node": "NODE_0028",
+    "unmatched": []
+  },
+  "쌍용동": {
+    "node_ids": [
+      "NODE_0108",
+      "NODE_0102",
+      "NODE_0104",
+      "NODE_0101",
+      "NODE_0106"
+    ],
+    "terminals": [
+      "쌍용동",
+      "선문대",
+      "아산서부봉강교",
+      "배방환승",
+      "아산탕정사무소"
+    ],
+    "main_node": "NODE_0108",
+    "unmatched": []
+  },
+  "용인": {
+    "node_ids": [
+      "NODE_0027",
+      "NODE_0242"
+    ],
+    "terminals": [
+      "용인",
+      "명지대"
+    ],
+    "main_node": "NODE_0027",
+    "unmatched": []
+  },
+  "안성대림동산": {
+    "node_ids": [
+      "NODE_0221",
+      "NODE_0013",
+      "NODE_0034"
+    ],
+    "terminals": [
+      "안성대림동산",
+      "공도",
+      "평택대"
+    ],
+    "main_node": "NODE_0221",
+    "unmatched": []
+  },
+  "속초시외": {
+    "node_ids": [
+      "NODE_0318",
+      "NODE_0065"
+    ],
+    "terminals": [
+      "속초시외",
+      "속초"
+    ],
+    "main_node": "NODE_0318",
+    "unmatched": []
+  },
+  "진해": {
+    "node_ids": [
+      "NODE_0148",
+      "NODE_0530"
+    ],
+    "terminals": [
+      "진해",
+      "진해경찰서"
+    ],
+    "main_node": "NODE_0148",
+    "unmatched": []
+  },
+  "옥포": {
+    "node_ids": [
+      "NODE_0491",
+      "NODE_0489"
+    ],
+    "terminals": [
+      "옥포",
+      "거제(한화오션남문)"
+    ],
+    "main_node": "NODE_0491",
+    "unmatched": []
+  },
+  "태평아파트": {
+    "node_ids": [
+      "NODE_0254",
+      "NODE_0252"
+    ],
+    "terminals": [
+      "태평아파트",
+      "숙성리"
+    ],
+    "main_node": "NODE_0254",
+    "unmatched": []
+  },
+  "배방환승": {
+    "node_ids": [
+      "NODE_0101",
+      "NODE_0104",
+      "NODE_0106"
+    ],
+    "terminals": [
+      "배방환승",
+      "아산서부봉강교",
+      "아산탕정사무소"
+    ],
+    "main_node": "NODE_0101",
+    "unmatched": []
+  },
+  "정부세종청사": {
+    "node_ids": [
+      "NODE_0056",
+      "NODE_0057",
+      "NODE_0058",
+      "NODE_0304"
+    ],
+    "terminals": [
+      "정부세종청사",
+      "세종시청",
+      "세종연구단지",
+      "세종청사(하행)"
+    ],
+    "main_node": "NODE_0056",
+    "unmatched": []
+  },
+  "김천": {
+    "node_ids": [
+      "NODE_0125",
+      "NODE_0454"
+    ],
+    "terminals": [
+      "김천",
+      "김천부곡공항"
+    ],
+    "main_node": "NODE_0125",
+    "unmatched": []
+  },
+  "이천부발신하리": {
+    "node_ids": [
+      "NODE_0030",
+      "NODE_0247"
+    ],
+    "terminals": [
+      "이천부발신하리",
+      "아미리"
+    ],
+    "main_node": "NODE_0030",
+    "unmatched": []
+  },
+  "전도(구례)": {
+    "node_ids": [
+      "NODE_0532",
+      "NODE_0173"
+    ],
+    "terminals": [
+      "전도(구례)",
+      "섬진강휴게소(순천방향)"
+    ],
+    "main_node": "NODE_0532",
+    "unmatched": []
+  },
+  "죽전(부산방향)": {
+    "node_ids": [
+      "NODE_0026",
+      "NODE_0025"
+    ],
+    "terminals": [
+      "죽전(부산방향)",
+      "동천역환승"
+    ],
+    "main_node": "NODE_0026",
+    "unmatched": []
+  },
+  "설천(무주군)": {
+    "node_ids": [
+      "NODE_0558",
+      "NODE_0557"
+    ],
+    "terminals": [
+      "설천(무주군)",
+      "무주리조트"
+    ],
+    "main_node": "NODE_0558",
+    "unmatched": []
+  },
+  "문화동(광주)": {
+    "node_ids": [
+      "NODE_0302",
+      "NODE_0303",
+      "NODE_0301"
+    ],
+    "terminals": [
+      "문화동(광주)",
+      "운암동",
+      "학동"
+    ],
+    "main_node": "NODE_0302",
+    "unmatched": []
+  },
+  "여주대": {
+    "node_ids": [
+      "NODE_0018",
+      "NODE_0020"
+    ],
+    "terminals": [
+      "여주대",
+      "여주프리미엄아울렛"
+    ],
+    "main_node": "NODE_0018",
+    "unmatched": []
+  },
+  "북대전IC": {
+    "node_ids": [
+      "NODE_0269",
+      "NODE_0270"
+    ],
+    "terminals": [
+      "북대전IC",
+      "자운대"
+    ],
+    "main_node": "NODE_0269",
+    "unmatched": []
+  },
+  "남산": {
+    "node_ids": [
+      "NODE_0527",
+      "NODE_0528"
+    ],
+    "terminals": [
+      "남산",
+      "정우상가"
+    ],
+    "main_node": "NODE_0527",
+    "unmatched": []
+  },
+  "신갈": {
+    "node_ids": [
+      "NODE_0022",
+      "NODE_0023",
+      "NODE_0024"
+    ],
+    "terminals": [
+      "신갈",
+      "영통입구(인천방면)",
+      "용인기흥역"
+    ],
+    "main_node": "NODE_0022",
+    "unmatched": []
+  },
+  "일죽": {
+    "node_ids": [
+      "NODE_0222",
+      "NODE_0220"
+    ],
+    "terminals": [
+      "일죽",
+      "두원대"
+    ],
+    "main_node": "NODE_0222",
+    "unmatched": []
+  },
+  "하양": {
+    "node_ids": [
+      "NODE_0448",
+      "NODE_0446"
+    ],
+    "terminals": [
+      "하양",
+      "대구대"
+    ],
+    "main_node": "NODE_0448",
+    "unmatched": []
+  },
+  "대전서부": {
+    "node_ids": [
+      "NODE_0271",
+      "NODE_0266",
+      "NODE_0267"
+    ],
+    "terminals": [
+      "대전서부",
+      "대전역(동광장)",
+      "관저건양대병원"
+    ],
+    "main_node": "NODE_0271",
+    "unmatched": []
+  },
+  "주덕": {
+    "node_ids": [
+      "NODE_0412",
+      "NODE_0089"
+    ],
+    "terminals": [
+      "주덕",
+      "본리"
+    ],
+    "main_node": "NODE_0412",
+    "unmatched": []
+  },
+  "진주역": {
+    "node_ids": [
+      "NODE_0519",
+      "NODE_0143"
+    ],
+    "terminals": [
+      "진주역",
+      "진주혁신도시"
+    ],
+    "main_node": "NODE_0519",
+    "unmatched": []
+  },
+  "장승포(능포동)": {
+    "node_ids": [
+      "NODE_0492",
+      "NODE_0489"
+    ],
+    "terminals": [
+      "장승포(능포동)",
+      "거제(한화오션남문)"
+    ],
+    "main_node": "NODE_0492",
+    "unmatched": []
+  },
+  "물치": {
+    "node_ids": [
+      "NODE_0317",
+      "NODE_0065"
+    ],
+    "terminals": [
+      "물치",
+      "속초"
+    ],
+    "main_node": "NODE_0317",
     "unmatched": []
   }
 }
