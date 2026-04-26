@@ -678,6 +678,8 @@ const App=()=>{
   /* 데이터 로드 */
   useEffect(()=>{
   Promise.all([
+  Promise.resolve([]),
+  Promise.resolve({}),
     fetch("./routes.json").then(r=>{
       if(!r.ok) throw new Error("routes.json 실패");
       return r.json();
@@ -691,7 +693,9 @@ const App=()=>{
       return r.json();
     })
   ]).then(([cityData, popupData, routesData, aliasData, nodesData])=>{
-    const list = cityData.map(c => c.display).filter(Boolean);
+    const list = Object.values(aliasData || {});
+    const cityNames = list.map(c => c.display || c.name).filter(Boolean);
+    setCityList([...new Set(cityNames)].sort());
     setCityList([...new Set(list)].sort());
 
     setRoutesDB(routesData || {});
