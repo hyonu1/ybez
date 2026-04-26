@@ -678,20 +678,15 @@ const App=()=>{
   /* 데이터 로드 */
   useEffect(()=>{
   Promise.all([
-    fetch("/api/cities").then(r=>{
-      if(!r.ok) throw new Error("api/cities 실패");
-      return r.json();
-    }),
-    fetch("/api/popups").then(r=>r.ok ? r.json() : {}),
-    fetch("/routes.json").then(r=>{
+    fetch("./routes.json").then(r=>{
       if(!r.ok) throw new Error("routes.json 실패");
       return r.json();
     }),
-    fetch("/alias_linked.json").then(r=>{
+    fetch("./alias_linked.json").then(r=>{
       if(!r.ok) throw new Error("alias_linked.json 실패");
       return r.json();
     }),
-    fetch("/nodes.json").then(r=>{
+    fetch("./nodes.json").then(r=>{
       if(!r.ok) throw new Error("nodes.json 실패");
       return r.json();
     })
