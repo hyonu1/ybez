@@ -1236,11 +1236,15 @@ const App=()=>{
     /* 요금 조회: CANON_NODES → alias_linked → routesDB → JNE */
     const lf=(a,b)=>{
       const toNd=(city)=>{
-        if(CANON_NODES[city])return CANON_NODES[city];
+        // MEGA_MAIN 노드를 반드시 맨 앞에 포함 (청주고속 등 누락 방지)
+        const mega=MEGA_MAIN[city]?[MEGA_MAIN[city]]:[];
+        const canon=CANON_NODES[city]||[];
         const e=aliasLinked?aliasLinked[city]:null;
-        return(e&&e.node_ids&&e.node_ids.length)?e.node_ids.slice(0,6):[city];
+        const fromAlias=(e&&e.node_ids&&e.node_ids.length)?e.node_ids.slice(0,6):[];
+        return[...new Set([...mega,...canon,...fromAlias])].filter(Boolean).slice(0,8)||[city];
       };
       const an=toNd(a),bn=toNd(b);
+      const megaA=MEGA_MAIN[a],megaB=MEGA_MAIN[b];
       let best=null;
       for(const x of an){for(const y of bn){
         const k1=x+"_"+y;
@@ -1248,11 +1252,19 @@ const App=()=>{
         const rt=routesDB?(routesDB[k1]||routesDB[k2]):null;
         if(rt&&rt.fares){
           const gen=rt.fares["일반"]||rt.fares["고속"]||rt.fares["우등"]||null;
-          if(gen&&(!best||gen<best.gen)){
+          if(!gen)continue;
+          const isMegaDep=megaA&&x===megaA;
+          const isMegaArr=megaB&&y===megaB;
+          const bestIsMegaDep=best&&megaA&&best._dx===megaA;
+          const bestIsMegaArr=best&&megaB&&best._dy===megaB;
+          // 이미 MEGA_MAIN dep 결과 있으면 non-MEGA dep는 무시
+          if(bestIsMegaDep&&!isMegaDep)continue;
+          // MEGA_MAIN dep 우선, 아니면 단순 최저가
+          if(!best||((isMegaDep&&!bestIsMegaDep))||(gen<best.gen&&!(bestIsMegaDep&&!isMegaDep))){
             best={
               gen,pre:rt.fares["우등"]||null,
               sources:rt.sources||[],dr:rt.display_route||a+"→"+b,
-              from:a,to:b,
+              from:a,to:b,_dx:x,_dy:y,
               depName: getNodeName(x, a),
               arrName: getNodeName(y, b)
             };
