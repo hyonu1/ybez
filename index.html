@@ -288,10 +288,11 @@ const NEARBY_ALIAS={
 
 /* ── 스마트 우회 사전 (광주/전남 제외, 타 권역 종속지역 매핑) ── */
 const BYPASS_DICT = {
-  "남양주": "서울", "의정부": "서울", "고양": "서울", "일산": "서울", "성남": "서울", "분당": "서울",
-  "용인": "서울", "부천": "서울", "수원": "서울", "인천": "서울", "구리": "서울", "하남": "서울",
-  "과천": "서울", "안양": "서울", "광명": "서울", "의왕": "서울", "군포": "서울", "평택": "서울",
-  "오산": "서울", "화성": "서울", "동탄": "서울", "병점": "서울", "안산": "서울", "시흥": "서울",
+  /* 수원·평택·인천·안산은 자체 alias_linked 노드 있음 → BYPASS 제외 */
+  "남양주": "서울", "의정부": "서울", "고양": "서울", "일산": "서울", "분당": "서울",
+  "용인": "서울", "부천": "서울", "구리": "서울", "하남": "서울",
+  "과천": "서울", "안양": "서울", "광명": "서울", "의왕": "서울", "군포": "서울",
+  "오산": "서울", "화성": "서울", "동탄": "서울", "병점": "서울", "시흥": "서울",
   "김포": "서울", "파주": "서울", "양주": "서울", "동두천": "서울",
   "세종": "대전", "계룡": "대전", "옥천": "대전", "금산": "대전", "공주": "대전",
   "완주": "전주", "김제": "전주", "관촌": "전주",
@@ -302,15 +303,48 @@ const BYPASS_DICT = {
 
 /* ── 검색 목록에서 숨길 서브터미널 (대표명으로 통합) ── */
 const HIDDEN_FROM_LIST=new Set([
-  "광주진월동","송정역","운암동","소태",          // 광주 서브
-  "서울경부","서울남부","동서울","센트럴시티",     // 서울 서브
-  "부산동래","부산서부","부산해운대",              // 부산 서브
-  "대전청사",                                      // 대전 서브
-  "대구서부",                                      // 대구 서브
-  "울산신복",                                      // 울산 서브
-  "인천공항T1","인천공항T2",                       // 인천공항 서브
-  "장신대",                                        // 기타
+  // 광주 서브터미널
+  "광주진월동","송정역","운암동","소태",
+  // 서울 서브터미널 (동서울/센트럴/남부는 '서울'로 통합)
+  "서울경부","서울남부","동서울","센트럴시티",
+  // 서울 구 단위 (광역시 생활권 = 하나로 묶음)
+  "서울강서구","서울광진구","서울서초구","서울송파구","서울중랑구",
+  // 부산 서브터미널 + 구 단위
+  "부산동래","부산서부","부산해운대",
+  "부산강서구","부산금정구","부산기장군","부산동구","부산동래구",
+  "부산부산진구","부산사상구","부산사하구","부산수영구","부산해운대구",
+  // 대구 구 단위
+  "대구군위군","대구남구","대구달성군","대구동구","대구북구","대구서구",
+  "대구서부",
+  // 대전 구 단위
+  "대전대덕구","대전동구","대전서구","대전유성구","대전중구",
+  "대전청사",
+  // 울산 구 단위
+  "울산남구","울산북구","울산울주군",
+  "울산신복",
+  // 인천 구 단위
+  "인천미추홀구","인천중구",
+  "인천공항T1","인천공항T2",
+  // 기타
+  "장신대",
 ]);
+
+
+/* ── 광역시 구 단위 입력 정규화 ─────────────────────────
+   검색 목록에서 숨기는 것만으로는 부족하다.
+   사용자가 서울강서구/서울광진구/부산수영구 등을 직접 입력해도
+   계산 전 대표명(서울/부산 등)으로 접어 넣는다.
+   ※ 송정역/송정리류는 검색어로 열어두지 않는다. 송정역은 광주 하위노드 직통 참고용이다. */
+const METRO_DISTRICT_TO_MAIN={
+  "서울강서구":"서울","서울광진구":"서울","서울서초구":"서울","서울송파구":"서울","서울중랑구":"서울",
+  "부산강서구":"부산","부산금정구":"부산","부산기장군":"부산","부산동구":"부산","부산동래구":"부산",
+  "부산부산진구":"부산","부산사상구":"부산","부산사하구":"부산","부산수영구":"부산","부산해운대구":"부산",
+  "대구군위군":"대구","대구남구":"대구","대구달성군":"대구","대구동구":"대구","대구북구":"대구","대구서구":"대구",
+  "대전대덕구":"대전","대전동구":"대전","대전서구":"대전","대전유성구":"대전","대전중구":"대전",
+  "울산남구":"울산","울산북구":"울산","울산울주군":"울산",
+  "인천미추홀구":"인천","인천중구":"인천"
+};
+const normalizeCity=(name)=>METRO_DISTRICT_TO_MAIN[nz(name)]||nz(name);
 
 /* ── 대표명 → 포함할 alias_linked 키 (노드 합산) ── */
 const CITY_GROUP_MAP={
@@ -318,9 +352,29 @@ const CITY_GROUP_MAP={
   "부산":["부산","부산동래","부산서부","부산해운대"],
   "대전":["대전복합","대전청사"],
   "대구":["동대구","대구서부"],
-  "광주":["광주","광주진월동","송정역"],
+  "광주":["광주","광주진월동"],
   "울산":["울산","울산신복"],
   "인천공항":["인천공항T1","인천공항T2"],
+};
+
+/* ── 메가허브 main_node 하드코딩
+     (alias_linked에 main_node 없는 경우 보완)
+     노선 탐색 시 이 노드가 '대표 직통' 기준이 됨 ── */
+const MEGA_MAIN={
+  "서울":   "NODE_0003",  // 센트럴시티(고속) - 가장 노선 많음
+  "부산":   "NODE_0050",  // 부산종합터미널
+  "대구":   "NODE_0046",  // 동대구
+  "인천":   "NODE_0038",  // 인천종합터미널
+  "대전":   "NODE_0041",  // 대전복합터미널
+  "광주":   "NODE_0053",  // 광주(유스퀘어)
+  "울산":   "NODE_0048",  // 울산시외버스터미널
+  "전주":   "NODE_0162",
+  "창원":   "NODE_0047",
+  "청주":   "NODE_0044",
+  "천안":   "NODE_0028",
+  "수원":   "NODE_0010",
+  "강릉":   "NODE_0065",
+  "원주":   "NODE_0069",
 };
 
 /* ── 동명이인 표시명 ── */
@@ -388,6 +442,50 @@ const SAME_AREA=[
   new Set(["군외","완도","고금","약산","신지"]),
 ];
 
+
+/* ── 도서 특수교통비 표시 경로 ─────────────────────────
+   섬은 '대표 검색어'가 아니라 특수 목적지다.
+   육상교통비는 접근 허브까지 계산하고, 농어촌버스/여객선은 별도 구간으로 표시한다.
+   예: 광주→비금 = 광주→목포 육상 + 목포→암태 농어촌버스 + 암태→비금 여객선 */
+const buildIslandLegs=(from,to,fromI,toI,sFrom,sTo)=>{
+  const legs=[];
+  const addForDest=(island,info)=>{
+    if(!info)return;
+    if(island==="비금"){
+      if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:"목포→암태",fare:info.cost,source:"신안군 농어촌버스 운영 조례 제2조"});
+      if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:"암태→비금",fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
+      return;
+    }
+    if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:`${info.hub}→${island}`,fare:info.cost,source:"신안군 농어촌버스 운영 조례 제2조"});
+    if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:`${info.hub}→${island}`,fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
+  };
+  const addForOrigin=(island,info)=>{
+    if(!info)return;
+    if(island==="비금"){
+      if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:"비금→암태",fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
+      if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:"암태→목포",fare:info.cost,source:"신안군 농어촌버스 운영 조례 제2조"});
+      return;
+    }
+    if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:`${island}→${info.hub}`,fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
+    if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:`${island}→${info.hub}`,fare:info.cost,source:"신안군 농어촌버스 운영 조례 제2조"});
+  };
+  if(fromI)addForOrigin(from,fromI);
+  if(toI)addForDest(to,toI);
+  const routeParts=[from];
+// 섬 허브는 전체 경로(routeLabel)에 포함한다 — ship 타입 포함
+if(fromI && fromI.hub!==from){
+  routeParts.push(fromI.hub);
+}
+if(toI && toI.hub!==to && toI.hub!==routeParts[routeParts.length-1]){
+  routeParts.push(toI.hub);
+}
+  if(to!==routeParts[routeParts.length-1])routeParts.push(to);
+  return{
+  legs,
+  routeLabel:routeParts.join("→"),
+  landLabel:`${sFrom}→${sTo}`
+};
+};
 /* ── 유틸 ── */
 const nz=(s)=>(s||"").trim();
 const fmt=(n)=>Number(n).toLocaleString("ko-KR");
@@ -415,7 +513,11 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
     const v=nz(value);
     if(!v||list.includes(v)){setSug([]);return;}
     const isCho=/^[ㄱ-ㅎ]+$/.test(v);
-    setSug(list.filter(c=>isCho?cho(c).includes(v):c.includes(v)));
+    setSug(list.filter(c => {
+  // 지명 앞의 '경기', '전남' 등을 떼고 검색어와 비교합니다.
+  const cleanCity = c.replace(/^(경기|전남|전북|경남|경북|충남|충북|강원)/, "");
+  return isCho ? cho(c).includes(v) : (cleanCity.includes(v) || c.includes(v));
+}));
   },[value,list]);
   useEffect(()=>{
     if(!open)return;
@@ -433,11 +535,15 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
           {label&&<div className="input-label">{label}</div>}
           <input ref={inRef} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
             className="input-field" placeholder={placeholder} value={value||""}
-            onChange={e=>{const v=e.target.value;onChange(v);setIdx(-1);if(list.includes(nz(v))){onSelect(nz(v));setOpen(false);setSug([]);}else setOpen(true);}}
+            onChange={e=>{const v=e.target.value;onChange(v);setIdx(-1);
+              const exact=list.find(c=>nz(c)===nz(v)||c===v);
+              if(exact){onSelect(exact);setOpen(false);setSug([]);}
+              else setOpen(true);}}
             onFocus={()=>setOpen(true)}
             onBlur={()=>setTimeout(()=>{setOpen(false);setIdx(-1);},200)}
             onKeyDown={e=>{if(comp.current)return;if(!open||!sug.length)return;if(e.key==="ArrowDown"){e.preventDefault();setIdx(p=>p<sug.length-1?p+1:0);}else if(e.key==="ArrowUp"){e.preventDefault();setIdx(p=>p>0?p-1:sug.length-1);}else if(e.key==="Enter"){e.preventDefault();if(idx>=0)pick(sug[idx]);else if(sug.length)pick(sug[0]);}else if(e.key==="Escape"){setOpen(false);setIdx(-1);}}}
-            onCompositionStart={()=>{comp.current=true;}} onCompositionEnd={()=>{setTimeout(()=>{comp.current=false;},0);}}
+            onCompositionStart={()=>{comp.current=true;}}
+            onCompositionEnd={e=>{comp.current=false;if(e.data&&list.includes(nz(e.data))){onSelect(nz(e.data));setOpen(false);setSug([]);}}}
           />
         </div>
         {value&&<span className="text-xl icon-bounce" style={{flexShrink:0}}>{ICONS[nz(value)]||""}</span>}
@@ -517,6 +623,7 @@ const App=()=>{
   const [nodesMap,setNodesMap]=useState(null);
   const [loaded,setLoaded]=useState(false);
   const [dataErr,setDataErr]=useState("");
+  const [cityListApi,setCityList]=useState([]);
 
   /* 검색 */
   const [origin,setOrigin]=useState("");
@@ -570,20 +677,52 @@ const App=()=>{
 
   /* 데이터 로드 */
   useEffect(()=>{
-    Promise.all([
-      fetch("master/routes.json").then(r=>{if(!r.ok)throw new Error("routes.json 없음");return r.json();}),
-      fetch("master/alias_linked.json").then(r=>{if(!r.ok)throw new Error("alias_linked.json 없음");return r.json();}),
-      fetch("master/nodes.json").then(r=>r.ok?r.json():null).catch(()=>null),
-    ]).then(([rt,al,nd])=>{
-      setRoutesDB(rt); setAliasLinked(al);
-      if(nd){const m={};nd.forEach(n=>m[n.node_id]=n);setNodesMap(m);}
-      setLoaded(true);
-    }).catch(e=>setDataErr(e.message));
-  },[]);
+  Promise.all([
+    fetch("/api/cities").then(r=>{
+      if(!r.ok) throw new Error("api/cities 실패");
+      return r.json();
+    }),
+    fetch("/api/popups").then(r=>r.ok ? r.json() : {}),
+    fetch("/routes.json").then(r=>{
+      if(!r.ok) throw new Error("routes.json 실패");
+      return r.json();
+    }),
+    fetch("/alias_linked.json").then(r=>{
+      if(!r.ok) throw new Error("alias_linked.json 실패");
+      return r.json();
+    }),
+    fetch("/nodes.json").then(r=>{
+      if(!r.ok) throw new Error("nodes.json 실패");
+      return r.json();
+    })
+  ]).then(([cityData, popupData, routesData, aliasData, nodesData])=>{
+    const list = cityData.map(c => c.display).filter(Boolean);
+    setCityList([...new Set(list)].sort());
+
+    setRoutesDB(routesData || {});
+    setAliasLinked(aliasData || {});
+    // nodes.json은 배열 형식 → node_id 기반 object로 변환해야 nodesMap[nid] 접근 가능
+    const nodesObj={};
+    (Array.isArray(nodesData)?nodesData:Object.values(nodesData||{})).forEach(n=>{if(n?.node_id)nodesObj[n.node_id]=n;});
+    setNodesMap(nodesObj);
+
+    if (popupData && Object.keys(popupData).length > 0) {
+      Object.entries(popupData).forEach(([groupKey, gdata]) => {
+        POPUP[groupKey] = gdata;
+      });
+    }
+
+    setLoaded(true);
+  }).catch(e=>{
+    console.error("데이터 로드 실패:", e);
+    setDataErr("서버와 통신할 수 없습니다.");
+    setLoaded(true);
+  });
+},[]);
 
   /* 도시 목록 */
   const cityList=useMemo(()=>{
-    const ak=aliasLinked?Object.keys(aliasLinked):[];
+    const ak=aliasLinked?Object.keys(aliasLinked):cityListApi;
     const ik=Object.keys(ISLAND_DB).filter(k=>!ak.includes(k));
     const metro=[...METRO_CITIES].filter(c=>!ak.includes(c));
     const gyeob=[...GYEONGBUK_CITIES].filter(c=>!ak.includes(c));
@@ -599,19 +738,24 @@ const App=()=>{
     // 인접 생활권 도시 추가
     Object.keys(NEARBY_ALIAS).forEach(c=>{if(!base.includes(c))extras.push(c);});
     return[...new Set([...base,...extras])].sort();
-  },[aliasLinked,nodesMap]);
+  },[aliasLinked,nodesMap,cityListApi]);
 
   /* 노드 해석 */
   const resolveNodes=useCallback((city)=>{
     if(!aliasLinked)return[];
-    const c=nz(city);
+    const c=normalizeCity(city);
     // 인접 생활권 → 이웃 도시로 조회 (완주→전주 등)
     if(NEARBY_ALIAS[c]){const t=NEARBY_ALIAS[c];if(aliasLinked[t])return aliasLinked[t].node_ids||[aliasLinked[t].main_node].filter(Boolean);}
     // 그룹 대표명 → 모든 서브 노드 합산
     if(CITY_GROUP_MAP[c]){
       const r=[];
       CITY_GROUP_MAP[c].forEach(sub=>{if(aliasLinked[sub])r.push(...(aliasLinked[sub].node_ids||[aliasLinked[sub].main_node].filter(Boolean)));});
-      return[...new Set(r)];
+      const grouped=[...new Set(r)];
+      // MEGA_MAIN 노드를 맨 앞에 (예: 광주유스퀘어 우선)
+      const mn=MEGA_MAIN[c];
+      if(mn&&!grouped.includes(mn))grouped.unshift(mn);
+      else if(mn&&grouped[0]!==mn){grouped.splice(grouped.indexOf(mn),1);grouped.unshift(mn);}
+      return grouped;
     }
     // 대구 대표명 (동대구+대구서부)
     if(c==="대구"){
@@ -624,7 +768,15 @@ const App=()=>{
       const n=Object.values(nodesMap).find(n=>n.display_name==="경기광주");
       return n?[n.node_id]:[];
     }
-    if(aliasLinked[c]) return aliasLinked[c].node_ids||[aliasLinked[c].main_node].filter(Boolean);
+    if(aliasLinked[c]){
+      const e=aliasLinked[c];
+      const nodes=[...(e.node_ids||[e.main_node].filter(Boolean))];
+      const mn=MEGA_MAIN[c];
+      // MEGA_MAIN 노드가 누락된 경우 강제 주입 (예: 광주=NODE_0052만 있고 NODE_0053 없음)
+      if(mn&&!nodes.includes(mn))nodes.unshift(mn);
+      else if(mn&&nodes[0]!==mn){nodes.splice(nodes.indexOf(mn),1);nodes.unshift(mn);}
+      return nodes;
+    }
     // 수도권 생활권 → 동서울+센트럴시티로 대체
     if(METRO_CITIES.has(c)){
       const r=[];
@@ -686,7 +838,12 @@ const App=()=>{
         const srcs=rt.sources||[];
         if(!gen||gen<minFare)continue;
         if(prefOnly&&!srcs.some(s=>PREF_SRC.has(s)))continue;
-        if(gen&&(!best||gen<best.gen))
+        const isMegaDep=Object.values(MEGA_MAIN).includes(dep);
+        const isMegaArr=Object.values(MEGA_MAIN).includes(arr);
+        const isMegaBestDep=best&&Object.values(MEGA_MAIN).includes(best.depId);
+        const isMegaBestArr=best&&Object.values(MEGA_MAIN).includes(best.arrId);
+        const megaPriority=(isMegaDep||isMegaArr)&&!(isMegaBestDep||isMegaBestArr);
+        if(gen&&(!best||megaPriority||(gen<best.gen&&!isMegaBestDep&&!isMegaBestArr)))
           best={gen,pre,depId:dep,arrId:arr,sources:dispSrcs(srcs),all_sources:srcs,dr:rt.display_route||""};
       }
     }
@@ -709,10 +866,24 @@ const App=()=>{
     if(!routesDB||!aliasLinked)return null;
     const fc=nz(fromCity);const tc=nz(toCity);
     const fEntry=aliasLinked[fc];const tEntry=aliasLinked[tc];
-    const fMainNode=fEntry?.main_node;
-    const tMainNode=tEntry?.main_node;
+    // MEGA_MAIN 하드코딩 우선, 없으면 alias_linked main_node
+    const fMainNode=MEGA_MAIN[fc]||fEntry?.main_node;
+    const tMainNode=MEGA_MAIN[tc]||tEntry?.main_node;
     const fNodes=resolveNodes(fromCity);
     const tNodes=resolveNodes(toCity);
+
+    // 노드ID → 사람이 읽을 수 있는 이름 변환
+    const nodeName=(nid)=>{
+      if(!nid)return "";
+      const n=nodesMap?.[nid];
+      if(n?.display_name)return n.display_name;
+      // 어느 alias의 도시명인지 찾기
+      for(const[city,entry]of Object.entries(aliasLinked||{})){
+        if((entry.node_ids||[]).includes(nid))return city;
+      }
+      return nid; // 최후 fallback만 노드ID
+    };
+
     let primary=null;
     const alts=[];
     for(const dep of fNodes)for(const arr of tNodes){
@@ -724,8 +895,9 @@ const App=()=>{
       const pre=rt.fares["우등"]||rt.fares["프리미엄"]||null;
       if(!gen)continue;
       const srcs=rt.sources||[];
-      const cand={gen,pre,depId:dep,arrId:arr,sources:dispSrcs(srcs),all_sources:srcs,dr:rt.display_route||"",
-        depName:nodesMap?.[dep]?.display_name||dep,arrName:nodesMap?.[arr]?.display_name||arr};
+      const dName=nodeName(dep); const aName=nodeName(arr);
+      const cand={gen,pre,depId:dep,arrId:arr,sources:dispSrcs(srcs),all_sources:srcs,
+        dr:rt.display_route||"",depName:dName,arrName:aName};
       if(dep===fMainNode&&arr===tMainNode){primary=cand;}
       else alts.push(cand);
     }
@@ -736,78 +908,319 @@ const App=()=>{
 
   /* ── 도시 좌표 ── */
   const getCityCoord=useCallback((city)=>{
-    const c=(city||"").trim();
-    
-    // [추가] BYPASS_DICT에 있는 도시(예: 남양주)면, 그 허브(예: 서울)의 좌표를 가져오도록 우회
-    let lookupCity = c;
-    if (BYPASS_DICT[c]) {
-      lookupCity = BYPASS_DICT[c];
-    }
-
-    // 섬 좌표 우선
-    if(ISLAND_COORDS[lookupCity]){return{lat:ISLAND_COORDS[lookupCity][0],lng:ISLAND_COORDS[lookupCity][1]};}
-    const e=aliasLinked?.[lookupCity];
-    if(e?.main_node&&nodesMap?.[e.main_node]){const n=nodesMap[e.main_node];if(n.lat&&n.lng)return{lat:n.lat,lng:n.lng};}
-    const g=getCityGroup(lookupCity);
+    const c=normalizeCity(city);
+    if(ISLAND_COORDS[c])return{lat:ISLAND_COORDS[c][0],lng:ISLAND_COORDS[c][1]};
+    const megaNid=MEGA_MAIN[c];
+    if(megaNid&&nodesMap?.[megaNid]){const n=nodesMap[megaNid];if(n?.lat&&n?.lng)return{lat:n.lat,lng:n.lng};}
+    const e=aliasLinked?.[c];
+    if(e?.main_node&&nodesMap?.[e.main_node]){const n=nodesMap[e.main_node];if(n?.lat&&n?.lng)return{lat:n.lat,lng:n.lng};}
+    const g=getCityGroup(c);
     if(g)return{lat:g.lat,lng:g.lng};
     return{lat:35.5,lng:127.5};
   },[aliasLinked,nodesMap]);
 
   /* ── 스마트 라우팅 ── */
-  const findSmartRoute=useCallback((fromCity,toCity)=>{
+const findSmartRoute=useCallback((fromCity,toCity)=>{
+    /* YBEZ 허브 기반 라우팅 엔진 route-patch-v2 */
     const fc=(fromCity||"").trim(),tc=(toCity||"").trim();
-    const fcrd=getCityCoord(fc),tcrd=getCityCoord(tc);
-    const fg=getCityGroup(fc),tg=getCityGroup(tc);
-    const PENALTY=10000;
-    const routeList=[];
-    const lf=(a,b)=>lookupFare(a,b,false,0);
-    const addRoute=(path,segs)=>{
-      if(!segs.length)return;
-      const totalGen=segs.reduce((s,sg)=>s+sg.gen,0);
-      const transfers=segs.length-1;
-      routeList.push({path,segs,totalGen,transfers,totalOpt:totalGen+transfers*PENALTY});
+    if(!fc||!tc)return null;
+
+    /* CANON_NODES: alias_linked 누락 도시 수동 보완 */
+    const CANON_NODES={
+      "광주":["NODE_0053","NODE_0052"],
+      "대전":["NODE_0041"],
+      "서울":["NODE_0002","NODE_0001"],
+      "동서울":["NODE_0001"],
+      "센트럴시티":["NODE_0002"],
+      "대구":["NODE_0046","NODE_0047"],
+      "동대구":["NODE_0046"],
+      "부산":["NODE_0050","NODE_0051"],
+      "부산서부사상":["NODE_0051"],
+      "목포":["NODE_0177"],
+      "순천":["NODE_0184"],
+      "전주":["NODE_0162"],
+      "천안":["NODE_0112","NODE_0113"],
+      "청주":["NODE_0086","NODE_0087"],
+      "강릉":["NODE_0061"],
+      "원주":["NODE_0069"],
+      "해남":["NODE_0202"],
+      "세종":["NODE_0055"],
+      "수원":["NODE_0010"],
+      "평택":["NODE_0033"],
+      "인천":["NODE_0038"],
+      "담양":["NODE_0176"],
+      "사천":["NODE_0501","NODE_0502"],  // 사천시외버스터미널+삼천포 (공항 제외)
+      "산정":["NODE_0629"],              // 산정정류소(전남해남) → 해남 참고노드 인식용
     };
+
+    const MEGA=new Set(["광주","대전","서울","동서울","센트럴시티","대구","동대구","부산","부산서부사상"]);
+    const SUB=new Set(["전주","천안","순천","청주","강릉","원주","목포"]);
+    const ALL_HUBS=new Set([...MEGA,...SUB]);
+    const SEOUL=new Set(["서울","동서울","센트럴시티","서울남부"]);
+    const seoulOK=SEOUL.has(fc)||SEOUL.has(tc);
+
+    const CITY_COORD={
+      "광주":{lat:35.16,lng:126.88},"대전":{lat:36.35,lng:127.44},
+      "서울":{lat:37.50,lng:127.00},"동서울":{lat:37.53,lng:127.12},
+      "센트럴시티":{lat:37.50,lng:127.00},
+      "대구":{lat:35.87,lng:128.60},"동대구":{lat:35.87,lng:128.63},
+      "부산":{lat:35.18,lng:129.07},"목포":{lat:34.81,lng:126.42},
+      "순천":{lat:34.95,lng:127.49},"전주":{lat:35.82,lng:127.15},
+      "천안":{lat:36.80,lng:127.15},"청주":{lat:36.64,lng:127.49},
+      "강릉":{lat:37.75,lng:128.88},"원주":{lat:37.34,lng:127.92},
+      "해남":{lat:34.57,lng:126.60},"세종":{lat:36.48,lng:127.29},
+      "수원":{lat:37.27,lng:127.02},"평택":{lat:36.99,lng:127.09},
+      "인천":{lat:37.46,lng:126.70},"담양":{lat:35.32,lng:126.98},
+      "강진":{lat:34.64,lng:126.77},"장흥":{lat:34.69,lng:126.91},
+      "보성":{lat:34.77,lng:127.08},"영암":{lat:34.80,lng:126.70},
+      "완도":{lat:34.31,lng:126.76},"진도":{lat:34.49,lng:126.26},
+      "고흥":{lat:34.60,lng:127.28},"나주":{lat:35.02,lng:126.71},
+      "화순":{lat:35.06,lng:126.99},"무안":{lat:34.99,lng:126.48},
+      "진주":{lat:35.18,lng:128.10},"사천":{lat:35.08,lng:128.06},
+      "창원":{lat:35.23,lng:128.69},
+    };
+    const gcrd=(c)=>CITY_COORD[c]||getCityCoord(c)||null;
+
+    const cosDir=(fr,to,cand)=>{
+      if(!fr||!to||!cand)return 0;
+      const dx=to.lng-fr.lng,dy=to.lat-fr.lat;
+      const cx=cand.lng-fr.lng,cy=cand.lat-fr.lat;
+      const dot=dx*cx+dy*cy;
+      const l1=Math.sqrt(dx*dx+dy*dy),l2=Math.sqrt(cx*cx+cy*cy);
+      return(l1&&l2)?dot/(l1*l2):0;
+    };
+
+    const REGION={
+      "광주":["해남","목포","나주","화순","장흥","강진","완도","진도","영암","무안","담양","장성","영광","함평"],
+      "대전":["세종","청주","충주","공주","아산","홍성","서산","보령","논산","계룡"],
+      "대구":["경산","구미","포항","경주","안동","영주","상주"],
+      "부산":["울산","창원","마산","진주","통영","거제","김해","양산"],
+      "전주":["군산","익산","정읍","남원","완주"],
+      "순천":["여수","광양","고흥","보성"],
+    };
+    const getBonus=(hub,a,b)=>{
+      const lst=REGION[hub]||[];
+      const m=(c)=>lst.some(x=>x===c||c.startsWith(x));
+      return(m(a)||m(b))?8000:0;
+    };
+
+    /* 도시별 선호 허브: HUB_GROUPS에 없는 전남 남부 도시들 명시 */
+    const PREFERRED_HUBS={
+      "해남":["광주","목포"],"강진":["광주","목포"],"장흥":["광주","목포","순천"],
+      "보성":["광주","순천"],"영암":["광주","목포"],"완도":["광주","목포"],
+      "진도":["광주","목포"],"고흥":["광주","순천"],"나주":["광주"],
+      "무안":["광주","목포"],"함평":["광주","목포"],"영광":["광주"],
+      "장성":["광주"],"담양":["광주"],"화순":["광주"],
+      "곡성":["광주","순천"],"구례":["순천","광주"],
+    };
+
+    /* 요금 조회: CANON_NODES → alias_linked → routesDB → JNE */
+    const lf=(a,b)=>{
+      const toNd=(city)=>{
+        if(CANON_NODES[city])return CANON_NODES[city];
+        const e=aliasLinked?aliasLinked[city]:null;
+        return(e&&e.node_ids&&e.node_ids.length)?e.node_ids.slice(0,6):[city];
+      };
+      const an=toNd(a),bn=toNd(b);
+      let best=null;
+      for(const x of an){for(const y of bn){
+        const k1=x+"_"+y;
+        const k2=y+"_"+x;
+        const rt=routesDB?(routesDB[k1]||routesDB[k2]):null;
+        if(rt&&rt.fares){
+          const gen=rt.fares["일반"]||rt.fares["고속"]||rt.fares["우등"]||null;
+          if(gen&&(!best||gen<best.gen)){
+            best={gen,pre:rt.fares["우등"]||null,
+                  sources:rt.sources||[],dr:rt.display_route||a+"→"+b,from:a,to:b};
+          }
+        }
+      }}
+      if(!best&&JNE_FARES){
+        const fa=(a||"").trim(),fb=(b||"").trim();
+        const jne=JNE_FARES[fa]?.[fb]||JNE_FARES[fb]?.[fa]||null;
+        if(jne)best={...jne,sources:["JNE2026"],dr:a+"→"+b,from:a,to:b};
+      }
+      return best;
+    };
+
+    const scoreRoute=(path,segs,tot)=>{
+      const fcrd=gcrd(fc),tcrd=gcrd(tc);
+
+      // [route-policy] 기본 점수 = 실제 요금
+      let s=tot;
+
+      // [route-policy] 환승 패널티
+      // 1환승: 경고 수준, 2환승: 사실상 밀림, 3환승 이상: 탈락급
+      const transfers=segs.length-1;
+      if(transfers===1)s+=10000;
+      else if(transfers===2)s+=100000;
+      else if(transfers>=3)s+=1000000;
+
+      // [route-policy] 경로거리 sanity check
+      // 실제 경로 길이가 출발-도착 직선거리의 3배를 넘으면 탈락급
+      const directKm=hav(fcrd.lat,fcrd.lng,tcrd.lat,tcrd.lng);
+      let routeKm=0;
+      for(let i=0;i<path.length-1;i++){
+        const a=gcrd(path[i]),b=gcrd(path[i+1]);
+        if(a&&b)routeKm+=hav(a.lat,a.lng,b.lat,b.lng);
+      }
+      if(directKm>0&&routeKm>directKm*3)s+=10000000;
+
+      // [route-policy] 직선 이탈 / 역방향 패널티
+      const dx=tcrd.lng-fcrd.lng,dy=tcrd.lat-fcrd.lat;
+      const directDeg=Math.sqrt(dx*dx+dy*dy)||1;
+      for(let i=1;i<path.length-1;i++){
+        const h=path[i];
+        const hcrd=gcrd(h);
+        const cos=cosDir(fcrd,tcrd,hcrd);
+
+        // 서울을 불필요하게 거치면 패널티
+        if(!seoulOK&&SEOUL.has(h))s+=30000;
+
+        // 허브 아닌 노드는 약한 패널티
+        if(!ALL_HUBS.has(h))s+=8000;
+
+        // 완전 역방향이면 탈락급
+        if(cos<0)s+=10000000;
+
+        // 출발-도착 직선에서 크게 벗어나면 탈락급
+        const offLine=distToLine(fcrd,tcrd,hcrd);
+        if(offLine>directDeg*0.45)s+=10000000;
+
+        // 지역 보너스는 유지
+        s-=getBonus(h,fc,tc);
+      }
+
+      // [route-policy] 비정상 고액 경로는 탈락급
+      if(s>=1000000)s+=10000000;
+
+      return s;
+    };
+
+    const routeList=[];
+    const addRoute=(path,segs)=>{
+      if(!segs||segs.length===0)return;
+      if(segs.length>4)return;
+      const tot=segs.reduce((s,sg)=>s+(sg.gen||0),0);
+      if(tot===0)return;
+      routeList.push({path,segs,totalGen:tot,transfers:segs.length-1,
+                       totalOpt:scoreRoute(path,segs,tot)});
+    };
+
+    /* 1단계: 직통 */
+    const fcrd=gcrd(fc)||{lat:35.5,lng:127.5};const tcrd=gcrd(tc)||{lat:35.5,lng:127.5};
+    const fg=getCityGroup(fc);const tg=getCityGroup(tc);
+    const MEGA_KEYS=new Set(Object.keys(MEGA_MAIN));
+    const isMegaF=MEGA_KEYS.has(fc);const isMegaT=MEGA_KEYS.has(tc);
+
+    // ① 직통 확인
     const d=lf(fc,tc);
-    if(d)addRoute([fc,tc],[{...d,from:fc,to:tc}]);
-    const cands=HUB_GROUPS.filter(g=>{
-      if(fg&&g.id===fg.id)return false;
-      if(tg&&g.id===tg.id)return false;
-      return isForwardDir(fcrd,tcrd,{lat:g.lat,lng:g.lng});
-    }).sort((a,b)=>distToLine(fcrd,tcrd,{lat:a.lat,lng:a.lng})-distToLine(fcrd,tcrd,{lat:b.lat,lng:b.lng}));
-
-    // 목적지 그룹 직접 경유
-    if(tg){for(const h of tg.hubs){if(h===tc)continue;const s1=lf(fc,h),s2=lf(h,tc);if(s1&&s2)addRoute([fc,h,tc],[{...s1,from:fc,to:h},{...s2,from:h,to:tc}]);}}
-
-    // 출발지가 그룹에 속하면: 같은 그룹 내 허브 경유 (역방향 문제 해결)
-    if(fg){
-      for(const fhub of fg.hubs){
-        if(fhub===fc)continue;
-        const sf=lf(fc,fhub);if(!sf)continue;
-        const sd=lf(fhub,tc);if(sd)addRoute([fc,fhub,tc],[{...sf,from:fc,to:fhub},{...sd,from:fhub,to:tc}]);
-        if(tg){for(const th of tg.hubs){if(th===fhub)continue;const s12=lf(fhub,th),s2t=lf(th,tc);if(s12&&s2t)addRoute([fc,fhub,th,tc],[{...sf,from:fc,to:fhub},{...s12,from:fhub,to:th},{...s2t,from:th,to:tc}]);}}
-        for(const g of cands.slice(0,3)){for(const h of g.hubs){const s1=lf(fhub,h);if(!s1)continue;const s2=lf(h,tc);if(s2)addRoute([fc,fhub,h,tc],[{...sf,from:fc,to:fhub},{...s1,from:fhub,to:h},{...s2,from:h,to:tc}]);}}
+    if(d){
+      addRoute([fc,tc],[{...d,from:fc,to:tc}]);
+      // [route-policy] 직통이 있으면 무조건 직통만 표시한다.
+      // 경유 후보는 만들지 않는다.
+      if(routeList.length>0){
+        const direct=routeList[0];
+        return{cheapest:direct,optimal:direct,same:true,routes:[direct]};
       }
     }
 
-    // 중간 그룹 1개
-    for(const g of cands.slice(0,5)){
-      for(const h of g.hubs){
-        const s1=lf(fc,h);if(!s1)continue;
-        const s2=lf(h,tc);if(s2)addRoute([fc,h,tc],[{...s1,from:fc,to:h},{...s2,from:h,to:tc}]);
-        if(tg){for(const th of tg.hubs){if(th===h)continue;const s12=lf(h,th),s2t=lf(th,tc);if(s12&&s2t)addRoute([fc,h,th,tc],[{...s1,from:fc,to:h},{...s12,from:h,to:th},{...s2t,from:th,to:tc}]);}}
+    // ② 방향 기준 중간허브 후보 (역방향 음수 = 완전 배제)
+    const HUB_CANDIDATES=["광주","대전","서울","대구","부산","전주","진주","천안","순천","목포","원주","강릉","청주","창원"];
+    const scoreHub=(h)=>{
+      const hcrd=gcrd(h)||{lat:35.5,lng:127.5};
+      const dx=tcrd.lng-fcrd.lng, dy=tcrd.lat-fcrd.lat;
+      const cx=hcrd.lng-fcrd.lng, cy=hcrd.lat-fcrd.lat;
+      return dx*cx+dy*cy; // 양수=순방향, 음수=역방향
+    };
+    // 음수(역방향) 허브 완전 배제
+    const validHubs=HUB_CANDIDATES.filter(h=>h!==fc&&h!==tc&&scoreHub(h)>0)
+      .sort((a,b)=>scoreHub(b)-scoreHub(a)); // 순방향일수록 앞으로
+
+    // ③ 직통 없으면 허브 1개 경유 (순방향 허브만)
+    for(const h of validHubs.slice(0,8)){
+      const s1=lf(fc,h),s2=lf(h,tc);
+      if(s1&&s2)addRoute([fc,h,tc],[{...s1,from:fc,to:h},{...s2,from:h,to:tc}]);
+    }
+
+    // ④ 허브 2개 경유 (첫 허브 → 두번째 허브도 순방향인지 확인)
+    for(let i=0;i<Math.min(validHubs.length,6);i++){
+      const h1=validHubs[i];
+      const s1=lf(fc,h1);if(!s1)continue;
+      const h1crd=gcrd(h1)||{lat:35.5,lng:127.5};
+      for(let j=0;j<Math.min(validHubs.length,6);j++){
+        if(i===j)continue;
+        const h2=validHubs[j];
+        // h2가 h1→tc 방향인지 확인
+        const h2crd=gcrd(h2)||{lat:35.5,lng:127.5};
+        const d2x=tcrd.lng-h1crd.lng,d2y=tcrd.lat-h1crd.lat;
+        const c2x=h2crd.lng-h1crd.lng,c2y=h2crd.lat-h1crd.lat;
+        if(d2x*c2x+d2y*c2y<=0)continue; // h2도 역방향이면 배제
+        const s12=lf(h1,h2);if(!s12)continue;
+        const s2=lf(h2,tc);if(!s2)continue;
+        addRoute([fc,h1,h2,tc],[{...s1,from:fc,to:h1},{...s12,from:h1,to:h2},{...s2,from:h2,to:tc}]);
       }
     }
-    for(let i=0;i<Math.min(cands.length,4);i++){const g1=cands[i];
-      for(let j=i+1;j<Math.min(cands.length,5);j++){const g2=cands[j];
-        if(!isForwardDir({lat:g1.lat,lng:g1.lng},tcrd,{lat:g2.lat,lng:g2.lng}))continue;
-        for(const h1 of g1.hubs){const s1=lf(fc,h1);if(!s1)continue;
-          for(const h2 of g2.hubs){const s12=lf(h1,h2);if(!s12)continue;const s2=lf(h2,tc);
-            if(s2)addRoute([fc,h1,h2,tc],[{...s1,from:fc,to:h1},{...s12,from:h1,to:h2},{...s2,from:h2,to:tc}]);}}}}
+
+    // ⑤ HUB_GROUPS 보완 (지역 내 소규모 허브)
+    if(fg){for(const fhub of fg.hubs){
+      if(fhub===fc||scoreHub(fhub)<=0)continue;
+      const sf=lf(fc,fhub);if(!sf)continue;
+      const sd=lf(fhub,tc);
+      if(sd)addRoute([fc,fhub,tc],[{...sf,from:fc,to:fhub},{...sd,from:fhub,to:tc}]);
+      if(tg){for(const th of tg.hubs){
+        if(th===fhub)continue;
+        const s12=lf(fhub,th),s2t=lf(th,tc);
+        if(s12&&s2t)addRoute([fc,fhub,th,tc],[{...sf,from:fc,to:fhub},{...s12,from:fhub,to:th},{...s2t,from:th,to:tc}]);
+      }}
+    }}
+
+    // ⑥ PREFERRED_HUBS 선호허브 경유 (전남 남부 등 HUB_GROUPS 미등록 도시 보완)
+    // 출발지 선호허브 경유
+    const fPref=PREFERRED_HUBS[fc]||[];
+    for(const ph of fPref){
+      if(ph===fc||ph===tc)continue;
+      const sp=lf(fc,ph);if(!sp)continue;
+      const sd=lf(ph,tc);
+      if(sd)addRoute([fc,ph,tc],[{...sp,from:fc,to:ph},{...sd,from:ph,to:tc}]);
+      // 출발선호허브 → 전국허브 → 도착
+      const natHubs=["광주","대전","서울","전주","부산","대구","순천"];
+      for(const nh of natHubs){
+        if(nh===ph||nh===tc)continue;
+        const sph=lf(ph,nh),snd=lf(nh,tc);
+        if(sph&&snd)addRoute([fc,ph,nh,tc],[{...sp,from:fc,to:ph},{...sph,from:ph,to:nh},{...snd,from:nh,to:tc}]);
+      }
+    }
+    // 도착지 선호허브 경유
+    const tPref=PREFERRED_HUBS[tc]||[];
+    for(const ph of tPref){
+      if(ph===fc||ph===tc)continue;
+      const sp=lf(ph,tc);if(!sp)continue;
+      const sf=lf(fc,ph);
+      if(sf)addRoute([fc,ph,tc],[{...sf,from:fc,to:ph},{...sp,from:ph,to:tc}]);
+      // 출발 → 전국허브 → 도착선호허브 → 도착
+      const natHubs=["광주","대전","서울","전주","부산","대구","순천"];
+      for(const nh of natHubs){
+        if(nh===ph||nh===fc)continue;
+        const sfn=lf(fc,nh),snh=lf(nh,ph);
+        if(sfn&&snh)addRoute([fc,nh,ph,tc],[{...sfn,from:fc,to:nh},{...snh,from:nh,to:ph},{...sp,from:ph,to:tc}]);
+      }
+    }
+
     if(!routeList.length)return null;
-    const cheapest=[...routeList].sort((a,b)=>a.totalGen-b.totalGen)[0];
-    const optimal=[...routeList].sort((a,b)=>a.totalOpt-b.totalOpt)[0];
+
+    // [route-policy] 패널티 포함 점수가 100만원 이상이면 비정상 경로로 보고 표시하지 않음
+    const usable=[...routeList]
+      .filter(r=>(r.totalOpt||r.totalGen)<1000000)
+      .sort((a,b)=>a.totalOpt-b.totalOpt)
+      .slice(0,2);
+
+    if(!usable.length)return null;
+
+    const cheapest=[...usable].sort((a,b)=>a.totalGen-b.totalGen)[0];
+    const optimal=usable[0];
     const same=cheapest.path.join("→")===optimal.path.join("→");
-    return{cheapest,optimal,same};
+    return{cheapest,optimal,same,routes:usable};
   },[lookupFare,getCityCoord]);
 
   /* 하위터미널 탐색 - 출발/도착 모두, 전남 권역만 */
@@ -879,12 +1292,14 @@ const App=()=>{
     let sFrom=from,sTo=to,surcharge=0,shipCost=0;
     if(fromI){sFrom=fromI.hub;shipCost+=(fromI.shipCost||0);surcharge+=(fromI.cost||0);}
     if(toI){sTo=toI.hub;shipCost+=(toI.shipCost||0);surcharge+=(toI.cost||0);}
+    const islandMeta=buildIslandLegs(from,to,fromI,toI,sFrom,sTo);
     if(sFrom===sTo){
       const hasActual=shipCost>0||surcharge>0;
       if(!hasActual)return{cost:0,gen:0,pre:null,surcharge:0,shipCost:0,sameArea:true};
       // 같은 허브권 내 도서: 버스요금 없이 선박/농어촌 요금만
       return{cost:surcharge,gen:0,pre:null,surcharge,shipCost,sameArea:false,isShip:shipCost>0,
-             dr:`${from}→${to}`,sources:[shipCost>0?"ferry":"rural"],depId:null,arrId:null};
+             dr:islandMeta.routeLabel||`${from}→${to}`,sources:[shipCost>0?"ferry":"rural"],depId:null,arrId:null,
+             islandLegs:islandMeta.legs,islandRouteLabel:islandMeta.routeLabel,landLabel:islandMeta.landLabel};
     }
     // 신안 연륙 도서: 비금은 목포→암태 경유 추가 버스요금 (특수)
     // 비금 특수규칙: hub_via='암태' 구간 → 농어촌버스는 이미 surcharge 2000에 포함
@@ -893,18 +1308,24 @@ const App=()=>{
     // display_route가 이상할 때(같은 도시 이름 반복) → 원래 도시명으로 표시
     const rawDr=bd.dr||`${sFrom}→${sTo}`;
     const cleanDr=(rawDr.split('↔').length===2&&rawDr.split('↔')[0]===rawDr.split('↔')[1])?`${from}→${to}`:rawDr;
-    return{cost:bd.gen+surcharge,gen:bd.gen,pre:bd.pre||null,surcharge,shipCost,sources:bd.sources||[],dr:cleanDr,depId:bd.depId,arrId:bd.arrId};
+    return{cost:bd.gen+surcharge,gen:bd.gen,pre:bd.pre||null,surcharge,shipCost,sources:bd.sources||[],dr:cleanDr,depId:bd.depId,arrId:bd.arrId,
+           islandLegs:islandMeta.legs,islandRouteLabel:islandMeta.routeLabel,landLabel:islandMeta.landLabel};
   },[lookupFare]);
 
   const performCalc=useCallback((o=origin,d=dest,viaCity=via)=>{
     resetDed();setShipFare(0);setManualTransport(null);setSubResults({depSubs:[],arrSubs:[]});setSelSub(null);setSmartResult(null);setBypassInfo([]);setAltRoutes([]);
-    const from=nz(o);const to=nz(d);
+    const rawFrom=nz(o);const rawTo=nz(d);
+    const from=normalizeCity(rawFrom);const to=normalizeCity(rawTo);
     if(!from||!to){setCalcSt("idle");setResult(null);return;}
-    // 신안/완도 팝업 트리거
-    const fromN=o.replace(/\s/g,"");const toN=d.replace(/\s/g,"");
+    // 광역시 구 단위 직접 입력은 계산 전 대표명으로 교정해 화면도 대표명으로 맞춘다.
+    if(from!==rawFrom) setOrigin(from);
+    if(to!==rawTo) setDest(to);
+    // 신안/완도 팝업 트리거는 원입력과 정규화 입력을 모두 확인
+    const fromN=rawFrom.replace(/\s/g,"");const toN=rawTo.replace(/\s/g,"");
+    const fromNormN=from.replace(/\s/g,"");const toNormN=to.replace(/\s/g,"");
     if(!viaCity){
-      if(POPUP[fromN]&&!modalSt.type){setCalcSt("idle");setModalSt({type:"origin",data:POPUP[fromN]});return;}
-      if(POPUP[toN]&&!modalSt.type){setCalcSt("idle");setModalSt({type:"destination",data:POPUP[toN]});return;}
+      if((POPUP[fromN]||POPUP[fromNormN])&&!modalSt.type){setCalcSt("idle");setModalSt({type:"origin",data:POPUP[fromN]||POPUP[fromNormN]});return;}
+      if((POPUP[toN]||POPUP[toNormN])&&!modalSt.type){setCalcSt("idle");setModalSt({type:"destination",data:POPUP[toN]||POPUP[toNormN]});return;}
     }
     for(const g of SAME_AREA)if(g.has(from)&&g.has(to)){setIntraCityOpen(true);setCalcSt("idle");return;}
     setCalcSt("working");
@@ -913,8 +1334,15 @@ const App=()=>{
 
       /* [과제 A] 스마트 우회 로직 가동 */
       let sFrom = from; let sTo = to; let bInfo = [];
-      if(BYPASS_DICT[from]){ sFrom=BYPASS_DICT[from]; bInfo.push(`✓ [${sFrom}] 광역환승구역 (출발지 ${sFrom} 기준 적용)`); }
-      if(BYPASS_DICT[to]){ sTo=BYPASS_DICT[to]; bInfo.push(`✓ [${sTo}] 광역환승구역 (${sTo} 종착 요금 적용)`); }
+
+      // [route-policy] 원래 입력값 기준 직통/특수지 경로가 있으면 BYPASS 금지
+      // 예: 광주→세종 직통이 있으면 세종→대전으로 접지 않는다.
+      // 예: 광주→비금은 비금→목포 허브 처리 후 특수교통비만 더한다.
+      const directProbe = !viaN ? calcSegment(from,to) : null;
+      const hasOriginalDirect = !!(directProbe && !directProbe.sameArea);
+
+      if(!hasOriginalDirect && BYPASS_DICT[from]){ sFrom=BYPASS_DICT[from]; bInfo.push(`✓ [${sFrom}] 광역환승구역 (출발지 ${sFrom} 기준 적용)`); }
+      if(!hasOriginalDirect && BYPASS_DICT[to]){ sTo=BYPASS_DICT[to]; bInfo.push(`✓ [${sTo}] 광역환승구역 (${sTo} 종착 요금 적용)`); }
       setBypassInfo(bInfo);
 
       let res=null;
@@ -930,9 +1358,10 @@ const App=()=>{
           const primary=mainResult?.primary;
           const displayGen=primary?primary.gen:seg.gen;
           const displayPre=primary?primary.pre:seg.pre;
-          const displayDr=primary?.dr||`${sFrom}→${sTo}`;
+          const displayDr=primary?.dr||seg.dr||`${sFrom}→${sTo}`;
+          const displayRouteLabel=seg.islandRouteLabel||`${sFrom}→${sTo}`;
           res={...seg,gen:displayGen,pre:displayPre,cost:displayGen+seg.surcharge,
-               origin:o,dest:d,via:null,routeLabel:`${sFrom}→${sTo}`,
+               origin:from,dest:to,via:null,routeLabel:displayRouteLabel,
                dr:displayDr,multiHop:null};
           setManualTransport((displayGen+seg.surcharge)*2);
           setShipFare(seg.shipCost*2);
@@ -942,7 +1371,7 @@ const App=()=>{
           if(jne){
             res={gen:jne.gen,pre:jne.pre||null,cost:jne.gen,surcharge:0,shipCost:0,
                  sources:["JNE2026"],dr:`${sFrom}→${sTo}`,routeLabel:`${sFrom}→${sTo}`,
-                 origin:o,dest:d,via:null,multiHop:null};
+                 origin:from,dest:to,via:null,multiHop:null};
             setManualTransport(res.gen*2);
           } else {
             // 다구간 탐색: 1) 우선소스만, 2) 전체
@@ -953,7 +1382,7 @@ const App=()=>{
               const allSrcs=[...new Set(best.segs.flatMap(s=>s.sources||[]))];
               res={gen:best.totalGen,pre:null,cost:best.totalGen,surcharge:0,shipCost:0,
                    sources:allSrcs,dr:best.path.join("→"),routeLabel:best.path.join(" → "),
-                   origin:o,dest:d,via:null,multiHop:{segs:best.segs,path:best.path}};
+                   origin:from,dest:to,via:null,multiHop:{segs:best.segs,path:best.path}};
               setManualTransport(best.totalGen*2);
             }
           }
@@ -969,15 +1398,20 @@ const App=()=>{
           res={gen:totGen,pre:(s1.pre||s1.gen)+(s2.pre||s2.gen),cost:totGen+totSur,surcharge:totSur,
                shipCost:totShip,sources:[...(s1.sources||[]),...(s2.sources||[])].filter((v,i,a)=>a.indexOf(v)===i),
                dr:`${sFrom}→${sVia}→${sTo}`,routeLabel:`${sFrom}→${sVia}→${sTo}`,
-               origin:o,dest:d,via:sVia,seg1:s1,seg2:s2,multiHop:null};
+               origin:from,dest:to,via:sVia,seg1:s1,seg2:s2,multiHop:null};
           setManualTransport((totGen+totSur)*2);setShipFare(totShip*2);
         }
       }
       setResult(res);
       if(res&&!res.multiHop)setSubResults(findSubResults(sFrom,sTo));
       else setSubResults({depSubs:[],arrSubs:[]});
-      if(res)addHistory(o,d,res.gen);
-      setCalcSt(res?"done":"idle");
+      
+      if(res) {
+        addHistory(o,d,res.gen);
+        setCalcSt("done");
+      } else {
+        setCalcSt("error_no_route"); // 오류 상태 명시적 선언
+      }
     },50);
   },[calcSegment,findSubResults,findSmartRoute,lookupRouteWithAlternatives,addHistory,modalSt,origin,dest,via]);
 
@@ -1017,6 +1451,11 @@ const App=()=>{
     if(!result)return[];
     const bp=smartResult?.cheapest?.path||result?.multiHop?.path;
     if(bp&&bp.length>=2)return bp.map((city,i)=>({name:city,...getCityCoord(city),isHub:i>0&&i<bp.length-1}));
+    // 도서 지역: 상세 경로가 있으면 목포/암태 같은 접근 중간지점까지 지도에 표시
+    if(result?.islandRouteLabel){
+      const parts=result.islandRouteLabel.split("→").filter(Boolean);
+      return parts.map((city,i)=>({name:city,...getCityCoord(city),isHub:i>0&&i<parts.length-1}));
+    }
     // 도서 지역: hub(목포/완도/장흥)를 중간 경유 포인트로 표시
     const fromI=ISLAND_DB[nz(origin)];const toI=ISLAND_DB[nz(dest)];
     const pts=[];
@@ -1102,8 +1541,8 @@ const App=()=>{
             if(!srcMap[src])srcMap[src]=[];
             srcMap[src].push(`${seg.from}→${seg.to}`);
           });
-          if(result?.surcharge>0)srcMap["rural"]=["신안군 농어촌버스 할증 적용"];
-          if((result?.shipCost>0||shipFare>0))srcMap["ferry"]=["전라남도 여객선 운임 감면"];
+          if(result?.surcharge>0)srcMap["rural"]=(result.islandLegs||[]).filter(x=>x.kind==="rural").map(x=>x.route)||["신안군 농어촌버스 할증 적용"];
+          if((result?.shipCost>0||shipFare>0))srcMap["ferry"]=(result.islandLegs||[]).filter(x=>x.kind==="ferry").map(x=>x.route)||["전라남도 여객선 운임 감면"];
           return(
             <div className="source-list">
               {Object.entries(srcMap).map(([src,routes])=>{
@@ -1233,7 +1672,7 @@ const App=()=>{
                 {smartResult&&(()=>{
                   const {cheapest,optimal,same}=smartResult;
                   const SegRow=({seg})=>(<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 8px",marginBottom:2,borderRadius:8,background:"#F8FAFF",border:"1px solid rgba(0,122,255,0.07)"}}><div><span style={{fontSize:10,fontWeight:800,fontFamily:"var(--gm)",color:"#374151"}}>{seg.from}</span><span style={{color:"#C7C7CC",margin:"0 3px",fontSize:9}}>→</span><span style={{fontSize:10,fontWeight:800,fontFamily:"var(--gm)",color:"#374151"}}>{seg.to}</span></div><span style={{fontSize:12,fontWeight:900,color:"var(--blue)",fontFamily:"var(--gm)",marginLeft:6,flexShrink:0}}>{fmt(seg.gen)}원</span></div>);
-                  const RouteCard=({r,label,color})=>(<div><div style={{display:"flex",alignItems:"center",gap:5,marginBottom:5}}><span style={{fontSize:11,fontWeight:900,color,fontFamily:"var(--gm)"}}>{label}</span><span style={{fontSize:9,color:"#AEAEB2",fontWeight:700}}>{r.transfers}환승 · {fmt(r.totalGen)}원</span>{!same&&r.transfers>0&&<span style={{fontSize:9,color:"#F59E0B",fontWeight:700,marginLeft:3}}>패널티포함 {fmt(r.totalOpt)}원</span>}</div>{r.segs.map((seg,i)=><SegRow key={i} seg={seg}/>)}</div>);
+                  const RouteCard=({r,label,color})=>(<div><div style={{display:"flex",alignItems:"center",gap:5,marginBottom:5}}><span style={{fontSize:11,fontWeight:900,color,fontFamily:"var(--gm)"}}>{label}</span><span style={{fontSize:9,color:"#AEAEB2",fontWeight:700}}>{r.transfers}환승 · {fmt(r.totalGen)}원</span></div>{r.segs.map((seg,i)=><SegRow key={i} seg={seg}/>)}</div>);
                   return(<div style={{marginTop:10,paddingTop:10,borderTop:"1px dashed #E5E5EA",display:"flex",flexDirection:"column",gap:8}}><RouteCard r={cheapest} label="💰 최저가" color="#059669"/>{!same&&<><div style={{height:1,background:"#F0F0F0"}}/><RouteCard r={optimal} label="⚡ 최적경로" color="#7C3AED"/></>}</div>);
                 })()}
                 {result.surcharge>0&&(
@@ -1241,6 +1680,7 @@ const App=()=>{
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                       <div>
                         <span style={{fontSize:12,fontWeight:700,color:"#059669"}}>농어촌버스 <span style={{fontSize:10,color:"#AEAEB2"}}>편도</span></span>
+                        <div style={{fontSize:10,color:"#047857",fontWeight:800,marginTop:1}}>{(result.islandLegs||[]).find(x=>x.kind==="rural")?.route||"도서 접근구간"}</div>
                         <div style={{fontSize:9,color:"#16A34A",fontWeight:700,marginTop:1}}>신안군 농어촌버스 운영 조례 제2조</div>
                       </div>
                       <span style={{fontSize:14,fontWeight:800,color:"#059669"}}>{fmt(result.surcharge)}원</span>
@@ -1254,6 +1694,7 @@ const App=()=>{
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                       <div>
                         <span style={{fontSize:12,fontWeight:800,color:"#0056D6"}}>여객선 <span style={{fontSize:10,color:"#6B7280", fontWeight:700}}>편도</span></span>
+                        <div style={{fontSize:10,color:"#1D4ED8",fontWeight:800,marginTop:2}}>{(result.islandLegs||[]).find(x=>x.kind==="ferry")?.route||"도서 여객선구간"}</div>
                         <div style={{fontSize:10,color:"#2563EB",fontWeight:700,marginTop:2}}>왕복 합산 적용됨</div>
                       </div>
                       <span style={{fontSize:15,fontWeight:900,color:"#0056D6"}}>{fmt((shipFare||(result.shipCost*2)) / 2)}원</span>
@@ -1325,13 +1766,13 @@ const App=()=>{
               })()}
             </>
           )}
-          {!result&&calcSt==="idle"&&(
-            <div className="empty-state">
-              <span style={{fontSize:40}}>🚌</span>
-              <span style={{fontSize:13,fontWeight:700}}>출발지와 도착지를 입력하세요</span>
-              <span style={{fontSize:11}}>초성 검색 가능</span>
-            </div>
-          )}
+          {!result&&calcSt==="error_no_route"&&(
+          <div className="empty-state">
+            <span style={{fontSize:40}}>🚧</span>
+            <span style={{fontSize:15,fontWeight:900,color:"#FF3B30"}}>경로를 찾을 수 없습니다</span>
+            <span style={{fontSize:12,color:"#6E6E73",textAlign:"center",marginTop:4,lineHeight:1.5}}>해당 구간의 요금 데이터가 없거나,<br/>터미널 세분화로 인해 노선 연결이 단절된 상태입니다.</span>
+          </div>
+        )}
         {/* 가운데 하단 버튼 바 (PC) */}
         <div className="bottom-action-bar desktop-only">
           <button className={`action-btn ${showMap?"active":""}`} onClick={()=>setShowMap(v=>!v)}>
