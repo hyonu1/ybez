@@ -37,7 +37,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .col-right{display:none;}
 }
 
-.col-left{background:#F4F7FB;display:flex;flex-direction:column;}
+.col-left{background:#F4F7FB;display:flex;flex-direction:column;position:relative;}
 .col-center{background:#fff;display:flex;flex-direction:column;}
 .col-right{background:#F8FAFD;display:flex;flex-direction:column;}
 
@@ -433,7 +433,9 @@ const ISLAND_COORDS={
   "만재도":[34.237,125.440],"군외":[34.341,126.740],"신지":[34.303,126.823],"고금":[34.412,126.864],
   "약산":[34.385,126.917],"청산":[34.178,126.894],"노화":[34.181,126.553],"보길":[34.148,126.557],
   "소안":[34.140,126.676],"여서도":[33.965,126.884],"금일":[34.334,127.071],"생일":[34.393,126.988],
-  "진도조도":[34.316,126.143],"금당":[34.495,127.149],"신안":[34.833,126.348],"신안교육청":[34.833,126.348]
+  "진도조도":[34.316,126.143],"금당":[34.495,127.149],
+  "신안":[34.845,126.350],"신안교육청":[34.862,126.390],  // 압해도 신안군청 인근
+  "완도":[34.318,126.745],  // 완도읍 버스터미널
 };
 
 /* ── 인접 생활권 alias (노드 없지만 이웃 도시로 조회) ── */
@@ -666,10 +668,11 @@ const buildIslandLegs=(from,to,fromI,toI,landDepName,landArrName)=>{
   // [수정] 터미널 노드명이 반영된 경로 조립 로직
   const routeParts = [];
   if (fromI) {
-      routeParts.push(from); // 출발지가 섬이면 맨 앞에 표시
-      if (landDepName && landDepName !== from) routeParts.push(landDepName);
+      // 섬 출발 시 routeLabel은 육상구간만: 목포종합버스터미널→광주유스퀘어
+      // 섬→허브 농어촌버스/여객선은 legs에서 별도 표시됨
+      if (landDepName) routeParts.push(landDepName);
   } else {
-      routeParts.push(landDepName || from); // 일반 육지 출발
+      routeParts.push(landDepName || from);
   }
 
   if (toI) {
@@ -1562,8 +1565,12 @@ const App=()=>{
           const displayPre = jneMain ? (jneMain.pre || null) : (validPrimary ? validPrimary.pre : seg.pre);
           const displayDr = seg.dr || `${sFrom}→${sTo}`;
           
-          // [수정] 터미널 명칭 기반으로 완전히 조립된 최적의 노선 라벨 사용
-          const displayRouteLabel = seg.islandRouteLabel || `${seg.depName || sFrom} → ${seg.arrName || sTo}`;
+          // JNE 요금 적용 시 대표 메인노드명으로 routeLabel 강제 정렬
+          // (광주비아, 영산포 등 하위터미널이 메인 요금창에 승격되는 문제 방지)
+          const jneDepName = jneMain ? sFrom : null;
+          const jneArrName = jneMain ? sTo   : null;
+          const displayRouteLabel = seg.islandRouteLabel
+            || (jneDepName ? `${jneDepName} → ${jneArrName}` : `${seg.depName || sFrom} → ${seg.arrName || sTo}`);
 
           res = {
             ...seg,
@@ -1678,6 +1685,8 @@ const App=()=>{
 
   /* 지도용 노드 */
   const mapWaypoints=useMemo(()=>{
+    // 세부지역 팝업이 열려 있으면 메인 맵 waypoints 차단 (ghost 방지)
+    if(modalSt.type)return[];
     if(!result)return[];
     const bp=smartResult?.cheapest?.path||result?.multiHop?.path;
     if(bp&&bp.length>=2)return bp.map((city,i)=>({name:city,...getCityCoord(city),isHub:i>0&&i<bp.length-1}));
@@ -1732,7 +1741,7 @@ const App=()=>{
     <div className="dashboard">
 
       {/* ══ 왼쪽: 지도 + 출처 ══ */}
-      <div className="col-left">
+      <div className="col-left" style={modalSt.type?{visibility:"hidden"}:{}}>
         <div className="sec-hdr">
           <span>🗺️ 경로 지도</span>
           <button onClick={()=>setShowMap(v=>!v)} style={{background:showMap?"var(--blue)":"#E5E5EA",color:showMap?"#fff":"#8E8E93",border:"none",borderRadius:8,padding:"3px 10px",fontSize:11,fontWeight:800,cursor:"pointer",fontFamily:"var(--gm)"}}>
@@ -2210,31 +2219,178 @@ const App=()=>{
           </div>
         </div>
       )}
-      {modalSt.type&&(
-        <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:16,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)"}}
-          onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}}>
-          <div style={{background:"#fff",borderRadius:28,width:"100%",maxWidth:380,overflow:"hidden",boxShadow:"0 25px 50px rgba(0,0,0,0.25)"}} onClick={e=>e.stopPropagation()}>
-            <div style={{background:"linear-gradient(180deg,#288CFF,#007AFF)",padding:"18px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontFamily:"var(--gm)",fontSize:18,fontWeight:900,color:"#fff"}}>세부 지역 선택</span>
-              <button onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",cursor:"pointer",fontSize:22,lineHeight:1}}>✕</button>
+      {modalSt.type&&(()=>{
+        // 신안/완도 데스크톱 전용: 미니맵 + 리스트 분할 레이아웃
+        const MINI_MAP_GROUPS=new Set(["신안","완도"]);
+        // 모달 데이터가 신안/완도 중 어느 그룹인지 판별
+        const groupKey=Object.keys(POPUP).find(k=>
+          MINI_MAP_GROUPS.has(k)&&Array.isArray(POPUP[k])&&
+          POPUP[k].length===modalSt.data?.length&&
+          POPUP[k][0]===modalSt.data?.[0]
+        );
+        const isMiniMap=!!groupKey&&window.innerWidth>600;
+
+        // 신안/완도 중심 좌표 및 줌 (줌업 → 가거도/홍도 등 외곽 섬은 코너 오버레이)
+        const MAP_CENTER={
+          "신안":[34.79,126.13],  // 신안 군도 전체 중심
+          "완도":[34.27,126.78],  // 완도읍 포함 전체
+        };
+        const MAP_ZOOM={"신안":10,"완도":10};  // 완도 10으로 줌아웃해 완도읍 포함
+
+        const MiniMapPopup=()=>{
+          const miniRef=React.useRef(null);
+          const mmRef=React.useRef(null);
+          const [outIslands,setOutIslands]=React.useState([]);
+          const typeRef=React.useRef(modalSt.type);
+
+          React.useEffect(()=>{
+            if(!miniRef.current||mmRef.current)return;
+            const center=MAP_CENTER[groupKey]||[34.79,126.13];
+            const zoom=MAP_ZOOM[groupKey]||10;
+            const mm=L.map(miniRef.current,{
+              center,zoom,
+              dragging:false,zoomControl:false,
+              scrollWheelZoom:false,doubleClickZoom:false,
+              attributionControl:false,
+            });
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mm);
+
+            const handleSelect=(name)=>{
+              const isOri=typeRef.current==="origin";
+              if(isOri)setOrigin(name);else setDest(name);
+              setModalSt({type:null,data:[]});
+              setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
+            };
+
+            if(!document.getElementById("ybez-wobble-style")){
+              const st=document.createElement("style");
+              st.id="ybez-wobble-style";
+              st.textContent=`@keyframes ybez-wobble{0%,100%{transform:rotate(0deg) scale(1)}20%{transform:rotate(-12deg) scale(1.1)}40%{transform:rotate(12deg) scale(1.05)}60%{transform:rotate(-8deg) scale(1.08)}80%{transform:rotate(8deg) scale(1.03)}}`;
+              document.head.appendChild(st);
+            }
+
+            modalSt.data.forEach((name,idx)=>{
+              const coord=ISLAND_COORDS[name];
+              if(!coord)return;
+              const delay=(idx*0.15)%1.5;
+              const icon=L.divIcon({
+                className:"",
+                // transform:translate(-50%,-50%) → 아이콘 중심이 좌표점과 일치
+                html:`<div style="cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0px;pointer-events:all;transform:translate(-50%,-50%)">
+                  <span style="font-size:22px;display:inline-block;animation:ybez-wobble 2s ease-in-out ${delay}s infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35))">${ICONS[name]||"🏝️"}</span>
+                  <span style="font-size:13px;font-weight:900;color:#111;white-space:nowrap;letter-spacing:-0.3px;text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 0 6px rgba(255,255,255,0.9);line-height:1.1">${name}</span>
+                </div>`,
+                iconAnchor:[0,0],
+              });
+              L.marker([coord[0],coord[1]],{icon}).addTo(mm).on("click",()=>handleSelect(name));
+            });
+
+            setTimeout(()=>{if(mmRef.current)mmRef.current.invalidateSize();},80);
+            setTimeout(()=>{
+              if(!mmRef.current)return;
+              const bounds=mm.getBounds();
+              const outside=modalSt.data.filter(name=>{
+                const coord=ISLAND_COORDS[name];
+                if(!coord)return false;
+                return!bounds.contains(L.latLng(coord[0],coord[1]));
+              });
+              setOutIslands(outside);
+            },120);
+
+            mmRef.current=mm;
+            return()=>{if(mmRef.current){mmRef.current.remove();mmRef.current=null;}};
+          },[]);
+
+          return(
+            <div style={{position:"relative",flex:"1 1 0",minWidth:0,height:"100%",overflow:"hidden",borderRadius:"0 0 0 28px"}}>
+              <div ref={miniRef} style={{width:"100%",height:"100%"}}/>
+              {/* 잘린 섬 코너 오버레이 — 좌상단으로 이동 */}
+              {outIslands.length>0&&(
+                <div style={{position:"absolute",top:10,left:10,zIndex:1000,display:"flex",flexDirection:"column",gap:4,maxHeight:"60%",overflowY:"auto"}}>
+                  <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,0.9)",background:"rgba(0,0,0,0.5)",borderRadius:6,padding:"2px 6px",marginBottom:2,backdropFilter:"blur(4px)"}}>범위 밖 섬</div>
+                  {outIslands.map(name=>(
+                    <button key={name} onClick={()=>{
+                      const isOri=typeRef.current==="origin";
+                      if(isOri)setOrigin(name);else setDest(name);
+                      setModalSt({type:null,data:[]});
+                      setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
+                    }} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 9px",borderRadius:14,background:"rgba(255,255,255,0.92)",border:"none",cursor:"pointer",backdropFilter:"blur(6px)",boxShadow:"0 2px 6px rgba(0,0,0,0.2)"}}>
+                      <span style={{fontSize:14}}>{ICONS[name]||"🏝️"}</span>
+                      <span style={{fontSize:11,fontWeight:800,color:"#1C1C1E"}}>{name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            <div style={{padding:16,maxHeight:"60vh",overflowY:"auto"}}>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-                {modalSt.data.map(name=>(
-                  <button key={name} onClick={()=>{
-                    if(modalSt.type==="origin")setOrigin(name);else setDest(name);
-                    setModalSt({type:null,data:[]});
-                    setTimeout(()=>performCalc(modalSt.type==="origin"?name:origin,modalSt.type==="destination"?name:dest,""),0);
-                  }} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,padding:"14px 8px",borderRadius:16,background:"#F8F9FA",border:"1px solid transparent",cursor:"pointer",transition:"all .15s"}}>
-                    <span style={{fontSize:26}}>{ICONS[name.replace(/\s/g,"")]||"🚌"}</span>
-                    <span style={{fontSize:13,fontWeight:700,color:"#374151",textAlign:"center",lineHeight:1.3}}>{name}</span>
-                  </button>
-                ))}
+          );
+        };
+
+        return(
+          <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"rgba(0,0,0,0.65)",backdropFilter:"blur(6px)"}}
+            onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}}>
+            <div style={{
+              background:"#fff",borderRadius:28,
+              width:"calc(100vw - 40px)",
+              height:isMiniMap?"calc(100vh - 60px)":"auto",
+              maxWidth:isMiniMap?1000:380,
+              maxHeight:isMiniMap?820:undefined,
+              overflow:"hidden",
+              boxShadow:"0 30px 60px rgba(0,0,0,0.35)",
+              display:"flex",flexDirection:"column",
+            }} onClick={e=>e.stopPropagation()}>
+              {/* 헤더 */}
+              <div style={{background:"linear-gradient(180deg,#288CFF,#007AFF)",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
+                <div>
+                  <span style={{fontFamily:"var(--gm)",fontSize:18,fontWeight:900,color:"#fff"}}>
+                    {groupKey==="신안"?"🏝️ 신안 군도":groupKey==="완도"?"🦪 완도 해역":"세부 지역 선택"}
+                  </span>
+                  {isMiniMap&&<div style={{fontSize:11,color:"rgba(255,255,255,0.7)",marginTop:2}}>지도 마커 또는 오른쪽 목록을 클릭하세요</div>}
+                </div>
+                <button onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
               </div>
+
+              {isMiniMap?(
+                /* 데스크톱: 지도(확대) + 오른쪽 리스트 */
+                <div style={{display:"flex",flex:1,minHeight:0}}>
+                  <MiniMapPopup/>
+                  {/* 우: 전체 목록 (작게, 스크롤) */}
+                  <div style={{width:130,flexShrink:0,overflowY:"auto",borderLeft:"1px solid #F0F0F5",padding:"10px 7px",display:"flex",flexDirection:"column",gap:3,background:"#FAFAFA"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#AEAEB2",padding:"0 4px 6px",borderBottom:"1px solid #EBEBEB",marginBottom:4}}>전체 목록</div>
+                    {modalSt.data.map(name=>(
+                      <button key={name} onClick={()=>{
+                        const isOri=modalSt.type==="origin";
+                        if(isOri)setOrigin(name);else setDest(name);
+                        setModalSt({type:null,data:[]});
+                        setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
+                      }} style={{display:"flex",alignItems:"center",gap:5,padding:"6px 7px",borderRadius:9,background:"#fff",border:"1px solid #EBEBEB",cursor:"pointer",textAlign:"left",width:"100%",transition:"background .1s"}}>
+                        <span style={{fontSize:15}}>{ICONS[name]||"🏝️"}</span>
+                        <span style={{fontSize:11,fontWeight:700,color:"#374151",lineHeight:1.2}}>{name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ):(
+                /* 모바일: 기존 3열 그리드 */
+                <div style={{padding:16,maxHeight:"60vh",overflowY:"auto"}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                    {modalSt.data.map(name=>(
+                      <button key={name} onClick={()=>{
+                        const isOri=modalSt.type==="origin";
+                        if(isOri)setOrigin(name);else setDest(name);
+                        setModalSt({type:null,data:[]});
+                        setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
+                      }} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,padding:"14px 8px",borderRadius:16,background:"#F8F9FA",border:"1px solid transparent",cursor:"pointer"}}>
+                        <span style={{fontSize:26}}>{ICONS[name]||"🏝️"}</span>
+                        <span style={{fontSize:13,fontWeight:700,color:"#374151",textAlign:"center",lineHeight:1.3}}>{name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
       {activeModal&&(()=>{
         const mc=modalContent(activeModal);if(!mc)return null;
         return(
@@ -2259,8 +2415,18 @@ const App=()=>{
                       if(["meal_1","meal_2","meal_3","meal_half"].includes(item.id)&&!prev[item.id])
                         ["meal_1","meal_2","meal_3","meal_half"].forEach(k=>n[k]=false);
                       n[item.id]=!prev[item.id];
-                      if(item.id==="gov_vehicle")n.transport_gov_vehicle=n.gov_vehicle;
-                      if(item.id==="transport_gov_vehicle")n.gov_vehicle=n.transport_gov_vehicle;
+                      // 일비 관용차 ↔ 교통비 관용차 양방향 연동
+                      if(item.id==="gov_vehicle"){
+                        n.transport_gov_vehicle=n.gov_vehicle;
+                        if(n.gov_vehicle){n.transport_proof=false;n.transport_passenger=false;}
+                      }
+                      if(item.id==="transport_gov_vehicle"){
+                        n.gov_vehicle=n.transport_gov_vehicle;
+                        // 교통비 관용차 선택 시 다른 교통비 감액 해제 (배타)
+                        if(n.transport_gov_vehicle){n.transport_proof=false;n.transport_passenger=false;}
+                      }
+                      if(item.id==="transport_proof"&&n.transport_proof){n.transport_gov_vehicle=false;n.transport_passenger=false;n.gov_vehicle=false;}
+                      if(item.id==="transport_passenger"&&n.transport_passenger){n.transport_gov_vehicle=false;n.transport_proof=false;n.gov_vehicle=false;}
                       return n;
                     })}/>
                   </div>
@@ -2317,7 +2483,14 @@ const App=()=>{
                   </div>
                   {result?.surcharge>0&&<span style={{fontSize:9,fontWeight:700,color:"#059669"}}>({fmt(result.surcharge*2)}원 포함)</span>}
                 </div>
-              ):<span style={{fontSize:20,fontWeight:900,color:"#AEAEB2"}}>0원</span>}
+              ):(
+                <div style={{textAlign:"right"}}>
+                  <span style={{fontSize:20,fontWeight:900,color:"#AEAEB2"}}>0원</span>
+                  {ded.transport_gov_vehicle&&<div style={{fontSize:9,color:"#F59E0B",fontWeight:700,marginTop:2}}>관용차 이용 · 미지급</div>}
+                  {ded.transport_proof&&<div style={{fontSize:9,color:"#EF4444",fontWeight:700,marginTop:2}}>증빙 없음 · 미지급</div>}
+                  {ded.transport_passenger&&<div style={{fontSize:9,color:"#8B5CF6",fontWeight:700,marginTop:2}}>동승 · 미지급</div>}
+                </div>
+              )}
             </div>
           </div>
           {(shipFare>0||result?.isShipOnlyRoute)&&(
