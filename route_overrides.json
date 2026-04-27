@@ -1,0 +1,811 @@
+{
+  "version": "2026-04-27-v1",
+  "file_name": "route_overrides.json",
+  "target_path_hint": "D:\\01\\route_overrides.json",
+  "purpose": "YBEZ 경로 계산용 대표노드·생활권·선호허브·역전방지 보정층",
+  "do_not_modify_base_files": [
+    "routes.json",
+    "nodes.json",
+    "alias_linked.json",
+    "server.py",
+    "pathfinder.py"
+  ],
+  "principles": {
+    "direct_route_first": true,
+    "do_not_override_existing_direct_routes": true,
+    "overrides_are_for": [
+      "대표노드 정규화",
+      "생활권 정규화",
+      "후보 경로 정렬",
+      "노선역전 방지",
+      "하위노드 대표화 방지"
+    ],
+    "route_search_order": [
+      "routes.json 실제 직행",
+      "routes.json 실제 1회 환승",
+      "routes.json 실제 2회 환승",
+      "생활권·선호허브 기준 후보 정렬",
+      "노선역전 감점"
+    ]
+  },
+  "representative_overrides": {
+    "광주": {
+      "main_node_id": "NODE_0053",
+      "display_name": "광주유스퀘어",
+      "reason": "광주권 대표허브. NODE_0052 광주비아정류소는 보조노드로 처리"
+    },
+    "광주권": {
+      "main_node_id": "NODE_0053",
+      "display_name": "광주유스퀘어",
+      "reason": "광주권 통합 대표허브"
+    },
+    "완주": {
+      "normalize_to_area": "전주권",
+      "main_node_id": "NODE_0162",
+      "display_name": "전주고속버스터미널",
+      "reason": "완주는 전주 통합생활권으로 처리"
+    },
+    "장신대": {
+      "normalize_to_area": "전주권",
+      "main_node_id": "NODE_0162",
+      "display_name": "전주고속버스터미널",
+      "exclude_as_representative": true,
+      "reason": "장신대정류소는 전주·완주권 하위노드"
+    },
+    "안동": {
+      "main_node_id": "NODE_0129",
+      "display_name": "안동터미널",
+      "reason": "경북도청 계열보다 안동터미널이 대표노드로 적합"
+    },
+    "청주": {
+      "main_node_id": "NODE_0087",
+      "display_name": "청주시외버스터미널",
+      "reason": "남부정류장보다 청주시외버스터미널이 대표성·연결성이 높음"
+    },
+    "세종": {
+      "main_node_id": "NODE_0055",
+      "display_name": "세종고속시외버스터미널",
+      "reason": "고려대세종 계열보다 세종 대표 터미널로 적합"
+    },
+    "당진": {
+      "main_node_id": "NODE_0098",
+      "display_name": "당진버스터미널",
+      "reason": "기지시보다 당진버스터미널이 대표노드로 적합"
+    },
+    "사천": {
+      "main_node_id": "NODE_0501",
+      "display_name": "사천시외버스터미널",
+      "reason": "사천공항은 보조노드로 처리"
+    },
+    "영천": {
+      "main_node_id": "NODE_0134",
+      "display_name": "영천버스터미널",
+      "reason": "우로지자연생태공원 계열보다 영천버스터미널이 대표노드로 적합"
+    },
+    "상주": {
+      "main_node_id": "NODE_0127",
+      "display_name": "상주터미널",
+      "reason": "낙동강의성휴게소 등 휴게소 노드가 대표로 잡히는 것을 방지"
+    },
+    "하동": {
+      "main_node_id": "NODE_0535",
+      "display_name": "하동버스터미널",
+      "support_node_ids": [
+        "NODE_0534"
+      ],
+      "reason": "하동시장과 하동버스터미널 중 버스터미널 우선. 하동시장은 보조 가능"
+    },
+    "진천": {
+      "main_node_id": "NODE_0400",
+      "display_name": "진천종합터미널",
+      "preferred_area": "청주권",
+      "reason": "진천은 독립 대표를 유지하되 청주권 선호축 허용"
+    }
+  },
+  "living_areas": {
+    "서울권": {
+      "type": "parallel_core",
+      "members": [
+        "서울"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0001",
+          "display_name": "동서울종합터미널",
+          "role": "강원·경기북부·시외축"
+        },
+        {
+          "node_id": "NODE_0002",
+          "display_name": "서울고속버스터미널",
+          "role": "전국 고속·센트럴시티축"
+        },
+        {
+          "node_id": "NODE_0206",
+          "display_name": "서울남부터미널",
+          "role": "충청·전북·경남 일부 보조축"
+        }
+      ],
+      "rule": "서울은 하나의 생활권으로 보되 터미널은 병렬 허브로 유지"
+    },
+    "인천권": {
+      "type": "single_core",
+      "members": [
+        "인천",
+        "강화",
+        "옹진"
+      ],
+      "core_node": {
+        "node_id": "NODE_0038",
+        "display_name": "인천종합터미널"
+      },
+      "rule": "강화·옹진은 인천권 접근권으로 처리"
+    },
+    "광주권": {
+      "type": "single_core",
+      "members": [
+        "광주",
+        "화순",
+        "나주",
+        "장성",
+        "담양",
+        "영광",
+        "함평"
+      ],
+      "core_node": {
+        "node_id": "NODE_0053",
+        "display_name": "광주유스퀘어"
+      },
+      "support_nodes": [
+        {
+          "node_id": "NODE_0052",
+          "display_name": "광주비아정류소"
+        },
+        {
+          "node_id": "NODE_0297",
+          "display_name": "광주송정역"
+        }
+      ],
+      "rule": "광주권 위성도시는 광주유스퀘어를 대표허브로 사용. 직행은 항상 우선"
+    },
+    "목포권": {
+      "type": "single_core",
+      "members": [
+        "목포",
+        "남악",
+        "오룡",
+        "일로",
+        "신안접근권"
+      ],
+      "core_node": {
+        "node_id": "NODE_0177",
+        "display_name": "목포종합버스터미널"
+      },
+      "support_nodes": [
+        {
+          "node_id": "NODE_0178",
+          "display_name": "남악정류소"
+        },
+        {
+          "node_id": "NODE_0186",
+          "display_name": "지도여객자동차터미널"
+        }
+      ],
+      "rule": "무안 전체 흡수 금지. 남악·오룡·일로 중심 및 신안 접근권만 목포권으로 처리"
+    },
+    "전주권": {
+      "type": "single_core",
+      "members": [
+        "전주",
+        "완주"
+      ],
+      "core_node": {
+        "node_id": "NODE_0162",
+        "display_name": "전주고속버스터미널"
+      },
+      "excluded_sub_nodes": [
+        {
+          "node_id": "NODE_0565",
+          "display_name": "장신대정류소"
+        }
+      ],
+      "rule": "완주는 전주권에 흡수. 장신대는 전국망 대표노드에서 제외"
+    },
+    "여순광권": {
+      "type": "multi_core",
+      "members": [
+        "여수",
+        "순천",
+        "광양"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0187",
+          "display_name": "여수종합버스터미널"
+        },
+        {
+          "node_id": "NODE_0184",
+          "display_name": "순천종합버스터미널"
+        },
+        {
+          "node_id": "NODE_0171",
+          "display_name": "광양터미널"
+        }
+      ],
+      "support_nodes": [
+        {
+          "node_id": "NODE_0188",
+          "display_name": "여천"
+        },
+        {
+          "node_id": "NODE_0172",
+          "display_name": "동광양중마버스터미널"
+        }
+      ],
+      "rule": "여수·순천·광양은 단일 허브로 흡수하지 않고 3핵 병렬 유지"
+    },
+    "대구권": {
+      "type": "parallel_core",
+      "members": [
+        "대구",
+        "경산",
+        "칠곡",
+        "성주"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0046",
+          "display_name": "동대구터미널"
+        },
+        {
+          "node_id": "NODE_0273",
+          "display_name": "대구서부정류장"
+        },
+        {
+          "node_id": "NODE_0047",
+          "display_name": "서대구고속버스터미널"
+        }
+      ],
+      "rule": "동대구 하나로 강제하지 않고 동대구·대구서부·서대구 병렬"
+    },
+    "부산권": {
+      "type": "parallel_core",
+      "members": [
+        "부산",
+        "양산",
+        "기장"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0050",
+          "display_name": "부산종합버스터미널"
+        },
+        {
+          "node_id": "NODE_0051",
+          "display_name": "부산서부시외버스터미널"
+        },
+        {
+          "node_id": "NODE_0287",
+          "display_name": "부산동래시외버스정류소"
+        },
+        {
+          "node_id": "NODE_0294",
+          "display_name": "해운대시외버스정류소"
+        }
+      ],
+      "rule": "호남선·경남서부축은 부산서부를 강하게 고려. 목적지 방향별 병렬 선택"
+    },
+    "춘천권": {
+      "type": "single_core",
+      "members": [
+        "춘천",
+        "홍천"
+      ],
+      "core_node": {
+        "node_id": "NODE_0074",
+        "display_name": "춘천시외버스터미널"
+      },
+      "rule": "철원은 춘천권 흡수 금지. 철원은 포천·동서울·춘천 선호허브형"
+    },
+    "원주권": {
+      "type": "single_core",
+      "members": [
+        "원주",
+        "횡성"
+      ],
+      "core_node": {
+        "node_id": "NODE_0069",
+        "display_name": "원주종합버스터미널"
+      }
+    },
+    "강릉권": {
+      "type": "single_core",
+      "members": [
+        "강릉",
+        "양양",
+        "동해",
+        "삼척"
+      ],
+      "core_node": {
+        "node_id": "NODE_0061",
+        "display_name": "강릉시외고속버스터미널"
+      }
+    },
+    "청주권": {
+      "type": "single_core",
+      "members": [
+        "청주",
+        "증평"
+      ],
+      "core_node": {
+        "node_id": "NODE_0087",
+        "display_name": "청주시외버스터미널"
+      }
+    },
+    "대전권": {
+      "type": "single_core",
+      "members": [
+        "대전",
+        "계룡",
+        "금산"
+      ],
+      "core_node": {
+        "node_id": "NODE_0041",
+        "display_name": "대전복합터미널"
+      }
+    },
+    "세종권": {
+      "type": "single_core",
+      "members": [
+        "세종"
+      ],
+      "core_node": {
+        "node_id": "NODE_0055",
+        "display_name": "세종고속시외버스터미널"
+      }
+    },
+    "천안아산권": {
+      "type": "multi_core",
+      "members": [
+        "천안",
+        "아산"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0112",
+          "display_name": "천안고속버스터미널"
+        },
+        {
+          "node_id": "NODE_0105",
+          "display_name": "아산고속버스터미널"
+        }
+      ]
+    },
+    "익산군산권": {
+      "type": "multi_core",
+      "members": [
+        "익산",
+        "군산"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0159",
+          "display_name": "익산시외고속버스터미널"
+        },
+        {
+          "node_id": "NODE_0152",
+          "display_name": "군산고속버스터미널"
+        }
+      ]
+    },
+    "충주제천권": {
+      "type": "multi_core",
+      "members": [
+        "충주",
+        "제천",
+        "단양"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0090",
+          "display_name": "충주공용버스터미널"
+        },
+        {
+          "node_id": "NODE_0080",
+          "display_name": "제천고속버스터미널, 제천버스터미널"
+        }
+      ]
+    },
+    "구미김천권": {
+      "type": "multi_core",
+      "members": [
+        "구미",
+        "김천"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0122",
+          "display_name": "구미종합터미널"
+        },
+        {
+          "node_id": "NODE_0125",
+          "display_name": "김천시외버스정류장"
+        }
+      ]
+    },
+    "통영거제권": {
+      "type": "multi_core",
+      "members": [
+        "통영",
+        "거제",
+        "고성"
+      ],
+      "core_nodes": [
+        {
+          "node_id": "NODE_0149",
+          "display_name": "통영종합버스터미널"
+        },
+        {
+          "node_id": "NODE_0490",
+          "display_name": "고현버스터미널"
+        }
+      ]
+    }
+  },
+  "excluded_sub_nodes": {
+    "NODE_0565": {
+      "display_name": "장신대정류소",
+      "parent_area": "전주권"
+    },
+    "NODE_0052": {
+      "display_name": "광주비아정류소",
+      "parent_area": "광주권",
+      "allow_as_support": true
+    },
+    "NODE_0297": {
+      "display_name": "광주송정역",
+      "parent_area": "광주권",
+      "allow_as_support": true
+    },
+    "NODE_0178": {
+      "display_name": "남악정류소",
+      "parent_area": "목포권",
+      "allow_as_support": true
+    },
+    "NODE_0188": {
+      "display_name": "여천",
+      "parent_area": "여수권",
+      "allow_as_support": true
+    },
+    "NODE_0172": {
+      "display_name": "동광양중마버스터미널",
+      "parent_area": "광양권",
+      "allow_as_support": true
+    },
+    "NODE_0500": {
+      "display_name": "사천공항",
+      "parent_area": "사천권",
+      "allow_as_support": true
+    },
+    "NODE_0054": {
+      "display_name": "고려대학교세종캠퍼스",
+      "parent_area": "세종권",
+      "allow_as_support": true
+    },
+    "NODE_0128": {
+      "display_name": "경북도청",
+      "parent_area": "안동권",
+      "allow_as_support": true
+    },
+    "NODE_0133": {
+      "display_name": "우로지자연생태공원",
+      "parent_area": "영천",
+      "allow_as_support": true
+    }
+  },
+  "preferred_hubs": {
+    "해남": [
+      "광주권",
+      "목포권"
+    ],
+    "완도": [
+      "광주권",
+      "목포권",
+      "해남"
+    ],
+    "진도": [
+      "광주권",
+      "목포권",
+      "해남"
+    ],
+    "보성": [
+      "순천",
+      "광주권"
+    ],
+    "구례": [
+      "순천",
+      "광주권"
+    ],
+    "고흥": [
+      "순천",
+      "광양"
+    ],
+    "곡성": [
+      "광주권",
+      "순천"
+    ],
+    "강진": [
+      "목포권",
+      "광주권",
+      "순천"
+    ],
+    "장흥": [
+      "광주권",
+      "순천",
+      "목포권"
+    ],
+    "영암": [
+      "목포권",
+      "광주권"
+    ],
+    "무안": [
+      "목포권",
+      "광주권"
+    ],
+    "철원": [
+      "포천",
+      "동서울",
+      "춘천"
+    ],
+    "화천": [
+      "춘천",
+      "동서울"
+    ],
+    "양구": [
+      "춘천",
+      "동서울"
+    ],
+    "속초": [
+      "강릉",
+      "동서울"
+    ],
+    "고성": [
+      "속초",
+      "강릉"
+    ],
+    "정선": [
+      "원주",
+      "강릉"
+    ],
+    "태백": [
+      "강릉",
+      "원주"
+    ],
+    "평창": [
+      "원주",
+      "강릉"
+    ],
+    "영월": [
+      "원주",
+      "제천"
+    ],
+    "영주": [
+      "안동",
+      "동대구"
+    ],
+    "봉화": [
+      "영주",
+      "안동"
+    ],
+    "예천": [
+      "안동",
+      "영주"
+    ],
+    "경주": [
+      "경주",
+      "동대구",
+      "포항"
+    ],
+    "상주": [
+      "상주",
+      "대구권"
+    ],
+    "문경": [
+      "상주",
+      "점촌",
+      "충주"
+    ],
+    "영천": [
+      "대구권"
+    ],
+    "청도": [
+      "대구권"
+    ],
+    "김해": [
+      "부산권",
+      "창원"
+    ],
+    "밀양": [
+      "부산권",
+      "대구권"
+    ],
+    "하동": [
+      "진주",
+      "순천"
+    ],
+    "남해": [
+      "진주",
+      "순천"
+    ],
+    "합천": [
+      "진주",
+      "대구권"
+    ],
+    "거창": [
+      "진주",
+      "대구권"
+    ],
+    "함양": [
+      "진주",
+      "대구권"
+    ],
+    "경남고성": [
+      "통영",
+      "진주"
+    ]
+  },
+  "route_ranking_rules": {
+    "priority_order": [
+      "direct_route",
+      "one_transfer",
+      "two_transfers",
+      "preferred_hub_match",
+      "parallel_hub_direction_match",
+      "avoid_unnecessary_seoul",
+      "avoid_region_reversal",
+      "avoid_excessive_fare"
+    ],
+    "penalties": {
+      "unnecessary_seoul_for_south_to_yeongnam": 80,
+      "unnecessary_seoul_for_jeonnam_east_to_busan_gyeongnam": 80,
+      "same_living_area_via_national_hub": 100,
+      "wrong_direction_large_backtrack": 70,
+      "uses_excluded_sub_node_as_representative": 100,
+      "non_direct_route_when_direct_exists": 1000
+    },
+    "preferred_axes": [
+      {
+        "name": "전남↔영남축",
+        "from_regions": [
+          "광주권",
+          "목포권",
+          "여순광권",
+          "해남",
+          "완도",
+          "진도",
+          "보성",
+          "구례",
+          "고흥"
+        ],
+        "preferred_hubs": [
+          "광주권",
+          "순천",
+          "광양",
+          "대구권",
+          "부산권",
+          "진주"
+        ],
+        "avoid_hubs": [
+          "서울권"
+        ]
+      },
+      {
+        "name": "전남서부 전국진입축",
+        "from_regions": [
+          "해남",
+          "완도",
+          "진도",
+          "목포권"
+        ],
+        "preferred_hubs": [
+          "광주권",
+          "목포권"
+        ],
+        "avoid_hubs": []
+      },
+      {
+        "name": "강원북부 접경축",
+        "from_regions": [
+          "철원",
+          "화천",
+          "양구"
+        ],
+        "preferred_hubs": [
+          "포천",
+          "동서울",
+          "춘천"
+        ],
+        "avoid_hubs": []
+      },
+      {
+        "name": "대구경북축",
+        "from_regions": [
+          "안동",
+          "영주",
+          "구미",
+          "김천",
+          "영천",
+          "경주",
+          "포항"
+        ],
+        "preferred_hubs": [
+          "대구권",
+          "안동",
+          "포항"
+        ],
+        "avoid_hubs": []
+      }
+    ]
+  },
+  "test_cases": [
+    {
+      "from": "광주",
+      "to": "담양",
+      "expect": "광주유스퀘어 기준, routes 직행 우선"
+    },
+    {
+      "from": "담양",
+      "to": "부산",
+      "expect": "담양 → 광주권 → 부산권"
+    },
+    {
+      "from": "해남",
+      "to": "안동",
+      "expect": "해남 → 광주권/목포권 → 대구권 → 안동"
+    },
+    {
+      "from": "완도",
+      "to": "구미",
+      "expect": "완도 → 광주권/목포권 → 대구권 → 구미"
+    },
+    {
+      "from": "진도",
+      "to": "세종",
+      "expect": "진도 → 광주권/목포권 → 대전권/세종권"
+    },
+    {
+      "from": "보성",
+      "to": "부산",
+      "expect": "보성 → 순천 → 부산권"
+    },
+    {
+      "from": "구례",
+      "to": "포항",
+      "expect": "구례 → 순천/광주권 → 포항/대구권"
+    },
+    {
+      "from": "여수",
+      "to": "부산",
+      "expect": "직행 있으면 직행 우선"
+    },
+    {
+      "from": "광양",
+      "to": "대구",
+      "expect": "광양/동광양 → 대구권 직행 우선"
+    },
+    {
+      "from": "철원",
+      "to": "광주",
+      "expect": "철원 → 포천/동서울/춘천 → 광주권"
+    },
+    {
+      "from": "속초",
+      "to": "정읍",
+      "expect": "속초 → 강릉/동서울 → 전북축"
+    },
+    {
+      "from": "구미",
+      "to": "목포",
+      "expect": "직행 있으면 직행, 없으면 대구권 → 광주권/목포권"
+    }
+  ]
+}
