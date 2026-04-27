@@ -14,7 +14,7 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 @import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.css');
 :root{
-  --blue:#007AFF;--blue2:#5AC8FA;--bg:#EEF3FA;
+  --blue:#007AFF;--blue2:#5AC8FA;--bg:#F5F6F8;
   --sep:rgba(60,60,67,0.1);--card:#fff;
   --gm:'GmarketSansMedium',sans-serif;
   --pr:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
@@ -25,7 +25,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 /* ── 대시보드 레이아웃 ── */
 .dashboard{display:grid;min-height:100dvh;grid-template-columns:1fr;gap:0;}
 @media(min-width:1100px){
-  .dashboard{grid-template-columns:3fr 4fr 3fr;grid-template-rows:100dvh;gap:0;overflow:hidden;}
+  .dashboard{grid-template-columns:2.6fr 4.8fr 2.6fr;grid-template-rows:100dvh;gap:0;overflow:hidden;}
   .col-left{overflow-y:auto;border-right:1px solid var(--sep);}
   .col-center{overflow-y:auto;}
   .col-right{overflow-y:auto;border-left:1px solid var(--sep);}
@@ -37,9 +37,9 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .col-right{display:none;}
 }
 
-.col-left{background:#F4F7FB;display:flex;flex-direction:column;position:relative;}
-.col-center{background:#fff;display:flex;flex-direction:column;}
-.col-right{background:#F8FAFD;display:flex;flex-direction:column;}
+.col-left{background:#F1F4F8;display:flex;flex-direction:column;position:relative;}
+.col-center{background:#FFFFFF;display:flex;flex-direction:column;}
+.col-right{background:#F5F6F8;display:flex;flex-direction:column;}
 
 /* ── 섹션 헤더 ── */
 .sec-hdr{padding:14px 18px 10px;border-bottom:1px solid var(--sep);font-family:var(--gm);font-size:15px;font-weight:700;color:#8E8E93;letter-spacing:0.3px;display:flex;align-items:center;justify-content:space-between;}
@@ -79,7 +79,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
 /* ── 결과 카드 ── */
 .result-wrap{padding:0 16px 16px;flex:1;}
-.main-fare-card{border-radius:20px;padding:18px 18px 14px;background:linear-gradient(135deg,#fff,#F8FAFF);border:1px solid rgba(0,122,255,0.1);box-shadow:0 4px 16px rgba(0,122,255,0.06),0 2px 6px rgba(0,0,0,0.04);margin-bottom:10px;}
+.main-fare-card{border-radius:20px;padding:18px 18px 14px;background:linear-gradient(135deg,#fff,#F8FAFF);border:1px solid rgba(0,122,255,0.1);box-shadow:0 8px 24px rgba(15,23,42,0.06),0 1px 2px rgba(15,23,42,0.04);margin-bottom:10px;}
 .fare-amount{font-family:var(--gm);font-size:42px;font-weight:900;color:var(--blue);}
 .tag-badge{display:inline-flex;align-items:center;border-radius:6px;padding:3px 9px;font-size:13px;font-weight:800;border:1px solid transparent;font-family:var(--gm);}
 .tag-side{display:inline-flex;align-items:center;padding:0 3px;border-radius:3px;font-size:8px;font-weight:700;margin-left:2px;border:1px solid transparent;vertical-align:middle;line-height:1.5;}
@@ -141,10 +141,24 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:10px;color:#C7C7CC;}
 
 /* ── 모달 ── */
-.modal-bg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;}
-.modal-box{background:#fff;border-radius:24px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,0.2);}
+.modal-bg{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-box{background:#fff;border-radius:24px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,0.2);position:relative;z-index:10001;}
 .modal-hdr{background:linear-gradient(180deg,#288CFF,#007AFF);padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;}
 .modal-body{padding:16px 18px;}
+
+/* 모달 열림 시 Leaflet 도구가 모달 위로 솟지 않도록 — body에 .modal-open 클래스 토글 */
+body.modal-open .leaflet-pane,
+body.modal-open .leaflet-control-container{z-index:1 !important;}
+
+/* ── 섬 마커 (MiniMapPopup 전용) ── */
+.island-button-marker{background:transparent;border:none;}
+.island-marker-btn{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:28px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg,#FDBA74 0%,#F97316 55%,#EA580C 100%);color:#fff;border:2px solid #fff;box-shadow:0 3px 8px rgba(234,88,12,0.35),inset 0 1px 0 rgba(255,255,255,0.35);font-family:var(--gm);font-size:12px;font-weight:900;line-height:1;white-space:nowrap;text-shadow:0 1px 1px rgba(0,0,0,0.22);cursor:pointer;}
+.island-marker-btn.selected{background:linear-gradient(180deg,#FB923C 0%,#EA580C 60%,#C2410C 100%);transform:scale(1.04);box-shadow:0 4px 10px rgba(234,88,12,0.45),inset 0 1px 0 rgba(255,255,255,0.35);}
+.island-remote-label{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:999px;background:rgba(239,68,68,0.10);color:#B91C1C;border:1px dashed rgba(239,68,68,0.65);font-size:11px;font-weight:800;font-family:var(--gm);white-space:nowrap;}
+
+/* ── 입체 효과 (선택 요소만) ── */
+.fare-card{box-shadow:0 8px 24px rgba(15,23,42,0.06),0 1px 2px rgba(15,23,42,0.04);}
+.sub-card.selected{box-shadow:0 6px 16px rgba(0,122,255,0.16),inset 0 1px 0 rgba(255,255,255,0.9);}
 
 /* ── 스크롤바 ── */
 ::-webkit-scrollbar{width:4px;}
@@ -425,18 +439,56 @@ const JNE_CITIES=new Set(Object.keys(JNE_FARES));
 const isJNE=(c)=>JNE_CITIES.has((c||"").trim());
 
 /* ── 섬 실제 좌표 (지도 표시용) ── */
-const ISLAND_COORDS={
-  "압해":[34.819,126.334],"지도":[34.997,126.167],"증도":[35.001,126.213],"임자":[35.086,126.112],
-  "팔금":[34.824,126.143],"암태":[34.872,126.127],"자은":[34.934,126.089],"안좌":[34.762,126.196],
-  "비금":[34.747,125.973],"도초":[34.686,125.948],"장산":[34.653,126.108],"하의":[34.603,126.119],
-  "신의":[34.563,126.178],"흑산":[34.685,125.438],"홍도":[34.683,125.192],"가거도":[34.072,125.115],
-  "만재도":[34.237,125.440],"군외":[34.341,126.740],"신지":[34.303,126.823],"고금":[34.412,126.864],
-  "약산":[34.385,126.917],"청산":[34.178,126.894],"노화":[34.181,126.553],"보길":[34.148,126.557],
-  "소안":[34.140,126.676],"여서도":[33.965,126.884],"금일":[34.334,127.071],"생일":[34.393,126.988],
-  "진도조도":[34.316,126.143],"금당":[34.495,127.149],
-  "신안":[34.845,126.350],"신안교육청":[34.862,126.390],  // 압해도 신안군청 인근
-  "완도":[34.318,126.745],  // 완도읍 버스터미널
+const ISLAND_COORDS = {
+  // 신안 (실좌표)
+  "신안교육청": [34.786900, 126.381600],
+  "압해": [34.861500, 126.313800],
+  "지도": [35.052900, 126.208900],
+  "증도": [34.991800, 126.142300],
+  "임자": [35.087400, 126.086200],
+  "자은": [34.886600, 126.048300],
+  "안좌": [34.733700, 126.127700],
+  "팔금": [34.785300, 126.142900],
+  "암태": [34.827800, 126.112600],
+  "비금": [34.766700, 126.000000],
+  "도초": [34.666700, 125.950000],
+  "흑산": [34.682000, 125.424000],
+  "홍도": [34.683300, 125.200000],
+  "가거도": [34.073000, 125.116000],
+  "만재도": [34.230000, 125.468000],
+  "하의": [34.596000, 126.060000],
+  "신의": [34.563000, 126.101000],
+  "장산": [34.645000, 126.143000],
+  // 완도 (실좌표)
+  "완도": [34.317227, 126.745104],
+  "군외": [34.397000, 126.652000],
+  "신지": [34.333000, 126.826000],
+  "고금": [34.393000, 126.802000],
+  "약산": [34.394000, 126.891000],
+  "금일": [34.332000, 127.028000],
+  "노화": [34.176000, 126.568000],
+  "보길": [34.149000, 126.585000],
+  "청산": [34.180000, 126.893000],
+  "소안": [34.161000, 126.651000],
+  "여서도": [33.984000, 126.922000],
+  "생일": [34.386000, 126.969000],
+  "금당": [34.433000, 127.052000],
+  "신안": [34.845, 126.350],
+  "진도조도": [34.316, 126.143],
 };
+
+/* MiniMapPopup 렌더링 전용 가상좌표 — 거리/요금 계산에는 절대 사용 금지 */
+const UI_VIRTUAL_COORDS = {
+  // 신안 원거리 도서: 좌측 빈 해상 구역에 배치
+  "홍도": [34.940, 125.880],
+  "흑산": [34.860, 125.880],
+  "가거도": [34.780, 125.880],
+  "만재도": [34.700, 125.880],
+  // 완도 원거리 도서: 우측 하단 빈 해상 구역
+  "여서도": [34.120, 127.120],
+};
+const SINAN_REMOTE_BOX = [[34.660, 125.820],[34.980, 125.950]];
+const WANDO_REMOTE_BOX = [[34.060, 127.060],[34.170, 127.180]];
 
 /* ── 인접 생활권 alias (노드 없지만 이웃 도시로 조회) ── */
 const NEARBY_ALIAS={
@@ -853,6 +905,13 @@ const App=()=>{
   const [showDetail,setShowDetail]=useState(false);
   const [intraCityOpen,setIntraCityOpen]=useState(false);
   const [activeModal,setActiveModal]=useState(null);
+
+  // 모달 열림 시 body.modal-open 토글 → Leaflet z-index 강제 다운
+  useEffect(()=>{
+    const isOpen=!!activeModal||!!modalSt?.type;
+    if(isOpen)document.body.classList.add("modal-open");
+    else document.body.classList.remove("modal-open");
+  },[activeModal,modalSt]);
   const [shipFare,setShipFare]=useState(0);
   const [manualTransport,setManualTransport]=useState(null);
   const [showMap,setShowMap]=useState(true);
@@ -2244,10 +2303,10 @@ const App=()=>{
 
         // 신안/완도 중심 좌표 및 줌 (줌업 → 가거도/홍도 등 외곽 섬은 코너 오버레이)
         const MAP_CENTER={
-          "신안":[34.79,126.13],  // 신안 군도 전체 중심
-          "완도":[34.27,126.78],  // 완도읍 포함 전체
+          "신안":[34.78,126.00],  // 좌측 가상좌표 영역까지 포함
+          "완도":[34.27,126.85],  // 우측 가상좌표 영역까지 포함
         };
-        const MAP_ZOOM={"신안":10,"완도":10};  // 완도 10으로 줌아웃해 완도읍 포함
+        const MAP_ZOOM={"신안":10,"완도":10};
 
         const MiniMapPopup=()=>{
           const miniRef=React.useRef(null);
@@ -2274,41 +2333,50 @@ const App=()=>{
               setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
             };
 
-            if(!document.getElementById("ybez-wobble-style")){
-              const st=document.createElement("style");
-              st.id="ybez-wobble-style";
-              st.textContent=`@keyframes ybez-wobble{0%,100%{transform:rotate(0deg) scale(1)}20%{transform:rotate(-12deg) scale(1.1)}40%{transform:rotate(12deg) scale(1.05)}60%{transform:rotate(-8deg) scale(1.08)}80%{transform:rotate(8deg) scale(1.03)}}`;
-              document.head.appendChild(st);
-            }
+            // 섬 라벨 정제 (이모지/접미사 제거)
+            const cleanIslandLabel=(name)=>String(name||"")
+              .replace(/[🏝️🌊🌉🏖️🎂🌿🐟🦪⚓️🧂🚲🌷🦐🌁🦅🌼🎣🕊️🗿]/g,"")
+              .replace(/(읍|면|동|리)$/g,"")
+              .trim();
 
-            modalSt.data.forEach((name,idx)=>{
-              const coord=ISLAND_COORDS[name];
+            modalSt.data.forEach((name)=>{
+              // 가상좌표 우선 (원거리 도서) → 실좌표
+              const coord=UI_VIRTUAL_COORDS[name]||ISLAND_COORDS[name];
               if(!coord)return;
-              const delay=(idx*0.15)%1.5;
+              const label=cleanIslandLabel(name);
               const icon=L.divIcon({
-                className:"",
-                // transform:translate(-50%,-50%) → 아이콘 중심이 좌표점과 일치
-                html:`<div style="cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0px;pointer-events:all;transform:translate(-50%,-50%)">
-                  <span style="font-size:22px;display:inline-block;animation:ybez-wobble 2s ease-in-out ${delay}s infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35))">${ICONS[name]||"🏝️"}</span>
-                  <span style="font-size:13px;font-weight:900;color:#111;white-space:nowrap;letter-spacing:-0.3px;text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 0 6px rgba(255,255,255,0.9);line-height:1.1">${name}</span>
-                </div>`,
-                iconAnchor:[0,0],
+                className:"island-button-marker",
+                html:`<div class="island-marker-btn">${label}</div>`,
+                iconSize:null,
+                iconAnchor:[24,16],
               });
               L.marker([coord[0],coord[1]],{icon}).addTo(mm).on("click",()=>handleSelect(name));
             });
 
-            setTimeout(()=>{if(mmRef.current)mmRef.current.invalidateSize();},80);
-            setTimeout(()=>{
-              if(!mmRef.current)return;
-              const bounds=mm.getBounds();
-              const outside=modalSt.data.filter(name=>{
-                const coord=ISLAND_COORDS[name];
-                if(!coord)return false;
-                return!bounds.contains(L.latLng(coord[0],coord[1]));
+            // 원거리 도서 가상구역 박스 + 라벨
+            const remoteBoxStyle={color:"#EF4444",weight:1.5,dashArray:"5,5",fill:false,opacity:0.8};
+            if(groupKey==="신안"){
+              L.rectangle(SINAN_REMOTE_BOX,remoteBoxStyle).addTo(mm);
+              const labelIcon=L.divIcon({
+                className:"",
+                html:`<div class="island-remote-label">원거리 도서</div>`,
+                iconSize:null,iconAnchor:[40,-2],
               });
-              setOutIslands(outside);
-            },120);
+              L.marker([SINAN_REMOTE_BOX[1][0]+0.005,(SINAN_REMOTE_BOX[0][1]+SINAN_REMOTE_BOX[1][1])/2],{icon:labelIcon,interactive:false}).addTo(mm);
+            }
+            if(groupKey==="완도"){
+              L.rectangle(WANDO_REMOTE_BOX,remoteBoxStyle).addTo(mm);
+              const labelIcon=L.divIcon({
+                className:"",
+                html:`<div class="island-remote-label">원거리 도서</div>`,
+                iconSize:null,iconAnchor:[40,-2],
+              });
+              L.marker([WANDO_REMOTE_BOX[1][0]+0.005,(WANDO_REMOTE_BOX[0][1]+WANDO_REMOTE_BOX[1][1])/2],{icon:labelIcon,interactive:false}).addTo(mm);
+            }
 
+            setTimeout(()=>{if(mmRef.current)mmRef.current.invalidateSize();},80);
+            // outIslands 계산 — 가상좌표로 모두 화면 안에 표시되므로 비활성화
+            // (UI_VIRTUAL_COORDS가 적용된 후에는 범위 밖 섬이 거의 발생하지 않음)
             mmRef.current=mm;
             return()=>{if(mmRef.current){mmRef.current.remove();mmRef.current=null;}};
           },[]);
