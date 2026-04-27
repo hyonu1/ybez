@@ -67,10 +67,21 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .clear-btn:active{background:#C7C7CC;transform:scale(0.9);}
 
 /* ── 자동완성 ── */
-.sug-box{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid rgba(0,122,255,0.1);border-radius:16px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:200px;overflow-y:auto;font-family:var(--gm);}
-.sug-item{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:600;border-bottom:1px solid rgba(0,0,0,0.03);}
+.sug-box{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid rgba(0,122,255,0.1);border-radius:16px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:420px;overflow-y:auto;font-family:var(--gm);}
+.sug-item{padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;border-bottom:1px solid rgba(0,0,0,0.03);min-height:36px;}
 .sug-item:last-child{border-bottom:none;}
 .sug-item:hover,.sug-item.sel{background:rgba(0,122,255,0.05);}
+.sug-group-hdr{padding:6px 12px 4px;font-size:10px;font-weight:800;color:#AEAEB2;letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid #F2F2F7;min-height:28px;display:flex;align-items:center;}
+.region-badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:20px;padding:0 7px;border-radius:999px;font-size:10px;font-weight:800;line-height:1;flex-shrink:0;border:1px solid transparent;}
+.rb-jg{background:linear-gradient(135deg,#EFF6FF,#ECFDF5);color:#065F46;border-color:#A7F3D0;}
+.rb-jg2{background:#E8F5E9;color:#2E7D32;border-color:#A5D6A7;font-size:9px;}
+.rb-capital{background:#EEF2FF;color:#4338CA;border-color:#C7D2FE;}
+.rb-gs{background:#F0FDF4;color:#166534;border-color:#BBF7D0;}
+.rb-cc{background:#FFF7ED;color:#C2410C;border-color:#FED7AA;}
+.rb-jb{background:#F5F3FF;color:#6D28D9;border-color:#DDD6FE;}
+.rb-gw{background:#F0F9FF;color:#0369A1;border-color:#BAE6FD;}
+.rb-jeju{background:#FFF7ED;color:#EA580C;border-color:#FDBA74;}
+.rb-etc{background:#F8FAFC;color:#64748B;border-color:#E2E8F0;}
 
 /* ── 상태바 ── */
 .status-bar{margin:0 16px 10px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;}
@@ -765,6 +776,8 @@ const Toggle=({on,onChange})=>(
 );
 
 /* ── AutocompleteInput ── */
+// AcInput — SEARCH_DB 기반 그룹화 자동완성
+// onSelect(key, item) — key: 내부 계산용 city, item: SEARCH_DB 항목
 const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
   const [sug,setSug]=useState([]);
   const [open,setOpen]=useState(false);
@@ -772,24 +785,55 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
   const boxRef=useRef(null);
   const inRef=useRef(null);
   const comp=useRef(false);
+
+  // SEARCH_DB 기반 필터 (list는 하위 호환용으로 유지)
   useEffect(()=>{
     const v=nz(value);
-    if(!v||list.includes(v)){setSug([]);return;}
-    const resolved=resolveJamo(v); // 복자음 분리 (ㄵ→ㄴㅈ)
+    if(!v){setSug([]);return;}
+    const resolved=resolveJamo(v);
     const isCho=/^[ㄱ-ㅎ]+$/.test(resolved);
-    setSug(list.filter(c => {
-      const cleanCity = c.replace(/^(경기|전남|전북|경남|경북|충남|충북|강원)/, "");
-      return isCho ? cho(c).includes(resolved) : (cleanCity.includes(v) || c.includes(v));
-    }));
-  },[value,list]);
+    const match=(s)=>{
+      if(!s)return false;
+      if(isCho)return cho(s).includes(resolved);
+      return s.toLowerCase().includes(v.toLowerCase());
+    };
+    const results=SEARCH_DB.filter(item=>{
+      // 직접 입력 시만 표시 항목은 v가 정확히 포함될 때만
+      if(item.hidden){
+        const s=item.label;
+        if(isCho)return cho(s).includes(resolved);
+        return s.includes(v);
+      }
+      return match(item.label)||(item.label2&&match(item.label2));
+    });
+    setSug(results);
+    setIdx(-1);
+  },[value]);
+
   useEffect(()=>{
     if(!open)return;
     const h=(e)=>{if(boxRef.current&&!boxRef.current.contains(e.target)){setOpen(false);setIdx(-1);}};
     document.addEventListener("pointerdown",h);
     return()=>document.removeEventListener("pointerdown",h);
   },[open]);
-  const pick=(c)=>{onSelect(c);setOpen(false);setSug([]);setIdx(-1);};
-  const clr=(e)=>{e.preventDefault();e.stopPropagation();onChange("");onSelect("");setOpen(false);setSug([]);setTimeout(()=>inRef.current?.focus(),0);};
+
+  const pick=(item)=>{
+    // 표시값은 label, 내부 key는 item.key
+    onChange(item.label2||item.label);
+    onSelect(item.key,item);
+    setOpen(false);setSug([]);setIdx(-1);
+  };
+
+  const clr=(e)=>{
+    e.preventDefault();e.stopPropagation();
+    onChange("");onSelect("",null);
+    setOpen(false);setSug([]);
+    setTimeout(()=>inRef.current?.focus(),0);
+  };
+
+  // 표시 아이콘: 선택된 도시명 기준
+  const displayIcon=ICONS[nz(value)]||ICONS[nz(value).replace(/(비아|송정역|북부|신대지구)$/,"")]||"";
+
   return(
     <div className="relative" ref={boxRef}>
       <div className="input-box">
@@ -798,27 +842,50 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
           {label&&<div className="input-label">{label}</div>}
           <input ref={inRef} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
             className="input-field" placeholder={placeholder} value={value||""}
-            onChange={e=>{const v=e.target.value;onChange(v);setIdx(-1);
-              const exact=list.find(c=>nz(c)===nz(v)||c===v);
-              if(exact){onSelect(exact);setOpen(false);setSug([]);}
-              else setOpen(true);}}
+            onChange={e=>{
+              const v=e.target.value;
+              onChange(v);setIdx(-1);
+              // 정확히 일치하는 대표명 자동확정
+              const exact=SEARCH_DB.find(it=>nz(it.label)===nz(v)&&!it.hidden);
+              if(exact){onSelect(exact.key,exact);setOpen(false);setSug([]);}
+              else setOpen(true);
+            }}
             onFocus={()=>setOpen(true)}
             onBlur={()=>setTimeout(()=>{setOpen(false);setIdx(-1);},200)}
-            onKeyDown={e=>{if(comp.current)return;if(!open||!sug.length)return;if(e.key==="ArrowDown"){e.preventDefault();setIdx(p=>p<sug.length-1?p+1:0);}else if(e.key==="ArrowUp"){e.preventDefault();setIdx(p=>p>0?p-1:sug.length-1);}else if(e.key==="Enter"){e.preventDefault();if(idx>=0)pick(sug[idx]);else if(sug.length)pick(sug[0]);}else if(e.key==="Escape"){setOpen(false);setIdx(-1);}}}
+            onKeyDown={e=>{
+              if(comp.current)return;
+              if(!open||!sug.length)return;
+              if(e.key==="ArrowDown"){e.preventDefault();setIdx(p=>p<sug.length-1?p+1:0);}
+              else if(e.key==="ArrowUp"){e.preventDefault();setIdx(p=>p>0?p-1:sug.length-1);}
+              else if(e.key==="Enter"){e.preventDefault();if(idx>=0)pick(sug[idx]);else if(sug.length)pick(sug[0]);}
+              else if(e.key==="Escape"){setOpen(false);setIdx(-1);}
+            }}
             onCompositionStart={()=>{comp.current=true;}}
-            onCompositionEnd={e=>{comp.current=false;if(e.data&&list.includes(nz(e.data))){onSelect(nz(e.data));setOpen(false);setSug([]);}}}
+            onCompositionEnd={e=>{
+              comp.current=false;
+              const v=nz(e.data);
+              const exact=SEARCH_DB.find(it=>nz(it.label)===v&&!it.hidden);
+              if(exact){onSelect(exact.key,exact);setOpen(false);setSug([]);}
+            }}
           />
         </div>
-        {value&&<span className="text-xl icon-bounce" style={{flexShrink:0}}>{ICONS[nz(value)]||""}</span>}
-        {value?(<button className="clear-btn" onPointerDown={clr} onClick={clr} tabIndex={-1}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="3" strokeLinecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>):<div style={{width:26}}/>}
+        {value&&<span className="text-xl icon-bounce" style={{flexShrink:0}}>{displayIcon}</span>}
+        {value
+          ?<button className="clear-btn" onPointerDown={clr} onClick={clr} tabIndex={-1}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="3" strokeLinecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          :<div style={{width:26}}/>}
       </div>
       {open&&sug.length>0&&(
         <div className="sug-box">
-          {sug.slice(0,8).map((c,i)=>(
-            <div key={c} className={`sug-item ${i===idx?"sel":""}`}
-              onPointerDown={()=>pick(c)}>
-              <span style={{fontFamily:"var(--gm)",fontWeight:700}}>{c}</span>
-              <span className="text-lg">{ICONS[c]||"🚌"}</span>
+          {sug.map((item,i)=>(
+            <div key={item.label+(item.parent||"")+(item.region)} className={`sug-item ${i===idx?"sel":""}`}
+              onPointerDown={()=>pick(item)}>
+              {/* 권역 배지 */}
+              <span className={`region-badge ${REGION_CSS[item.region]||"rb-etc"}`}>{REGION_LABEL[item.region]||item.region}</span>
+              {/* 상위 행정구역 배지 (하위체계일 때만) */}
+              {item.parent&&<span className="region-badge rb-jg2" style={{fontSize:"9px"}}>{item.parent}</span>}
+              {/* 실제 지명 텍스트 */}
+              <span style={{fontFamily:"var(--gm)",fontWeight:700,color:"#1C1C1E",flex:1}}>{item.label2||item.label}</span>
+              <span style={{fontSize:14,flexShrink:0}}>{ICONS[item.label]||ICONS[item.label2]||""}</span>
             </div>
           ))}
         </div>
@@ -827,7 +894,219 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
   );
 };
 
-/* ── SrcBadges ── */
+/* ── SEARCH_DB: 검색 드롭다운 그룹화 데이터 ──
+   region: 'jg'=전남광주, 'capital'=수도권, 'gs'=경상권, 'cc'=충청권, 'jb'=전북, 'gw'=강원, 'jeju'=제주, 'etc'=기타
+   parent: 하위체계의 상위 행정구역 (있을 때만)
+   key: 실제 계산에 사용하는 alias key
+   hidden: true → 기본 자동완성에 숨김 (직접 입력 시만 표시)
+   canonicalCity: 선택 시 내부 귀속 도시 (하위체계용)
+   isIslandSub: 섬 하위도서 → 팝업 없이 직접 확정
+── */
+const SEARCH_DB=[
+  // ── 전남광주 대표 시군 ──
+  {label:"광주",region:"jg",key:"광주",group:1},
+  {label:"목포",region:"jg",key:"목포",group:1},
+  {label:"여수",region:"jg",key:"여수",group:1},
+  {label:"순천",region:"jg",key:"순천",group:1},
+  {label:"나주",region:"jg",key:"나주",group:1},
+  {label:"광양",region:"jg",key:"광양",group:1},
+  {label:"담양",region:"jg",key:"담양",group:1},
+  {label:"곡성",region:"jg",key:"곡성",group:1},
+  {label:"구례",region:"jg",key:"구례",group:1},
+  {label:"고흥",region:"jg",key:"고흥",group:1},
+  {label:"보성",region:"jg",key:"보성",group:1},
+  {label:"화순",region:"jg",key:"화순",group:1},
+  {label:"장흥",region:"jg",key:"장흥",group:1},
+  {label:"강진",region:"jg",key:"강진",group:1},
+  {label:"해남",region:"jg",key:"해남",group:1},
+  {label:"영암",region:"jg",key:"영암",group:1},
+  {label:"무안",region:"jg",key:"무안",group:1},
+  {label:"함평",region:"jg",key:"함평",group:1},
+  {label:"영광",region:"jg",key:"영광",group:1},
+  {label:"장성",region:"jg",key:"장성",group:1},
+  {label:"완도",region:"jg",key:"완도",group:1},
+  {label:"진도",region:"jg",key:"진도",group:1},
+  {label:"신안",region:"jg",key:"신안",group:1},
+  {label:"남악",region:"jg",key:"남악",group:1},
+  // ── 전남광주 하위체계 ──
+  {label:"광주비아",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"광주송정역",region:"jg",parent:"광주",key:"송정역",canonicalCity:"광주",group:2},
+  {label:"우산동",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"진월동",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"소태",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"학동",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"문화동",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"운암동",region:"jg",parent:"광주",key:"광주",canonicalCity:"광주",group:2},
+  {label:"목포대",region:"jg",parent:"목포",key:"목포",canonicalCity:"목포",group:2},
+  {label:"여천",region:"jg",parent:"여수",key:"여수",canonicalCity:"여수",group:2},
+  {label:"순천북부",region:"jg",parent:"순천",key:"순천",canonicalCity:"순천",group:2},
+  {label:"순천신대지구",region:"jg",parent:"순천",key:"순천",canonicalCity:"순천",group:2},
+  {label:"순천역",region:"jg",parent:"순천",key:"순천",canonicalCity:"순천",group:2},
+  {label:"석곡",region:"jg",parent:"순천",key:"순천",canonicalCity:"순천",group:2},
+  {label:"영산포",region:"jg",parent:"나주",key:"나주",canonicalCity:"나주",group:2},
+  {label:"빛가람",region:"jg",parent:"나주",key:"나주혁신도시",canonicalCity:"나주",group:2},
+  {label:"우수영",region:"jg",parent:"해남",key:"해남",canonicalCity:"해남",group:2},
+  {label:"땅끝",region:"jg",parent:"해남",key:"해남",canonicalCity:"해남",group:2},
+  {label:"산정",region:"jg",parent:"해남",key:"해남",canonicalCity:"해남",group:2},
+  {label:"남창",region:"jg",parent:"해남",key:"해남",canonicalCity:"해남",group:2},
+  {label:"성전",region:"jg",parent:"강진",key:"강진",canonicalCity:"강진",group:2},
+  {label:"전남인재개발원",region:"jg",parent:"강진",key:"강진",canonicalCity:"강진",group:2,hidden:true},
+  {label:"과역",region:"jg",parent:"고흥",key:"고흥",canonicalCity:"고흥",group:2},
+  {label:"나로도",region:"jg",parent:"고흥",key:"고흥",canonicalCity:"고흥",group:2},
+  {label:"녹동",region:"jg",parent:"고흥",key:"고흥",canonicalCity:"고흥",group:2},
+  {label:"옥과",region:"jg",parent:"곡성",key:"곡성",canonicalCity:"곡성",group:2},
+  {label:"해제",region:"jg",parent:"무안",key:"무안",canonicalCity:"무안",group:2},
+  {label:"현경",region:"jg",parent:"무안",key:"무안",canonicalCity:"무안",group:2},
+  {label:"벌교",region:"jg",parent:"보성",key:"보성",canonicalCity:"보성",group:2},
+  {label:"문덕",region:"jg",parent:"보성",key:"보성",canonicalCity:"보성",group:2},
+  {label:"복내",region:"jg",parent:"보성",key:"보성",canonicalCity:"보성",group:2},
+  {label:"율포",region:"jg",parent:"보성",key:"보성",canonicalCity:"보성",group:2},
+  {label:"녹차밭",region:"jg",parent:"보성",key:"보성",canonicalCity:"보성",group:2,hidden:true},
+  {label:"법성포",region:"jg",parent:"영광",key:"영광",canonicalCity:"영광",group:2},
+  {label:"홍농",region:"jg",parent:"영광",key:"영광",canonicalCity:"영광",group:2},
+  {label:"독천",region:"jg",parent:"영암",key:"영암",canonicalCity:"영암",group:2},
+  {label:"삼호",region:"jg",parent:"영암",key:"영암",canonicalCity:"영암",group:2},
+  {label:"신흥",region:"jg",parent:"장성",key:"장성",canonicalCity:"장성",group:2},
+  {label:"장성사거리",region:"jg",parent:"장성",key:"장성",canonicalCity:"장성",group:2},
+  {label:"상무대",region:"jg",parent:"장성",key:"장성",canonicalCity:"장성",group:2},
+  {label:"상무아파트",region:"jg",parent:"장성",key:"장성",canonicalCity:"장성",group:2},
+  {label:"관산",region:"jg",parent:"장흥",key:"장흥",canonicalCity:"장흥",group:2},
+  {label:"회진",region:"jg",parent:"장흥",key:"장흥",canonicalCity:"장흥",group:2},
+  {label:"대덕",region:"jg",parent:"장흥",key:"장흥",canonicalCity:"장흥",group:2},
+  {label:"배산",region:"jg",parent:"장흥",key:"장흥",canonicalCity:"장흥",group:2},
+  {label:"문장",region:"jg",parent:"함평",key:"함평",canonicalCity:"함평",group:2},
+  {label:"녹진",region:"jg",parent:"진도",key:"진도",canonicalCity:"진도",group:2},
+  {label:"진도항",region:"jg",parent:"진도",key:"진도",canonicalCity:"진도",group:2},
+  {label:"쏠비치진도",region:"jg",parent:"진도",key:"진도",canonicalCity:"진도",group:2,hidden:true},
+  // 신안 도서 (isIslandSub: 팝업 없이 직접 확정)
+  {label:"신안교육청",region:"jg",parent:"신안",key:"신안교육청",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"지도",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"압해",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"증도",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"임자",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"자은",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"안좌",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"팔금",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"암태",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"비금",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"도초",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"흑산",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"하의",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"신의",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"장산",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"홍도",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"가거도",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  {label:"만재도",region:"jg",parent:"신안",key:"신안",canonicalCity:"신안",group:2,isIslandSub:true},
+  // 완도 도서 (isIslandSub)
+  {label:"군외",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"신지",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"고금",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"약산",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"금일",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"노화",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"보길",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"청산",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"소안",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"금당",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"생일",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"여서도",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,isIslandSub:true},
+  {label:"해양치유센터",region:"jg",parent:"완도",key:"완도",canonicalCity:"완도",group:2,hidden:true,isIslandSub:true},
+  // ── 수도권 ──
+  {label:"서울",region:"capital",key:"서울",group:3},
+  {label:"동서울",region:"capital",key:"동서울",group:3},
+  {label:"센트럴시티",region:"capital",key:"센트럴시티",group:3},
+  {label:"서울경부",region:"capital",key:"서울경부",group:3},
+  {label:"수원",region:"capital",key:"수원",group:3},
+  {label:"성남",region:"capital",key:"성남",group:3},
+  {label:"인천",region:"capital",key:"인천",group:3},
+  {label:"고양",region:"capital",key:"고양",group:3},
+  {label:"부천",region:"capital",key:"부천",group:3},
+  {label:"안양",region:"capital",key:"안양",group:3},
+  {label:"안산",region:"capital",key:"안산",group:3},
+  {label:"평택",region:"capital",key:"평택",group:3},
+  {label:"오산",region:"capital",key:"오산",group:3},
+  {label:"이천",region:"capital",key:"이천",group:3},
+  {label:"여주",region:"capital",key:"여주",group:3},
+  {label:"가평",region:"capital",key:"가평",group:3},
+  {label:"의정부",region:"capital",key:"의정부",group:3},
+  {label:"양평",region:"capital",key:"양평",group:3},
+  {label:"광주",region:"capital",label2:"경기광주",key:"경기광주",group:3},
+  // ── 경상권 ──
+  {label:"부산",region:"gs",key:"부산",group:4},
+  {label:"대구",region:"gs",key:"동대구",group:4},
+  {label:"울산",region:"gs",key:"울산",group:4},
+  {label:"창원",region:"gs",key:"창원",group:4},
+  {label:"진주",region:"gs",key:"진주",group:4},
+  {label:"경주",region:"gs",key:"경주",group:4},
+  {label:"포항",region:"gs",key:"포항",group:4},
+  {label:"안동",region:"gs",key:"안동",group:4},
+  {label:"구미",region:"gs",key:"구미",group:4},
+  {label:"통영",region:"gs",key:"통영",group:4},
+  {label:"거제",region:"gs",key:"거제",group:4},
+  {label:"사천",region:"gs",key:"사천",group:4},
+  {label:"남해",region:"gs",key:"남해",group:4},
+  {label:"하동",region:"gs",key:"하동",group:4},
+  {label:"고성",region:"gs",label2:"경남고성",key:"고성",group:4},
+  {label:"밀양",region:"gs",key:"밀양",group:4},
+  {label:"양산",region:"gs",key:"양산",group:4},
+  {label:"김해",region:"gs",key:"김해",group:4},
+  // ── 충청권 ──
+  {label:"대전",region:"cc",key:"대전복합",group:5},
+  {label:"세종",region:"cc",key:"세종",group:5},
+  {label:"청주",region:"cc",key:"청주",group:5},
+  {label:"충주",region:"cc",key:"충주",group:5},
+  {label:"천안",region:"cc",key:"천안",group:5},
+  {label:"공주",region:"cc",key:"공주",group:5},
+  {label:"아산",region:"cc",key:"아산",group:5},
+  {label:"서산",region:"cc",key:"서산",group:5},
+  {label:"홍성",region:"cc",key:"홍성",group:5},
+  {label:"보령",region:"cc",key:"보령",group:5},
+  {label:"부여",region:"cc",key:"부여",group:5},
+  {label:"청양",region:"cc",key:"청양",group:5},
+  {label:"예산",region:"cc",key:"예산",group:5},
+  {label:"논산",region:"cc",key:"논산",group:5},
+  {label:"당진",region:"cc",key:"당진",group:5},
+  {label:"태안",region:"cc",key:"태안",group:5},
+  {label:"단양",region:"cc",key:"단양",group:5},
+  // ── 전북 ──
+  {label:"전주",region:"jb",key:"전주",group:6},
+  {label:"군산",region:"jb",key:"군산",group:6},
+  {label:"익산",region:"jb",key:"익산",group:6},
+  {label:"정읍",region:"jb",key:"정읍",group:6},
+  {label:"남원",region:"jb",key:"남원",group:6},
+  {label:"김제",region:"jb",key:"김제",group:6},
+  {label:"완주",region:"jb",key:"완주",group:6},
+  {label:"순창",region:"jb",key:"순창",group:6},
+  {label:"임실",region:"jb",key:"임실",group:6},
+  {label:"부안",region:"jb",key:"부안",group:6},
+  {label:"고창",region:"jb",key:"고창",group:6},
+  {label:"무주",region:"jb",key:"무주",group:6},
+  // ── 강원 ──
+  {label:"강릉",region:"gw",key:"강릉",group:7},
+  {label:"원주",region:"gw",key:"원주",group:7},
+  {label:"춘천",region:"gw",key:"춘천",group:7},
+  {label:"속초",region:"gw",key:"속초",group:7},
+  {label:"동해",region:"gw",key:"동해",group:7},
+  {label:"삼척",region:"gw",key:"삼척",group:7},
+  {label:"태백",region:"gw",key:"태백",group:7},
+  {label:"평창",region:"gw",key:"평창",group:7},
+  {label:"횡성",region:"gw",key:"횡성",group:7},
+  {label:"정선",region:"gw",key:"정선",group:7},
+  {label:"영월",region:"gw",key:"영월",group:7},
+  {label:"홍천",region:"gw",key:"홍천",group:7},
+  {label:"화천",region:"gw",key:"화천",group:7},
+  {label:"인제",region:"gw",key:"인제",group:7},
+  {label:"양구",region:"gw",key:"양구",group:7},
+  {label:"양양",region:"gw",key:"양양",group:7},
+  {label:"고성",region:"gw",label2:"강원고성",key:"고성",group:7},
+  // ── 제주 ──
+  // ── 기타 ──
+  {label:"김해공항",region:"etc",key:"김해공항",group:9},
+];
+
+// 권역 배지 표시명
+const REGION_LABEL={"jg":"전남광주","capital":"수도권","gs":"경상권","cc":"충청권","jb":"전북","gw":"강원","jeju":"제주","etc":"기타"};
+const REGION_CSS={"jg":"rb-jg","capital":"rb-capital","gs":"rb-gs","cc":"rb-cc","jb":"rb-jb","gw":"rb-gw","jeju":"rb-jeju","etc":"rb-etc"};
 const SrcBadge=({src})=>{
   const isJne=src==="JNE2026"||src==="manual";
   return<span className={`src-badge ${isJne?"jne":""}`}>{SRC_LABEL[src]||src}</span>;
@@ -1600,8 +1879,31 @@ const App=()=>{
     const fromNormN=from.replace(/\s/g,"");const toNormN=to.replace(/\s/g,"");
     
     if(!viaCity){
-      if(rawFrom && (POPUP[fromN]||POPUP[fromNormN])&&!modalSt.type){setCalcSt("idle");setModalSt({type:"origin",data:POPUP[fromN]||POPUP[fromNormN]});return;}
-      if(rawTo && (POPUP[toN]||POPUP[toNormN])&&!modalSt.type){setCalcSt("idle");setModalSt({type:"destination",data:POPUP[toN]||POPUP[toNormN]});return;}
+      if(rawFrom && (POPUP[fromN]||POPUP[fromNormN])&&!modalSt.type){
+        // 신안/완도 직접 입력 → 세부지역 미확정 → 팝업 열기
+        setCalcSt("idle");
+        setModalSt({type:"origin",data:POPUP[fromN]||POPUP[fromNormN]});
+        return;
+      }
+      if(rawTo && (POPUP[toN]||POPUP[toNormN])&&!modalSt.type){
+        setCalcSt("idle");
+        setModalSt({type:"destination",data:POPUP[toN]||POPUP[toNormN]});
+        return;
+      }
+      // 신안/완도만 입력하고 팝업 미확정(=섬 세부 없음) → 안내 메시지
+      const isUnconfirmed=(c)=>["신안","완도"].includes(c)&&POPUP[c];
+      if(isUnconfirmed(rawFrom)){
+        setResult(null);setCalcSt("idle");
+        alert(`${rawFrom}은(는) 세부지역 선택이 필요합니다.\n지도를 다시 열어 선택해 주세요.`);
+        setModalSt({type:"origin",data:POPUP[rawFrom]});
+        return;
+      }
+      if(isUnconfirmed(rawTo)){
+        setResult(null);setCalcSt("idle");
+        alert(`${rawTo}은(는) 세부지역 선택이 필요합니다.\n지도를 다시 열어 선택해 주세요.`);
+        setModalSt({type:"destination",data:POPUP[rawTo]});
+        return;
+      }
     }
 
     if(!from||!to){setCalcSt("idle");setResult(null);return;}
@@ -1895,7 +2197,19 @@ const App=()=>{
         {/* 검색 입력 */}
         <div className="search-wrap" style={{display:"flex",flexDirection:"column",gap:8}}>
           <AcInput label="출발지" placeholder="출발지" value={origin}
-            onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList}/>
+            onChange={v=>setOrigin(v)}
+            onSelect={(key,item)=>{
+              if(!key){setOrigin("");performCalc("",dest,via);return;}
+              const displayVal=item?.label||key;
+              setOrigin(displayVal);
+              if(item?.isIslandSub){
+                // 도서 하위체계 직접 선택 → 팝업 없이 확정
+                setModalSt({type:null,data:[]});
+                performCalc(displayVal,dest,via);
+              } else {
+                performCalc(key,dest,via);
+              }
+            }} list={cityList}/>
           {!showVia?(
             <button onClick={()=>setShowVia(true)} style={{height:28,borderRadius:9,border:"1px solid #E0E0E0",background:"#F5F5F5",color:"#AEAEB2",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--gm)"}}>+ 경유지 추가</button>
           ):(
@@ -1903,7 +2217,7 @@ const App=()=>{
               <div style={{flex:1}}>
                 <AcInput label="경유지" placeholder="경유지 (선택)" value={via}
                   onChange={v=>{setVia(v);}}
-                  onSelect={c=>{if(c){setVia(c);performCalc(origin,dest,c);}}}
+                  onSelect={(key,item)=>{if(key){setVia(item?.label||key);performCalc(origin,dest,item?.label||key);}}}
                   list={cityList}/>
               </div>
               <button onClick={()=>{setShowVia(false);setVia("");performCalc(origin,dest,"");}}
@@ -1911,7 +2225,18 @@ const App=()=>{
             </div>
           )}
           <AcInput label="도착지" placeholder="도착지" value={dest}
-            onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList}/>
+            onChange={v=>setDest(v)}
+            onSelect={(key,item)=>{
+              if(!key){setDest("");performCalc(origin,"",via);return;}
+              const displayVal=item?.label||key;
+              setDest(displayVal);
+              if(item?.isIslandSub){
+                setModalSt({type:null,data:[]});
+                performCalc(origin,displayVal,via);
+              } else {
+                performCalc(origin,key,via);
+              }
+            }} list={cityList}/>
 
           {/* 상태바 */}
           <div className={`status-bar ${calcSt==="done"?"sb-done":"sb-idle"}`}>
@@ -2407,7 +2732,7 @@ const App=()=>{
 
         return(
           <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"rgba(0,0,0,0.65)",backdropFilter:"blur(6px)"}}
-            onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}}>
+            onClick={()=>{setModalSt({type:null,data:[]}) /* 팝업 미선택 닫기 — performCalc 호출 안 함 */;}}>
             <div style={{
               background:"#fff",borderRadius:28,
               width:"calc(100vw - 40px)",
@@ -2426,7 +2751,7 @@ const App=()=>{
                   </span>
                   {isMiniMap&&<div style={{fontSize:11,color:"rgba(255,255,255,0.7)",marginTop:2}}>지도 마커 또는 오른쪽 목록을 클릭하세요</div>}
                 </div>
-                <button onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                <button onClick={()=>{setModalSt({type:null,data:[]}) /* 팝업 미선택 닫기 — performCalc 호출 안 함 */;}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
               </div>
 
               {isMiniMap?(
@@ -2520,77 +2845,143 @@ const App=()=>{
     </div>
   );
 
-  /* DetailContent - 여비계산 패널 */
+  /* DetailContent - 여비계산 패널 (인라인 감액) */
+  const [mealOpen,setMealOpen]=useState(false);
+  const [transOpen,setTransOpen]=useState(false);
   function DetailContent(){
+    const DedBtn=({active,onClick,children})=>(
+      <button onClick={onClick} style={{
+        display:"inline-flex",alignItems:"center",gap:3,
+        padding:"3px 9px",borderRadius:999,border:"1.5px solid",
+        fontSize:10,fontWeight:800,cursor:"pointer",
+        background:active?"#EBF4FF":"#F8F9FA",
+        color:active?"#007AFF":"#8E8E93",
+        borderColor:active?"#B3CCFF":"#E5E5EA",
+        transition:"all .15s",
+      }}>{active&&<span>✓</span>}{children}</button>
+    );
     return(
-      <div style={{padding:"12px 14px",display:"flex",flexDirection:"column",gap:0}}>
+      <div style={{padding:"10px 14px",display:"flex",flexDirection:"column",gap:0}}>
         {/* 일비 */}
-        <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",height:52}}>
-          <span style={{fontWeight:700,color:"#374151",fontSize:18,width:50}}>일비</span>
-          <button onClick={()=>setActiveModal("daily")} className={`deduct-btn ${ded.gov_vehicle?"active":""}`}>감액</button>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",flex:1}}>
-            <span style={{fontSize:20,fontWeight:900}}>{fmt(detailCost.daily)}원</span>
-            {ded.gov_vehicle&&<span style={{fontSize:10,color:"var(--blue)",fontWeight:700}}>(-12,500)</span>}
+        <div style={{paddingBottom:8,borderBottom:"1px dashed #E5E5EA"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontWeight:700,color:"#374151",fontSize:16}}>일비</span>
+            <span style={{fontSize:18,fontWeight:900}}>{fmt(detailCost.daily)}원</span>
+          </div>
+          <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+            <DedBtn active={ded.gov_vehicle} onClick={()=>setDed(p=>{
+              const n={...p,gov_vehicle:!p.gov_vehicle};
+              n.transport_gov_vehicle=n.gov_vehicle;
+              if(n.gov_vehicle){n.transport_proof=false;n.transport_passenger=false;}
+              return n;
+            })}>관용차 감액</DedBtn>
+            {ded.gov_vehicle&&<span style={{fontSize:9,color:"var(--blue)",fontWeight:700,alignSelf:"center"}}>(-12,500)</span>}
           </div>
         </div>
         {/* 식비 */}
-        <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",height:52}}>
-          <span style={{fontWeight:700,color:"#374151",fontSize:18,width:50}}>식비</span>
-          <button onClick={()=>setActiveModal("meal")} className={`deduct-btn ${(ded.meal_1||ded.meal_2||ded.meal_3||ded.meal_half)?"active":""}`}>감액</button>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",flex:1}}>
-            <span style={{fontSize:20,fontWeight:900}}>{fmt(detailCost.meal)}원</span>
-            {mealLbl()&&<span style={{fontSize:10,color:"var(--blue)",fontWeight:700}}>{mealLbl()}</span>}
+        <div style={{padding:"8px 0",borderBottom:"1px dashed #E5E5EA"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontWeight:700,color:"#374151",fontSize:16}}>식비</span>
+            <span style={{fontSize:18,fontWeight:900}}>{fmt(detailCost.meal)}원</span>
           </div>
+          <button onClick={()=>setMealOpen(v=>!v)} style={{
+            display:"flex",alignItems:"center",gap:4,fontSize:10,fontWeight:800,
+            background:"none",border:"none",cursor:"pointer",color:"#6B7280",padding:0
+          }}>
+            식비 감액 설정 {mealOpen?"▲":"▾"}
+            {(ded.meal_1||ded.meal_2||ded.meal_3||ded.meal_half)&&<span style={{color:"var(--blue)"}}>{mealLbl()}</span>}
+          </button>
+          {mealOpen&&(
+            <div style={{display:"flex",gap:5,flexWrap:"wrap",marginTop:6}}>
+              {[
+                {id:"meal_1",lbl:"1식 감액"},
+                {id:"meal_2",lbl:"2식 감액"},
+                {id:"meal_3",lbl:"전액 감액"},
+                {id:"meal_half",lbl:"½ 감액"},
+              ].map(({id,lbl})=>(
+                <DedBtn key={id} active={ded[id]} onClick={()=>setDed(p=>{
+                  const n={...p};
+                  ["meal_1","meal_2","meal_3","meal_half"].forEach(k=>n[k]=false);
+                  n[id]=!p[id];
+                  return n;
+                })}>{lbl}</DedBtn>
+              ))}
+            </div>
+          )}
         </div>
         {/* 교통비 */}
-        <div style={{paddingTop:8,borderTop:"1px dashed #E5E5EA"}}>
-          <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:40}}>
+        <div style={{padding:"8px 0"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
             <div style={{display:"flex",alignItems:"center",gap:2}}>
-              <span style={{fontWeight:700,color:"#374151",fontSize:18}}>교통비</span>
+              <span style={{fontWeight:700,color:"#374151",fontSize:16}}>교통비</span>
               <span className={`tag-side ${tagStyle("왕복")}`}>왕복</span>
             </div>
-            <button onClick={()=>setActiveModal("transport")} className={`deduct-btn ${ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger?"active":""}`}>감액</button>
-            <div style={{textAlign:"right",flex:1}}>
+            <div style={{textAlign:"right"}}>
               {!(ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger)?(
-                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:2}}>
-                  <div style={{display:"flex",alignItems:"center",gap:4}}>
-                    <input type="tel" className="ship-input"
-                      value={manualTransport==null||manualTransport===0?"":fmt(manualTransport)}
-                      onFocus={e=>e.target.select()}
-                      onChange={e=>{const v=e.target.value.replace(/,/g,"");setManualTransport(v===""?null:Number(v));}}
-                      placeholder="0"/>
-                    <span style={{fontSize:13,fontWeight:700}}>원</span>
-                  </div>
-                  {result?.surcharge>0&&<span style={{fontSize:9,fontWeight:700,color:"#059669"}}>({fmt(result.surcharge*2)}원 포함)</span>}
+                <div style={{display:"flex",alignItems:"center",gap:4}}>
+                  <input type="tel" className="ship-input"
+                    value={manualTransport==null||manualTransport===0?"":fmt(manualTransport)}
+                    onFocus={e=>e.target.select()}
+                    onChange={e=>{const v=e.target.value.replace(/,/g,"");setManualTransport(v===""?null:Number(v));}}
+                    placeholder="0"/>
+                  <span style={{fontSize:13,fontWeight:700}}>원</span>
                 </div>
               ):(
-                <div style={{textAlign:"right"}}>
-                  <span style={{fontSize:20,fontWeight:900,color:"#AEAEB2"}}>0원</span>
-                  {ded.transport_gov_vehicle&&<div style={{fontSize:9,color:"#F59E0B",fontWeight:700,marginTop:2}}>관용차 이용 · 미지급</div>}
-                  {ded.transport_proof&&<div style={{fontSize:9,color:"#EF4444",fontWeight:700,marginTop:2}}>증빙 없음 · 미지급</div>}
-                  {ded.transport_passenger&&<div style={{fontSize:9,color:"#8B5CF6",fontWeight:700,marginTop:2}}>동승 · 미지급</div>}
+                <div>
+                  <span style={{fontSize:18,fontWeight:900,color:"#AEAEB2"}}>0원</span>
+                  {ded.transport_gov_vehicle&&<div style={{fontSize:9,color:"#F59E0B",fontWeight:700}}>관용차 · 미지급</div>}
+                  {ded.transport_proof&&<div style={{fontSize:9,color:"#EF4444",fontWeight:700}}>증빙없음 · 미지급</div>}
+                  {ded.transport_passenger&&<div style={{fontSize:9,color:"#8B5CF6",fontWeight:700}}>동승 · 미지급</div>}
                 </div>
               )}
             </div>
           </div>
+          {result?.surcharge>0&&!(ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger)&&(
+            <div style={{fontSize:9,fontWeight:700,color:"#059669",textAlign:"right",marginBottom:4}}>({fmt(result.surcharge*2)}원 포함)</div>
+          )}
+          {/* 인라인 교통비 감액 버튼 */}
+          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:4}}>
+            <DedBtn active={ded.transport_proof} onClick={()=>setDed(p=>{
+              const n={...p,transport_proof:!p.transport_proof};
+              if(n.transport_proof){n.transport_gov_vehicle=false;n.transport_passenger=false;n.gov_vehicle=false;}
+              return n;
+            })}>증빙 미제출</DedBtn>
+            <DedBtn active={ded.transport_gov_vehicle} onClick={()=>setDed(p=>{
+              const n={...p,transport_gov_vehicle:!p.transport_gov_vehicle};
+              n.gov_vehicle=n.transport_gov_vehicle;
+              if(n.transport_gov_vehicle){n.transport_proof=false;n.transport_passenger=false;}
+              return n;
+            })}>관용·임차차량</DedBtn>
+          </div>
+          <button onClick={()=>setTransOpen(v=>!v)} style={{
+            display:"flex",alignItems:"center",gap:4,fontSize:10,fontWeight:800,
+            background:"none",border:"none",cursor:"pointer",color:"#6B7280",padding:0,marginBottom:4
+          }}>기타 교통비 감액 {transOpen?"▲":"▾"}</button>
+          {transOpen&&(
+            <DedBtn active={ded.transport_passenger} onClick={()=>setDed(p=>{
+              const n={...p,transport_passenger:!p.transport_passenger};
+              if(n.transport_passenger){n.transport_gov_vehicle=false;n.transport_proof=false;n.gov_vehicle=false;}
+              return n;
+            })}>동료 차량 동승</DedBtn>
+          )}
           {(shipFare>0||result?.isShipOnlyRoute)&&(
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:36,marginTop:4}}>
-              <span style={{fontWeight:700,color:"#374151",fontSize:16}}>기타교통비</span>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:36,marginTop:4,borderTop:"1px dashed #E5E5EA",paddingTop:4}}>
+              <span style={{fontWeight:700,color:"#374151",fontSize:14}}>기타교통비</span>
               <div style={{display:"flex",alignItems:"center",gap:4}}>
                 <input type="tel" className="ship-input"
                   value={shipFare===0?"":fmt(shipFare)}
                   onFocus={e=>e.target.select()}
                   onChange={e=>{const v=e.target.value.replace(/,/g,"");setShipFare(v===""?0:Number(v));}}
                   placeholder="0"/>
-                <span style={{fontSize:16,fontWeight:700}}>원</span>
+                <span style={{fontSize:14,fontWeight:700}}>원</span>
               </div>
             </div>
           )}
         </div>
         {/* 합계 */}
         <div style={{paddingTop:10,borderTop:"2px solid #E5E5EA",display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
-          <span style={{fontWeight:900,fontSize:20}}>합계</span>
-          <span style={{fontFamily:"var(--gm)",fontSize:24,fontWeight:900,color:"var(--blue)"}}>{fmt(detailCost.total)}<span style={{fontSize:13,marginLeft:2}}>원</span></span>
+          <span style={{fontWeight:900,fontSize:18}}>합계</span>
+          <span style={{fontFamily:"var(--gm)",fontSize:22,fontWeight:900,color:"var(--blue)"}}>{fmt(detailCost.total)}<span style={{fontSize:12,marginLeft:2}}>원</span></span>
         </div>
         <button onClick={()=>setShowDetail(false)} className="confirm-btn">닫기</button>
       </div>
