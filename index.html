@@ -836,7 +836,7 @@ const MapPanel=({waypoints,routeSegs,showMap,setShowMap})=>{
     if(!waypoints||!waypoints.length)return;
     const pts=[];
     waypoints.forEach((wp,i)=>{
-      if(!wp?.lat)return;
+      if(!Number.isFinite(Number(wp?.lat))||!Number.isFinite(Number(wp?.lng)))return;
       const isFirst=i===0,isLast=i===waypoints.length-1;
       const color=isFirst?"#007AFF":isLast?"#34C759":"#FF9500";
       const sz=isFirst||isLast?13:9;
@@ -847,7 +847,7 @@ const MapPanel=({waypoints,routeSegs,showMap,setShowMap})=>{
     const lc=["#007AFF","#FF9500","#FF3B30","#7C3AED"];
     for(let i=0;i<waypoints.length-1;i++){
       const a=waypoints[i],b=waypoints[i+1];
-      if(!a?.lat||!b?.lat)continue;
+      if(!Number.isFinite(Number(a?.lat))||!Number.isFinite(Number(a?.lng))||!Number.isFinite(Number(b?.lat))||!Number.isFinite(Number(b?.lng)))continue;
       L.polyline([[a.lat,a.lng],[b.lat,b.lng]],{color:lc[i%lc.length],weight:3,opacity:0.75,dashArray:"7,4"}).addTo(lgRef.current);
     }
     if(pts.length>=2){try{mapRef.current.fitBounds(pts,{padding:[28,28],maxZoom:10});}catch(e){}}
@@ -1708,6 +1708,8 @@ const App=()=>{
     const x=nz(v);
     const map={
       "통영거제권":"통영","진주권":"진주","창원권":"창원","부산권":"부산","대구메트로":"대구",
+      "북부권":"충주","북부":"충주","충북북부권":"충주","충주권":"충주",
+      "영동남부권":"동해","영동남부":"동해","동해삼척권":"동해",
       "광주권":"광주","완도 섬 특수권":"완도섬","완도섬특수권":"완도섬",
       "동서울":"서울","서울고속":"서울","부산서부":"부산서부"
     };
@@ -2652,12 +2654,106 @@ const App=()=>{
   const bothJNE=isJNE(nz(origin))&&isJNE(nz(dest));
 
   /* 지도용 노드 */
+  const getLandMapCoord=useCallback((name)=>{
+    // 지도 표시 안정화: 섬/연륙지는 기존 ISLAND_COORDS 흐름을 유지하고,
+    // 육지는 권역대표(area_id/대표허브/대표노드) 기준 좌표만 사용한다.
+    const raw=nz(name);
+    if(!raw)return null;
+    const aliasName={
+      "광주(경기)":"경기광주","경기도광주":"경기광주","광주경기":"경기광주",
+      "고성(강원)":"고성강원","고성(경남)":"고성경남",
+      "북부권":"충주","북부":"충주","충북북부권":"충주","충주권":"충주",
+      "영동남부권":"동해","영동남부":"동해","동해삼척권":"동해",
+      "성하광":"성남","무진장":"진안","내포":"홍성",
+      "대구메트로":"대구","통영거제권":"통영","통영거제":"통영"
+    };
+    const valid=(n)=>n&&Number.isFinite(Number(n.lat))&&Number.isFinite(Number(n.lng));
+    const nodeCoord=(id)=>{
+      const n=nodesMap?.[id];
+      return valid(n)?{lat:Number(n.lat),lng:Number(n.lng)}:null;
+    };
+    const cityCoord=(v)=>{
+      const c=normalizeCity(aliasName[nz(v)]||nz(v));
+      if(!c)return null;
+      // 섬/연륙지 자체는 기존 지도 흐름에서 처리한다. 여기서는 대표 허브 좌표 보정용으로만 허용.
+      if(ISLAND_COORDS[c])return{lat:ISLAND_COORDS[c][0],lng:ISLAND_COORDS[c][1]};
+      const forced={
+        "충주":"NODE_0090",
+        "동해":"NODE_0063",
+        "삼척":"NODE_0064",
+        "제천":"NODE_0080",
+        "단양":"NODE_0385",
+        "성남":"NODE_0008",
+        "경기광주":"NODE_0213",
+        "진안":"NODE_0565",
+        "무주":"NODE_0559",
+        "장수":"NODE_0570"
+      };
+      let coord=nodeCoord(forced[c])||nodeCoord(MEGA_MAIN[c]);
+      if(coord)return coord;
+      const e=aliasLinked?.[c];
+      const ids=[e?.main_node,...(e?.node_ids||[])].filter(Boolean);
+      for(const id of ids){
+        coord=nodeCoord(id);
+        if(coord)return coord;
+      }
+      const g=getCityGroup(c);
+      if(valid(g))return{lat:Number(g.lat),lng:Number(g.lng)};
+      return null;
+    };
+
+    let coord=cityCoord(raw);
+    if(coord)return coord;
+
+    const resolved=resolveArea(raw);
+    if(resolved?.area){
+      const areaId=resolved.areaId;
+      const area=resolved.area;
+      const areaRep={
+        "cb_cjd":"충주",
+        "gw_ds":"동해",
+        "gg_shg":"성남",
+        "jb_mj":"진안",
+        "dsn_hy":"홍성",
+        "pk_tg":"통영",
+        "tk_dgdc":"대구",
+        "jg_sa":"목포",
+        "jg_sa_connected1":"목포",
+        "jg_sa_connected2":"목포",
+        "jg_sa_island1":"목포",
+        "jg_sa_island2":"목포",
+        "jg_wd_island":"완도"
+      };
+      const rawCandidates=[
+        areaRep[areaId],
+        area.primary_hub,
+        area.center,
+        area.rep_search,
+        area.area_name
+      ];
+      const candidates=[];
+      rawCandidates.forEach(v=>{
+        String(v||"").split(/[\/,·\s]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>candidates.push(x));
+      });
+      for(const c of candidates){
+        coord=cityCoord(displayCityName(c));
+        if(coord)return coord;
+      }
+    }
+    return null;
+  },[aliasLinked,nodesMap,resolveArea,displayCityName]);
+
   const mapWaypoints=useMemo(()=>{
     // 세부지역 팝업이 열려 있으면 메인 맵 waypoints 차단 (ghost 방지)
     if(modalSt.type)return[];
     if(!result)return[];
     const bp=smartResult?.cheapest?.path||result?.multiHop?.path;
-    if(bp&&bp.length>=2)return bp.map((city,i)=>({name:city,...getCityCoord(city),isHub:i>0&&i<bp.length-1}));
+    if(bp&&bp.length>=2&&!result?.islandRouteLabel){
+      return bp.map((city,i)=>{
+        const coord=getLandMapCoord(city);
+        return coord?{name:displayCityName(city),...coord,isHub:i>0&&i<bp.length-1}:null;
+      }).filter(Boolean);
+    }
     if(result?.islandRouteLabel){
       // 섬 경로: 터미널명 파싱 금지 — 도시명(origin/dest)으로 직접 좌표 조회
       const toI=ISLAND_DB[nz(dest)];const fromI=ISLAND_DB[nz(origin)];
@@ -2670,12 +2766,20 @@ const App=()=>{
     }
     const fromI=ISLAND_DB[nz(origin)];const toI=ISLAND_DB[nz(dest)];
     const pts=[];
-    pts.push({name:origin,...getCityCoord(nz(origin))});
-    if(fromI&&fromI.hub!==nz(origin))pts.push({name:fromI.hub,...getCityCoord(fromI.hub),isHub:true});
-    else if(toI&&toI.hub!==nz(dest))pts.push({name:toI.hub,...getCityCoord(toI.hub),isHub:true});
-    pts.push({name:dest,...getCityCoord(nz(dest))});
+    if(fromI||toI){
+      // 섬/연륙지는 기존 표현 유지
+      pts.push({name:origin,...getCityCoord(nz(origin))});
+      if(fromI&&fromI.hub!==nz(origin))pts.push({name:fromI.hub,...getCityCoord(fromI.hub),isHub:true});
+      else if(toI&&toI.hub!==nz(dest))pts.push({name:toI.hub,...getCityCoord(toI.hub),isHub:true});
+      pts.push({name:dest,...getCityCoord(nz(dest))});
+      return pts.filter((p,i,a)=>i===0||p.name!==a[i-1].name);
+    }
+    const oc=getLandMapCoord(nz(origin));
+    const dc=getLandMapCoord(nz(dest));
+    if(oc)pts.push({name:displayCityName(origin),...oc});
+    if(dc&&nz(dest)!==nz(origin))pts.push({name:displayCityName(dest),...dc});
     return pts.filter((p,i,a)=>i===0||p.name!==a[i-1].name);
-  },[result,smartResult,origin,dest,getCityCoord]);
+  },[result,smartResult,origin,dest,getCityCoord,getLandMapCoord,displayCityName]);
 
   useEffect(()=>{
     if(!result)return;
