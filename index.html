@@ -1824,6 +1824,27 @@ const App=()=>{
       method:"MANUAL_AREA_FARES 수기반영", status:"confirmed",
       segments:[{from:"광주",to:"서대구",gen:22900,sourceLabel:"네이버지도"},{from:"대구북부",to:"영양",gen:18100,sourceLabel:"네이버지도"}]
     }
+    ,{
+      key:"jg_gj__gg_uydpy__uijeongbu", fromArea:"jg_gj", toArea:"gg_uydpy", destPattern:"의정부|양주|동두천|포천|연천",
+      fare:34000, label:"광주 → 의정부",
+      detail:"광주유스퀘어↔의정부시외버스터미널 34,000원. 출처: 네이버지도. 의양동포연은 의정부 1차허브, 동서울 2차허브 보조축으로 보며 양주·동두천·포천·연천은 추후 G1~G5 경기권 내부 접근비용으로 처리한다.",
+      method:"MANUAL_AREA_FARES 경기권 대표요금", status:"confirmed",
+      segments:[{from:"광주",to:"의정부",gen:34000,sourceLabel:"네이버지도",note:"광주유스퀘어↔의정부시외버스터미널"}]
+    },
+    {
+      key:"jg_gj__gg_shg__seongnam", fromArea:"jg_gj", toArea:"gg_shg", destPattern:"성남|하남|경기광주|광주경기|경기도광주",
+      fare:30100, label:"광주 → 성남",
+      detail:"광주유스퀘어↔성남종합터미널 30,100원. 출처: 네이버지도. 성하광은 성남 1차허브 기준이며 하남·경기광주는 추후 G1~G5 경기권 내부 접근비용으로 처리한다. 경기광주와 전남광주 동명이역 분리 유지.",
+      method:"MANUAL_AREA_FARES 경기권 대표요금", status:"confirmed",
+      segments:[{from:"광주",to:"성남",gen:30100,sourceLabel:"네이버지도",note:"광주유스퀘어↔성남종합터미널"}]
+    },
+    {
+      key:"jg_gj__gg_as__ansan", fromArea:"jg_gj", toArea:"gg_as", destPattern:"안산|시흥",
+      fare:30500, label:"광주 → 안산",
+      detail:"광주유스퀘어↔안산버스터미널 30,500원. 출처: 네이버지도. 안시는 안산 1차허브 기준이며 시흥은 추후 G1~G5 경기권 내부 접근비용으로 처리한다.",
+      method:"MANUAL_AREA_FARES 경기권 대표요금", status:"confirmed",
+      segments:[{from:"광주",to:"안산",gen:30500,sourceLabel:"네이버지도",note:"광주유스퀘어↔안산버스터미널"}]
+    }
   ],[]);
 
   const findManualAreaFare=useCallback((fromAreaId,toAreaId,destText)=>{
