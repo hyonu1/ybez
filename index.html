@@ -1966,6 +1966,28 @@ const App=()=>{
     return edge;
   },[areaIndex,isBlockedAreaEdge]);
 
+  const isJgAreaId=useCallback((areaId)=>String(areaId||"").startsWith("jg_"),[]);
+
+  const nationwideAdj=useMemo(()=>{
+    const adj={};
+    const add=(a,b,edge)=>{
+      if(!a||!b)return;
+      if(!adj[a])adj[a]=[];
+      const fare=(edge?.fare===null||edge?.fare===undefined||edge?.fare==="")?null:Number(edge.fare);
+      if(!Number.isFinite(fare))return;
+      adj[a].push({to:b,fare,edge});
+    };
+    Object.values(areaIndex.edgeMap||{}).forEach(edge=>{
+      const a=edge?.from_area;
+      const b=edge?.to_area;
+      if(!a||!b)return;
+      if(isBlockedAreaEdge(edge,a,b))return;
+      add(a,b,edge);
+      add(b,a,edge);
+    });
+    return adj;
+  },[areaIndex,isBlockedAreaEdge]);
+
   const displayCityName=useCallback((v)=>{
     const x=nz(v);
     const map={
@@ -2187,6 +2209,87 @@ const App=()=>{
     if(!list.length)return null;
     return list.sort((a,b)=>(b.destPattern||"").length-(a.destPattern||"").length)[0];
   },[MANUAL_AREA_FARES]);
+
+  const findNationwideExperimentalRoute=useCallback((fromRaw,toRaw)=>{
+    const from=nz(fromRaw);
+    const to=nz(toRaw);
+    const fr=resolveArea(from);
+    const tr=resolveArea(to);
+    if(fr?.blocked)return{blocked:true,message:fr.reason||"출발지 권역을 사용할 수 없습니다."};
+    if(tr?.blocked)return{blocked:true,message:tr.reason||"도착지 권역을 사용할 수 없습니다."};
+    if(!fr?.areaId||!tr?.areaId)return null;
+    // 핵심 안전장치: 전남·광주(jg_)가 한쪽이라도 포함되면 기존 2Gen 본모드가 처리한다.
+    if(isJgAreaId(fr.areaId)||isJgAreaId(tr.areaId))return null;
+
+    const start=fr.areaId;
+    const goal=tr.areaId;
+    const startName=displayCityName(fr.area?.area_name||from);
+    const goalName=displayCityName(tr.area?.area_name||to);
+    const warnText="⚠️ 전국-전국 참고용 경로입니다. YBEZ 2Gen은 전남·광주 ↔ 전국 여비 산정에 최적화된 버전입니다. 이 결과는 검증되지 않은 참고용이며, 피드백 수집용입니다.";
+
+    if(start===goal){
+      return{
+        gen:0,pre:null,cost:0,surcharge:0,shipCost:0,sources:["experimental_nationwide"],
+        dr:`${startName}→${goalName}`,routeLabel:`${from} → ${to}`,origin:from,dest:to,via:null,
+        areaRoute:true,areaScore:0,areaMethod:"전국-전국 참고용 실험 경로",areaDetail:warnText,
+        experimentalNationwide:true,fareReliable:false,needsManualFare:false,areaSegments:null,multiHop:null,depId:null,arrId:null
+      };
+    }
+
+    const maxLegs=8;
+    const q=[{area:start,cost:0,path:[start],edges:[]}];
+    const best={[start]:0};
+    let bestGoal=null;
+    while(q.length){
+      q.sort((a,b)=>a.cost-b.cost);
+      const cur=q.shift();
+      if(!cur)break;
+      if(cur.area===goal){bestGoal=cur;break;}
+      if(cur.edges.length>=maxLegs)continue;
+      for(const nx of (nationwideAdj[cur.area]||[])){
+        if(cur.path.includes(nx.to))continue;
+        const nextCost=cur.cost+Number(nx.fare||0);
+        const stateKey=`${nx.to}|${cur.edges.length+1}`;
+        if(best[stateKey]!==undefined&&best[stateKey]<=nextCost)continue;
+        best[stateKey]=nextCost;
+        q.push({area:nx.to,cost:nextCost,path:[...cur.path,nx.to],edges:[...cur.edges,nx]});
+      }
+    }
+    if(!bestGoal)return null;
+
+    const pathNames=bestGoal.path.map((areaId,idx)=>{
+      if(idx===0)return startName;
+      if(idx===bestGoal.path.length-1)return goalName;
+      const a=areaIndex.areaById[areaId];
+      return displayCityName(a?.center||a?.area_name||areaId);
+    }).filter(Boolean);
+
+    const areaSegments=bestGoal.edges.map((item,idx)=>{
+      const fromId=bestGoal.path[idx];
+      const toId=bestGoal.path[idx+1];
+      const fromArea=areaIndex.areaById[fromId];
+      const toArea=areaIndex.areaById[toId];
+      return{
+        from:pathNames[idx]||displayCityName(fromArea?.area_name||fromId),
+        to:pathNames[idx+1]||displayCityName(toArea?.area_name||toId),
+        gen:Number(item.fare||0),
+        sourceLabel:"전국-전국 참고용",
+        note:"검증 필요 · 피드백 수집용",
+        sources:["experimental_nationwide",...(item.edge?.sources||[])]
+      };
+    });
+
+    const total=areaSegments.reduce((sum,s)=>sum+(Number(s.gen)||0),0);
+    return{
+      gen:total,pre:null,cost:total,surcharge:0,shipCost:0,
+      sources:["experimental_nationwide","area_graph"],
+      dr:pathNames.join("→"),routeLabel:pathNames.join(" → "),
+      origin:from,dest:to,via:null,areaRoute:true,areaScore:0,
+      areaMethod:"전국-전국 참고용 실험 경로",
+      areaDetail:warnText,needsManualFare:false,experimentalNationwide:true,fareReliable:false,
+      areaSegments,multiHop:{segs:areaSegments,path:pathNames},depId:null,arrId:null
+    };
+  },[resolveArea,isJgAreaId,nationwideAdj,displayCityName,areaIndex]);
 
   const findAreaRoute=useCallback((fromRaw,toRaw,viaRaw="")=>{
     if(!areaGraph||!areaIndex.areaById)return null;
@@ -2795,6 +2898,33 @@ const App=()=>{
         return;
       }
 
+      const nationwideRes=!viaN?findNationwideExperimentalRoute(from,to):null;
+      if(nationwideRes?.blocked){
+        setResult(null);
+        setBypassInfo([`⚠ ${nationwideRes.message}`]);
+        setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});
+        setAltRoutes([]);
+        setSmartResult(null);
+        setCalcSt("error_no_route");
+        return;
+      }
+      if(nationwideRes){
+        setResult(nationwideRes);
+        setManualTransport((nationwideRes.gen||0)*2);
+        setShipFare(0);
+        setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});
+        setAltRoutes([]);
+        setSmartResult(null);
+        setBypassInfo([
+          "⚠️ 전국-전국 참고용 경로입니다.",
+          "YBEZ 2Gen은 전남·광주 ↔ 전국 여비 산정에 최적화된 버전입니다.",
+          "이 결과는 검증되지 않은 참고용이며, 피드백 수집용입니다."
+        ]);
+        addHistory(o,d,nationwideRes.gen||0);
+        setCalcSt("done");
+        return;
+      }
+
       const areaRes=findAreaRoute(from,to,viaN);
       if(areaRes?.blocked){
         setResult(null);
@@ -2951,7 +3081,7 @@ const App=()=>{
         setCalcSt("error_no_route");
       }
     },50);
-  },[calcSegment,findSubResults,buildMokpoMuanSameLivingChoices,findSmartRoute,lookupRouteWithAlternatives,findAreaRoute,addHistory,modalSt,origin,dest,via]);
+  },[calcSegment,findSubResults,buildMokpoMuanSameLivingChoices,findSmartRoute,lookupRouteWithAlternatives,findAreaRoute,findNationwideExperimentalRoute,addHistory,modalSt,origin,dest,via]);
 
   /* 선택 등급 요금 */
   const selectedFare=useMemo(()=>{
@@ -3399,6 +3529,9 @@ const App=()=>{
 
   const buildDetailRows=useCallback((rows)=>{
     const out=[];
+    if(result?.experimentalNationwide){
+      out.push({icon:"⚠️",head:"전국-전국 참고용",body:"YBEZ 2Gen은 전남·광주 ↔ 전국 여비 산정에 최적화된 버전입니다. 이 결과는 검증되지 않은 참고용이며, 피드백 수집용입니다."});
+    }
     const areaId=String(detailAreaInfo?.resolved?.areaId||"");
     const isJeonnamGeneral=areaId.startsWith("jg_");
     const ruralOrFerry=rows.find(r=>r.kind==="rural"||r.kind==="ferry"||/농어촌|여객선|기타교통비|조례/i.test(String(r.note||""))||String(r.source||"")==="조례");
@@ -3647,6 +3780,11 @@ const App=()=>{
         <div className="result-wrap">
           {result&&(
             <>
+              {result.experimentalNationwide&&(<div style={{marginBottom:12,padding:"12px 14px",borderRadius:18,background:"#FFF7ED",border:"1px solid #FDBA74",boxShadow:"0 6px 18px rgba(251,146,60,.12)"}}>
+                <div style={{fontWeight:950,color:"#C2410C",fontSize:13,marginBottom:4}}>⚠️ 전국-전국 참고용 경로입니다.</div>
+                <div style={{fontWeight:750,color:"#7C2D12",fontSize:11,lineHeight:1.45,wordBreak:"keep-all"}}>YBEZ 2Gen은 전남·광주 ↔ 전국 여비 산정에 최적화된 버전입니다. 이 결과는 검증되지 않은 참고용이며, 피드백 수집용입니다.</div>
+              </div>)}
+
               {/* 통합 요금 후보 선택: 경로와 금액을 한 카드 안에서 선택 */}
               {(()=>{
                 const {depSubs=[],arrSubs=[],specialSubs=[]}=subResults||{};
