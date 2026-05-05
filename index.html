@@ -308,7 +308,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     background:rgba(15,23,42,0.42);
     backdrop-filter:blur(5px);
     display:flex;align-items:flex-end;
-    animation:mobileBackdropFade .18s ease-out;
+    animation:mobileBackdropFade .32s ease-out;
   }
   .mobile-detail-sheet{
     width:100%;max-height:92dvh;
@@ -317,7 +317,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     box-shadow:0 -12px 38px rgba(15,23,42,0.20);
     border:1px solid rgba(255,255,255,0.72);
     overflow:hidden;
-    animation:mobileSheetUp .26s cubic-bezier(.2,.85,.25,1);
+    animation:mobileSheetUp .52s cubic-bezier(.16,.72,.18,1);
     display:flex;flex-direction:column;
   }
   .mobile-detail-handle{
@@ -1029,6 +1029,9 @@ const App=()=>{
   // 팝업 재등장 방지: 한 번 선택/닫기 처리한 신안·완도 대표 입력은 같은 값 재계산 시 다시 팝업을 띄우지 않는다.
   const popupResolvedRef=useRef({origin:"",destination:""});
   const popupPrevInputRef=useRef({origin:"",destination:""});
+  // 신안/완도 세부지역 선택/닫기 후 재계산 1회는 대표 팝업 재호출을 건너뛴다.
+  // ybez.html의 isForce와 같은 역할이며, performCalc 인자 구조는 건드리지 않는다.
+  const skipPopupOnceRef=useRef(false);
   const markPopupResolved=(type,key)=>{
     if(type!=="origin"&&type!=="destination")return;
     popupResolvedRef.current[type]=String(key||"").replace(/\s/g,"");
@@ -1076,6 +1079,14 @@ const App=()=>{
     mobileAutoOpenedKeyRef.current="";
     resetDed();
   },[]);
+
+  const closeTravelCalcOnMobile=useCallback(()=>{
+    if(window.innerWidth<700){
+      resetToMainKeepOrigin();
+      return;
+    }
+    setShowDetail(false);
+  },[resetToMainKeepOrigin]);
 
 
   // 입력값이 실제로 바뀐 경우에만 해당 칸의 팝업 처리 완료 상태를 초기화한다.
@@ -2660,8 +2671,10 @@ const App=()=>{
     
     const fromN=rawFrom.replace(/\s/g,"");const toN=rawTo.replace(/\s/g,"");
     const fromNormN=from.replace(/\s/g,"");const toNormN=to.replace(/\s/g,"");
+    const skipPopup=skipPopupOnceRef.current;
+    skipPopupOnceRef.current=false;
     
-    if(!viaCity){
+    if(!skipPopup&&!viaCity){
       const fromPopupData=POPUP[fromN]||POPUP[fromNormN];
       const fromPopupKey=POPUP[fromN]?fromN:(POPUP[fromNormN]?fromNormN:"");
       const toPopupData=POPUP[toN]||POPUP[toNormN];
@@ -3849,11 +3862,11 @@ const App=()=>{
       <MobileDetailSheet/>
       {/* 모바일 여비계산 모달 */}
       {showDetail&&(
-        <div style={{position:"fixed",inset:0,zIndex:260,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"flex-end"}} onClick={()=>setShowDetail(false)}>
+        <div style={{position:"fixed",inset:0,zIndex:260,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"flex-end"}} onClick={closeTravelCalcOnMobile}>
           <div style={{width:"100%",background:"linear-gradient(180deg,#fff,#FAFAFA)",borderRadius:"24px 24px 0 0",maxHeight:"85vh",overflowY:"auto",boxShadow:"0 -8px 32px rgba(0,0,0,0.15)"}} onClick={e=>e.stopPropagation()}>
             <div style={{padding:"14px 20px 10px",borderBottom:"1px solid #F2F2F7",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span style={{fontFamily:"var(--gm)",fontSize:18,fontWeight:900,color:"#1C1C1E"}}>📋 여비계산</span>
-              <button onClick={()=>setShowDetail(false)} style={{background:"none",border:"none",fontSize:22,color:"#AEAEB2",cursor:"pointer"}}>✕</button>
+              <button onClick={closeTravelCalcOnMobile} style={{background:"none",border:"none",fontSize:22,color:"#AEAEB2",cursor:"pointer"}}>✕</button>
             </div>
             <div style={{padding:"14px 20px 24px"}}>
               {DetailContent()} {/* 입력 UX 안정화: 컴포넌트 remount 방지 */}
@@ -3902,6 +3915,7 @@ const App=()=>{
               markPopupResolved(isOri?"origin":"destination",name);
               if(isOri)setOrigin(name);else setDest(name);
               setModalSt({type:null,data:[]});
+              skipPopupOnceRef.current=true;
               setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
             };
 
@@ -3957,6 +3971,7 @@ const App=()=>{
                       markPopupResolved(isOri?"origin":"destination",name);
                       if(isOri)setOrigin(name);else setDest(name);
                       setModalSt({type:null,data:[]});
+                      skipPopupOnceRef.current=true;
                       setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
                     }} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 9px",borderRadius:14,background:"rgba(255,255,255,0.92)",border:"none",cursor:"pointer",backdropFilter:"blur(6px)",boxShadow:"0 2px 6px rgba(0,0,0,0.2)"}}>
                       <MascotIcon mascotMap={mascotMap} name={name} size={30} className="modal-mascot-img"/>
@@ -3971,7 +3986,7 @@ const App=()=>{
 
         return(
           <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"rgba(0,0,0,0.65)",backdropFilter:"blur(6px)"}}
-            onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}}>
+            onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});skipPopupOnceRef.current=true;setTimeout(()=>performCalc(origin,dest,via),0);}}>
             <div style={{
               background:"#fff",borderRadius:28,
               width:"calc(100vw - 40px)",
@@ -3990,7 +4005,7 @@ const App=()=>{
                   </span>
                   {isMiniMap&&<div style={{fontSize:11,color:"rgba(255,255,255,0.7)",marginTop:2}}>지도 마커 또는 오른쪽 목록을 클릭하세요</div>}
                 </div>
-                <button onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                <button onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});skipPopupOnceRef.current=true;setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
               </div>
 
               {isMiniMap?(
@@ -4006,6 +4021,7 @@ const App=()=>{
                         markPopupResolved(isOri?"origin":"destination",name);
                         if(isOri)setOrigin(name);else setDest(name);
                         setModalSt({type:null,data:[]});
+                        skipPopupOnceRef.current=true;
                         setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
                       }} style={{display:"flex",alignItems:"center",gap:5,padding:"6px 7px",borderRadius:9,background:"#fff",border:"1px solid #EBEBEB",cursor:"pointer",textAlign:"left",width:"100%",transition:"background .1s"}}>
                         <MascotIcon mascotMap={mascotMap} name={name} size={30} className="modal-mascot-img"/>
@@ -4024,6 +4040,7 @@ const App=()=>{
                         markPopupResolved(isOri?"origin":"destination",name);
                         if(isOri)setOrigin(name);else setDest(name);
                         setModalSt({type:null,data:[]});
+                        skipPopupOnceRef.current=true;
                         setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
                       }} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,padding:"14px 8px",borderRadius:16,background:"#F8F9FA",border:"1px solid transparent",cursor:"pointer"}}>
                         <MascotIcon mascotMap={mascotMap} name={name} size={52} className="modal-mascot-img-lg"/>
@@ -4178,7 +4195,7 @@ const App=()=>{
           <span style={{fontWeight:900,fontSize:20}}>합계</span>
           <span style={{fontFamily:"var(--gm)",fontSize:24,fontWeight:900,color:"var(--blue)"}}>{fmt(detailCost.total)}<span style={{fontSize:13,marginLeft:2}}>원</span></span>
         </div>
-        <button onClick={()=>setShowDetail(false)} className="confirm-btn">닫기</button>
+        <button onClick={closeTravelCalcOnMobile} className="confirm-btn">닫기</button>
       </div>
     );
   }
