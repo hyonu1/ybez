@@ -206,6 +206,42 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 /* ── 아이콘 bounce ── */
 @keyframes bounce-ic{0%,100%{transform:translateY(0)}50%{transform:translateY(-20%)}}
 .icon-bounce{animation:bounce-ic 2s infinite;display:inline-block;}
+@keyframes mascot-float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+@keyframes mascot-pop{
+  0%{transform:scale(0.92)}
+  55%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
+.mascot-badge{
+  width:52px;height:52px;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  border-radius:18px;
+  background:rgba(255,255,255,0.92);
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 2px 8px rgba(0,0,0,0.10);
+  animation:mascot-float 3.2s ease-in-out infinite;
+  transition:box-shadow .18s ease, background .18s ease;
+}
+.mascot-badge:hover{
+  background:rgba(255,255,255,0.98);
+  box-shadow:0 4px 12px rgba(0,0,0,0.14);
+}
+.mascot-badge .mascot-img{
+  transition:transform .18s ease;
+}
+.mascot-badge:hover .mascot-img{
+  transform:scale(1.06);
+}
+.mascot-img{width:48px;height:48px;object-fit:contain;flex-shrink:0;display:inline-block;}
+.mascot-img.mascot-pop{animation:mascot-pop .28s ease-out 1;}
+.sug-mascot-img{width:34px;height:34px;object-fit:contain;flex-shrink:0;display:inline-block;}
+.modal-mascot-img{width:30px;height:30px;object-fit:contain;flex-shrink:0;display:inline-block;}
+.modal-mascot-img-lg{width:52px;height:52px;object-fit:contain;display:inline-block;}
+
 
 /* ── PC 가독성 개선 ── */
 /* 태그 side (편도/왕복) */
@@ -272,166 +308,11 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 const {useState,useEffect,useRef,useCallback,useMemo}=React;
 
 /* ── 상수 ─────────────────────────────────────────────── */
-const ICONS={
-  // ── 광주·전남 ──
-  "광주":"🍉",      // 수박 (광주 대표 과일)
-  "목포":"⚓",      // 항구도시
-  "여수":"🌉",      // 밤바다·돌산대교
-  "순천":"🦩",      // 순천만 흑두루미
-  "나주":"🍐",      // 나주배
-  "광양":"🌸",      // 매화축제
-  "담양":"🎋",      // 대나무
-  "곡성":"🚂",      // 섬진강기차마을
-  "구례":"🐻",      // 지리산 반달곰
-  "고흥":"🚀",      // 나로우주센터
-  "보성":"🍵",      // 보성녹차
-  "화순":"🗿",      // 고인돌
-  "장흥":"🍄",      // 표고버섯
-  "강진":"🏺",      // 청자
-  "해남":"🦖",      // 공룡화석
-  "영암":"🏎️",     // F1서킷
-  "무안":"🧅",      // 무안양파
-  "함평":"🦋",      // 함평나비축제
-  "영광":"🐟",      // 굴비
-  "장성":"🍂",      // 홍길동·단풍
-  "완도":"🦪",      // 전복
-  "진도":"🐕",      // 진돗개
-  "신안":"👼",      // 1004섬
-  "나주혁신도시":"🏢","영산포":"🐟",
-  // 신안 하위도서
-  "신안교육청":"⚓️","남악":"🏛️","지도":"🧂","압해":"🦕","증도":"🚲","임자":"🌷",
-  "자은":"🏖️","안좌":"🙋‍♀️","팔금":"🦐","암태":"🌁","비금":"🦅","도초":"🌼",
-  "흑산":"🎣","하의":"🕊️","신의":"🧂","장산":"🏔️","홍도":"🌅","가거도":"🏝️","만재도":"🎣",
-  // 완도 하위도서
-  "군외":"☀️","신지":"🏖️","고금":"🚢","약산":"🐐","청산":"🐌","노화":"🦪",
-  "보길":"📜","소안":"🌺","여서도":"🗿","금일":"🌊","생일":"🎂","금당":"🗿",
-  // 해남 하위
-  "남창":"🌊","땅끝":"🌏","산정":"🌄","우수영":"⛵",
-  // 전남 기타 하위
-  "관산":"🍄","회진":"🚢","벌교":"🦀","녹동":"🐟","과역":"🚀","나로도":"🛸",
-  "옥과":"🌾","독천":"🐄","삼호":"🏗️","홍농":"🌾","성전":"🏔️",
-  "순천북부":"🦩","석곡":"🚂","신흥":"🌿","문장":"🦋",
-  // ── 전북 ──
-  "전주":"🏘️",      // 한옥마을
-  "군산":"🌊",       // 근대역사·바다
-  "익산":"💎",       // 왕궁리유적·보석
-  "정읍":"🌹",       // 동학농민운동·장미
-  "남원":"🎭",       // 춘향전
-  "김제":"🌾",       // 지평선축제
-  "완주":"🏞️","순창":"🌶️","임실":"🧀","무주":"🎿","장수":"🍎","고창":"🫐",
-  "부안":"🌊","진안":"🌿",
-  // ── 충남 ──
-  "대전복합":"🍞",   // 성심당
-  "대전청사":"🏛️",
-  "세종":"🦉",       // 세종대왕
-  "천안":"🌰",       // 호두과자
-  "공주":"👑",       // 백제무령왕릉
-  "부여":"🏯",       // 백제문화
-  "논산":"🧅",       // 딸기·논산훈련소
-  "아산":"♨️",       // 온양온천
-  "당진":"⚓",       // 항구
-  "서산":"🦢",       // 서산마애삼존불·철새
-  "홍성":"🐷",       // 한우·홍성
-  "예산":"🍎",       // 예산사과·추사김정희
-  "청양":"🌶️",      // 청양고추
-  "보령":"⛏️",      // 보령머드축제
-  "태안":"🏖️",      // 해변·국립공원
-  "서천":"🐟",       // 국립생태원
-  "금산":"🌿",       // 금산인삼
-  // ── 충북 ──
-  "청주":"🍑",       // 청주직지·복숭아
-  "충주":"🍎",       // 충주사과
-  "제천":"🌿",       // 한방엑스포
-  "단양":"🏔️",      // 단양8경
-  "음성":"🐷",       // 음성돼지
-  "증평":"🌾","괴산":"🐿️","보은":"🌳","영동":"🍇","진천":"🐓",
-  // ── 경기 ──
-  "서울":"🏙️","동서울":"🏙️","센트럴시티":"🏛️","서울경부":"🚌","서울남부":"🚌",
-  "수원":"💧",       // 수원화성·왕갈비
-  "성남":"🏙️",      // 분당·판교
-  "안양":"🌿",
-  "고양":"🌷",       // 고양꽃박람회
-  "부천":"🎬",       // 부천국제영화제
-  "인천":"✈️",       // 인천공항
-  "인천공항T1":"✈️","인천공항T2":"✈️",
-  "안산":"🌊","평택":"🌾","오산":"🌿","이천":"🍚",   // 이천쌀
-  "여주":"🍚",       // 여주쌀
-  "가평":"🌲",       // 잣·가평
-  "의정부":"🥩",     // 부대찌개
-  "동두천":"🎸",     // 록음악
-  "포천":"💧",       // 포천막걸리
-  "안성":"🪕",       // 안성맞춤·유기
-  "의왕":"🚂",
-  "경기광주":"🍈",   // 경기광주
-  "송정역":"🚉",
-  "운암동":"🏠","광주진월동":"🏠","소태":"🏠",
-  // ── 강원 ──
-  "강릉":"☕",       // 강릉커피·경포대
-  "원주":"🌲",       // 치악산·한지
-  "춘천":"🐟",       // 닭갈비·소양호
-  "속초":"🦐",       // 속초오징어·아바이순대
-  "동해":"🌊",       // 동해바다
-  "삼척":"🕌",       // 환선굴
-  "태백":"⛏️",      // 태백탄광·고랭지
-  "정선":"🎰",       // 강원랜드·아리랑
-  "영월":"🦅",       // 단종유배지·별마로천문대
-  "평창":"⛷️",      // 평창올림픽
-  "횡성":"🐄",       // 횡성한우
-  "홍천":"🧇",       // 홍천막국수
-  "화천":"🐟",       // 산천어축제
-  "양구":"🎖️",      // 을지전망대·두타연
-  "인제":"🏞️",      // 내린천래프팅
-  "고성":"🏔️",      // 금강산
-  "양양":"🏄",       // 서핑·낙산사
-  // ── 경남 ──
-  "부산":"🌊",       // 해운대
-  "부산동래":"♨️",  // 동래온천
-  "부산서부":"🚢","부산해운대":"🏖️",
-  "창원":"🌸",       // 진해벚꽃
-  "진주":"🎆",       // 진주남강유등축제
-  "통영":"🎻",       // 윤이상·통영
-  "거제":"⚓",       // 조선소·포로수용소
-  "사천":"✈️",       // 사천공항·항공우주
-  "남해":"🌿",       // 독일마을·남해
-  "하동":"🍵",       // 하동녹차·섬진강
-  "함양":"🌲",       // 상림숲
-  "거창":"🏔️",      // 수승대
-  "합천":"🏯",       // 해인사·합천댐
-  "밀양":"💃",       // 아리랑·표충사
-  "양산":"🐉",       // 통도사
-  "김해":"🏯",       // 가야왕릉
-  "김해공항":"✈️",
-  "의령":"🐎",       // 의병장 곽재우
-  "산청":"🌿",       // 한방·지리산
-  // ── 경북 ──
-  "대구서부":"🍎",
-  "동대구":"🍎",     // 사과
-  "경주":"🏛️",      // 불국사·석굴암
-  "포항":"🦀",       // 영일만·구룡포게
-  "안동":"🥃",       // 안동소주·하회마을
-  "구미":"💻",       // 구미산단·IT
-  "영주":"🍎",       // 영주사과·소수서원
-  "영천":"🍇",       // 영천포도·와인
-  "경산":"🎓",       // 대학도시
-  "상주":"🍑",       // 상주곶감·자전거
-  "문경":"🍵",       // 문경새재·오미자
-  "예천":"🦅",       // 예천곤충엑스포
-  "봉화":"🌲",       // 봉화송이버섯
-  "의성":"🧄",       // 의성마늘
-  "청송":"🍎",       // 청송사과·주왕산
-  "영덕":"🦀",       // 영덕대게
-  "울진":"🦞",       // 왕새우·금강소나무
-  "영동":"🍇",       // 영동포도·와인
-  "영월":"🦅",
-  "울산":"🐋",       // 고래
-  "울산신복":"🐋",
-  // ── 충북·기타 ──
-  "장신대":"🎓","대구서부":"🍎",
-  // ── 전남 기타 ──
-  "광주진월동":"🌸","송정역":"🚉","운암동":"🌿","소태":"🌿",
-  // ── 섬·기타 도서 ──
-  "진도조도":"🐦","진도관매도":"🏵️","진도서거차도":"🧗",
-};
+/* ── 마스코트 아이콘 ─────────────────────────────────────
+   기존 하드코딩 ICONS 이모지는 제거한다.
+   지역 아이콘은 data/mascot_map.json → assets/mascots/*.webp 기준으로만 표시한다.
+   mascot_map.json 또는 이미지 파일이 없으면 아이콘 없이 텍스트만 표시한다.
+*/
 const SRC_LABEL={"bustago":"버스타고","kobus":"코버스","tmoneygo":"티머니GO","asamaru":"아사마루","JNE2026":"전라남도 여비기준표","manual":"네이버지도 검증요금","manual_fare":"네이버지도 검증요금","manual_override":"네이버지도 검증요금","chat_override_latest":"네이버지도 검증요금","area_to_area_fares":"네이버지도 검증요금","area_graph":"네이버지도 검증요금","area_rule":"YBEZ 권역규칙","rural":"농어촌버스 조례","ferry":"전남여객선 조례","area_special":"기타교통비"};
 const SOURCES_INFO=[
   {key:"bustago",  label:"버스타고",       url:"bustago.or.kr",                    color:"#2563EB"},
@@ -857,8 +738,42 @@ const Toggle=({on,onChange})=>(
   </button>
 );
 
+
+/* ── 마스코트 JSON 표시 레이어 ───────────────────────────── */
+const normMascotKey=(v)=>String(v||"").trim();
+const getMascotEntry=(mascotMap,name)=>{
+  if(!mascotMap||!name)return null;
+  const raw=normMascotKey(name);
+  const areaId=mascotMap.by_region_name?.[raw];
+  if(areaId&&mascotMap.by_area_id?.[areaId])return mascotMap.by_area_id[areaId];
+  if(mascotMap.by_area_id?.[raw])return mascotMap.by_area_id[raw];
+  return null;
+};
+const MascotIcon=({mascotMap,name,size=34,className="",fallback=null,animate=false,badge=false,popKey=""})=>{
+  const [failed,setFailed]=useState(false);
+  const info=getMascotEntry(mascotMap,name);
+  const commonStyle={width:size,height:size,objectFit:"contain",flexShrink:0,display:"inline-block"};
+  const imgClass=`${className}${popKey?" mascot-pop":""}`.trim();
+  const icon=info?.image&&!failed
+    ? <img key={popKey||info.image} className={imgClass} src={info.image} alt={info.alt||name||"마스코트"} loading="lazy" style={commonStyle} onError={()=>setFailed(true)}/>
+    : fallback
+      ? <span key={popKey||fallback} className={animate?"icon-bounce":""} style={{fontSize:Math.max(14,Math.round(size*0.72)),width:size,height:size,display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{fallback}</span>
+      : null;
+  if(!icon)return null;
+  if(badge)return <span className="mascot-badge">{icon}</span>;
+  return icon;
+};
+const mascotHtml=(mascotMap,name,size=28,delay=0)=>{
+  const info=getMascotEntry(mascotMap,name);
+  if(info?.image){
+    const safeAlt=String(info.alt||name||"마스코트").replace(/"/g,"&quot;");
+    return `<img src="${info.image}" alt="${safeAlt}" style="width:${size}px;height:${size}px;object-fit:contain;display:inline-block;animation:ybez-wobble 2s ease-in-out ${delay}s infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35))">`;
+  }
+  return "";
+};
+
 /* ── AutocompleteInput ── */
-const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
+const AcInput=({value,onChange,onSelect,placeholder,label,list,mascotMap})=>{
   const [sug,setSug]=useState([]);
   const [open,setOpen]=useState(false);
   const [idx,setIdx]=useState(-1);
@@ -907,7 +822,7 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
             onCompositionEnd={e=>{comp.current=false;if(e.data&&list.includes(nz(e.data))){onSelect(nz(e.data));setOpen(false);setSug([]);}}}
           />
         </div>
-        {value&&<span className="text-xl icon-bounce" style={{flexShrink:0}}>{ICONS[nz(value)]||""}</span>}
+        {value&&<MascotIcon mascotMap={mascotMap} name={nz(value)} size={48} className="mascot-img" animate={true} badge={true} popKey={nz(value)}/>}
         {value?(<button className="clear-btn" onPointerDown={clr} onClick={clr} tabIndex={-1}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="3" strokeLinecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>):<div style={{width:26}}/>}
       </div>
       {open&&sug.length>0&&(
@@ -923,7 +838,7 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list})=>{
               onTouchMove={touchMove}
               onTouchEnd={e=>touchEnd(e,c)}>
               <span style={{fontFamily:"var(--gm)",fontWeight:700}}>{c}</span>
-              <span className="text-lg">{ICONS[c]||"🚌"}</span>
+              <MascotIcon mascotMap={mascotMap} name={c} size={34} className="sug-mascot-img"/>
             </div>
           ))}
         </div>
@@ -990,6 +905,7 @@ const App=()=>{
   const [aliasLinked,setAliasLinked]=useState(null);
   const [nodesMap,setNodesMap]=useState(null);
   const [areaGraph,setAreaGraph]=useState(null);
+  const [mascotMap,setMascotMap]=useState(null);
   const [loaded,setLoaded]=useState(false);
   const [dataErr,setDataErr]=useState("");
   const [cityListApi,setCityList]=useState([]);
@@ -1102,6 +1018,14 @@ const App=()=>{
     setLoaded(true);
   });
 },[]);
+
+  /* ── 마스코트 JSON 로드: 핵심 요금/권역 데이터와 분리하여 실패해도 앱은 계속 동작 ── */
+  useEffect(()=>{
+    fetch("./data/mascot_map.json")
+      .then(r=>r.ok?r.json():null)
+      .then(j=>{ if(j) setMascotMap(j); })
+      .catch(e=>{ console.warn("mascot_map.json 로드 실패: 마스코트 없이 표시합니다.", e); setMascotMap(null); });
+  },[]);
 
   /* ── 노드명 추적기 ── */
   const getNodeName = useCallback((nid, fallbackCity) => {
@@ -3450,9 +3374,9 @@ const App=()=>{
         {/* 검색 입력 */}
         <div className="search-wrap" style={{display:"flex",flexDirection:"column",gap:8}}>
           <AcInput label="출발지" placeholder="출발지" value={origin}
-            onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList}/>
+            onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList} mascotMap={mascotMap}/>
           <AcInput label="도착지" placeholder="도착지" value={dest}
-            onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList}/>
+            onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList} mascotMap={mascotMap}/>
 
           {/* 경유지는 자동완성 선택창과 겹치지 않도록 도착지 아래쪽에 배치 */}
           {!showVia?(
@@ -3468,7 +3392,7 @@ const App=()=>{
                 <AcInput label="경유지" placeholder="경유지 (선택)" value={via}
                   onChange={v=>{setVia(v);}}
                   onSelect={c=>{if(c){setVia(c);performCalc(origin,dest,c);}}}
-                  list={cityList}/>
+                  list={cityList} mascotMap={mascotMap}/>
               </div>
               <button onClick={()=>{setShowVia(false);setVia("");performCalc(origin,dest,"");}}
                 style={{flexShrink:0,width:28,height:28,borderRadius:8,border:"1px solid #E0E0E0",background:"#F5F5F5",color:"#8E8E93",fontSize:14,fontWeight:700,cursor:"pointer",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
@@ -3773,7 +3697,7 @@ const App=()=>{
                 className:"",
                 // transform:translate(-50%,-50%) → 아이콘 중심이 좌표점과 일치
                 html:`<div style="cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0px;pointer-events:all;transform:translate(-50%,-50%)">
-                  <span style="font-size:22px;display:inline-block;animation:ybez-wobble 2s ease-in-out ${delay}s infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35))">${ICONS[name]||"🏝️"}</span>
+                  <span style="width:12px;height:12px;border-radius:50%;display:inline-block;background:#7C3AED;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.32)"></span>
                   <span style="font-size:13px;font-weight:900;color:#111;white-space:nowrap;letter-spacing:-0.3px;text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 0 6px rgba(255,255,255,0.9);line-height:1.1">${name}</span>
                 </div>`,
                 iconAnchor:[0,0],
@@ -3811,7 +3735,7 @@ const App=()=>{
                       setModalSt({type:null,data:[]});
                       setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
                     }} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 9px",borderRadius:14,background:"rgba(255,255,255,0.92)",border:"none",cursor:"pointer",backdropFilter:"blur(6px)",boxShadow:"0 2px 6px rgba(0,0,0,0.2)"}}>
-                      <span style={{fontSize:14}}>{ICONS[name]||"🏝️"}</span>
+                      <MascotIcon mascotMap={mascotMap} name={name} size={30} className="modal-mascot-img"/>
                       <span style={{fontSize:11,fontWeight:800,color:"#1C1C1E"}}>{name}</span>
                     </button>
                   ))}
@@ -3859,7 +3783,7 @@ const App=()=>{
                         setModalSt({type:null,data:[]});
                         setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
                       }} style={{display:"flex",alignItems:"center",gap:5,padding:"6px 7px",borderRadius:9,background:"#fff",border:"1px solid #EBEBEB",cursor:"pointer",textAlign:"left",width:"100%",transition:"background .1s"}}>
-                        <span style={{fontSize:15}}>{ICONS[name]||"🏝️"}</span>
+                        <MascotIcon mascotMap={mascotMap} name={name} size={30} className="modal-mascot-img"/>
                         <span style={{fontSize:11,fontWeight:700,color:"#374151",lineHeight:1.2}}>{name}</span>
                       </button>
                     ))}
@@ -3876,7 +3800,7 @@ const App=()=>{
                         setModalSt({type:null,data:[]});
                         setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
                       }} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,padding:"14px 8px",borderRadius:16,background:"#F8F9FA",border:"1px solid transparent",cursor:"pointer"}}>
-                        <span style={{fontSize:26}}>{ICONS[name]||"🏝️"}</span>
+                        <MascotIcon mascotMap={mascotMap} name={name} size={52} className="modal-mascot-img-lg"/>
                         <span style={{fontSize:13,fontWeight:700,color:"#374151",textAlign:"center",lineHeight:1.3}}>{name}</span>
                       </button>
                     ))}
