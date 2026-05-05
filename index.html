@@ -300,6 +300,84 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .mnav-calc:disabled{background:#E5E5EA;color:#AEAEB2;box-shadow:none;}
 .mnav-hist-popup{position:absolute;bottom:calc(100% + 8px);right:4px;background:#FAF8F5;border:1px solid rgba(0,122,255,0.15);border-radius:14px;padding:8px 0;min-width:200px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.12);}
 
+
+/* ── 모바일 산정내역 덧씌움 패널 ── */
+@media(max-width:699px){
+  .mobile-detail-backdrop{
+    position:fixed;inset:0;z-index:240;
+    background:rgba(15,23,42,0.42);
+    backdrop-filter:blur(5px);
+    display:flex;align-items:flex-end;
+    animation:mobileBackdropFade .18s ease-out;
+  }
+  .mobile-detail-sheet{
+    width:100%;max-height:92dvh;
+    background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFD 100%);
+    border-radius:26px 26px 0 0;
+    box-shadow:0 -12px 38px rgba(15,23,42,0.20);
+    border:1px solid rgba(255,255,255,0.72);
+    overflow:hidden;
+    animation:mobileSheetUp .26s cubic-bezier(.2,.85,.25,1);
+    display:flex;flex-direction:column;
+  }
+  .mobile-detail-handle{
+    width:46px;height:5px;border-radius:99px;background:#D1D5DB;
+    margin:10px auto 8px;
+  }
+  .mobile-detail-header{
+    padding:0 18px 14px;
+    border-bottom:1px solid rgba(0,122,255,0.09);
+  }
+  .mobile-detail-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .mobile-detail-title{
+    font-family:var(--gm);font-size:18px;font-weight:900;color:#111827;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35;
+  }
+  .mobile-detail-pill{
+    flex-shrink:0;display:inline-flex;align-items:center;gap:4px;
+    padding:5px 9px;border-radius:999px;background:#EEF6FF;
+    color:var(--blue);font-family:var(--gm);font-size:11px;font-weight:900;
+    border:1px solid rgba(0,122,255,.16);
+  }
+  .mobile-detail-fare-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:10px;gap:10px;}
+  .mobile-detail-fare-main{font-family:var(--gm);font-size:34px;font-weight:900;color:var(--blue);line-height:1;}
+  .mobile-detail-fare-sub{font-size:12px;color:#6B7280;font-weight:800;margin-top:4px;}
+  .mobile-detail-body{padding:12px 14px 86px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .mobile-detail-section-title{
+    font-family:var(--gm);font-size:13px;font-weight:900;color:#374151;
+    margin:12px 4px 8px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .mobile-detail-sheet .vertical-route-card{margin:8px 0 12px;}
+  .mobile-detail-sheet .fare-choice-wrap{display:flex;margin-top:0;}
+  .mobile-detail-sheet .fare-option-card{min-height:60px;padding:11px 13px;border-radius:15px;}
+  .mobile-detail-sheet .fare-option-name{font-size:14px;}
+  .mobile-detail-sheet .fare-option-price{font-size:18px;}
+  .mobile-detail-footer{
+    position:fixed;left:0;right:0;bottom:0;z-index:245;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(248,250,253,0.82),#fff 45%);
+    border-top:1px solid rgba(0,122,255,0.10);
+    display:grid;grid-template-columns:1fr 1.35fr;gap:10px;
+    box-shadow:0 -8px 22px rgba(15,23,42,0.08);
+  }
+  .mobile-sheet-btn{
+    height:50px;border-radius:16px;font-family:var(--gm);font-size:16px;font-weight:900;
+    border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+    transition:transform .12s ease,box-shadow .12s ease,filter .12s ease;
+  }
+  .mobile-sheet-btn:active{transform:scale(.975);}
+  .mobile-sheet-btn.main{
+    background:#fff;color:var(--blue);border:2px solid rgba(0,122,255,.22);
+    box-shadow:0 3px 12px rgba(0,122,255,.08);
+  }
+  .mobile-sheet-btn.calc{
+    color:#fff;background:linear-gradient(180deg,#2E95FF,#007AFF 55%,#0060DF);
+    box-shadow:0 5px 16px rgba(0,122,255,.30), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  @keyframes mobileSheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  @keyframes mobileBackdropFade{from{opacity:0}to{opacity:1}}
+}
+
 </style>
 </head>
 <body>
@@ -925,6 +1003,8 @@ const App=()=>{
   const [calcSt,setCalcSt]=useState("idle");
   const [smartResult,setSmartResult]=useState(null);
   const [showDetail,setShowDetail]=useState(false);
+  const [mobileDetailOpen,setMobileDetailOpen]=useState(false);
+  const mobileAutoOpenedKeyRef=useRef("");
   const [intraCityOpen,setIntraCityOpen]=useState(false);
   const [activeModal,setActiveModal]=useState(null);
   const onlyDigits=(v)=>String(v||"").replace(/[^0-9]/g,"");
@@ -946,6 +1026,13 @@ const App=()=>{
   const [history,setHistory]=useState(()=>{try{return JSON.parse(localStorage.getItem('ybez_hist')||'[]');}catch{return[];}});
   const [showHist,setShowHist]=useState(false);
   const [modalSt,setModalSt]=useState({type:null,data:[]});
+  // 팝업 재등장 방지: 한 번 선택/닫기 처리한 신안·완도 대표 입력은 같은 값 재계산 시 다시 팝업을 띄우지 않는다.
+  const popupResolvedRef=useRef({origin:"",destination:""});
+  const popupPrevInputRef=useRef({origin:"",destination:""});
+  const markPopupResolved=(type,key)=>{
+    if(type!=="origin"&&type!=="destination")return;
+    popupResolvedRef.current[type]=String(key||"").replace(/\s/g,"");
+  };
   const [showMobileMap,setShowMobileMap]=useState(false);
   const [bypassInfo, setBypassInfo] = useState([]); // [추가] 우회 로직 안내 텍스트 상태
   const [altRoutes, setAltRoutes] = useState([]); // 대안 터미널 직통 노선
@@ -964,6 +1051,47 @@ const App=()=>{
   const [ded,setDed]=useState({gov_vehicle:false,meal_1:false,meal_2:false,meal_3:false,meal_half:false,transport_proof:false,transport_gov_vehicle:false,transport_passenger:false});
   const [intraDed,setIntraDed]=useState({shortTime:false,govVehicle:false});
   const resetDed=()=>setDed({gov_vehicle:false,meal_1:false,meal_2:false,meal_3:false,meal_half:false,transport_proof:false,transport_gov_vehicle:false,transport_passenger:false});
+
+  const resetToMainKeepOrigin=useCallback(()=>{
+    setMobileDetailOpen(false);
+    setShowDetail(false);
+    setShowHist(false);
+    setDest("");
+    setVia("");
+    setShowVia(false);
+    setResult(null);
+    setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});
+    setSelSub(null);
+    setSmartResult(null);
+    setAltRoutes([]);
+    setCalcSt("idle");
+    setShipFare(0);
+    setManualTransport(null);
+    setAccessExtraFare(0);
+    setManualTransportInput("");
+    setAccessExtraInput("");
+    setShipFareInput("");
+    setBypassInfo([]);
+    setModalSt({type:null,data:[]});
+    mobileAutoOpenedKeyRef.current="";
+    resetDed();
+  },[]);
+
+
+  // 입력값이 실제로 바뀐 경우에만 해당 칸의 팝업 처리 완료 상태를 초기화한다.
+  // 출발지만 바꿀 때 목적지 완도/신안 팝업이 다시 뜨는 문제를 막기 위해 양쪽을 독립 관리한다.
+  useEffect(()=>{
+    const o=nz(origin);
+    const d=nz(dest);
+    if(popupPrevInputRef.current.origin!==o){
+      popupPrevInputRef.current.origin=o;
+      popupResolvedRef.current.origin="";
+    }
+    if(popupPrevInputRef.current.destination!==d){
+      popupPrevInputRef.current.destination=d;
+      popupResolvedRef.current.destination="";
+    }
+  },[origin,dest]);
 
   /* showHist 외부 클릭 닫기 */
   useEffect(()=>{
@@ -2534,8 +2662,20 @@ const App=()=>{
     const fromNormN=from.replace(/\s/g,"");const toNormN=to.replace(/\s/g,"");
     
     if(!viaCity){
-      if(rawFrom && (POPUP[fromN]||POPUP[fromNormN])&&!modalSt.type){setCalcSt("idle");setModalSt({type:"origin",data:POPUP[fromN]||POPUP[fromNormN]});return;}
-      if(rawTo && (POPUP[toN]||POPUP[toNormN])&&!modalSt.type){setCalcSt("idle");setModalSt({type:"destination",data:POPUP[toN]||POPUP[toNormN]});return;}
+      const fromPopupData=POPUP[fromN]||POPUP[fromNormN];
+      const fromPopupKey=POPUP[fromN]?fromN:(POPUP[fromNormN]?fromNormN:"");
+      const toPopupData=POPUP[toN]||POPUP[toNormN];
+      const toPopupKey=POPUP[toN]?toN:(POPUP[toNormN]?toNormN:"");
+      if(rawFrom&&fromPopupData&&!modalSt.type&&popupResolvedRef.current.origin!==fromPopupKey){
+        setCalcSt("idle");
+        setModalSt({type:"origin",data:fromPopupData,popupKey:fromPopupKey});
+        return;
+      }
+      if(rawTo&&toPopupData&&!modalSt.type&&popupResolvedRef.current.destination!==toPopupKey){
+        setCalcSt("idle");
+        setModalSt({type:"destination",data:toPopupData,popupKey:toPopupKey});
+        return;
+      }
     }
 
     if(!from||!to){setCalcSt("idle");setResult(null);return;}
@@ -3033,6 +3173,19 @@ const App=()=>{
     return parts.join(" → ");
   },[result,origin,dest,compactPlaceName,centerHubDisplayName]);
 
+
+  useEffect(()=>{
+    if(!result){setMobileDetailOpen(false);return;}
+    if(modalSt.type)return;
+    if(typeof window==="undefined")return;
+    if(!window.matchMedia("(max-width: 699px)").matches)return;
+    const key=[nz(origin),nz(dest),nz(via),String(result.routeLabel||displayRouteLabel||""),String(result.gen||"")].join("|");
+    if(!key||mobileAutoOpenedKeyRef.current===key)return;
+    mobileAutoOpenedKeyRef.current=key;
+    setShowDetail(false);
+    setMobileDetailOpen(true);
+  },[result,origin,dest,via,displayRouteLabel,modalSt.type]);
+
   const displaySupportNote=useMemo(()=>{
     if(!result)return "";
     if(result.islandRouteLabel){
@@ -3324,6 +3477,74 @@ const App=()=>{
     );
   };
 
+
+  const MobileFareChoices=()=>{
+    if(!result)return null;
+    const {depSubs=[],arrSubs=[],specialSubs=[]}=subResults||{};
+    const showSubs=!(nz(via)||result.via);
+    const hasChoices=showSubs&&(specialSubs.length||depSubs.length||arrSubs.length);
+    if(!hasChoices)return null;
+    const ChoiceCard=({selected,onClick,route,price,tag})=>(
+      <div className={`fare-option-card ${selected?"selected":""}`} onClick={onClick}>
+        <div className="fare-option-left">
+          <span className="fare-radio"/>
+          <div style={{minWidth:0}}>
+            <div className="fare-option-name">{route}{tag?<span className="tag-side" style={{marginLeft:8,background:"#F0F7FF",color:"var(--blue)",borderColor:"rgba(0,122,255,.18)"}}>{tag}</span>:null}</div>
+          </div>
+        </div>
+        <div style={{textAlign:"right",flexShrink:0}}>
+          <div className="fare-option-price">{price==null?"수기확인":`${fmt(price)}원`}</div>
+        </div>
+      </div>
+    );
+    return(
+      <div>
+        <div className="mobile-detail-section-title"><span>요금 선택</span><small style={{fontSize:10,color:"#8E8E93",fontWeight:900}}>후보 선택 가능</small></div>
+        <div className="fare-choice-wrap">
+          <ChoiceCard selected={selSub===null} onClick={()=>setSelSub(null)} route={displayRouteLabel} price={result.needsManualFare?null:candidateFare(result,grade)}/>
+          {specialSubs.map((r,i)=><ChoiceCard key={`m-special-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)} tag={r.routeTag||"동일생활권"}/>) }
+          {depSubs.slice(0,3).map((r,i)=><ChoiceCard key={`m-dep-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)}/>) }
+          {arrSubs.slice(0,3).map((r,i)=><ChoiceCard key={`m-arr-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)}/>) }
+        </div>
+      </div>
+    );
+  };
+
+  const MobileDetailSheet=()=>{
+    if(!mobileDetailOpen||!result||modalSt.type)return null;
+    const fare=result.needsManualFare?null:selectedFare;
+    const hasChoices=!(nz(via)||result.via)&&!!((subResults?.specialSubs?.length||0)+(subResults?.depSubs?.length||0)+(subResults?.arrSubs?.length||0));
+    return(
+      <div className="mobile-detail-backdrop" onClick={e=>e.stopPropagation()}>
+        <div className="mobile-detail-sheet" onClick={e=>e.stopPropagation()}>
+          <div className="mobile-detail-handle"/>
+          <div className="mobile-detail-header">
+            <div className="mobile-detail-title-row">
+              <div className="mobile-detail-title">{displayRouteLabel||`${origin} → ${dest}`}</div>
+              <div className="mobile-detail-pill">산정내역</div>
+            </div>
+            <div className="mobile-detail-fare-row">
+              <div>
+                <div className="mobile-detail-fare-main">{fare==null?"수기확인":`${fmt(fare)}원`}</div>
+                <div className="mobile-detail-fare-sub">편도 기준 · 왕복 {fare==null?"수기확인":`${fmt(fare*2)}원`}</div>
+              </div>
+              {hasChoices&&<div style={{fontSize:11,fontWeight:900,color:"#F59E0B",background:"#FFFBEB",border:"1px solid #FEF3C7",borderRadius:999,padding:"5px 9px",whiteSpace:"nowrap"}}>후보 있음</div>}
+            </div>
+          </div>
+          <div className="mobile-detail-body">
+            <MobileFareChoices/>
+            <div className="mobile-detail-section-title"><span>터미널 기준 산정표</span></div>
+            <VerticalRouteTable/>
+          </div>
+          <div className="mobile-detail-footer">
+            <button className="mobile-sheet-btn main" onClick={resetToMainKeepOrigin}>⌂ MAIN</button>
+            <button className="mobile-sheet-btn calc" onClick={()=>{setMobileDetailOpen(false);setShowDetail(true);}}>📋 여비계산</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if(!loaded&&!dataErr)return(
     <div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:14}}>
       <span style={{fontFamily:"var(--gm)",fontSize:36,fontWeight:900,color:"var(--blue)"}}>YBEZ</span>
@@ -3489,7 +3710,7 @@ const App=()=>{
         )}
         {/* 가운데 하단 버튼 바 (PC) */}
         <div className="bottom-action-bar desktop-only">
-          <button className="action-btn" onClick={()=>{setDest("");setVia("");setShowVia(false);setResult(null);setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});setSelSub(null);setSmartResult(null);setAltRoutes([]);setCalcSt("idle");setShipFare(0);setManualTransport(null);setAccessExtraFare(0);setBypassInfo([]);}}>
+          <button className="action-btn" onClick={resetToMainKeepOrigin}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span className="tooltip">도착지 초기화 (출발지 유지)</span>
           </button>
@@ -3517,9 +3738,9 @@ const App=()=>{
         </div>
 
         {/* 모바일 하단 내비 바 */}
-        <nav className="mobile-bottom-nav">
+        {!mobileDetailOpen&&<nav className="mobile-bottom-nav">
           {/* 홈 (출발지 남기고 초기화) */}
-          <div className="mnav-home" onClick={()=>{setDest("");setVia("");setShowVia(false);setResult(null);setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});setSelSub(null);setSmartResult(null);setAltRoutes([]);setCalcSt("idle");setShipFare(0);setManualTransport(null);setAccessExtraFare(0);setBypassInfo([]);}}>
+          <div className="mnav-home" onClick={resetToMainKeepOrigin}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(0,122,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </div>
           {/* 히스토리 */}
@@ -3546,7 +3767,7 @@ const App=()=>{
           <button className="mnav-calc" disabled={!result} onClick={()=>{if(result)setShowDetail(true);}}>
             📋 여비계산
           </button>
-        </nav>
+        </nav>}
       </div>
 
       {/* ══ 오른쪽: 등급선택 + 여비계산 ══ */}
@@ -3625,6 +3846,7 @@ const App=()=>{
           </div>
         </div>
       )}
+      <MobileDetailSheet/>
       {/* 모바일 여비계산 모달 */}
       {showDetail&&(
         <div style={{position:"fixed",inset:0,zIndex:260,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"flex-end"}} onClick={()=>setShowDetail(false)}>
@@ -3677,6 +3899,7 @@ const App=()=>{
 
             const handleSelect=(name)=>{
               const isOri=typeRef.current==="origin";
+              markPopupResolved(isOri?"origin":"destination",name);
               if(isOri)setOrigin(name);else setDest(name);
               setModalSt({type:null,data:[]});
               setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
@@ -3731,6 +3954,7 @@ const App=()=>{
                   {outIslands.map(name=>(
                     <button key={name} onClick={()=>{
                       const isOri=typeRef.current==="origin";
+                      markPopupResolved(isOri?"origin":"destination",name);
                       if(isOri)setOrigin(name);else setDest(name);
                       setModalSt({type:null,data:[]});
                       setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
@@ -3747,7 +3971,7 @@ const App=()=>{
 
         return(
           <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"rgba(0,0,0,0.65)",backdropFilter:"blur(6px)"}}
-            onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}}>
+            onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}}>
             <div style={{
               background:"#fff",borderRadius:28,
               width:"calc(100vw - 40px)",
@@ -3766,7 +3990,7 @@ const App=()=>{
                   </span>
                   {isMiniMap&&<div style={{fontSize:11,color:"rgba(255,255,255,0.7)",marginTop:2}}>지도 마커 또는 오른쪽 목록을 클릭하세요</div>}
                 </div>
-                <button onClick={()=>{setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                <button onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
               </div>
 
               {isMiniMap?(
@@ -3779,6 +4003,7 @@ const App=()=>{
                     {modalSt.data.map(name=>(
                       <button key={name} onClick={()=>{
                         const isOri=modalSt.type==="origin";
+                        markPopupResolved(isOri?"origin":"destination",name);
                         if(isOri)setOrigin(name);else setDest(name);
                         setModalSt({type:null,data:[]});
                         setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
@@ -3796,6 +4021,7 @@ const App=()=>{
                     {modalSt.data.map(name=>(
                       <button key={name} onClick={()=>{
                         const isOri=modalSt.type==="origin";
+                        markPopupResolved(isOri?"origin":"destination",name);
                         if(isOri)setOrigin(name);else setDest(name);
                         setModalSt({type:null,data:[]});
                         setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
