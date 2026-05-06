@@ -243,6 +243,151 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .modal-mascot-img-lg{width:52px;height:52px;object-fit:contain;display:inline-block;}
 
 
+/* ── 신안·완도 마스코트 카드 팝업: compact responsive v2 ── */
+.mascot-choice-modal{
+  background:#fff;
+  border-radius:22px;
+  width:min(760px,calc(100vw - 28px));
+  max-height:min(82dvh,760px);
+  overflow:hidden;
+  box-shadow:0 30px 60px rgba(0,0,0,0.32);
+  display:flex;
+  flex-direction:column;
+}
+.mascot-choice-header{
+  background:linear-gradient(180deg,#288CFF,#007AFF);
+  padding:11px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-shrink:0;
+}
+.mascot-choice-title{
+  font-family:var(--gm);
+  font-size:17px;
+  font-weight:900;
+  color:#fff;
+  line-height:1.25;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.mascot-choice-close{
+  background:rgba(255,255,255,.18);
+  border:none;
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+  border-radius:10px;
+  width:31px;
+  height:31px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.mascot-choice-body{
+  padding:10px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,#FFFFFF,#F8FAFF);
+}
+.mascot-choice-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+.mascot-choice-card{
+  aspect-ratio:1/1;
+  min-height:0;
+  padding:7px 5px;
+  border-radius:16px;
+  background:#fff;
+  border:1.5px solid #E7EDF7;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  box-shadow:0 2px 8px rgba(15,23,42,.045);
+  transition:transform .13s ease,border-color .13s ease,box-shadow .13s ease,background .13s ease;
+}
+.mascot-choice-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(0,122,255,.34);
+  box-shadow:0 5px 14px rgba(0,122,255,.12);
+  background:#F8FBFF;
+}
+.mascot-choice-card:active{transform:scale(.975);}
+.mascot-choice-img{
+  width:50px !important;
+  height:50px !important;
+  object-fit:contain;
+  object-position:center center;
+  display:block;
+  flex-shrink:0;
+}
+.mascot-choice-card.wando-card .mascot-choice-img{
+  width:46px !important;
+  height:46px !important;
+  object-position:center 58%;
+  transform:translateY(2px);
+}
+.mascot-choice-name{
+  font-family:var(--gm);
+  font-size:14px;
+  font-weight:900;
+  color:#111;
+  line-height:1.12;
+  text-align:center;
+  white-space:nowrap;
+  letter-spacing:-.2px;
+}
+@media(max-width:900px) and (min-width:700px){
+  .mascot-choice-modal{width:min(640px,calc(100vw - 24px));}
+  .mascot-choice-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+}
+@media(max-width:699px){
+  .mascot-choice-modal{
+    width:calc(100vw - 18px);
+    max-height:84dvh;
+    border-radius:22px;
+  }
+  .mascot-choice-header{padding:12px 13px;}
+  .mascot-choice-title{font-size:16px;}
+  .mascot-choice-body{padding:9px;}
+  .mascot-choice-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .mascot-choice-card{
+    aspect-ratio:1/0.82;
+    border-radius:15px;
+    padding:8px 5px;
+    gap:5px;
+  }
+  .mascot-choice-img{
+    width:48px !important;
+    height:48px !important;
+  }
+  .mascot-choice-card.wando-card .mascot-choice-img{
+    width:44px !important;
+    height:44px !important;
+    transform:translateY(2px);
+  }
+  .mascot-choice-name{font-size:14px;}
+}
+@media(max-width:380px){
+  .mascot-choice-card{aspect-ratio:1/0.76;}
+  .mascot-choice-img{width:44px !important;height:44px !important;}
+  .mascot-choice-card.wando-card .mascot-choice-img{width:41px !important;height:41px !important;}
+  .mascot-choice-name{font-size:13px;}
+}
+
+
+
 /* ── PC 가독성 개선 ── */
 /* 태그 side (편도/왕복) */
 .tag-side{font-size:11px !important;padding:2px 7px !important;}
@@ -376,6 +521,301 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
   @keyframes mobileSheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   @keyframes mobileBackdropFade{from{opacity:0}to{opacity:1}}
+}
+
+
+
+/* ── final balanced mascot UI patch v1 ──
+   기준:
+   - 메인 입력창: 높이 80px / 글씨 30px / 마스코트 70px
+   - 팝업: 카드 132px 안팎 / 이미지 90px / 지역명 16px
+   - 모바일: 기존 구조 유지, 이미지 소폭만
+   - 계산 로직/JSON/선택 로직 비수정
+*/
+@media (min-width:700px){
+  /* 메인 입력창: 과대 확대 금지 */
+  .input-box{
+    height:80px;
+    padding:0 16px 0 18px;
+    gap:14px;
+    border-radius:20px;
+  }
+  .input-label{
+    font-size:13px;
+    letter-spacing:-0.2px;
+    text-transform:none;
+    margin-bottom:1px;
+  }
+  .input-field{
+    font-size:30px;
+    line-height:1.08;
+    letter-spacing:-0.8px;
+  }
+  .clear-btn{
+    width:30px;
+    height:30px;
+    font-size:15px;
+  }
+
+  /* 메인 마스코트: 박스보다 그림이 보이게 */
+  .mascot-badge{
+    width:72px;
+    height:72px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.60);
+    border:1px solid rgba(0,122,255,0.12);
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    overflow:visible;
+  }
+  .mascot-badge:hover{
+    background:rgba(255,255,255,0.72);
+    box-shadow:0 5px 14px rgba(0,0,0,0.10);
+  }
+  .mascot-badge .mascot-img,
+  .mascot-img{
+    width:70px;
+    height:70px;
+    object-fit:contain;
+  }
+  .sug-mascot-img{
+    width:36px;
+    height:36px;
+  }
+
+  /* 팝업: 1안 기준, 카드 공백 축소 */
+  .mascot-choice-modal{
+    width:min(900px,calc(100vw - 36px));
+    max-height:min(84dvh,820px);
+    border-radius:22px;
+  }
+  .mascot-choice-header{
+    padding:10px 14px;
+  }
+  .mascot-choice-title{
+    font-size:17px;
+  }
+  .modal-mascot-img{
+    width:28px;
+    height:28px;
+  }
+  .mascot-choice-body{
+    padding:10px;
+  }
+  .mascot-choice-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:8px;
+  }
+  .mascot-choice-card{
+    height:132px;
+    min-height:0;
+    aspect-ratio:auto;
+    padding:6px 5px;
+    border-radius:17px;
+    gap:4px;
+    border:1.4px solid #E4ECF8;
+    box-shadow:0 2px 7px rgba(15,23,42,.04);
+  }
+  .mascot-choice-img{
+    width:90px !important;
+    height:90px !important;
+    object-fit:contain;
+    object-position:center center;
+  }
+  .mascot-choice-card.wando-card .mascot-choice-img{
+    width:88px !important;
+    height:88px !important;
+    object-position:center center;
+    transform:none;
+  }
+  .mascot-choice-name{
+    font-size:16px;
+    line-height:1.05;
+  }
+}
+
+@media (min-width:700px) and (max-width:900px){
+  .input-box{
+    height:78px;
+    padding:0 15px 0 17px;
+  }
+  .input-field{
+    font-size:29px;
+  }
+  .mascot-badge{
+    width:68px;
+    height:68px;
+  }
+  .mascot-badge .mascot-img,
+  .mascot-img{
+    width:66px;
+    height:66px;
+  }
+  .mascot-choice-modal{
+    width:min(760px,calc(100vw - 28px));
+  }
+  .mascot-choice-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px;
+  }
+  .mascot-choice-card{
+    height:124px;
+    padding:6px 5px;
+  }
+  .mascot-choice-img{
+    width:82px !important;
+    height:82px !important;
+  }
+  .mascot-choice-card.wando-card .mascot-choice-img{
+    width:80px !important;
+    height:80px !important;
+  }
+  .mascot-choice-name{
+    font-size:15px;
+  }
+}
+
+@media (max-width:699px){
+  /* 모바일: 창 크기 유지, 마스코트만 소폭 */
+  .mascot-badge{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+  }
+  .mascot-badge .mascot-img,
+  .mascot-img{
+    width:52px;
+    height:52px;
+  }
+  .mascot-choice-card{
+    padding:7px 5px;
+    gap:4px;
+  }
+  .mascot-choice-img{
+    width:58px !important;
+    height:58px !important;
+  }
+  .mascot-choice-card.wando-card .mascot-choice-img{
+    width:54px !important;
+    height:54px !important;
+    transform:none;
+  }
+}
+
+
+
+/* ── mascot badge fill fix v2 ──
+   목적:
+   - 입력창 오른쪽 네모 배지 안에서 마스코트 실제 그림이 더 꽉 차 보이게 함
+   - 입력창 높이/글씨/팝업 크기 변경 없음
+   - 이미지 원본의 투명 여백은 CSS scale로 보정
+*/
+@media (min-width:700px){
+  .mascot-badge{
+    width:72px;
+    height:72px;
+    border-radius:19px;
+    background:rgba(255,255,255,0.68);
+    border:1px solid rgba(0,122,255,0.14);
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    overflow:hidden;
+  }
+  .mascot-badge .mascot-img{
+    width:72px !important;
+    height:72px !important;
+    object-fit:contain;
+    object-position:center center;
+    transform:scale(1.28);
+    transform-origin:center center;
+  }
+  .mascot-badge:hover .mascot-img{
+    transform:scale(1.34);
+  }
+  .mascot-badge .mascot-img.mascot-pop{
+    animation:mascot-pop .28s ease-out 1;
+  }
+}
+@media (min-width:700px) and (max-width:900px){
+  .mascot-badge{
+    width:68px;
+    height:68px;
+    border-radius:18px;
+  }
+  .mascot-badge .mascot-img{
+    width:68px !important;
+    height:68px !important;
+    transform:scale(1.26);
+  }
+  .mascot-badge:hover .mascot-img{
+    transform:scale(1.32);
+  }
+}
+@media (max-width:699px){
+  .mascot-badge{
+    overflow:hidden;
+  }
+  .mascot-badge .mascot-img{
+    transform:scale(1.16);
+    transform-origin:center center;
+  }
+  .mascot-badge:hover .mascot-img{
+    transform:scale(1.20);
+  }
+}
+
+
+
+/* ── mascot badge stable 90% fix v3 ──
+   목적:
+   - 직전 배지 크기/입력창/팝업은 유지
+   - 마스코트 실제 확대율만 약 90%로 축소
+   - 선택 직후 커지는 pop/hover/transition 효과 제거
+   - 계산 로직/JSON/팝업 선택 로직 비수정
+*/
+@media (min-width:700px){
+  .mascot-badge .mascot-img{
+    width:72px !important;
+    height:72px !important;
+    object-fit:contain;
+    object-position:center center;
+    transform:scale(1.15) !important;
+    transform-origin:center center;
+    transition:none !important;
+    animation:none !important;
+  }
+  .mascot-badge:hover .mascot-img{
+    transform:scale(1.15) !important;
+  }
+  .mascot-badge .mascot-img.mascot-pop{
+    animation:none !important;
+  }
+}
+@media (min-width:700px) and (max-width:900px){
+  .mascot-badge .mascot-img{
+    width:68px !important;
+    height:68px !important;
+    transform:scale(1.13) !important;
+    transition:none !important;
+    animation:none !important;
+  }
+  .mascot-badge:hover .mascot-img{
+    transform:scale(1.13) !important;
+  }
+  .mascot-badge .mascot-img.mascot-pop{
+    animation:none !important;
+  }
+}
+@media (max-width:699px){
+  .mascot-badge .mascot-img{
+    transform:scale(1.04) !important;
+    transition:none !important;
+    animation:none !important;
+  }
+  .mascot-badge:hover .mascot-img{
+    transform:scale(1.04) !important;
+  }
+  .mascot-badge .mascot-img.mascot-pop{
+    animation:none !important;
+  }
 }
 
 </style>
@@ -731,8 +1171,10 @@ const TERM_NODE={
   "진월동":"NODE_0299","학동":"NODE_0301","문화동":"NODE_0302",
 };
 const POPUP={
-  "신안":["신안교육청","지도","압해","증도","임자","자은","안좌","팔금","암태","비금","도초","흑산","하의","신의","장산","홍도","가거도","만재도"],
-  "완도":["완도","금일","노화","군외","신지","고금","약산","청산","소안","금당","보길","생일","여서도"]
+  // 신안·완도 팝업은 mascot_map.json의 popup.cards와 동일한 순서로 맞춘다.
+  // 지도형 미니맵이 아니라 3열 둥근카드형 선택 팝업에서 사용한다.
+  "신안":["신안교육청","지도","증도","자은","암태","팔금","안좌","임자","비금","도초","장산","하의","신의","흑산","홍도","가거도","만재도"],
+  "완도":["완도","신지","고금","약산","청산","노화","보길","소안","금일","생일","금당","군외"]
 };
 const SAME_AREA=[
   new Set(["목포","신안","신안교육청"]),new Set(["노화","보길"]),new Set(["비금","도초"]),
@@ -1160,10 +1602,23 @@ const App=()=>{
 
   /* ── 마스코트 JSON 로드: 핵심 요금/권역 데이터와 분리하여 실패해도 앱은 계속 동작 ── */
   useEffect(()=>{
-    fetch("./data/mascot_map.json")
-      .then(r=>r.ok?r.json():null)
-      .then(j=>{ if(j) setMascotMap(j); })
-      .catch(e=>{ console.warn("mascot_map.json 로드 실패: 마스코트 없이 표시합니다.", e); setMascotMap(null); });
+    // 마스코트 복구 안정화: 정식 위치(data/)를 먼저 읽고, 개발/임시 배치용 루트 파일을 fallback으로 읽는다.
+    // 계산 로직과 완전히 분리되어 있으므로 실패해도 앱 산정은 계속 동작한다.
+    const loadMascot=async()=>{
+      const paths=["./data/mascot_map.json","./mascot_map.json"];
+      for(const p of paths){
+        try{
+          const r=await fetch(p,{cache:"no-store"});
+          if(r.ok){
+            const j=await r.json();
+            if(j){setMascotMap(j);return;}
+          }
+        }catch(e){}
+      }
+      console.warn("mascot_map.json 로드 실패: 마스코트 없이 표시합니다.");
+      setMascotMap(null);
+    };
+    loadMascot();
   },[]);
 
   /* ── 노드명 추적기 ── */
@@ -4013,181 +4468,59 @@ const App=()=>{
         </div>
       )}
       {modalSt.type&&(()=>{
-        // 신안/완도 데스크톱 전용: 미니맵 + 리스트 분할 레이아웃
-        const MINI_MAP_GROUPS=new Set(["신안","완도"]);
-        // 모달 데이터가 신안/완도 중 어느 그룹인지 판별
-        const groupKey=Object.keys(POPUP).find(k=>
-          MINI_MAP_GROUPS.has(k)&&Array.isArray(POPUP[k])&&
-          POPUP[k].length===modalSt.data?.length&&
-          POPUP[k][0]===modalSt.data?.[0]
+        // 신안·완도 팝업은 지도형 미니맵을 호출하지 않고, 3열 마스코트 카드형으로만 표시한다.
+        const POPUP_GROUP_MAP={"신안":"sinan","완도":"wando"};
+        const groupKey=modalSt.popupKey||Object.keys(POPUP).find(k=>
+          Array.isArray(POPUP[k])&&Array.isArray(modalSt.data)&&
+          POPUP[k].length===modalSt.data.length&&POPUP[k][0]===modalSt.data[0]
+        )||"";
+        const groupId=POPUP_GROUP_MAP[groupKey]||"";
+        const title=(mascotMap?.popup?.title_by_type?.[modalSt.type])||(
+          modalSt.type==="origin"?"출발지를 선택해주세요.":modalSt.type==="via"?"경유지를 선택해주세요.":"목적지를 선택해주세요."
         );
-        const isMiniMap=!!groupKey&&window.innerWidth>600;
-
-        // 신안/완도 중심 좌표 및 줌 (줌업 → 가거도/홍도 등 외곽 섬은 코너 오버레이)
-        const MAP_CENTER={
-          "신안":[34.79,126.13],  // 신안 군도 전체 중심
-          "완도":[34.27,126.78],  // 완도읍 포함 전체
+        const cardList=(groupId&&Array.isArray(mascotMap?.popup?.[groupId]?.cards)&&mascotMap.popup[groupId].cards.length)
+          ? mascotMap.popup[groupId].cards
+          : (modalSt.data||[]);
+        const triggerName=groupId==="sinan"?"신안":groupId==="wando"?"완도":(cardList[0]||"");
+        const closePopup=()=>{
+          markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));
+          setModalSt({type:null,data:[]});
+          skipPopupOnceRef.current=true;
+          setTimeout(()=>performCalc(origin,dest,via),0);
         };
-        const MAP_ZOOM={"신안":10,"완도":10};  // 완도 10으로 줌아웃해 완도읍 포함
-
-        const MiniMapPopup=()=>{
-          const miniRef=React.useRef(null);
-          const mmRef=React.useRef(null);
-          const [outIslands,setOutIslands]=React.useState([]);
-          const typeRef=React.useRef(modalSt.type);
-
-          React.useEffect(()=>{
-            if(!miniRef.current||mmRef.current)return;
-            const center=MAP_CENTER[groupKey]||[34.79,126.13];
-            const zoom=MAP_ZOOM[groupKey]||10;
-            const mm=L.map(miniRef.current,{
-              center,zoom,
-              dragging:false,zoomControl:false,
-              scrollWheelZoom:false,doubleClickZoom:false,
-              attributionControl:false,
-            });
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mm);
-
-            const handleSelect=(name)=>{
-              const isOri=typeRef.current==="origin";
-              markPopupResolved(isOri?"origin":"destination",name);
-              if(isOri)setOrigin(name);else setDest(name);
-              setModalSt({type:null,data:[]});
-              skipPopupOnceRef.current=true;
-              setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
-            };
-
-            if(!document.getElementById("ybez-wobble-style")){
-              const st=document.createElement("style");
-              st.id="ybez-wobble-style";
-              st.textContent=`@keyframes ybez-wobble{0%,100%{transform:rotate(0deg) scale(1)}20%{transform:rotate(-12deg) scale(1.1)}40%{transform:rotate(12deg) scale(1.05)}60%{transform:rotate(-8deg) scale(1.08)}80%{transform:rotate(8deg) scale(1.03)}}`;
-              document.head.appendChild(st);
-            }
-
-            modalSt.data.forEach((name,idx)=>{
-              const coord=ISLAND_COORDS[name];
-              if(!coord)return;
-              const delay=(idx*0.15)%1.5;
-              const icon=L.divIcon({
-                className:"",
-                // transform:translate(-50%,-50%) → 아이콘 중심이 좌표점과 일치
-                html:`<div style="cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0px;pointer-events:all;transform:translate(-50%,-50%)">
-                  <span style="width:12px;height:12px;border-radius:50%;display:inline-block;background:#7C3AED;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.32)"></span>
-                  <span style="font-size:13px;font-weight:900;color:#111;white-space:nowrap;letter-spacing:-0.3px;text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 0 6px rgba(255,255,255,0.9);line-height:1.1">${name}</span>
-                </div>`,
-                iconAnchor:[0,0],
-              });
-              L.marker([coord[0],coord[1]],{icon}).addTo(mm).on("click",()=>handleSelect(name));
-            });
-
-            setTimeout(()=>{if(mmRef.current)mmRef.current.invalidateSize();},80);
-            setTimeout(()=>{
-              if(!mmRef.current)return;
-              const bounds=mm.getBounds();
-              const outside=modalSt.data.filter(name=>{
-                const coord=ISLAND_COORDS[name];
-                if(!coord)return false;
-                return!bounds.contains(L.latLng(coord[0],coord[1]));
-              });
-              setOutIslands(outside);
-            },120);
-
-            mmRef.current=mm;
-            return()=>{if(mmRef.current){mmRef.current.remove();mmRef.current=null;}};
-          },[]);
-
-          return(
-            <div style={{position:"relative",flex:"1 1 0",minWidth:0,height:"100%",overflow:"hidden",borderRadius:"0 0 0 28px"}}>
-              <div ref={miniRef} style={{width:"100%",height:"100%"}}/>
-              {/* 잘린 섬 코너 오버레이 — 좌상단으로 이동 */}
-              {outIslands.length>0&&(
-                <div style={{position:"absolute",top:10,left:10,zIndex:1000,display:"flex",flexDirection:"column",gap:4,maxHeight:"60%",overflowY:"auto"}}>
-                  <div style={{fontSize:10,fontWeight:800,color:"rgba(255,255,255,0.9)",background:"rgba(0,0,0,0.5)",borderRadius:6,padding:"2px 6px",marginBottom:2,backdropFilter:"blur(4px)"}}>범위 밖 섬</div>
-                  {outIslands.map(name=>(
-                    <button key={name} onClick={()=>{
-                      const isOri=typeRef.current==="origin";
-                      markPopupResolved(isOri?"origin":"destination",name);
-                      if(isOri)setOrigin(name);else setDest(name);
-                      setModalSt({type:null,data:[]});
-                      skipPopupOnceRef.current=true;
-                      setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
-                    }} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 9px",borderRadius:14,background:"rgba(255,255,255,0.92)",border:"none",cursor:"pointer",backdropFilter:"blur(6px)",boxShadow:"0 2px 6px rgba(0,0,0,0.2)"}}>
-                      <MascotIcon mascotMap={mascotMap} name={name} size={30} className="modal-mascot-img"/>
-                      <span style={{fontSize:11,fontWeight:800,color:"#1C1C1E"}}>{name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
+        const selectPopupName=(name)=>{
+          const isOri=modalSt.type==="origin";
+          const isVia=modalSt.type==="via";
+          markPopupResolved(isOri?"origin":(isVia?"via":"destination"),name);
+          if(isOri)setOrigin(name);
+          else if(isVia)setVia(name);
+          else setDest(name);
+          setModalSt({type:null,data:[]});
+          skipPopupOnceRef.current=true;
+          setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,isVia?name:via),0);
         };
 
         return(
-          <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"rgba(0,0,0,0.65)",backdropFilter:"blur(6px)"}}
-            onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});skipPopupOnceRef.current=true;setTimeout(()=>performCalc(origin,dest,via),0);}}>
-            <div style={{
-              background:"#fff",borderRadius:28,
-              width:"calc(100vw - 40px)",
-              height:isMiniMap?"calc(100vh - 60px)":"auto",
-              maxWidth:isMiniMap?1000:380,
-              maxHeight:isMiniMap?820:undefined,
-              overflow:"hidden",
-              boxShadow:"0 30px 60px rgba(0,0,0,0.35)",
-              display:"flex",flexDirection:"column",
-            }} onClick={e=>e.stopPropagation()}>
-              {/* 헤더 */}
-              <div style={{background:"linear-gradient(180deg,#288CFF,#007AFF)",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
-                <div>
-                  <span style={{fontFamily:"var(--gm)",fontSize:18,fontWeight:900,color:"#fff"}}>
-                    {groupKey==="신안"?"🏝️ 신안 군도":groupKey==="완도"?"🦪 완도 해역":"세부 지역 선택"}
-                  </span>
-                  {isMiniMap&&<div style={{fontSize:11,color:"rgba(255,255,255,0.7)",marginTop:2}}>지도 마커 또는 오른쪽 목록을 클릭하세요</div>}
+          <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:14,background:"rgba(0,0,0,0.62)",backdropFilter:"blur(6px)"}}
+            onClick={closePopup}>
+            <div className="mascot-choice-modal" onClick={e=>e.stopPropagation()}>
+              <div className="mascot-choice-header">
+                <div className="mascot-choice-title">
+                  <MascotIcon mascotMap={mascotMap} name={triggerName} size={28} className="modal-mascot-img"/>
+                  <span>{title}</span>
                 </div>
-                <button onClick={()=>{markPopupResolved(modalSt.type,modalSt.popupKey||(modalSt.type==="origin"?origin:dest));setModalSt({type:null,data:[]});skipPopupOnceRef.current=true;setTimeout(()=>performCalc(origin,dest,via),0);}} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:18,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                <button className="mascot-choice-close" onClick={closePopup}>✕</button>
               </div>
-
-              {isMiniMap?(
-                /* 데스크톱: 지도(확대) + 오른쪽 리스트 */
-                <div style={{display:"flex",flex:1,minHeight:0}}>
-                  <MiniMapPopup/>
-                  {/* 우: 전체 목록 (작게, 스크롤) */}
-                  <div style={{width:130,flexShrink:0,overflowY:"auto",borderLeft:"1px solid #F0F0F5",padding:"10px 7px",display:"flex",flexDirection:"column",gap:3,background:"#FAFAFA"}}>
-                    <div style={{fontSize:10,fontWeight:800,color:"#AEAEB2",padding:"0 4px 6px",borderBottom:"1px solid #EBEBEB",marginBottom:4}}>전체 목록</div>
-                    {modalSt.data.map(name=>(
-                      <button key={name} onClick={()=>{
-                        const isOri=modalSt.type==="origin";
-                        markPopupResolved(isOri?"origin":"destination",name);
-                        if(isOri)setOrigin(name);else setDest(name);
-                        setModalSt({type:null,data:[]});
-                        skipPopupOnceRef.current=true;
-                        setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
-                      }} style={{display:"flex",alignItems:"center",gap:5,padding:"6px 7px",borderRadius:9,background:"#fff",border:"1px solid #EBEBEB",cursor:"pointer",textAlign:"left",width:"100%",transition:"background .1s"}}>
-                        <MascotIcon mascotMap={mascotMap} name={name} size={30} className="modal-mascot-img"/>
-                        <span style={{fontSize:11,fontWeight:700,color:"#374151",lineHeight:1.2}}>{name}</span>
-                      </button>
-                    ))}
-                  </div>
+              <div className="mascot-choice-body">
+                <div className="mascot-choice-grid">
+                  {cardList.map(name=>(
+                    <button key={name} className={`mascot-choice-card ${groupId==="wando"?"wando-card":"sinan-card"}`} onClick={()=>selectPopupName(name)}>
+                      <MascotIcon mascotMap={mascotMap} name={name} size={groupId==="wando"?46:50} className="mascot-choice-img"/>
+                      <span className="mascot-choice-name">{name}</span>
+                    </button>
+                  ))}
                 </div>
-              ):(
-                /* 모바일: 기존 3열 그리드 */
-                <div style={{padding:16,maxHeight:"60vh",overflowY:"auto"}}>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-                    {modalSt.data.map(name=>(
-                      <button key={name} onClick={()=>{
-                        const isOri=modalSt.type==="origin";
-                        markPopupResolved(isOri?"origin":"destination",name);
-                        if(isOri)setOrigin(name);else setDest(name);
-                        setModalSt({type:null,data:[]});
-                        skipPopupOnceRef.current=true;
-                        setTimeout(()=>performCalc(isOri?name:origin,isOri?dest:name,""),0);
-                      }} style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,padding:"14px 8px",borderRadius:16,background:"#F8F9FA",border:"1px solid transparent",cursor:"pointer"}}>
-                        <MascotIcon mascotMap={mascotMap} name={name} size={52} className="modal-mascot-img-lg"/>
-                        <span style={{fontSize:13,fontWeight:700,color:"#374151",textAlign:"center",lineHeight:1.3}}>{name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         );
