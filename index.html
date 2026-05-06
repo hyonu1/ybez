@@ -177,6 +177,10 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .fare-option-sub{font-size:10px;color:#8E8E93;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .fare-option-price{font-size:20px;font-weight:900;font-family:var(--gm);color:var(--blue);white-space:nowrap;}
 .fare-option-pre{font-size:9px;font-weight:800;color:#F59E0B;margin-bottom:2px;}
+.sub-choice-toggle{width:100%;height:42px;border-radius:14px;border:1.5px solid rgba(0,122,255,.20);background:linear-gradient(135deg,#F8FBFF,#EEF6FF);color:var(--blue);font-family:var(--gm);font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .14s;}
+.sub-choice-toggle:hover{border-color:rgba(0,122,255,.36);box-shadow:0 3px 10px rgba(0,122,255,.10);}
+.sub-choice-toggle:active{transform:scale(.985);}
+.sub-choice-note{font-size:10px;font-weight:750;color:#6B7280;line-height:1.35;background:#F8FAFD;border:1px solid #E8EEF7;border-radius:12px;padding:9px 11px;word-break:keep-all;}
 @media(max-width:980px){.vertical-route-card{margin:10px 0;}.vroute-node-name{font-size:12px}.vroute-src-tag,.vroute-note-inline{font-size:9px}.vroute-fare{font-size:12px}}
 
 /* ── 로딩 ── */
@@ -1440,6 +1444,7 @@ const App=()=>{
   const [result,setResult]=useState(null);         // 메인 여비 결과
   const [subResults,setSubResults]=useState({depSubs:[],arrSubs:[],specialSubs:[]});   // 하위터미널/특수 선택 후보 결과
   const [selSub,setSelSub]=useState(null);         // 선택된 하위터미널
+  const [showSubChoices,setShowSubChoices]=useState(false); // 자동 하위터미널 후보 접기/펼치기
 
   /* UI */
   const [calcSt,setCalcSt]=useState("idle");
@@ -1506,6 +1511,7 @@ const App=()=>{
     setShowVia(false);
     setResult(null);
     setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});
+    setShowSubChoices(false);
     setSelSub(null);
     setSmartResult(null);
     setAltRoutes([]);
@@ -3221,7 +3227,7 @@ const App=()=>{
   },[lookupFare, getNodeName, aliasLinked]);
 
   const performCalc=useCallback((o=origin,d=dest,viaCity=via)=>{
-    resetDed();setShipFare(0);setManualTransport(null);setAccessExtraFare(0);setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});setSelSub(null);setSmartResult(null);setBypassInfo([]);setAltRoutes([]);
+    resetDed();setShipFare(0);setManualTransport(null);setAccessExtraFare(0);setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});setShowSubChoices(false);setSelSub(null);setSmartResult(null);setBypassInfo([]);setAltRoutes([]);
     const rawFrom=nz(o);const rawTo=nz(d);
     const from=normalizeCity(rawFrom);const to=normalizeCity(rawTo);
     if(from!==rawFrom) setOrigin(from);
@@ -3231,6 +3237,31 @@ const App=()=>{
     const fromNormN=from.replace(/\s/g,"");const toNormN=to.replace(/\s/g,"");
     const skipPopup=skipPopupOnceRef.current;
     skipPopupOnceRef.current=false;
+
+    if([from,to,rawFrom,rawTo].some(x=>/광주비아|비아정류|^비아$/.test(nz(x)))){
+      setResult(null);
+      setBypassInfo(["⚠ 광주비아는 광주유스퀘어 하위정류장이므로 여비 산정 목적지로 별도 계산하지 않습니다."]);
+      setCalcSt("error_no_route");
+      return;
+    }
+
+    if(from&&to&&!nz(viaCity)&&from===to){
+      const sameRes={gen:0,pre:null,cost:0,surcharge:0,shipCost:0,
+        sources:["area_rule"],dr:`${from}→${to}`,routeLabel:`${from} → ${to}`,
+        origin:from,dest:to,via:null,sameArea:true,areaRoute:true,areaScore:5,
+        areaMethod:"동일 출발지·목적지 0원 처리",multiHop:null,areaSegments:null};
+      setResult(sameRes);
+      setManualTransport(0);
+      setShipFare(0);
+      setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});
+      setShowSubChoices(false);
+      setAltRoutes([]);
+      setSmartResult(null);
+      setBypassInfo(["✓ 동일 출발지·목적지: 0원 처리"]);
+      addHistory(o,d,0);
+      setCalcSt("done");
+      return;
+    }
     
     if(!skipPopup&&!viaCity){
       const fromPopupData=POPUP[fromN]||POPUP[fromNormN];
@@ -4098,14 +4129,20 @@ const App=()=>{
         </div>
       </div>
     );
+    const autoSubs=[...depSubs.slice(0,3),...arrSubs.slice(0,3)];
     return(
       <div>
         <div className="mobile-detail-section-title"><span>요금 선택</span><small style={{fontSize:10,color:"#8E8E93",fontWeight:900}}>후보 선택 가능</small></div>
         <div className="fare-choice-wrap">
           <ChoiceCard selected={selSub===null} onClick={()=>setSelSub(null)} route={displayRouteLabel} price={result.needsManualFare?null:candidateFare(result,grade)}/>
           {specialSubs.map((r,i)=><ChoiceCard key={`m-special-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)} tag={r.routeTag||"동일생활권"}/>) }
-          {depSubs.slice(0,3).map((r,i)=><ChoiceCard key={`m-dep-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)}/>) }
-          {arrSubs.slice(0,3).map((r,i)=><ChoiceCard key={`m-arr-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)}/>) }
+          {autoSubs.length>0&&<>
+            <button type="button" className="sub-choice-toggle" onClick={()=>setShowSubChoices(v=>!v)}>
+              {showSubChoices?"참고용 인근 터미널 요금 접기 ▲":`참고용 인근 터미널 요금 보기 ▼ (${autoSubs.length}건)`}
+            </button>
+            {showSubChoices&&<div className="sub-choice-note">선택한 시·군의 인근 터미널 직통요금입니다. 실제 이용 터미널이 다를 때만 참고하세요.</div>}
+            {showSubChoices&&autoSubs.map((r,i)=><ChoiceCard key={`m-sub-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)}/>) }
+          </>}
         </div>
       </div>
     );
@@ -4265,6 +4302,7 @@ const App=()=>{
                   </div>
                 );
                 const mainSources=compactSources(result.sources);
+                const autoSubs=[...depSubs.slice(0,3),...arrSubs.slice(0,3)];
                 return(
                   <div className="fare-choice-wrap">
                     <ChoiceCard
@@ -4284,24 +4322,21 @@ const App=()=>{
                         tag={r.routeTag||"동일생활권 간주"}
                       />
                     ))}
-                    {showSubs&&depSubs.slice(0,3).map((r,i)=>(
-                      <ChoiceCard
-                        key={`dep-${i}`}
-                        selected={selSub===r}
-                        onClick={()=>setSelSub(selSub===r?null:r)}
-                        route={`${r.depName} → ${r.arrName}`}
-                        price={candidateFare(r,grade)}
-                      />
-                    ))}
-                    {showSubs&&arrSubs.slice(0,3).map((r,i)=>(
-                      <ChoiceCard
-                        key={`arr-${i}`}
-                        selected={selSub===r}
-                        onClick={()=>setSelSub(selSub===r?null:r)}
-                        route={`${r.depName} → ${r.arrName}`}
-                        price={candidateFare(r,grade)}
-                      />
-                    ))}
+                    {showSubs&&autoSubs.length>0&&(<>
+                      <button type="button" className="sub-choice-toggle" onClick={()=>setShowSubChoices(v=>!v)}>
+                        {showSubChoices?"참고용 인근 터미널 요금 접기 ▲":`참고용 인근 터미널 요금 보기 ▼ (${autoSubs.length}건)`}
+                      </button>
+                      {showSubChoices&&<div className="sub-choice-note">선택한 시·군의 인근 터미널 직통요금입니다. 실제 이용 터미널이 다를 때만 참고하세요.</div>}
+                      {showSubChoices&&autoSubs.map((r,i)=>(
+                        <ChoiceCard
+                          key={`sub-${i}`}
+                          selected={selSub===r}
+                          onClick={()=>setSelSub(selSub===r?null:r)}
+                          route={`${r.depName} → ${r.arrName}`}
+                          price={candidateFare(r,grade)}
+                        />
+                      ))}
+                    </>)}
                   </div>
                 );
               })()}
