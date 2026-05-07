@@ -56,13 +56,14 @@
       "label_ko": "완도",
       "mascot_id": "jg_wd",
       "image": "assets/mascots/jg_wd_wando.webp",
-      "alt": "장보고 장군형 완도 대표",
-      "concept": "완도 대표/트리거 및 완도 카드",
+      "alt": "장군복을 입고 완도 바다를 지휘하는 장보고 어린이",
+      "concept": "완도 대표: 장보고 어린이의 완도 바다 지휘",
       "status": "ready",
       "popup_group": "wando",
       "tags": [
         "trigger",
-        "wando_card"
+        "wando_card",
+        "story_main"
       ]
     },
     "jg_sa_edu": {
@@ -222,8 +223,8 @@
       "label_ko": "신지",
       "mascot_id": "jg_wd_sinji",
       "image": "assets/mascots/jg_wd_sinji.webp",
-      "alt": "신라시대 평상복 캐릭터와 해변",
-      "concept": "평상복 + 해변",
+      "alt": "신지해수욕장에서 수염을 떼다 뒤돌아보며 놀라는 장보고 어린이",
+      "concept": "신지: 퇴근 후 해변 휴식",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -231,8 +232,8 @@
       "label_ko": "고금",
       "mascot_id": "jg_wd_gogeum",
       "image": "assets/mascots/jg_wd_gogeum.webp",
-      "alt": "신라시대 평상복 캐릭터와 전복",
-      "concept": "평상복 + 전복",
+      "alt": "고금에서 전복을 발견하고 기뻐하는 평상복 장보고 어린이",
+      "concept": "고금: 전복 발견",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -240,8 +241,8 @@
       "label_ko": "약산",
       "mascot_id": "jg_wd_yaksan",
       "image": "assets/mascots/jg_wd_yaksan.webp",
-      "alt": "신라시대 평상복 캐릭터와 약초",
-      "concept": "평상복 + 약초",
+      "alt": "약산에서 약초를 열심히 캐는 평상복 장보고 어린이",
+      "concept": "약산: 약초 채집",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -249,8 +250,8 @@
       "label_ko": "청산",
       "mascot_id": "jg_wd_cheongsan",
       "image": "assets/mascots/jg_wd_cheongsan.webp",
-      "alt": "청산도 슬로길 배경과 작은 평상복 캐릭터",
-      "concept": "배경 중심 + 캐릭터 75%",
+      "alt": "청산 슬로길을 내려오며 장바구니를 들고 좋아하는 장보고 어린이",
+      "concept": "청산: 슬로길과 장바구니",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -258,8 +259,8 @@
       "label_ko": "노화",
       "mascot_id": "jg_wd_nohwa",
       "image": "assets/mascots/jg_wd_nohwa.webp",
-      "alt": "항구와 배 배경, 작은 평상복 캐릭터",
-      "concept": "배경 중심 + 캐릭터 75%",
+      "alt": "큰 냄비에 완도 해산물과 야채를 넣고 요리하는 장보고 어린이",
+      "concept": "노화: 완도 해산물 요리",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -267,8 +268,8 @@
       "label_ko": "보길",
       "mascot_id": "jg_wd_bogil",
       "image": "assets/mascots/jg_wd_bogil.webp",
-      "alt": "평상복 캐릭터와 동백꽃",
-      "concept": "평상복 + 동백꽃",
+      "alt": "도시락을 싸서 동백꽃을 보며 앉아 있는 장보고 어린이",
+      "concept": "보길: 도시락과 동백꽃 휴식",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -276,8 +277,8 @@
       "label_ko": "소안",
       "mascot_id": "jg_wd_soan",
       "image": "assets/mascots/jg_wd_soan.webp",
-      "alt": "평상복 캐릭터가 태극기를 양손으로 든 모습",
-      "concept": "평상복 + 태극기",
+      "alt": "태극기를 들고 서 있는 장보고 어린이",
+      "concept": "소안: 태극기와 역사성",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -285,8 +286,8 @@
       "label_ko": "금일",
       "mascot_id": "jg_wd_geumil",
       "image": "assets/mascots/jg_wd_geumil.webp",
-      "alt": "평상복 캐릭터와 생선",
-      "concept": "평상복 + 생선",
+      "alt": "금일 앞바다에서 큰 생선을 잡고 자랑하는 장보고 어린이",
+      "concept": "금일: 생선 수확",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -294,8 +295,8 @@
       "label_ko": "생일",
       "mascot_id": "jg_wd_saengil",
       "image": "assets/mascots/jg_wd_saengil.webp",
-      "alt": "평상복 캐릭터와 생일 케이크",
-      "concept": "평상복 + 생일 케이크",
+      "alt": "생일도 섬마을 잔칫날 여자아이를 만나 함께 웃는 장보고 어린이",
+      "concept": "생일: 섬마을 잔칫날 친구 만남",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -303,8 +304,8 @@
       "label_ko": "금당",
       "mascot_id": "jg_wd_geumdang",
       "image": "assets/mascots/jg_wd_geumdang.webp",
-      "alt": "평상복 캐릭터와 다시마",
-      "concept": "평상복 + 다시마",
+      "alt": "금당 바닷가에서 여자아이와 해초와 다시마를 함께 따는 장보고 어린이",
+      "concept": "금당: 해초와 다시마를 함께 수확",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -312,8 +313,8 @@
       "label_ko": "군외",
       "mascot_id": "jg_wd_gunoe",
       "image": "assets/mascots/jg_wd_gunoe.webp",
-      "alt": "관문 배경과 작은 평상복 캐릭터",
-      "concept": "배경 중심 + 캐릭터 75%",
+      "alt": "말을 타고 완도 관문을 통과하는 평상복 장보고 어린이",
+      "concept": "군외: 퇴근길 완도 관문 통과",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -321,7 +322,7 @@
       "label_ko": "완도",
       "mascot_id": "jg_wd_island",
       "image": "assets/mascots/jg_wd_wando.webp",
-      "alt": "장보고 장군형 완도 대표",
+      "alt": "장군복을 입고 완도 바다를 지휘하는 장보고 어린이",
       "concept": "완도 특수권 대표",
       "status": "ready",
       "popup_group": "wando"
@@ -330,8 +331,8 @@
       "label_ko": "완도",
       "mascot_id": "jg_wd_connected",
       "image": "assets/mascots/jg_wd_wando.webp",
-      "alt": "장보고 장군형 완도 대표",
-      "concept": "완도 특수권 대표",
+      "alt": "장군복을 입고 완도 바다를 지휘하는 장보고 어린이",
+      "concept": "완도 연륙권 대표",
       "status": "ready",
       "popup_group": "wando"
     },
@@ -579,6 +580,15 @@
       "tags": [
         "legacy_restored"
       ]
+    },
+    "jg_wd_yeoseodo": {
+      "label_ko": "여서도",
+      "mascot_id": "jg_wd_yeoseodo",
+      "image": "assets/mascots/jg_wd_yeoseodo.webp",
+      "alt": "여서도 작은 섬에서 바다를 바라보며 행복하게 쉬는 장보고 어린이와 여자아이",
+      "concept": "여서도: 완도 섬마을 동화의 행복한 마무리",
+      "status": "needs_asset",
+      "popup_group": "wando"
     }
   },
   "by_region_name": {
@@ -666,7 +676,8 @@
     "남악": "jg_mp",
     "오룡": "jg_mp",
     "일로": "jg_mu",
-    "압해": "jg_sa"
+    "압해": "jg_sa",
+    "여서도": "jg_wd_yeoseodo"
   },
   "popup": {
     "columns": 3,
@@ -707,6 +718,7 @@
       "trigger_mascot": "jg_wd",
       "cards": [
         "완도",
+        "군외",
         "신지",
         "고금",
         "약산",
@@ -717,9 +729,10 @@
         "금일",
         "생일",
         "금당",
-        "군외"
+        "여서도"
       ]
     }
   },
-  "restore_note": "기존 전남·광주 마스코트 전체 매핑 복구 + 신안/완도/곡성/광양 최신 교체본 유지"
+  "restore_note": "기존 전남·광주 마스코트 전체 매핑 복구 + 신안/완도/곡성/광양 최신 교체본 유지 / 완도 팝업 스토리 순서 반영 + 여서도 자리 복구(status: needs_asset)",
+  "patched_at": "2026-05-07"
 }
