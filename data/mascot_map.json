@@ -1,6 +1,6 @@
 {
   "version": "YBEZ_mascot_map_existing_restored_v1",
-  "updated_at": "2026-05-06",
+  "updated_at": "2026-05-08 17:32:18",
   "default_format": "webp",
   "image_standard": {
     "ratio": "1:1",
@@ -9,13 +9,15 @@
     "safe_margin": "중앙 배치, 입력창/팝업에서 잘림 방지"
   },
   "principle": {
-    "popup_layout": "신안/완도 팝업은 지도형이 아니라 3열 둥근카드형",
+    "popup_layout": "신안/완도 팝업은 데스크톱 5열·모바일 3열 버튼형 카드로 표시",
     "popup_title": "출발지를 선택해주세요 / 목적지를 선택해주세요 / 경유지를 선택해주세요",
-    "card_content": "마스코트 + 지역명만 표시",
+    "card_content": "1:1 마스코트 이미지 + 바로 아래 지역명만 표시",
     "sinan": "대표/트리거는 커피 한잔 마시는 천사, 내부 카드는 하위지역별 개별 천사 마스코트",
     "wando": "대표/트리거와 완도/완도읍 카드는 장보고 장군형, 하위지역은 신라시대 평상복 장보고풍 캐릭터 + 지역별 상징",
     "gokseong": "장미 + 증기기관차",
-    "gwangyang": "노르웨이숲 감성 사슴"
+    "gwangyang": "노르웨이숲 감성 사슴",
+    "search_policy": "기본 검색은 시군·대권역 중심, 하위검색어는 정확 입력 시만 허용. 신안·완도는 하위지역 특수교통비 표시 예외 유지.",
+    "nationwide_symbol": "광주·전남 외 전국권은 사람 없는 단순 풍경 심볼로 단계적 자산화"
   },
   "by_area_id": {
     "jg_gs": {
@@ -43,13 +45,15 @@
     "jg_sa": {
       "label_ko": "신안",
       "mascot_id": "jg_sa",
-      "image": "assets/mascots/jg_sa_sinan.webp",
-      "alt": "커피 한잔 마시는 신안 천사",
-      "concept": "신안 팝업 대표/트리거",
+      "image": "assets/mascots/jg_sa_main_traveler.webp",
+      "alt": "신안 대표 여행자",
+      "concept": "신안 팝업 대표: 메인 여성 여행자 얼굴 중심",
       "status": "ready",
       "popup_group": "sinan",
       "tags": [
-        "trigger"
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
       ]
     },
     "jg_wd": {
@@ -70,154 +74,239 @@
       "label_ko": "신안교육청",
       "mascot_id": "jg_sa_edu",
       "image": "assets/mascots/jg_sa_edu.webp",
-      "alt": "코발트블루 핸드드립 천사",
-      "concept": "핸드드립 천사",
+      "alt": "신안교육청 앞에서 섬 지도를 펼친 여행자",
+      "concept": "신안교육청: 여행의 시작",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_jido": {
       "label_ko": "지도",
       "mascot_id": "jg_sa_jido",
       "image": "assets/mascots/jg_sa_jido.webp",
-      "alt": "곱창 구워먹는 신안 천사",
-      "concept": "곱창 구워먹는 천사",
+      "alt": "지도와 나침반을 들고 섬길을 찾는 여행자",
+      "concept": "지도: 첫 섬길 탐험",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_jeungdo": {
       "label_ko": "증도",
       "mascot_id": "jg_sa_jeungdo",
       "image": "assets/mascots/jg_sa_jeungdo.webp",
-      "alt": "소금밭의 신안 천사",
-      "concept": "소금밭 천사",
+      "alt": "하얀 소금밭 사이를 걷는 여행자",
+      "concept": "증도: 소금밭",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_jaeun": {
       "label_ko": "자은",
       "mascot_id": "jg_sa_jaeun",
       "image": "assets/mascots/jg_sa_jaeun.webp",
-      "alt": "조개를 든 해변 천사",
-      "concept": "조개·해변 천사",
+      "alt": "따뜻한 어른이 여행자에게 밥상을 차려주는 장면",
+      "concept": "자은: 김수미 오마주 밥상",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_amtae": {
       "label_ko": "암태",
       "mascot_id": "jg_sa_amtae",
       "image": "assets/mascots/jg_sa_amtae.webp",
-      "alt": "큰 나무 아래 벽에 그려진 아기천사 얼굴 벽화 오마주",
-      "concept": "나무머리 벽화 오마주",
+      "alt": "오래된 돌담길에서 잠시 쉬는 여행자",
+      "concept": "암태: 돌담길과 쉼",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_palgum": {
       "label_ko": "팔금",
       "mascot_id": "jg_sa_palgum",
       "image": "assets/mascots/jg_sa_palgum.webp",
-      "alt": "새우 먹는 신안 천사",
-      "concept": "새우 먹는 천사",
+      "alt": "노을빛 항구에서 배를 기다리는 여행자",
+      "concept": "팔금: 항구의 기다림",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_anjwa": {
       "label_ko": "안좌",
       "mascot_id": "jg_sa_anjwa",
       "image": "assets/mascots/jg_sa_anjwa.webp",
-      "alt": "퍼플교 위 스쿠터 천사",
-      "concept": "퍼플교 스쿠터 천사",
+      "alt": "퍼플교가 보이는 실내에서 핸드드립 커피를 나누는 장면",
+      "concept": "안좌: 핸드드립 커피와 퍼플교",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_imja": {
       "label_ko": "임자",
       "mascot_id": "jg_sa_imja",
       "image": "assets/mascots/jg_sa_imja.webp",
-      "alt": "튤립밭 신안 천사",
-      "concept": "튤립 천사",
+      "alt": "튤립과 바다가 보이는 작은 무대의 청춘 가수와 여행자",
+      "concept": "임자: 김진우 오마주 무대",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_bigeum": {
       "label_ko": "비금",
       "mascot_id": "jg_sa_bigeum",
       "image": "assets/mascots/jg_sa_bigeum.webp",
-      "alt": "초록 채소를 든 신안 천사",
-      "concept": "시금치 천사",
+      "alt": "바둑판 앞에서 마지막 한 수를 함께 두는 여행자",
+      "concept": "비금: 이세돌 오마주 바둑",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_docho": {
       "label_ko": "도초",
       "mascot_id": "jg_sa_docho",
       "image": "assets/mascots/jg_sa_docho.webp",
-      "alt": "수국을 든 신안 천사",
-      "concept": "수국 천사",
+      "alt": "수국이 핀 야구장에서 투수를 바라보는 여행자",
+      "concept": "도초: 최향남 오마주 야구",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_jangsan": {
       "label_ko": "장산",
       "mascot_id": "jg_sa_jangsan",
       "image": "assets/mascots/jg_sa_jangsan.webp",
-      "alt": "바닷가 신안 천사",
-      "concept": "남부 도서 천사",
+      "alt": "하얀 꽃길에서 정장 재킷을 들고 걷는 여행자",
+      "concept": "장산: 하의도 만남 준비",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_haui": {
       "label_ko": "하의",
       "mascot_id": "jg_sa_haui",
       "image": "assets/mascots/jg_sa_haui.webp",
-      "alt": "바닷가 조개 신안 천사",
-      "concept": "바다 천사",
+      "alt": "바다가 보이는 벤치에서 연륜 있는 어른의 조언을 듣는 여행자",
+      "concept": "하의: 김대중 오마주 조언",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_sinui": {
       "label_ko": "신의",
       "mascot_id": "jg_sa_sinui",
       "image": "assets/mascots/jg_sa_sinui.webp",
-      "alt": "별빛 섬 신안 천사",
-      "concept": "별빛 섬 천사",
+      "alt": "하얀 소금밭 위를 정장 차림 두 사람이 함께 걷는 뒷모습",
+      "concept": "신의: 조용한 동행",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_heuksan": {
       "label_ko": "흑산",
       "mascot_id": "jg_sa_heuksan",
       "image": "assets/mascots/jg_sa_heuksan.webp",
-      "alt": "홍어와 바다 신안 천사",
-      "concept": "홍어·바다 천사",
+      "alt": "아기 홍어를 타고 검푸른 바다를 가르는 여행자",
+      "concept": "흑산: 홍어와 바다 모험",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_hongdo": {
       "label_ko": "홍도",
       "mascot_id": "jg_sa_hongdo",
       "image": "assets/mascots/jg_sa_hongdo.webp",
-      "alt": "석양과 섬 신안 천사",
-      "concept": "홍도 석양 천사",
+      "alt": "붉은 절벽과 노을을 바라보는 여행자",
+      "concept": "홍도: 붉은 절경",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_gageodo": {
       "label_ko": "가거도",
       "mascot_id": "jg_sa_gageodo",
       "image": "assets/mascots/jg_sa_gageodo.webp",
-      "alt": "등대와 바위섬 신안 천사",
-      "concept": "등대·바위섬 천사",
+      "alt": "먼바다 수평선을 바라보는 여행자의 뒷모습",
+      "concept": "가거도: 신안 여행 엔딩",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_sa_manjaedo": {
       "label_ko": "만재도",
       "mascot_id": "jg_sa_manjaedo",
       "image": "assets/mascots/jg_sa_manjaedo.webp",
-      "alt": "먼섬 바다 신안 천사",
-      "concept": "먼섬 천사",
+      "alt": "먼섬 선착장에서 작은 배를 기다리며 쉬는 여행자",
+      "concept": "만재도: 끝섬 전 경유지",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
     },
     "jg_wd_sinji": {
       "label_ko": "신지",
@@ -339,38 +428,54 @@
     "jg_sa_connected1": {
       "label_ko": "신안",
       "mascot_id": "jg_sa_connected1",
-      "image": "assets/mascots/jg_sa_sinan.webp",
-      "alt": "커피 한잔 마시는 신안 천사",
-      "concept": "신안 특수권 대표",
+      "image": "assets/mascots/jg_sa_main_traveler.webp",
+      "alt": "하늘색 셔츠와 블랙진을 입은 신안 메인 여성 여행자 캐릭터",
+      "concept": "신안 팝업 대표/트리거: 메인 여성 여행자 캐릭터",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_main_traveler",
+        "stage2_ready"
+      ]
     },
     "jg_sa_connected2": {
       "label_ko": "신안",
       "mascot_id": "jg_sa_connected2",
-      "image": "assets/mascots/jg_sa_sinan.webp",
-      "alt": "커피 한잔 마시는 신안 천사",
-      "concept": "신안 특수권 대표",
+      "image": "assets/mascots/jg_sa_main_traveler.webp",
+      "alt": "하늘색 셔츠와 블랙진을 입은 신안 메인 여성 여행자 캐릭터",
+      "concept": "신안 팝업 대표/트리거: 메인 여성 여행자 캐릭터",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_main_traveler",
+        "stage2_ready"
+      ]
     },
     "jg_sa_island1": {
       "label_ko": "신안",
       "mascot_id": "jg_sa_island1",
-      "image": "assets/mascots/jg_sa_sinan.webp",
-      "alt": "커피 한잔 마시는 신안 천사",
-      "concept": "신안 특수권 대표",
+      "image": "assets/mascots/jg_sa_main_traveler.webp",
+      "alt": "하늘색 셔츠와 블랙진을 입은 신안 메인 여성 여행자 캐릭터",
+      "concept": "신안 팝업 대표/트리거: 메인 여성 여행자 캐릭터",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_main_traveler",
+        "stage2_ready"
+      ]
     },
     "jg_sa_island2": {
       "label_ko": "신안",
       "mascot_id": "jg_sa_island2",
-      "image": "assets/mascots/jg_sa_sinan.webp",
-      "alt": "커피 한잔 마시는 신안 천사",
-      "concept": "신안 특수권 대표",
+      "image": "assets/mascots/jg_sa_main_traveler.webp",
+      "alt": "하늘색 셔츠와 블랙진을 입은 신안 메인 여성 여행자 캐릭터",
+      "concept": "신안 팝업 대표/트리거: 메인 여성 여행자 캐릭터",
       "status": "ready",
-      "popup_group": "sinan"
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_main_traveler",
+        "stage2_ready"
+      ]
     },
     "jg_gj": {
       "label_ko": "광주",
@@ -589,6 +694,254 @@
       "concept": "여서도: 완도 섬마을 동화의 행복한 마무리",
       "status": "needs_asset",
       "popup_group": "wando"
+    },
+    "jg_sa_aphae": {
+      "label_ko": "압해",
+      "mascot_id": "jg_sa_aphae",
+      "image": "assets/mascots/jg_sa_aphae.webp",
+      "alt": "천사대교와 절벽 앞의 귀여운 공룡 친구와 여행자",
+      "concept": "압해: 둘리사우루스 오마주",
+      "status": "ready",
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
+    },
+    "kr_seoul": {
+      "label_ko": "서울",
+      "mascot_id": "kr_seoul",
+      "image": "assets/mascots/kr_seoul.webp",
+      "alt": "남산타워와 한강 야경 풍경 심볼",
+      "concept": "서울 풍경 심볼: 남산타워와 한강 야경",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_incheon": {
+      "label_ko": "인천",
+      "mascot_id": "kr_incheon",
+      "image": "assets/mascots/kr_incheon.webp",
+      "alt": "인천항·인천대교·바다 풍경 심볼",
+      "concept": "인천 풍경 심볼: 항구와 바다",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_gyeonggi": {
+      "label_ko": "경기",
+      "mascot_id": "kr_gyeonggi",
+      "image": "assets/mascots/kr_gyeonggi.webp",
+      "alt": "수원화성 성곽 풍경 심볼",
+      "concept": "경기 풍경 심볼: 수원화성",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_gangwon": {
+      "label_ko": "강원",
+      "mascot_id": "kr_gangwon",
+      "image": "assets/mascots/kr_gangwon.webp",
+      "alt": "설산과 동해 바다 풍경 심볼",
+      "concept": "강원 풍경 심볼: 설산과 동해",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_daejeon": {
+      "label_ko": "대전",
+      "mascot_id": "kr_daejeon",
+      "image": "assets/mascots/kr_daejeon.webp",
+      "alt": "과학도시와 물가 도시 풍경 심볼",
+      "concept": "대전 풍경 심볼: 과학도시",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_sejong": {
+      "label_ko": "세종",
+      "mascot_id": "kr_sejong",
+      "image": "assets/mascots/kr_sejong.webp",
+      "alt": "정부청사와 호수공원 풍경 심볼",
+      "concept": "세종 풍경 심볼: 행정도시와 호수",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_chungbuk": {
+      "label_ko": "충북",
+      "mascot_id": "kr_chungbuk",
+      "image": "assets/mascots/kr_chungbuk.webp",
+      "alt": "호수와 산 풍경 심볼",
+      "concept": "충북 풍경 심볼: 내륙 호수와 산",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_chungnam": {
+      "label_ko": "충남",
+      "mascot_id": "kr_chungnam",
+      "image": "assets/mascots/kr_chungnam.webp",
+      "alt": "백제 문화권 석탑과 서해 노을 풍경 심볼",
+      "concept": "충남 풍경 심볼: 백제 문화와 서해",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_jeonbuk": {
+      "label_ko": "전북",
+      "mascot_id": "kr_jeonbuk",
+      "image": "assets/mascots/kr_jeonbuk.webp",
+      "alt": "한옥마을 노을 풍경 심볼",
+      "concept": "전북 풍경 심볼: 한옥마을",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_gyeongnam": {
+      "label_ko": "경남",
+      "mascot_id": "kr_gyeongnam",
+      "image": "assets/mascots/kr_gyeongnam.webp",
+      "alt": "남해 바다와 해안 절경 풍경 심볼",
+      "concept": "경남 풍경 심볼: 남해 바다",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_busan": {
+      "label_ko": "부산",
+      "mascot_id": "kr_busan",
+      "image": "assets/mascots/kr_busan.webp",
+      "alt": "광안리 밤바다·광안대교·흰 원형 그네 풍경 심볼",
+      "concept": "부산 풍경 심볼: 광안리 밤바다와 흰 원형 그네",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_ulsan": {
+      "label_ko": "울산",
+      "mascot_id": "kr_ulsan",
+      "image": "assets/mascots/kr_ulsan.webp",
+      "alt": "고래와 바다 풍경 심볼",
+      "concept": "울산 풍경 심볼: 고래와 바다",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_gyeongbuk": {
+      "label_ko": "경북",
+      "mascot_id": "kr_gyeongbuk",
+      "image": "assets/mascots/kr_gyeongbuk.webp",
+      "alt": "첨성대와 달빛 밤 풍경 심볼",
+      "concept": "경북 풍경 심볼: 첨성대와 달빛",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "kr_daegu": {
+      "label_ko": "대구",
+      "mascot_id": "kr_daegu",
+      "image": "assets/mascots/kr_daegu.webp",
+      "alt": "팔공산과 도시 야경 풍경 심볼",
+      "concept": "대구 풍경 심볼: 팔공산과 도시 야경",
+      "status": "ready",
+      "tags": [
+        "nationwide_landscape_symbol",
+        "stage2_ready"
+      ]
+    },
+    "jg_jn_namak": {
+      "label_ko": "남악",
+      "mascot_id": "jg_jn_namak",
+      "image": "assets/mascots/jg_jn_namak.webp",
+      "alt": "남악 행정중심지로 걸어가는 전프로 캐릭터",
+      "concept": "남악: 전라남도교육청 소재 행정중심지 + 전프로 캐릭터",
+      "status": "ready",
+      "tags": [
+        "jeonnam_main_area",
+        "owner_character",
+        "stage2_ready"
+      ]
+    },
+    "jg_sa_main_traveler": {
+      "label_ko": "신안 메인 여행자",
+      "mascot_id": "jg_sa_main_traveler",
+      "image": "assets/mascots/jg_sa_main_traveler.webp",
+      "alt": "신안 대표 여성 여행자",
+      "concept": "신안 대표 버튼 이미지",
+      "status": "ready",
+      "popup_group": "sinan",
+      "tags": [
+        "sinan_story_v2",
+        "512_webp",
+        "confirmed"
+      ]
+    },
+    "owner_fatigue_jacket_874_khaki": {
+      "label_ko": "전프로 캐릭터: 퍼티그 자켓 + 874 카키",
+      "mascot_id": "owner_fatigue_jacket_874_khaki",
+      "image": "assets/mascots/owner_fatigue_jacket_874_khaki.webp",
+      "alt": "녹색 퍼티그 자켓, 흰색 헨리넥, 874 카키 팬츠, 반스 어센틱",
+      "concept": "녹색 퍼티그 자켓, 흰색 헨리넥, 874 카키 팬츠, 반스 어센틱",
+      "status": "ready",
+      "tags": [
+        "owner_character",
+        "reserve_asset",
+        "stage2_ready"
+      ]
+    },
+    "owner_navy_french_fatigue_pants": {
+      "label_ko": "전프로 캐릭터: 네이비 프렌치 자켓 + 퍼티그 팬츠",
+      "mascot_id": "owner_navy_french_fatigue_pants",
+      "image": "assets/mascots/owner_navy_french_fatigue_pants.webp",
+      "alt": "네이비 프렌치 자켓, 흰색 헨리넥, 올리브 퍼티그 팬츠, 반스 어센틱",
+      "concept": "네이비 프렌치 자켓, 흰색 헨리넥, 올리브 퍼티그 팬츠, 반스 어센틱",
+      "status": "ready",
+      "tags": [
+        "owner_character",
+        "reserve_asset",
+        "stage2_ready"
+      ]
+    },
+    "owner_white_henley_fatigue_pants": {
+      "label_ko": "전프로 캐릭터: 흰색 헨리넥 + 퍼티그 팬츠",
+      "mascot_id": "owner_white_henley_fatigue_pants",
+      "image": "assets/mascots/owner_white_henley_fatigue_pants.webp",
+      "alt": "흰색 헨리넥, 올리브 퍼티그 팬츠, 반스 어센틱",
+      "concept": "흰색 헨리넥, 올리브 퍼티그 팬츠, 반스 어센틱",
+      "status": "ready",
+      "tags": [
+        "owner_character",
+        "reserve_asset",
+        "stage2_ready"
+      ]
     }
   },
   "by_region_name": {
@@ -673,24 +1026,64 @@
     "장성군": "jg_js",
     "진도": "jg_jd",
     "진도군": "jg_jd",
-    "남악": "jg_mp",
+    "남악": "jg_jn_namak",
     "오룡": "jg_mp",
     "일로": "jg_mu",
-    "압해": "jg_sa",
-    "여서도": "jg_wd_yeoseodo"
+    "압해": "jg_sa_aphae",
+    "여서도": "jg_wd_yeoseodo",
+    "서울": "kr_seoul",
+    "서울특별시": "kr_seoul",
+    "인천": "kr_incheon",
+    "인천광역시": "kr_incheon",
+    "경기": "kr_gyeonggi",
+    "경기도": "kr_gyeonggi",
+    "강원": "kr_gangwon",
+    "강원도": "kr_gangwon",
+    "강원특별자치도": "kr_gangwon",
+    "대전": "kr_daejeon",
+    "대전광역시": "kr_daejeon",
+    "세종": "kr_sejong",
+    "세종시": "kr_sejong",
+    "세종특별자치시": "kr_sejong",
+    "충북": "kr_chungbuk",
+    "충청북도": "kr_chungbuk",
+    "충남": "kr_chungnam",
+    "충청남도": "kr_chungnam",
+    "전북": "kr_jeonbuk",
+    "전라북도": "kr_jeonbuk",
+    "전북특별자치도": "kr_jeonbuk",
+    "경남": "kr_gyeongnam",
+    "경상남도": "kr_gyeongnam",
+    "부산": "kr_busan",
+    "부산광역시": "kr_busan",
+    "울산": "kr_ulsan",
+    "울산광역시": "kr_ulsan",
+    "경북": "kr_gyeongbuk",
+    "경상북도": "kr_gyeongbuk",
+    "대구": "kr_daegu",
+    "대구광역시": "kr_daegu",
+    "전남도교육청": "jg_jn_namak",
+    "전라남도교육청": "jg_jn_namak",
+    "전남교육청": "jg_jn_namak"
   },
   "popup": {
-    "columns": 3,
+    "columns": {
+      "desktop": 5,
+      "mobile": 3
+    },
     "title_by_type": {
       "origin": "출발지를 선택해주세요.",
       "dest": "목적지를 선택해주세요.",
       "via": "경유지를 선택해주세요."
     },
     "card_style": {
-      "content": "mascot_and_region_name_only",
+      "content": "square_mascot_and_region_name_only",
       "description": false,
-      "region_name_color": "#111111",
-      "region_name_weight": 800
+      "image_ratio": "1:1",
+      "button_like_border": true,
+      "press_effect": true,
+      "region_name_color": "#111827",
+      "region_name_weight": 900
     },
     "sinan": {
       "trigger_mascot": "jg_sa",
@@ -698,11 +1091,12 @@
         "신안교육청",
         "지도",
         "증도",
+        "임자",
+        "압해",
         "자은",
         "암태",
         "팔금",
         "안좌",
-        "임자",
         "비금",
         "도초",
         "장산",
@@ -710,15 +1104,15 @@
         "신의",
         "흑산",
         "홍도",
-        "가거도",
-        "만재도"
+        "만재도",
+        "가거도"
       ]
     },
     "wando": {
       "trigger_mascot": "jg_wd",
       "cards": [
-        "완도",
         "군외",
+        "완도",
         "신지",
         "고금",
         "약산",
@@ -734,5 +1128,8 @@
     }
   },
   "restore_note": "기존 전남·광주 마스코트 전체 매핑 복구 + 신안/완도/곡성/광양 최신 교체본 유지 / 완도 팝업 스토리 순서 반영 + 여서도 자리 복구(status: needs_asset)",
-  "patched_at": "2026-05-07"
+  "patched_at": "2026-05-08_stage2_assets_connected_v1",
+  "stage1_patch_note": "팝업 버튼형 UI, 신안/완도 순서, 압해 슬롯, 전국 풍경 심볼 슬롯, 검색 정책 정리 반영. 이미지 자산은 다음 단계에서 생성.",
+  "stage2_asset_note": "전국 풍경 심볼, 남악 전프로 캐릭터, 신안 메인 여행자, 전프로 예비 캐릭터 3종을 512x512 WebP로 자산화하고 mascot_map에 연결함.",
+  "stage2_shinan_asset_note": "신안 확정 시나리오 기반 512x512 WebP 자산 연결 v1"
 }
