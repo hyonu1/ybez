@@ -822,6 +822,452 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
 }
 
+
+/* ── stage1 popup button-card UI patch v4 ──
+   목적:
+   - 신안/완도 팝업 카드: 데스크톱 5열, 모바일 3열
+   - 카드 안 그림은 1:1 정사각형 영역을 크게 사용
+   - 과한 색버튼이 아니라 입체 테두리/눌림 효과로 버튼감 부여
+   - 입력창/요금/권역 로직 비수정
+*/
+.mascot-choice-modal{
+  width:min(820px,calc(100vw - 28px)) !important;
+  max-height:min(86dvh,820px) !important;
+  border-radius:24px !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  box-shadow:0 28px 60px rgba(15,23,42,.34),0 2px 0 rgba(255,255,255,.65) inset !important;
+}
+.mascot-choice-body{
+  padding:10px !important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F6F9FF 100%) !important;
+}
+.mascot-choice-grid{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:7px !important;
+}
+.mascot-choice-card{
+  height:auto !important;
+  aspect-ratio:auto !important;
+  min-height:0 !important;
+  padding:6px 5px 7px !important;
+  border-radius:17px !important;
+  gap:4px !important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%) !important;
+  border:1.5px solid #DCE7F6 !important;
+  box-shadow:
+    0 3px 7px rgba(15,23,42,.10),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -1px 0 rgba(148,163,184,.10) inset !important;
+  transform:translateY(0) !important;
+  transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease,background .12s ease !important;
+}
+.mascot-choice-card:hover{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F0F7FF 100%) !important;
+  border-color:rgba(0,122,255,.36) !important;
+  box-shadow:
+    0 6px 12px rgba(0,122,255,.14),
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 -1px 0 rgba(0,122,255,.08) inset !important;
+  transform:translateY(-1px) !important;
+}
+.mascot-choice-card:active{
+  transform:translateY(1px) scale(.985) !important;
+  box-shadow:
+    0 1px 3px rgba(15,23,42,.12),
+    0 2px 5px rgba(15,23,42,.08) inset !important;
+}
+.mascot-choice-img{
+  width:min(92px,100%) !important;
+  height:auto !important;
+  aspect-ratio:1/1 !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  display:block !important;
+  flex-shrink:0 !important;
+}
+.mascot-choice-card.wando-card .mascot-choice-img{
+  width:min(92px,100%) !important;
+  height:auto !important;
+  aspect-ratio:1/1 !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+}
+.mascot-choice-name{
+  font-family:var(--gm) !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#111827 !important;
+  line-height:1.05 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  letter-spacing:-.25px !important;
+}
+@media(min-width:700px) and (max-width:900px){
+  .mascot-choice-modal{width:min(760px,calc(100vw - 24px)) !important;}
+  .mascot-choice-grid{grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:7px !important;}
+  .mascot-choice-img,
+  .mascot-choice-card.wando-card .mascot-choice-img{width:min(82px,100%) !important;}
+  .mascot-choice-name{font-size:14px !important;}
+}
+@media(max-width:699px){
+  .mascot-choice-modal{
+    width:calc(100vw - 14px) !important;
+    max-height:86dvh !important;
+    border-radius:22px !important;
+  }
+  .mascot-choice-header{padding:10px 12px !important;}
+  .mascot-choice-title{font-size:15px !important;gap:7px !important;}
+  .mascot-choice-close{width:30px !important;height:30px !important;border-radius:10px !important;}
+  .mascot-choice-body{padding:8px !important;}
+  .mascot-choice-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:6px !important;
+  }
+  .mascot-choice-card{
+    padding:5px 3px 6px !important;
+    border-radius:15px !important;
+    gap:3px !important;
+  }
+  .mascot-choice-img,
+  .mascot-choice-card.wando-card .mascot-choice-img{
+    width:min(68px,100%) !important;
+    height:auto !important;
+    aspect-ratio:1/1 !important;
+    transform:none !important;
+  }
+  .mascot-choice-name{font-size:12.5px !important;letter-spacing:-.35px !important;}
+}
+@media(max-width:380px){
+  .mascot-choice-grid{gap:5px !important;}
+  .mascot-choice-card{padding:4px 2px 5px !important;border-radius:14px !important;}
+  .mascot-choice-img,
+  .mascot-choice-card.wando-card .mascot-choice-img{width:min(60px,100%) !important;}
+  .mascot-choice-name{font-size:12px !important;}
+}
+
+
+/* ── stage1 re-patch: popup image-button frame v4 ──
+   목적:
+   - 카드 자체를 과하게 넓히지 않고, 카드 안의 1:1 그림틀이 버튼처럼 보이게 한다.
+   - 데스크톱 5열 / 모바일 3열 유지
+   - 요금·권역·선택 로직 비수정
+*/
+.mascot-choice-modal{
+  width:min(720px,calc(100vw - 24px));
+  max-height:min(86dvh,780px);
+}
+.mascot-choice-body{padding:12px;background:linear-gradient(180deg,#FFFFFF,#F7FAFF);}
+.mascot-choice-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(112px,128px));
+  justify-content:center;
+  gap:10px 12px;
+}
+.mascot-choice-card{
+  width:100%;
+  height:auto;
+  aspect-ratio:auto;
+  min-height:0;
+  padding:0;
+  border:none;
+  background:transparent;
+  box-shadow:none;
+  gap:5px;
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  cursor:pointer;
+}
+.mascot-choice-img-frame{
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:17px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F5F8FC 100%);
+  border:2px solid #DCE8F6;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -2px 0 rgba(148,163,184,.18),
+    0 2px 0 rgba(148,163,184,.22),
+    0 6px 12px rgba(15,23,42,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease,background .12s ease;
+}
+.mascot-choice-card:hover .mascot-choice-img-frame{
+  transform:translateY(-1px);
+  border-color:rgba(0,122,255,.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.96),
+    inset 0 -2px 0 rgba(0,122,255,.10),
+    0 2px 0 rgba(0,122,255,.22),
+    0 8px 16px rgba(0,122,255,.15);
+  background:linear-gradient(180deg,#FFFFFF 0%,#F0F7FF 100%);
+}
+.mascot-choice-card:active .mascot-choice-img-frame{
+  transform:translateY(2px) scale(.985);
+  box-shadow:
+    inset 0 2px 6px rgba(15,23,42,.14),
+    0 1px 2px rgba(15,23,42,.08);
+}
+.mascot-choice-img,
+.mascot-choice-card.wando-card .mascot-choice-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover;
+  object-position:center center;
+  display:block;
+  transform:none !important;
+}
+.mascot-choice-name{
+  font-size:15px;
+  line-height:1.08;
+  font-weight:900;
+  color:#111827;
+  text-align:center;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  padding:0 2px;
+}
+@media(min-width:700px) and (max-width:900px){
+  .mascot-choice-modal{width:min(690px,calc(100vw - 22px));}
+  .mascot-choice-grid{grid-template-columns:repeat(5,minmax(104px,122px));gap:9px 10px;}
+  .mascot-choice-name{font-size:14px;}
+}
+@media(max-width:699px){
+  .mascot-choice-modal{width:calc(100vw - 14px);max-height:86dvh;border-radius:22px;}
+  .mascot-choice-body{padding:10px;}
+  .mascot-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 9px;}
+  .mascot-choice-card{gap:4px;}
+  .mascot-choice-img-frame{border-radius:14px;border-width:1.6px;}
+  .mascot-choice-name{font-size:13px;letter-spacing:-.35px;}
+}
+@media(max-width:380px){
+  .mascot-choice-grid{gap:8px 7px;}
+  .mascot-choice-name{font-size:12px;}
+}
+
+
+
+/* ── stage1 re-patch v3: popup B option ──
+   확정안:
+   - 이미지 자체가 버튼처럼 보이므로 바깥 카드/그림틀 버튼효과 제거
+   - 카드 전체 클릭 영역은 유지하되, 화면상으로는 [이미지] + 지역명만 표시
+   - 데스크톱 5열 / 모바일 3열 유지
+*/
+.mascot-choice-card{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  gap:5px !important;
+}
+.mascot-choice-card:hover{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.mascot-choice-img-frame{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+  border-radius:18px !important;
+}
+.mascot-choice-card:hover .mascot-choice-img-frame{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  transform:translateY(-1px) scale(1.015) !important;
+}
+.mascot-choice-card:active .mascot-choice-img-frame{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  transform:translateY(1px) scale(.97) !important;
+}
+.mascot-choice-img,
+.mascot-choice-card.wando-card .mascot-choice-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  display:block !important;
+  transform:none !important;
+  filter:none !important;
+}
+.mascot-choice-name{
+  margin-top:1px !important;
+}
+
+
+
+/* ── stage1 re-patch v4: mascot image-button frame balance ──
+   목적:
+   - index.html만 수정
+   - 팝업 마스코트가 너무 커진 문제를 완화: 이미지 약 80~90% 체감
+   - 이미지 사이 간격을 소폭 확보
+   - 이미지 소스가 달라도 같은 버튼 프레임 안에 들어온 것처럼 통일
+   - 카드 바깥 버튼효과가 아니라 마스코트 이미지 프레임에만 둥근 테두리/입체 그림자 적용
+   - 요금·권역·검색·산정 로직 비수정
+*/
+.mascot-choice-modal{
+  width:min(740px,calc(100vw - 24px)) !important;
+}
+.mascot-choice-body{
+  padding:13px 14px 14px !important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFF 100%) !important;
+}
+.mascot-choice-grid{
+  grid-template-columns:repeat(5,minmax(112px,124px)) !important;
+  justify-content:center !important;
+  gap:14px 13px !important;
+}
+.mascot-choice-card{
+  padding:0 !important;
+  gap:7px !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.mascot-choice-card:hover{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.mascot-choice-img-frame{
+  width:min(108px,92%) !important;
+  aspect-ratio:1/1 !important;
+  margin:0 auto !important;
+  border-radius:17px !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FF 100%) !important;
+  border:1.6px solid #D8E5F4 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.96),
+    inset 0 -2px 0 rgba(148,163,184,.16),
+    0 2px 0 rgba(148,163,184,.20),
+    0 5px 12px rgba(15,23,42,.10) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease,background .12s ease !important;
+}
+.mascot-choice-card:hover .mascot-choice-img-frame{
+  transform:translateY(-1px) !important;
+  border-color:rgba(0,122,255,.40) !important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#EEF6FF 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.98),
+    inset 0 -2px 0 rgba(0,122,255,.10),
+    0 2px 0 rgba(0,122,255,.20),
+    0 7px 15px rgba(0,122,255,.14) !important;
+}
+.mascot-choice-card:active .mascot-choice-img-frame{
+  transform:translateY(2px) scale(.985) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(15,23,42,.14),
+    0 1px 2px rgba(15,23,42,.08) !important;
+}
+.mascot-choice-img,
+.mascot-choice-card.wando-card .mascot-choice-img{
+  width:86% !important;
+  height:86% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  display:block !important;
+  transform:none !important;
+  filter:none !important;
+}
+.mascot-choice-name{
+  font-size:16.5px !important;
+  line-height:1.08 !important;
+  font-weight:900 !important;
+  color:#111827 !important;
+  margin-top:0 !important;
+  letter-spacing:-.25px !important;
+}
+@media(min-width:700px) and (max-width:900px){
+  .mascot-choice-modal{width:min(700px,calc(100vw - 22px)) !important;}
+  .mascot-choice-grid{grid-template-columns:repeat(5,minmax(104px,118px)) !important;gap:12px 11px !important;}
+  .mascot-choice-img-frame{width:min(102px,92%) !important;border-radius:16px !important;}
+  .mascot-choice-img,
+  .mascot-choice-card.wando-card .mascot-choice-img{width:86% !important;height:86% !important;}
+  .mascot-choice-name{font-size:15px !important;}
+}
+@media(max-width:699px){
+  .mascot-choice-body{padding:10px 9px 12px !important;}
+  .mascot-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:11px 9px !important;}
+  .mascot-choice-card{gap:5px !important;}
+  .mascot-choice-img-frame{width:86% !important;border-radius:15px !important;border-width:1.5px !important;}
+  .mascot-choice-img,
+  .mascot-choice-card.wando-card .mascot-choice-img{width:86% !important;height:86% !important;}
+  .mascot-choice-name{font-size:13.5px !important;letter-spacing:-.35px !important;}
+}
+@media(max-width:380px){
+  .mascot-choice-grid{gap:10px 7px !important;}
+  .mascot-choice-img-frame{width:84% !important;border-radius:14px !important;}
+  .mascot-choice-name{font-size:12.5px !important;}
+}
+
+
+/* ── stage1 re-patch v5: popup image fills button frame ──
+   목적:
+   - index.html만 수정
+   - v4의 간격/글자/프레임은 유지
+   - 마스코트 이미지가 프레임 안을 더 가득 채워 그림 자체가 버튼처럼 보이게 함
+   - 모서리·배경 일부 크롭 허용, 얼굴/핵심 소품 중심 유지
+   - 요금·권역·검색·산정 로직 비수정
+*/
+.mascot-choice-img-frame{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F6FAFF 100%) !important;
+  overflow:hidden !important;
+}
+.mascot-choice-img,
+.mascot-choice-card.wando-card .mascot-choice-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  display:block !important;
+  transform:scale(1.10) !important;
+  transform-origin:center center !important;
+  filter:none !important;
+}
+.mascot-choice-card:hover .mascot-choice-img,
+.mascot-choice-card:hover.wando-card .mascot-choice-img{
+  transform:scale(1.12) !important;
+}
+.mascot-choice-card:active .mascot-choice-img,
+.mascot-choice-card:active.wando-card .mascot-choice-img{
+  transform:scale(1.08) !important;
+}
+@media(max-width:699px){
+  .mascot-choice-img,
+  .mascot-choice-card.wando-card .mascot-choice-img{
+    transform:scale(1.12) !important;
+  }
+  .mascot-choice-card:hover .mascot-choice-img,
+  .mascot-choice-card:hover.wando-card .mascot-choice-img{
+    transform:scale(1.13) !important;
+  }
+  .mascot-choice-card:active .mascot-choice-img,
+  .mascot-choice-card:active.wando-card .mascot-choice-img{
+    transform:scale(1.09) !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -961,7 +1407,44 @@ const METRO_DISTRICT_TO_MAIN={
   "울산남구":"울산","울산북구":"울산","울산울주군":"울산",
   "인천미추홀구":"인천","인천중구":"인천"
 };
-const normalizeCity=(name)=>METRO_DISTRICT_TO_MAIN[nz(name)]||nz(name);
+/* ── 전남·광주 일반 하위검색어 → 대표 시군 정규화 ─────
+   원칙:
+   - 신안·완도는 섬/연륙/여객선 특수교통비 때문에 하위지역을 그대로 유지한다.
+   - 그 외 전남 하위 터미널·생활권은 정확히 입력할 수는 있지만, 메인 산정은 대표 시군 기준으로 보여준다.
+   - 예: 우수영→광주 입력 시 메인 결과는 해남→광주, 우수영 직통은 접힌 참고 후보로 유지.
+*/
+const JEONNAM_SUB_TO_MAIN={
+  // 해남
+  "남창":"해남","땅끝":"해남","산정":"해남","우수영":"해남",
+  // 강진
+  "성전":"강진","전남인재개발원":"강진",
+  // 고흥
+  "과역":"고흥","나로도":"고흥","녹동":"고흥",
+  // 곡성
+  "옥과":"곡성","석곡":"곡성",
+  // 목포·무안권: 남악은 전남교육청 소재 메인지역으로 유지한다.
+  "목포대":"무안","해제":"무안","현경":"무안","오룡":"무안","일로":"무안",
+  // 보성
+  "벌교":"보성","녹차밭":"보성","문덕":"보성","복내":"보성","율포":"보성",
+  // 순천
+  "순천북부":"순천",
+  // 영광
+  "홍농":"영광",
+  // 영암
+  "독천":"영암","삼호":"영암",
+  // 장성
+  "신흥":"장성","장성사거리":"장성","상무대":"장성",
+  // 장흥
+  "관산":"장흥","회진":"장흥","대덕":"장흥","배산":"장흥",
+  // 함평
+  "문장":"함평",
+  // 광주 하위 정류장
+  "진월동":"광주","학동":"광주","문화동":"광주","광주진월동":"광주"
+};
+const normalizeCity=(name)=>{
+  const n=nz(name);
+  return METRO_DISTRICT_TO_MAIN[n]||JEONNAM_SUB_TO_MAIN[n]||n;
+};
 
 /* ── 대표명 → 포함할 alias_linked 키 (노드 합산) ── */
 const CITY_GROUP_MAP={
@@ -1000,9 +1483,10 @@ const CITY_DISPLAY={
   "경기광주":"광주(경기)",
 };
 
-/* ── 기본 검색창 노출어: 행정구역 + 광주전남 필수 하위 생활권만 허용 ──
-   - 터미널명/정류소명/권역 묶음명은 제외
-   - 신안 세부지역은 검색에는 살리고, 산정은 목포 허브로 강제한다. */
+/* ── 기본 검색창 노출어: 행정구역/대표지역 중심 ──
+   - 기본 자동완성은 시군·대권역 중심으로 보여준다.
+   - 하위검색어는 별도 EXACT_ONLY 목록에 보관하고, 정확히 입력한 경우에만 선택 가능하다.
+   - 신안·완도 하위지역은 정확 입력 시에도 특수지역으로 그대로 유지한다. */
 const BASIC_SEARCH_NAMES=[
   "광주","광주(경기)","서울","인천","수원","화성","오산","평택","용인","안성","성남","하남",
   "안양","군포","의왕","과천","부천","광명","김포","고양","파주","안산","시흥",
@@ -1019,6 +1503,26 @@ const BASIC_SEARCH_NAMES=[
   "제주"
 ];
 const BASIC_SEARCH_NAME_SET=new Set(BASIC_SEARCH_NAMES);
+const SHINAN_WANDO_EXACT_SEARCH_NAMES=new Set([
+  "신안교육청","압해","자은","암태","안좌","팔금","임자","지도","증도","비금","도초","장산","하의","신의","흑산","홍도","가거도","만재도",
+  "군외","신지","고금","약산","청산","청산도","노화","보길","소안","금일","생일","금당","여서도"
+]);
+const EXACT_ONLY_SEARCH_NAMES=new Set([...Object.keys(JEONNAM_SUB_TO_MAIN),...SHINAN_WANDO_EXACT_SEARCH_NAMES]);
+const ALL_SEARCH_NAMES=[...new Set([...BASIC_SEARCH_NAMES,...EXACT_ONLY_SEARCH_NAMES])];
+const JEONNAM_GWANGJU_MAIN_NAMES=new Set([
+  "광주","목포","여수","순천","나주","광양","담양","곡성","구례","고흥","보성","화순","장흥","강진","해남","영암","무안","함평","영광","장성","완도","진도","신안","남악"
+]);
+const ybezSearchRank=(name)=>{
+  const n=nz(name);
+  if(JEONNAM_GWANGJU_MAIN_NAMES.has(n))return 0;
+  if(EXACT_ONLY_SEARCH_NAMES.has(n))return 99;
+  return 10;
+};
+const sortYbezSearchNames=(arr)=>[...arr].sort((a,b)=>{
+  const ra=ybezSearchRank(a),rb=ybezSearchRank(b);
+  if(ra!==rb)return ra-rb;
+  return String(a).localeCompare(String(b),"ko");
+});
 
 /* ── 허브 그룹 ── */
 const HUB_GROUPS=[
@@ -1122,7 +1626,7 @@ const ISLAND_DB={
   "증도":{hub:"목포",cost:1000,type:"connected"},"임자":{hub:"목포",cost:1000,type:"connected"},
   "팔금":{hub:"목포",cost:1000,type:"connected"},"암태":{hub:"목포",cost:1000,type:"connected"},
   "자은":{hub:"목포",cost:1000,type:"connected"},"안좌":{hub:"목포",cost:1000,type:"connected"},
-  "비금":{hub:"목포",cost:2000,shipCost:1000,type:"ship",special:true},
+  "비금":{hub:"목포",cost:0,shipCost:1000,type:"ship",special:true},
   "도초":{hub:"목포",cost:0,shipCost:1000,type:"ship",special:true},
   "장산":{hub:"목포",cost:0,shipCost:1000,type:"ship"},"하의":{hub:"목포",cost:0,shipCost:1000,type:"ship"},
   "신의":{hub:"목포",cost:0,shipCost:1000,type:"ship"},"흑산":{hub:"목포",cost:0,shipCost:1000,type:"ship"},
@@ -1177,8 +1681,8 @@ const TERM_NODE={
 const POPUP={
   // 신안·완도 팝업은 mascot_map.json의 popup.cards와 동일한 순서로 맞춘다.
   // 지도형 미니맵이 아니라 3열 둥근카드형 선택 팝업에서 사용한다.
-  "신안":["신안교육청","지도","증도","자은","암태","팔금","안좌","임자","비금","도초","장산","하의","신의","흑산","홍도","가거도","만재도"],
-  "완도":["완도","군외","신지","고금","약산","청산","노화","보길","소안","금일","생일","금당","여서도"]
+  "신안":["신안교육청","지도","증도","임자","압해","자은","암태","팔금","안좌","비금","도초","장산","하의","신의","흑산","홍도","만재도","가거도"],
+  "완도":["군외","완도","신지","고금","약산","청산","노화","보길","소안","금일","생일","금당","여서도"]
 };
 const SAME_AREA=[
   new Set(["목포","신안","신안교육청"]),new Set(["노화","보길"]),new Set(["비금","도초"]),
@@ -1193,21 +1697,11 @@ const buildIslandLegs=(from,to,fromI,toI,landDepName,landArrName)=>{
   const ruralSource=(info)=>info?.hub==="완도"?"완도군 농어촌버스 관련 조례":"신안군 농어촌버스 운영 조례 제2조";
   const addForDest=(island,info)=>{
     if(!info)return;
-    if(island==="비금"){
-      if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:`${info.hub}→암태`,fare:info.cost,source:ruralSource(info)});
-      if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:"암태→비금",fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
-      return;
-    }
     if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:`${info.hub}→${island}`,fare:info.cost,source:ruralSource(info)});
     if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:`${info.hub}→${island}`,fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
   };
   const addForOrigin=(island,info)=>{
     if(!info)return;
-    if(island==="비금"){
-      if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:"비금→암태",fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
-      if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:`암태→${info.hub}`,fare:info.cost,source:ruralSource(info)});
-      return;
-    }
     if(info.shipCost)legs.push({kind:"ferry",label:"여객선",route:`${island}→${info.hub}`,fare:info.shipCost,source:"전라남도 여객선 운임 감면 조례"});
     if(info.cost)legs.push({kind:"rural",label:"농어촌버스",route:`${island}→${info.hub}`,fare:info.cost,source:ruralSource(info)});
   };
@@ -1313,7 +1807,14 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list,mascotMap})=>{
     const isCho=/^[ㄱ-ㅎ]+$/.test(resolved);
     setSug(list.filter(c => {
       const cleanCity = c.replace(/^(경기|전남|전북|경남|경북|충남|충북|강원)/, "");
+      // 하위검색어는 기본 추천/초성검색에서 숨기고, 정확 입력으로만 선택되게 한다.
+      // 단, 목록에는 남겨 정확히 입력하면 onSelect가 동작한다.
+      if(EXACT_ONLY_SEARCH_NAMES.has(c)) return !isCho && (c===v || cleanCity===v);
       return isCho ? cho(c).includes(resolved) : (cleanCity.includes(v) || c.includes(v));
+    }).sort((a,b)=>{
+      const ea=(a===v?0:1), eb=(b===v?0:1);
+      if(ea!==eb)return ea-eb;
+      return ybezSearchRank(a)-ybezSearchRank(b) || String(a).localeCompare(String(b),"ko");
     }));
   },[value,list]);
   useEffect(()=>{
@@ -1582,7 +2083,7 @@ const App=()=>{
       return r.json();
     })
   ]).then(([cityData, popupData, routesData, aliasData, nodesData, areaGraphData])=>{
-    setCityList([...BASIC_SEARCH_NAMES].sort());
+    setCityList(sortYbezSearchNames(ALL_SEARCH_NAMES));
 
     setRoutesDB(routesData || {});
     setAliasLinked(aliasData || {});
@@ -1640,9 +2141,9 @@ const App=()=>{
 
   /* 도시 목록 */
   const cityList=useMemo(()=>{
-    // 기본 검색창은 행정구역 대표명 + 승인된 광주전남 하위 생활권만 노출한다.
-    // 광주유스퀘어/목포종합버스터미널/지도여객자동차터미널/권역 묶음명은 여기서 차단한다.
-    return [...BASIC_SEARCH_NAMES].filter(c=>typeof c==="string"&&c&&!HIDDEN_FROM_LIST.has(c)).sort();
+    // 기본 검색창은 시군·대권역 중심으로 정렬한다.
+    // 하위검색어는 목록에는 포함하지만 EXACT_ONLY_SEARCH_NAMES 규칙으로 정확 입력 시에만 선택된다.
+    return sortYbezSearchNames(ALL_SEARCH_NAMES.filter(c=>typeof c==="string"&&c&&!HIDDEN_FROM_LIST.has(c)));
   },[]);
 
   /* 노드 해석 */
@@ -3229,9 +3730,10 @@ const App=()=>{
   const performCalc=useCallback((o=origin,d=dest,viaCity=via)=>{
     resetDed();setShipFare(0);setManualTransport(null);setAccessExtraFare(0);setSubResults({depSubs:[],arrSubs:[],specialSubs:[]});setShowSubChoices(false);setSelSub(null);setSmartResult(null);setBypassInfo([]);setAltRoutes([]);
     const rawFrom=nz(o);const rawTo=nz(d);
+    // 입력창은 사용자가 입력한 값을 그대로 유지한다.
+    // 일반 하위검색어는 산정 단계에서만 대표 시군명으로 정규화한다.
+    // 신안·완도 하위지역은 normalizeCity에서 흡수하지 않으므로 특수지 경로를 유지한다.
     const from=normalizeCity(rawFrom);const to=normalizeCity(rawTo);
-    if(from!==rawFrom) setOrigin(from);
-    if(to!==rawTo) setDest(to);
     
     const fromN=rawFrom.replace(/\s/g,"");const toN=rawTo.replace(/\s/g,"");
     const fromNormN=from.replace(/\s/g,"");const toNormN=to.replace(/\s/g,"");
@@ -3346,7 +3848,11 @@ const App=()=>{
         const isShipOnlyRoute=legs.some(x=>x.kind==="ferry");
         const hubName=(fInfo?.hub||tInfo?.hub||"");
         const method=hubName==="완도"?"완도 허브 강제":"신안 목포 1차허브 강제";
-        const routeLabel=baseFrom===baseTo ? `${from} → ${to}` : `${mainFrom} → ${mainTo}`;
+        const routeParts=[];
+        if(fInfo){routeParts.push(from); if(baseFrom&&baseFrom!==from)routeParts.push(baseFrom);} else routeParts.push(mainFrom);
+        if(baseFrom!==baseTo&&mainTo)routeParts.push(mainTo);
+        if(tInfo&&baseTo!==to)routeParts.push(to);
+        const routeLabel=routeParts.filter(Boolean).filter((x,i,a)=>i===0||x!==a[i-1]).join(" → ");
         const areaSegments=baseFrom!==baseTo ? [{
           from:mainFrom,to:mainTo,gen,pre,sourceLabel:"2026.1.1.자 전라남도 여비기준표",note:`${method} 메인 교통비`
         }] : null;
@@ -3586,10 +4092,12 @@ const App=()=>{
   const detailCost=useMemo(()=>{
     const daily=ded.gov_vehicle?12500:25000;
     const meal=ded.meal_3?0:ded.meal_1?16670:ded.meal_2?8330:ded.meal_half?12500:25000;
-    const tCost=ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger?0:(selSub?selectedFare*2:(manualTransport!=null?manualTransport:selectedFare*2));
-    const etc=shipFare||0;
-    return{daily,meal,transport:tCost,etc,total:daily+meal+tCost+etc};
-  },[ded,manualTransport,selectedFare,shipFare,selSub]);
+    const baseTransport=ded.transport_proof||ded.transport_gov_vehicle||ded.transport_passenger?0:(selSub?selectedFare*2:(manualTransport!=null?manualTransport:selectedFare*2));
+    const access=Number(accessExtraFare)||0;
+    const etc=Number(shipFare)||0;
+    const transport=baseTransport+access;
+    return{daily,meal,transportBase:baseTransport,access,transport,etc,total:daily+meal+transport+etc};
+  },[ded,manualTransport,selectedFare,shipFare,selSub,accessExtraFare]);
 
   const mealLbl=()=>{if(ded.meal_1)return"(-8,330)";if(ded.meal_2)return"(-16,670)";if(ded.meal_3)return"(-25,000)";if(ded.meal_half)return"(-12,500)";return"";};
 
@@ -3663,15 +4171,14 @@ const App=()=>{
 
   useEffect(()=>{
     if(!result)return;
-    const extra=Number(accessExtraFare)||0;
     const fare=candidateFare(selSub||result,grade);
-    const next=(fare*2)+extra;
+    const next=fare*2;
     setManualTransport(next);
     if(!transportFocused.current)setManualTransportInput(next===0?"":String(next)); // 입력 UX 안정화
-  },[selSub,grade,result,accessExtraFare]);
+  },[selSub,grade,result]);
 
 
-  const showAccessExtraInput=!!(result&&(result.surcharge>0||result.accessExtraEnabled));
+  const showAccessExtraInput=!!result;
   const accessExtraHint=useMemo(()=>{
     if(!result)return "";
     if(result.accessExtraHint)return `※ ${result.accessExtraHint}`;
@@ -3680,12 +4187,20 @@ const App=()=>{
       const route=String(rural.route||"농어촌버스 구간").replace("→","↔");
       return `※ ${route} 농어촌버스 편도 ${fmt(rural.fare||0)}원 참고, 실제 이용 시 입력`;
     }
-    return "※ 참고금액 확인 후 실제 이용 시 입력";
+    return "※ 농어촌버스·시내버스·터미널 접근비 등 추가 이동비가 있으면 입력";
   },[result]);
 
 
   /* 표시 레이어 보정: 계산명/생활권명/접근비용 안내 분리 */
   const compactPlaceName=useCallback((v)=>displayCityName(String(v||"").replace(/생활권|권역/g,"").trim()),[displayCityName]);
+  const displayEndpointName=useCallback((v)=>{
+    const n=nz(v);
+    if(!n)return "";
+    // 신안·완도 하위지역은 특수지 경로를 그대로 보여준다.
+    if(ISLAND_DB[n])return compactPlaceName(n);
+    // 그 외 하위검색어·광역시 구 단위는 메인 결과에서 대표 행정구역으로 표시한다.
+    return compactPlaceName(JEONNAM_SUB_TO_MAIN[n]||METRO_DISTRICT_TO_MAIN[n]||n);
+  },[compactPlaceName]);
 
   // 화면 표시 레이어 3분리 원칙
   // 1) 가운데 선택카드: 사용자 입력명 + 실제 허브 도시명만 사용
@@ -3785,8 +4300,8 @@ const App=()=>{
 
   const displayRouteLabel=useMemo(()=>{
     if(!result)return "";
-    const o=compactPlaceName(origin);
-    const d=compactPlaceName(dest);
+    const o=displayEndpointName(origin);
+    const d=displayEndpointName(dest);
     // 메인 1번 후보는 사용자가 하위노드 후보를 선택해도 항상 기존 대표 산정안 표시를 유지한다.
     // 선택된 하위노드명은 후보 카드와 왼쪽 산정표/오른쪽 여비계산에만 반영한다.
     const raw=result.routeLabel||`${origin} → ${dest}`;
@@ -3800,7 +4315,7 @@ const App=()=>{
       .filter(Boolean)
       .filter((x,i,a)=>i===0||x!==a[i-1]);
     return parts.join(" → ");
-  },[result,origin,dest,compactPlaceName,centerHubDisplayName]);
+  },[result,origin,dest,displayEndpointName,centerHubDisplayName]);
 
 
   useEffect(()=>{
@@ -3840,6 +4355,17 @@ const App=()=>{
     }
     return "";
   },[result,detailAreaInfo,compactPlaceName]);
+
+  const specialFareNotice=useMemo(()=>{
+    if(!result)return "";
+    const legs=result.islandLegs||[];
+    const hasRural=!!result.accessExtraEnabled||legs.some(x=>x.kind==="rural");
+    const hasFerry=!!result.isShipOnlyRoute||Number(result.shipCost||0)>0||legs.some(x=>x.kind==="ferry");
+    if(hasRural&&hasFerry)return "농어촌버스·선박 운임 미포함";
+    if(hasRural)return "농어촌버스 운임 미포함";
+    if(hasFerry)return "선박 운임 미포함";
+    return "";
+  },[result]);
 
 
   /* 지도 폐기 후 표시 전용: 터미널명·구간요금 세로 경로표 */
@@ -4037,6 +4563,16 @@ const App=()=>{
       out.push({icon:"↳",head:"접근비용 안내",body:`${centerTerm} 기준 관내·접근권으로 처리합니다. 실제 이용 시 ${centerTerm} → ${destTerm} 접근비용은 추가 교통비에 입력합니다.`});
     }
 
+    if(specialFareNotice){
+      const targetInput=/농어촌/.test(specialFareNotice)&&/선박/.test(specialFareNotice)
+        ? "추가교통비[왕복] 또는 기타교통비[왕복]"
+        : /농어촌/.test(specialFareNotice)
+          ? "추가교통비[왕복]"
+          : "기타교통비[왕복]";
+      const extraNote=/선박/.test(specialFareNotice)?" 실제 승선항·노선에 따라 금액이 달라질 수 있습니다.":"";
+      out.push({icon:"!",head:"미포함 운임 안내",body:`${specialFareNotice} · 실제 이용 시 여비계산창의 ${targetInput}에 직접 입력합니다.${extraNote}`});
+    }
+
     if(ruralOrFerry){
       const isFerry=ruralOrFerry.kind==="ferry"||/여객선|도선|기타교통비/i.test(String(ruralOrFerry.note||""));
       const targetInput=isFerry?"기타교통비":"추가 교통비";
@@ -4053,7 +4589,7 @@ const App=()=>{
       out.push({icon:"i",head:"산정 기준",body:"위 구간요금은 선택한 터미널 기준 참고금액이며, 실제 예매 시 금액과 다를 수 있습니다."});
     }
     return out.slice(0,3);
-  },[destLivingAreaLabel,detailAreaInfo,displaySupportNote,result,terminalNameFor,compactPlaceName,selSub,externalSubDetailInfo]);
+  },[destLivingAreaLabel,detailAreaInfo,displaySupportNote,result,terminalNameFor,compactPlaceName,selSub,externalSubDetailInfo,specialFareNotice]);
 
   const VerticalRouteTable=()=>{
     if(!result)return(
@@ -4134,7 +4670,7 @@ const App=()=>{
       <div>
         <div className="mobile-detail-section-title"><span>요금 선택</span><small style={{fontSize:10,color:"#8E8E93",fontWeight:900}}>후보 선택 가능</small></div>
         <div className="fare-choice-wrap">
-          <ChoiceCard selected={selSub===null} onClick={()=>setSelSub(null)} route={displayRouteLabel} price={result.needsManualFare?null:candidateFare(result,grade)}/>
+          <ChoiceCard selected={selSub===null} onClick={()=>setSelSub(null)} route={displayRouteLabel} price={result.needsManualFare?null:candidateFare(result,grade)} tag={specialFareNotice}/>
           {specialSubs.map((r,i)=><ChoiceCard key={`m-special-${i}`} selected={selSub===r} onClick={()=>setSelSub(selSub===r?null:r)} route={`${r.depName} → ${r.arrName}`} price={candidateFare(r,grade)} tag={r.routeTag||"동일생활권"}/>) }
           {autoSubs.length>0&&<>
             <button type="button" className="sub-choice-toggle" onClick={()=>setShowSubChoices(v=>!v)}>
@@ -4310,6 +4846,7 @@ const App=()=>{
                       onClick={()=>setSelSub(null)}
                       route={displayRouteLabel}
                       price={result.needsManualFare?null:candidateFare(result,grade)}
+                      tag={specialFareNotice}
                     />
 
                     {showSubs&&specialSubs.map((r,i)=>(
@@ -4550,7 +5087,9 @@ const App=()=>{
                 <div className="mascot-choice-grid">
                   {cardList.map(name=>(
                     <button key={name} className={`mascot-choice-card ${groupId==="wando"?"wando-card":"sinan-card"}`} onClick={()=>selectPopupName(name)}>
-                      <MascotIcon mascotMap={mascotMap} name={name} size={groupId==="wando"?46:50} className="mascot-choice-img"/>
+                      <span className="mascot-choice-img-frame">
+                        <MascotIcon mascotMap={mascotMap} name={name} size={96} className="mascot-choice-img"/>
+                      </span>
                       <span className="mascot-choice-name">{name}</span>
                     </button>
                   ))}
@@ -4667,7 +5206,7 @@ const App=()=>{
           {showAccessExtraInput&&(
             <div style={{marginTop:6,padding:"7px 9px",borderRadius:10,background:"#F9FAFB",border:"1px solid #E5E7EB"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:34}}>
-                <span style={{fontWeight:700,color:"#374151",fontSize:15}}>추가 교통비 <span className={`tag-side ${tagStyle("왕복")}`}>왕복</span></span>
+                <span style={{fontWeight:700,color:"#374151",fontSize:15}}>추가교통비 <span className={`tag-side ${tagStyle("왕복")}`}>왕복</span></span>
                 <div style={{display:"flex",alignItems:"center",gap:4}}>
                   <input type="tel" inputMode="numeric" pattern="[0-9]*" className="ship-input"
                     value={accessExtraInput}
@@ -4683,7 +5222,7 @@ const App=()=>{
           )}
           {result&&(
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",minHeight:36,marginTop:4}}>
-              <span style={{fontWeight:700,color:"#374151",fontSize:16}}><span style={{fontSize:13,marginRight:3}}>🚢 ✈️</span>기타교통비</span>
+              <span style={{fontWeight:700,color:"#374151",fontSize:16}}><span style={{fontSize:13,marginRight:3}}>🚢 ✈️</span>기타교통비 <span className={`tag-side ${tagStyle("왕복")}`}>왕복</span></span>
               <div style={{display:"flex",alignItems:"center",gap:4}}>
                 <input type="tel" inputMode="numeric" pattern="[0-9]*" className="ship-input"
                   value={shipFareInput}
