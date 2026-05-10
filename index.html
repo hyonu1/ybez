@@ -2330,8 +2330,10 @@ const App=()=>{
   useEffect(()=>{
     if(!mascotMap||storyMode)return;
     const hasEntry=(name)=>!!getMascotEntry(mascotMap,name);
-    const sinanKeys=[...new Set(["신안",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="목포")])].filter(hasEntry);
-    const wandoKeys=[...new Set(["완도",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="완도")])].filter(hasEntry);
+    const sinanOrder=["지도","증도","임자","압해","암태","자은","팔금","안좌","장산","하의","신의","도초","비금","흑산","만재도","홍도","가거도"];
+    const wandoOrder=["군외","완도","신지","약산","청산","고금","노화","보길","소안","생일","금당","여서도"];
+    const sinanKeys=sinanOrder.filter(hasEntry);
+    const wandoKeys=wandoOrder.filter(hasEntry);
     const r=Math.random();
     if(r<0.4&&sinanKeys.length>0){
       setStoryMode("sinan");setStoryKeys(sinanKeys);setStoryIdx(0);
@@ -2349,12 +2351,12 @@ const App=()=>{
     }
   },[mascotMap]);
 
-  /* 스토리 모드 타이머: 모바일 마스코트 순환 */
+  /* 스토리 모드 타이머: 입력 전(idle) 모바일 마스코트만 순환 */
   useEffect(()=>{
     if(storyTimerRef.current){clearInterval(storyTimerRef.current);storyTimerRef.current=null;}
     const activeName=nz(dest)||nz(origin);
-    const isIslandStory=activeName&&(activeName==="신안"||activeName==="완도"||ISLAND_DB[activeName]?.hub==="목포"||ISLAND_DB[activeName]?.hub==="완도");
-    if(storyKeys.length<=1&&!isIslandStory)return;
+    if(activeName)return;
+    if(storyKeys.length<=1)return;
     storyTimerRef.current=setInterval(()=>setStoryIdx(i=>i+1),3600);
     return()=>{clearInterval(storyTimerRef.current);storyTimerRef.current=null;};
   },[storyMode,storyKeys,origin,dest]);
@@ -5147,17 +5149,7 @@ const App=()=>{
   const MobileResultCard=(()=>{
     const rows=verticalRouteRows;
     const activeName=nz(dest)||nz(origin);
-    const hasMascotEntry=(name)=>!!getMascotEntry(mascotMap,name);
-    const sinanStoryKeys=[...new Set(["신안",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="목포")])].filter(hasMascotEntry);
-    const wandoStoryKeys=[...new Set(["완도",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="완도")])].filter(hasMascotEntry);
-    const activeStoryKeys=activeName&&(activeName==="신안"||ISLAND_DB[activeName]?.hub==="목포")
-      ? sinanStoryKeys
-      : activeName&&(activeName==="완도"||ISLAND_DB[activeName]?.hub==="완도")
-        ? wandoStoryKeys
-        : null;
-    const dmn=activeStoryKeys?.length
-      ? activeStoryKeys[storyIdx%activeStoryKeys.length]
-      : (activeName||(storyKeys.length?storyKeys[storyIdx%storyKeys.length]:initialMascot));
+    const dmn=activeName||(storyKeys.length?storyKeys[storyIdx%storyKeys.length]:initialMascot);
     const fare=result&&!result.needsManualFare?selectedFare:null;
     const srcLabel=(()=>{const s=result?.sources?.[0];return s?formatSourceLabel(s):null;})();
     const summaryTitle=result?`${displayCityName(nz(origin))||nz(origin)} → ${displayCityName(nz(dest))||nz(dest)}`:"";
