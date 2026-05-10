@@ -1273,29 +1273,10 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 
 
-/* ── 모바일 마스코트 단독 표시 영역 ── */
+/* ── 모바일 마스코트 ── */
 .mobile-mascot-area{display:none;}
 @media(max-width:699px){
-  .mobile-mascot-area{
-    display:flex;justify-content:center;align-items:center;
-    padding:12px 0 4px;flex-shrink:0;
-  }
-  .mobile-mascot-circle{
-    width:116px;height:116px;border-radius:50%;
-    background:linear-gradient(135deg,#FFFDF7,#FEF9F0);
-    border:2px solid rgba(201,125,32,0.18);
-    box-shadow:0 4px 18px rgba(201,125,32,0.10),0 2px 6px rgba(0,0,0,0.06);
-    display:flex;align-items:center;justify-content:center;
-    overflow:hidden;flex-shrink:0;
-  }
-  .mobile-mascot-circle img{
-    width:104px;height:104px;object-fit:contain;object-position:center bottom;
-    animation:m-mascot-in .32s cubic-bezier(.22,.68,0,1.2) both;
-  }
-  @keyframes m-mascot-in{
-    from{opacity:0;transform:scale(0.88);}
-    to{opacity:1;transform:scale(1);}
-  }
+}
   /* 모바일 nav 아이콘 라벨 */
   .mnav-label{font-size:10px;font-weight:800;color:#9C8A72;display:block;margin-top:2px;font-family:var(--gm);line-height:1;}
   .mnav-home-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -1335,6 +1316,35 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
 @media(max-width:699px){.mobile-info-hidden{display:none !important;}}
 @media(min-width:700px){.mobile-detail-toggle{display:none !important;}.mobile-info-hidden{display:block !important;}}
+
+/* ══ 모바일 결과+마스코트 레이아웃 ══ */
+@media(max-width:699px){
+  .mobile-result-row{display:flex;align-items:flex-start;gap:10px;width:100%;}
+  .mobile-result-main{flex:1;min-width:0;}
+  .mobile-result-mascot-col{flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:8px;}
+  /* 마스코트: 결과 영역 전용 크기 — 항상 동일 */
+  .mobile-mascot-area{display:flex !important;padding:0 !important;}
+  .mobile-mascot-circle{
+    width:96px !important;height:96px !important;
+    border-radius:50% !important;
+    background:linear-gradient(135deg,#FFFDF7,#FEF9F0) !important;
+    border:2px solid rgba(201,125,32,0.15) !important;
+    box-shadow:0 4px 14px rgba(201,125,32,0.10),0 2px 6px rgba(0,0,0,0.05) !important;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .mobile-mascot-circle img{
+    width:88px !important;height:88px !important;
+    object-fit:contain;object-position:center bottom;
+    transition:opacity 0.65s ease;
+  }
+  /* idle 시 마스코트 컬럼이 화면 중앙처럼 보이게 */
+  .mobile-result-mascot-col:only-child,
+  .mobile-result-main:empty + .mobile-result-mascot-col{
+    margin:0 auto;
+    padding-top:32px;
+  }
+}
 </style>
 </head>
 <body>
@@ -2234,7 +2244,7 @@ const App=()=>{
   useEffect(()=>{
     if(storyTimerRef.current){clearInterval(storyTimerRef.current);storyTimerRef.current=null;}
     if(storyMode==="random"||storyKeys.length<=1||nz(origin))return;
-    storyTimerRef.current=setInterval(()=>setStoryIdx(i=>(i+1)%storyKeys.length),2500);
+    storyTimerRef.current=setInterval(()=>setStoryIdx(i=>(i+1)%storyKeys.length),5000);
     return()=>{clearInterval(storyTimerRef.current);storyTimerRef.current=null;};
   },[storyMode,storyKeys,origin]);
 
@@ -4995,6 +5005,25 @@ const App=()=>{
     return note?"산정근거":"";
   },[]);
 
+
+  /* ── 모바일 마스코트: 크로스페이드 컴포넌트 ── */
+  const MobileMascot=(({dmn,mascotMap})=>{
+    const [entry,setEntry]=React.useState(null);
+    const [opacity,setOpacity]=React.useState(1);
+    React.useEffect(()=>{
+      if(!dmn||!mascotMap)return;
+      const next=getMascotEntry(mascotMap,dmn);
+      if(!next?.image)return;
+      if(!entry){setEntry(next);return;}
+      if(entry.image===next.image)return;
+      setOpacity(0);
+      const t=setTimeout(()=>{setEntry(next);setOpacity(1);},650);
+      return()=>clearTimeout(t);
+    },[dmn,mascotMap]);
+    if(!entry)return null;
+    return(<div className="mobile-mascot-area"><div className="mobile-mascot-circle"><img src={entry.image} alt={entry.alt||dmn} loading="lazy" style={{opacity,transition:"opacity 0.65s ease"}}/></div></div>);
+  });
+
   const VerticalRouteTable=()=>{
     if(!result)return(
       <div className="vertical-route-card">
@@ -5180,14 +5209,14 @@ const App=()=>{
         <div className="search-wrap" style={{display:"flex",flexDirection:"column",gap:8}}>
           {/* 출발지 | 스왑 | 도착지 — 모바일에서 가로 한 줄 */}
           <div className="ac-input-wrap">
-            <AcInput label="출발지" placeholder="출발지" value={origin}
+            <AcInput label="" placeholder="출발지" value={origin}
               onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList} mascotMap={mascotMap}/>
           </div>
           <button className="swap-btn" onClick={handleSwap} title="출발지↔도착지 교환">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
           </button>
           <div className="ac-input-wrap">
-            <AcInput label="도착지" placeholder="도착지" value={dest}
+            <AcInput label="" placeholder="도착지" value={dest}
               onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList} mascotMap={mascotMap}/>
           </div>
 
@@ -5223,13 +5252,6 @@ const App=()=>{
             ):<span>초성 검색 가능 · {cityList.length}개 지역</span>}
           </div>
         </div>
-
-        {/* 모바일 마스코트 단독 표시 */}
-        {(()=>{
-  const dmn=nz(dest)||nz(origin)||(storyMode==="random"?initialMascot:(storyKeys[storyIdx]||initialMascot));
-  const entry=dmn&&mascotMap?getMascotEntry(mascotMap,dmn):null;
-  return entry?(<div className="mobile-mascot-area"><div className="mobile-mascot-circle"><img key={dmn} src={entry.image} alt={entry.alt||dmn} loading="lazy"/></div></div>):null;
-})()}
 
         {/* 결과 */}
         <div className="result-wrap">
@@ -5346,11 +5368,16 @@ const App=()=>{
         </div>
         </div>
 
-        {/* 모바일 인라인 산정표 */}
+        {/* 모바일 인라인 산정표 + 마스코트 (항상 같은 자리) */}
         <div className="mobile-inline-result">
-          {result&&<>
-            <VerticalRouteTable/>
-          </>}
+          <div className="mobile-result-row">
+            <div className="mobile-result-main">
+              {result&&<VerticalRouteTable/>}
+            </div>
+            <div className="mobile-result-mascot-col">
+              {(()=>{const dmn=nz(dest)||nz(origin)||(storyMode==="random"?initialMascot:(storyKeys[storyIdx]||initialMascot));return <MobileMascot dmn={dmn} mascotMap={mascotMap}/>;})()}
+            </div>
+          </div>
         </div>
 
         {/* 모바일 하단 내비 바 */}
