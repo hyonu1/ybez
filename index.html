@@ -14,7 +14,7 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 @import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.css');
 :root{
-  --blue:#007AFF;--blue2:#5AC8FA;--bg:#EEF3FA;
+  --blue:#C97D20;--blue2:#F0C060;--bg:#F7F2E8;
   --sep:rgba(60,60,67,0.1);--card:#fff;
   --gm:'GmarketSansMedium',sans-serif;
   --pr:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
@@ -37,12 +37,12 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .col-right{display:none;}
 }
 
-.col-left{background:#F4F7FB;display:flex;flex-direction:column;position:relative;}
-.col-center{background:#fff;display:flex;flex-direction:column;}
-.col-right{background:#F8FAFD;display:flex;flex-direction:column;}
+.col-left{background:#F4EFE5;display:flex;flex-direction:column;position:relative;}
+.col-center{background:#FFFDF7;display:flex;flex-direction:column;}
+.col-right{background:#FAF6EE;display:flex;flex-direction:column;}
 
 /* ── 섹션 헤더 ── */
-.sec-hdr{padding:14px 18px 10px;border-bottom:1px solid var(--sep);font-family:var(--gm);font-size:15px;font-weight:700;color:#8E8E93;letter-spacing:0.3px;display:flex;align-items:center;justify-content:space-between;}
+.sec-hdr{padding:14px 18px 10px;border-bottom:1px solid var(--sep);font-family:var(--gm);font-size:15px;font-weight:700;color:#9C8A72;letter-spacing:0.3px;display:flex;align-items:center;justify-content:space-between;}
 
 /* ── 지도 ── */
 #leaflet-map{flex:1;min-height:300px;}
@@ -50,15 +50,15 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
 /* ── 출처 섹션 ── */
 .source-list{padding:12px 16px;display:flex;flex-direction:column;gap:6px;}
-.source-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#fff;border:1px solid var(--sep);}
+.source-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#FFFDF7;border:1px solid var(--sep);}
 .source-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .source-url{font-size:10px;color:#6E7480;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .source-label{font-size:11px;font-weight:800;color:#1C1C1E;min-width:60px;}
 
 /* ── 입력 ── */
 .search-wrap{padding:16px 16px 12px;}
-.input-box{border-radius:16px;padding:0 14px 0 16px;display:flex;align-items:center;gap:12px;height:64px;border:2px solid rgba(0,122,255,0.15);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all .2s;font-family:var(--gm);}
-.input-box:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,0.1);}
+.input-box{border-radius:16px;padding:0 14px 0 16px;display:flex;align-items:center;gap:12px;height:64px;border:2px solid rgba(201,125,32,0.15);background:#FFFDF7;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all .2s;font-family:var(--gm);}
+.input-box:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(201,125,32,0.1);}
 .input-inner{flex:1;min-width:0;}
 .input-label{font-size:10px;font-weight:700;color:#AEAEB2;text-transform:uppercase;letter-spacing:0.5px;}
 .input-field{width:100%;background:transparent;border:none;outline:none;font-family:var(--gm);font-weight:700;font-size:26px;color:#1C1C1E;}
@@ -67,44 +67,44 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .clear-btn:active{background:#C7C7CC;transform:scale(0.9);}
 
 /* ── 자동완성 ── */
-.sug-box{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid rgba(0,122,255,0.1);border-radius:16px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:min(320px,45dvh);overflow-y:auto;font-family:var(--gm);-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;}
+.sug-box{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid rgba(201,125,32,0.1);border-radius:16px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.1);max-height:min(320px,45dvh);overflow-y:auto;font-family:var(--gm);-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;}
 .sug-item{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:600;border-bottom:1px solid rgba(0,0,0,0.03);touch-action:pan-y;user-select:none;}
 .sug-item:last-child{border-bottom:none;}
-.sug-item:hover,.sug-item.sel{background:rgba(0,122,255,0.05);}
+.sug-item:hover,.sug-item.sel{background:rgba(201,125,32,0.05);}
 
 /* ── 상태바 ── */
 .status-bar{margin:0 16px 10px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;}
 .sb-idle{background:#F2F2F7;border:1px solid #E5E5EA;color:#AEAEB2;}
-.sb-done{background:linear-gradient(135deg,#E8F5FF,#D6EEFF);border:1px solid rgba(0,122,255,0.15);color:var(--blue);}
+.sb-done{background:linear-gradient(135deg,#FEF6E8,#FDECC8);border:1px solid rgba(201,125,32,0.15);color:var(--blue);}
 
 /* ── 결과 카드 ── */
 .result-wrap{padding:0 16px 16px;flex:1;}
-.main-fare-card{border-radius:20px;padding:18px 18px 14px;background:linear-gradient(135deg,#fff,#F8FAFF);border:1px solid rgba(0,122,255,0.1);box-shadow:0 4px 16px rgba(0,122,255,0.06),0 2px 6px rgba(0,0,0,0.04);margin-bottom:10px;}
+.main-fare-card{border-radius:20px;padding:18px 18px 14px;background:linear-gradient(135deg,#FFFDF7,#FDF8EC);border:1px solid rgba(201,125,32,0.1);box-shadow:0 4px 16px rgba(201,125,32,0.06),0 2px 6px rgba(0,0,0,0.04);margin-bottom:10px;}
 .fare-amount{font-family:var(--gm);font-size:42px;font-weight:900;color:var(--blue);}
 .tag-badge{display:inline-flex;align-items:center;border-radius:6px;padding:3px 9px;font-size:13px;font-weight:800;border:1px solid transparent;font-family:var(--gm);}
 .tag-side{display:inline-flex;align-items:center;padding:0 3px;border-radius:3px;font-size:8px;font-weight:700;margin-left:2px;border:1px solid transparent;vertical-align:middle;line-height:1.5;}
 
 /* ── 하위터미널 카드 ── */
 .sub-card{border-radius:14px;padding:14px 16px;border:2px solid #EEEEEE;cursor:pointer;background:#FAFAFA;transition:all .15s;display:flex;justify-content:space-between;align-items:center;}
-.sub-card:hover{border-color:rgba(0,122,255,0.3);background:#F0F7FF;}
-.sub-card.selected{border-color:var(--blue);background:linear-gradient(135deg,#EEF6FF,#E6F2FF);box-shadow:0 2px 8px rgba(0,122,255,0.15);}
+.sub-card:hover{border-color:rgba(201,125,32,0.3);background:#FEF9F0;}
+.sub-card.selected{border-color:var(--blue);background:linear-gradient(135deg,#FEF6E8,#FEF0D4);box-shadow:0 2px 8px rgba(201,125,32,0.15);}
 .sub-grid{display:grid;gap:6px;margin-bottom:10px;}
 
 /* ── 출처 배지 ── */
-.src-badge{display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;background:#F0F7FF;color:#007AFF;border:1px solid rgba(0,122,255,0.2);font-family:var(--pr);}
+.src-badge{display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;background:#FEF6E8;color:#C97D20;border:1px solid rgba(201,125,32,0.2);font-family:var(--pr);}
 .src-badge.jne{background:#FFF7ED;color:#C2410C;border-color:rgba(194,65,12,0.2);}
 
 /* ── 감액 버튼 (ybez.html 스타일) ── */
-.deduct-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;padding:5px 11px;border-radius:9px;font-weight:800;cursor:pointer;z-index:10;font-family:var(--gm);transition:all .15s;background:linear-gradient(180deg,#288CFF,#007AFF 50%,#0056D6);color:#fff;border:none;box-shadow:0 2px 4px rgba(0,122,255,0.3),inset 0 1px 0 rgba(255,255,255,0.2);text-shadow:0 1px 1px rgba(0,0,0,0.2);white-space:nowrap;}
-.deduct-btn.active{background:linear-gradient(180deg,#C7DCFF,#EBF4FF);color:#8E8E93;border:1px solid #B3CCFF;box-shadow:inset 0 2px 4px rgba(0,0,0,0.12);text-shadow:none;transform:translate(-50%,calc(-50% + 1px));}
+.deduct-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;padding:5px 11px;border-radius:9px;font-weight:800;cursor:pointer;z-index:10;font-family:var(--gm);transition:all .15s;background:linear-gradient(180deg,#E8A030,#C97D20 50%,#A0600E);color:#fff;border:none;box-shadow:0 2px 4px rgba(201,125,32,0.3),inset 0 1px 0 rgba(255,255,255,0.2);text-shadow:0 1px 1px rgba(0,0,0,0.2);white-space:nowrap;}
+.deduct-btn.active{background:linear-gradient(180deg,#EDD9B5,#FEF3DC);color:#8E8E93;border:1px solid #E8C88A;box-shadow:inset 0 2px 4px rgba(0,0,0,0.12);text-shadow:none;transform:translate(-50%,calc(-50% + 1px));}
 .ship-input{text-align:right;background:#F8F9FA;width:84px;font-family:var(--gm);font-weight:700;outline:none;border:1px solid #E5E5EA;border-radius:8px;padding:6px;color:#1C1C1E;font-size:16px;transition:all .2s;}
-.ship-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 2px 6px rgba(0,122,255,0.12);}
-.confirm-btn{width:100%;margin-top:8px;height:44px;border-radius:14px;font-weight:800;font-size:16px;background:linear-gradient(180deg,#EBF4FF,#D6EAFF);color:var(--blue);border:1px solid rgba(0,122,255,0.2);cursor:pointer;font-family:var(--gm);}
+.ship-input:focus{border-color:var(--blue);background:#FFFDF7;box-shadow:0 2px 6px rgba(201,125,32,0.12);}
+.confirm-btn{width:100%;margin-top:8px;height:44px;border-radius:14px;font-weight:800;font-size:16px;background:linear-gradient(180deg,#FEF3DC,#FDECC8);color:var(--blue);border:1px solid rgba(201,125,32,0.2);cursor:pointer;font-family:var(--gm);}
 .confirm-btn:active{transform:scale(0.98);}
 
 /* ── 토글 (ybez.html 스타일) ── */
 .toggle-sw{width:44px;height:24px;border-radius:99px;transition:.25s;position:relative;flex-shrink:0;cursor:pointer;border:none;}
-.toggle-sw.on{background:#007AFF;}
+.toggle-sw.on{background:#C97D20;}
 .toggle-sw.off{background:#E5E5EA;}
 .toggle-knob{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:.25s;box-shadow:0 2px 4px rgba(0,0,0,0.2);}
 .toggle-knob.on{transform:translateX(20px);}
@@ -134,30 +134,34 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
 
 /* ── 세로 터미널 경로표 (왼쪽 전용) ── */
-.vertical-route-card{margin:12px 10px;padding:14px;border-radius:20px;background:#fff;border:1px solid rgba(0,122,255,0.10);box-shadow:0 4px 16px rgba(0,122,255,0.06),0 2px 6px rgba(0,0,0,0.04);display:flex;flex-direction:column;gap:12px;}
+.vertical-route-card{margin:12px 10px;padding:14px;border-radius:20px;background:#FFFDF7;border:1px solid rgba(201,125,32,0.10);box-shadow:0 4px 16px rgba(201,125,32,0.06),0 2px 6px rgba(0,0,0,0.04);display:flex;flex-direction:column;gap:12px;}
 .vroute-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;font-family:var(--gm);font-size:13px;font-weight:900;color:#1C1C1E;}
 .vroute-title small{font-size:10px;color:#8E8E93;font-weight:800;}
 .vroute-main{min-height:0;}
 .vroute-list{position:relative;padding:2px 0 4px 4px;}
 .vroute-node{display:flex;align-items:flex-start;gap:10px;position:relative;z-index:1;}
-.vroute-dot{width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--blue);box-shadow:0 0 0 4px rgba(0,122,255,.10);margin-top:2px;flex-shrink:0;}
+.vroute-dot{width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--blue);box-shadow:0 0 0 4px rgba(201,125,32,.10);margin-top:2px;flex-shrink:0;}
 .vroute-node.dest .vroute-dot{border-color:#34C759;box-shadow:0 0 0 4px rgba(52,199,89,.12);}
 .vroute-node-name{font-family:var(--gm);font-size:14px;font-weight:900;color:#1C1C1E;line-height:1.25;word-break:keep-all;}
-.vroute-node-sub{display:inline-flex;margin-top:3px;padding:2px 6px;border-radius:6px;background:#EEF6FF;color:var(--blue);font-size:9px;font-weight:900;line-height:1.2;}
-.vroute-edge{display:flex;align-items:center;gap:7px;margin-left:7px;padding:8px 0 8px 22px;border-left:3px solid #D7E7FF;min-height:32px;}
-.vroute-fare{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border-radius:10px;background:#F0F7FF;border:1px solid rgba(0,122,255,.16);color:var(--blue);font-family:var(--gm);font-size:13px;font-weight:900;white-space:nowrap;}
+.vroute-node-sub{display:inline-flex;margin-top:3px;padding:2px 6px;border-radius:6px;background:#FEF6E8;color:var(--blue);font-size:9px;font-weight:900;line-height:1.2;}
+.vroute-edge{display:flex;align-items:center;gap:7px;margin-left:7px;padding:8px 0 8px 22px;border-left:3px solid #EDD9B5;min-height:32px;}
+.vroute-fare{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border-radius:10px;background:#FEF9F0;border:1px solid rgba(201,125,32,.16);color:var(--blue);font-family:var(--gm);font-size:13px;font-weight:900;white-space:nowrap;}
 .vroute-fare.warn{background:#FFF7ED;color:#D97706;border-color:rgba(217,119,6,.22);}
 .vroute-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0;}
-.vroute-src-tag{display:inline-flex;align-items:center;padding:3px 7px;border-radius:7px;font-family:var(--gm);font-size:10px;font-weight:900;line-height:1;background:#EEF6FF;color:var(--blue);border:1px solid rgba(0,122,255,.18);}
+.vroute-src-tag{display:inline-flex;align-items:center;padding:3px 7px;border-radius:7px;font-family:var(--gm);font-size:10px;font-weight:900;line-height:1;background:#FEF6E8;color:var(--blue);border:1px solid rgba(201,125,32,.18);}
 .vroute-src-tag.tag-naver{background:#ECFDF5;color:#059669;border-color:rgba(5,150,105,.20);}
-.vroute-src-tag.tag-jne{background:#EEF6FF;color:#007AFF;border-color:rgba(0,122,255,.20);}
+.vroute-src-tag.tag-jne{background:#FEF6E8;color:#C97D20;border-color:rgba(201,125,32,.20);}
 .vroute-src-tag.tag-조례{background:#FFF7ED;color:#D97706;border-color:rgba(217,119,6,.22);}
+.vroute-src-tag.tag-카카오,.vroute-src-tag.tag-kakao{background:#F3E8FF;color:#7C3AED;border-color:rgba(124,58,237,.22);}
+.vroute-edge.dotted{border-left-style:dashed;border-left-color:#A7B3C5;}
+.vroute-fare.access{background:#F5F3FF;color:#7C3AED;border-color:rgba(124,58,237,.22);}
+
 .vroute-note-inline{display:inline-flex;align-items:center;padding:3px 7px;border-radius:7px;background:#F5F5F5;color:#6B7280;font-size:10px;font-weight:800;line-height:1.1;max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.vroute-detail{border-radius:16px;background:#FBFCFF;border:1px solid #E8EEF7;padding:12px;margin-top:4px;}
+.vroute-detail{border-radius:16px;background:#FDFAF4;border:1px solid #EDE0CC;padding:12px;margin-top:4px;}
 .vroute-detail-title{font-family:var(--gm);font-size:12px;font-weight:900;color:#374151;margin-bottom:8px;}
 .vroute-detail-row{display:grid;grid-template-columns:24px 1fr;gap:8px;padding:7px 0;border-top:1px solid #F0F3F8;}
 .vroute-detail-row:first-of-type{border-top:none;padding-top:0;}
-.vroute-detail-ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#EEF6FF;font-size:12px;}
+.vroute-detail-ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#FEF6E8;font-size:12px;}
 .vroute-detail-head{font-size:11px;font-weight:900;color:#374151;font-family:var(--gm);line-height:1.3;}
 .vroute-detail-body{font-size:10px;color:#6B7280;font-weight:700;line-height:1.45;margin-top:2px;word-break:keep-all;}
 .vroute-source-legend{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;padding-top:8px;border-top:1px solid #F2F2F7;}
@@ -167,8 +171,8 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .fare-choice-wrap{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
 .fare-choice-summary,.fare-choice-title{display:none;}
 .fare-option-card{border-radius:16px;padding:13px 16px;border:2px solid #EEEEEE;cursor:pointer;background:#fff;transition:all .15s;display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:68px;}
-.fare-option-card:hover{border-color:rgba(0,122,255,0.3);background:#F8FAFF;}
-.fare-option-card.selected{border-color:var(--blue);background:linear-gradient(135deg,#EEF6FF,#F8FBFF);box-shadow:0 2px 8px rgba(0,122,255,0.12);}
+.fare-option-card:hover{border-color:rgba(201,125,32,0.3);background:#FDF9F4;}
+.fare-option-card.selected{border-color:var(--blue);background:linear-gradient(135deg,#FEF6E8,#FDF9F4);box-shadow:0 2px 8px rgba(201,125,32,0.12);}
 .fare-option-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
 .fare-radio{width:18px;height:18px;border-radius:50%;border:2px solid #C7C7CC;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .fare-option-card.selected .fare-radio{border-color:var(--blue);}
@@ -177,10 +181,10 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .fare-option-sub{font-size:10px;color:#8E8E93;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .fare-option-price{font-size:20px;font-weight:900;font-family:var(--gm);color:var(--blue);white-space:nowrap;}
 .fare-option-pre{font-size:9px;font-weight:800;color:#F59E0B;margin-bottom:2px;}
-.sub-choice-toggle{width:100%;height:42px;border-radius:14px;border:1.5px solid rgba(0,122,255,.20);background:linear-gradient(135deg,#F8FBFF,#EEF6FF);color:var(--blue);font-family:var(--gm);font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .14s;}
-.sub-choice-toggle:hover{border-color:rgba(0,122,255,.36);box-shadow:0 3px 10px rgba(0,122,255,.10);}
+.sub-choice-toggle{width:100%;height:42px;border-radius:14px;border:1.5px solid rgba(201,125,32,.20);background:linear-gradient(135deg,#FDF9F4,#FEF6E8);color:var(--blue);font-family:var(--gm);font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .14s;}
+.sub-choice-toggle:hover{border-color:rgba(201,125,32,.36);box-shadow:0 3px 10px rgba(201,125,32,.10);}
 .sub-choice-toggle:active{transform:scale(.985);}
-.sub-choice-note{font-size:10px;font-weight:750;color:#6B7280;line-height:1.35;background:#F8FAFD;border:1px solid #E8EEF7;border-radius:12px;padding:9px 11px;word-break:keep-all;}
+.sub-choice-note{font-size:10px;font-weight:750;color:#6B7280;line-height:1.35;background:#FAF6EE;border:1px solid #EDE0CC;border-radius:12px;padding:9px 11px;word-break:keep-all;}
 @media(max-width:980px){.vertical-route-card{margin:10px 0;}.vroute-node-name{font-size:12px}.vroute-src-tag,.vroute-note-inline{font-size:9px}.vroute-fare{font-size:12px}}
 
 /* ── 로딩 ── */
@@ -195,7 +199,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 /* ── 모달 ── */
 .modal-bg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;}
 .modal-box{background:#fff;border-radius:24px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,0.2);}
-.modal-hdr{background:linear-gradient(180deg,#288CFF,#007AFF);padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;}
+.modal-hdr{background:linear-gradient(180deg,#E8A030,#C97D20);padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;}
 .modal-body{padding:16px 18px;}
 
 /* ── 스크롤바 ── */
@@ -259,7 +263,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   flex-direction:column;
 }
 .mascot-choice-header{
-  background:linear-gradient(180deg,#288CFF,#007AFF);
+  background:linear-gradient(180deg,#E8A030,#C97D20);
   padding:11px 14px;
   display:flex;
   align-items:center;
@@ -320,8 +324,8 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 .mascot-choice-card:hover{
   transform:translateY(-1px);
-  border-color:rgba(0,122,255,.34);
-  box-shadow:0 5px 14px rgba(0,122,255,.12);
+  border-color:rgba(201,125,32,.34);
+  box-shadow:0 5px 14px rgba(201,125,32,.12);
   background:#F8FBFF;
 }
 .mascot-choice-card:active{transform:scale(.975);}
@@ -414,17 +418,17 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 /* ── 하단 버튼 바 (PC) ── */
 .bottom-action-bar{padding:12px 16px 14px;border-top:1px solid var(--sep);display:flex;gap:10px;align-items:center;justify-content:center;background:rgba(248,250,253,0.9);}
 .action-btn{position:relative;width:46px;height:46px;border-radius:13px;border:1.5px solid #E0E0E8;background:#F5F5FA;color:#6E7480;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
-.action-btn:hover{border-color:rgba(0,122,255,0.35);background:#EEF3FF;color:var(--blue);box-shadow:0 2px 8px rgba(0,122,255,0.12);}
-.action-btn.active{border-color:rgba(0,122,255,0.4);background:#EEF3FF;color:var(--blue);}
+.action-btn:hover{border-color:rgba(201,125,32,0.35);background:#FEF6E8;color:var(--blue);box-shadow:0 2px 8px rgba(201,125,32,0.12);}
+.action-btn.active{border-color:rgba(201,125,32,0.4);background:#FEF6E8;color:var(--blue);}
 .action-btn .tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(30,30,30,0.92);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;}
 .action-btn:hover .tooltip{opacity:1;}
 
 /* ── 히스토리 팝업 (PC) ── */
-.hist-popup{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid rgba(0,122,255,0.12);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px 0;min-width:220px;z-index:200;}
-.hist-popup::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);width:14px;height:14px;background:#fff;border-right:1px solid rgba(0,122,255,0.12);border-bottom:1px solid rgba(0,122,255,0.12);border-radius:2px;rotate:45deg;}
+.hist-popup{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid rgba(201,125,32,0.12);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px 0;min-width:220px;z-index:200;}
+.hist-popup::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);width:14px;height:14px;background:#fff;border-right:1px solid rgba(201,125,32,0.12);border-bottom:1px solid rgba(201,125,32,0.12);border-radius:2px;rotate:45deg;}
 .hist-item{padding:9px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:12px;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.04);transition:background .1s;}
 .hist-item:last-child{border-bottom:none;}
-.hist-item:hover{background:rgba(0,122,255,0.05);}
+.hist-item:hover{background:rgba(201,125,32,0.05);}
 
 /* ── 모바일: 레이아웃 ── */
 @media(max-width:699px){
@@ -440,14 +444,14 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 
 /* ── 모바일 하단 내비 (ybez 스타일 계승) ── */
-.mobile-bottom-nav{width:100%;height:62px;background:#fff;border-top:1px solid rgba(0,122,255,0.1);display:flex;align-items:center;justify-content:space-around;padding:0 8px;position:sticky;bottom:0;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.06);}
+.mobile-bottom-nav{width:100%;height:62px;background:#fff;border-top:1px solid rgba(201,125,32,0.1);display:flex;align-items:center;justify-content:space-around;padding:0 8px;position:sticky;bottom:0;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.06);}
 .mnav-btn{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#F8F9FA,#F1F3F5);border:none;color:#ADB5BD;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
 .mnav-btn:active{transform:scale(0.92);background:#E9ECEF;color:var(--blue);}
-.mnav-home{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#F0F8FF,#E6F2FF);border:1.5px solid rgba(0,122,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;}
-.mnav-home:active{transform:scale(0.95);box-shadow:0 2px 8px rgba(0,122,255,0.2);}
-.mnav-calc{height:44px;padding:0 20px;border-radius:22px;background:linear-gradient(180deg,#288CFF,#007AFF 50%,#0056D6);color:#fff;border:none;font-size:14px;font-weight:800;font-family:var(--gm);cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 3px 10px rgba(0,122,255,0.3);}
+.mnav-home{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#FEF9F0,#FEF3DC);border:1.5px solid rgba(201,125,32,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+.mnav-home:active{transform:scale(0.95);box-shadow:0 2px 8px rgba(201,125,32,0.2);}
+.mnav-calc{height:44px;padding:0 20px;border-radius:22px;background:linear-gradient(180deg,#E8A030,#C97D20 50%,#A0600E);color:#fff;border:none;font-size:14px;font-weight:800;font-family:var(--gm);cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 3px 10px rgba(201,125,32,0.3);}
 .mnav-calc:disabled{background:#E5E5EA;color:#AEAEB2;box-shadow:none;}
-.mnav-hist-popup{position:absolute;bottom:calc(100% + 8px);right:4px;background:#FAF8F5;border:1px solid rgba(0,122,255,0.15);border-radius:14px;padding:8px 0;min-width:200px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.12);}
+.mnav-hist-popup{position:absolute;bottom:calc(100% + 8px);right:4px;background:#FAF8F5;border:1px solid rgba(201,125,32,0.15);border-radius:14px;padding:8px 0;min-width:200px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.12);}
 
 
 /* ── 모바일 산정내역 덧씌움 패널 ── */
@@ -461,7 +465,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
   .mobile-detail-sheet{
     width:100%;max-height:92dvh;
-    background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFD 100%);
+    background:linear-gradient(180deg,#FFFFFF 0%,#FAF6EE 100%);
     border-radius:26px 26px 0 0;
     box-shadow:0 -12px 38px rgba(15,23,42,0.20);
     border:1px solid rgba(255,255,255,0.72);
@@ -475,7 +479,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
   .mobile-detail-header{
     padding:0 18px 14px;
-    border-bottom:1px solid rgba(0,122,255,0.09);
+    border-bottom:1px solid rgba(201,125,32,0.09);
   }
   .mobile-detail-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .mobile-detail-title{
@@ -486,7 +490,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     flex-shrink:0;display:inline-flex;align-items:center;gap:4px;
     padding:5px 9px;border-radius:999px;background:#EEF6FF;
     color:var(--blue);font-family:var(--gm);font-size:11px;font-weight:900;
-    border:1px solid rgba(0,122,255,.16);
+    border:1px solid rgba(201,125,32,.16);
   }
   .mobile-detail-fare-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:10px;gap:10px;}
   .mobile-detail-fare-main{font-family:var(--gm);font-size:34px;font-weight:900;color:var(--blue);line-height:1;}
@@ -505,7 +509,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     position:fixed;left:0;right:0;bottom:0;z-index:245;
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));
     background:linear-gradient(180deg,rgba(248,250,253,0.82),#fff 45%);
-    border-top:1px solid rgba(0,122,255,0.10);
+    border-top:1px solid rgba(201,125,32,0.10);
     display:grid;grid-template-columns:1fr 1.35fr;gap:10px;
     box-shadow:0 -8px 22px rgba(15,23,42,0.08);
   }
@@ -516,12 +520,12 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
   .mobile-sheet-btn:active{transform:scale(.975);}
   .mobile-sheet-btn.main{
-    background:#fff;color:var(--blue);border:2px solid rgba(0,122,255,.22);
-    box-shadow:0 3px 12px rgba(0,122,255,.08);
+    background:#FFFDF7;color:var(--blue);border:2px solid rgba(201,125,32,.22);
+    box-shadow:0 3px 12px rgba(201,125,32,.08);
   }
   .mobile-sheet-btn.calc{
-    color:#fff;background:linear-gradient(180deg,#2E95FF,#007AFF 55%,#0060DF);
-    box-shadow:0 5px 16px rgba(0,122,255,.30), inset 0 1px 0 rgba(255,255,255,.25);
+    color:#fff;background:linear-gradient(180deg,#2E95FF,#C97D20 55%,#0060DF);
+    box-shadow:0 5px 16px rgba(201,125,32,.30), inset 0 1px 0 rgba(255,255,255,.25);
   }
   @keyframes mobileSheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   @keyframes mobileBackdropFade{from{opacity:0}to{opacity:1}}
@@ -567,7 +571,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     height:72px;
     border-radius:20px;
     background:rgba(255,255,255,0.60);
-    border:1px solid rgba(0,122,255,0.12);
+    border:1px solid rgba(201,125,32,0.12);
     box-shadow:0 4px 12px rgba(0,0,0,0.08);
     overflow:visible;
   }
@@ -719,7 +723,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     height:72px;
     border-radius:19px;
     background:rgba(255,255,255,0.68);
-    border:1px solid rgba(0,122,255,0.14);
+    border:1px solid rgba(201,125,32,0.14);
     box-shadow:0 4px 12px rgba(0,0,0,0.08);
     overflow:hidden;
   }
@@ -865,11 +869,11 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 .mascot-choice-card:hover{
   background:linear-gradient(180deg,#FFFFFF 0%,#F0F7FF 100%) !important;
-  border-color:rgba(0,122,255,.36) !important;
+  border-color:rgba(201,125,32,.36) !important;
   box-shadow:
-    0 6px 12px rgba(0,122,255,.14),
+    0 6px 12px rgba(201,125,32,.14),
     0 1px 0 rgba(255,255,255,1) inset,
-    0 -1px 0 rgba(0,122,255,.08) inset !important;
+    0 -1px 0 rgba(201,125,32,.08) inset !important;
   transform:translateY(-1px) !important;
 }
 .mascot-choice-card:active{
@@ -1002,12 +1006,12 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 .mascot-choice-card:hover .mascot-choice-img-frame{
   transform:translateY(-1px);
-  border-color:rgba(0,122,255,.42);
+  border-color:rgba(201,125,32,.42);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.96),
-    inset 0 -2px 0 rgba(0,122,255,.10),
-    0 2px 0 rgba(0,122,255,.22),
-    0 8px 16px rgba(0,122,255,.15);
+    inset 0 -2px 0 rgba(201,125,32,.10),
+    0 2px 0 rgba(201,125,32,.22),
+    0 8px 16px rgba(201,125,32,.15);
   background:linear-gradient(180deg,#FFFFFF 0%,#F0F7FF 100%);
 }
 .mascot-choice-card:active .mascot-choice-img-frame{
@@ -1166,13 +1170,13 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 .mascot-choice-card:hover .mascot-choice-img-frame{
   transform:translateY(-1px) !important;
-  border-color:rgba(0,122,255,.40) !important;
+  border-color:rgba(201,125,32,.40) !important;
   background:linear-gradient(180deg,#FFFFFF 0%,#EEF6FF 100%) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.98),
-    inset 0 -2px 0 rgba(0,122,255,.10),
-    0 2px 0 rgba(0,122,255,.20),
-    0 7px 15px rgba(0,122,255,.14) !important;
+    inset 0 -2px 0 rgba(201,125,32,.10),
+    0 2px 0 rgba(201,125,32,.20),
+    0 7px 15px rgba(201,125,32,.14) !important;
 }
 .mascot-choice-card:active .mascot-choice-img-frame{
   transform:translateY(2px) scale(.985) !important;
@@ -1268,6 +1272,38 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
 }
 
+
+/* ── 모바일 마스코트 단독 표시 영역 ── */
+.mobile-mascot-area{display:none;}
+@media(max-width:699px){
+  .mobile-mascot-area{
+    display:flex;justify-content:center;align-items:center;
+    padding:12px 0 4px;flex-shrink:0;
+  }
+  .mobile-mascot-circle{
+    width:116px;height:116px;border-radius:50%;
+    background:linear-gradient(135deg,#FFFDF7,#FEF9F0);
+    border:2px solid rgba(201,125,32,0.18);
+    box-shadow:0 4px 18px rgba(201,125,32,0.10),0 2px 6px rgba(0,0,0,0.06);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;flex-shrink:0;
+  }
+  .mobile-mascot-circle img{
+    width:104px;height:104px;object-fit:contain;object-position:center bottom;
+    animation:m-mascot-in .32s cubic-bezier(.22,.68,0,1.2) both;
+  }
+  @keyframes m-mascot-in{
+    from{opacity:0;transform:scale(0.88);}
+    to{opacity:1;transform:scale(1);}
+  }
+  /* 모바일 nav 아이콘 라벨 */
+  .mnav-label{font-size:10px;font-weight:800;color:#9C8A72;display:block;margin-top:2px;font-family:var(--gm);line-height:1;}
+  .mnav-home-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .mnav-feedback{display:flex;flex-direction:column;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;background:none;border:none;padding:0;}
+  .mnav-feedback-circle{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#FEF9F0,#FEF3DC);border:1.5px solid rgba(201,125,32,0.22);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .mnav-feedback-circle:active,.mnav-feedback:active .mnav-feedback-circle{transform:scale(0.92);box-shadow:0 2px 8px rgba(201,125,32,0.2);}
+  .mobile-bottom-nav{height:70px;padding:0 16px;padding-bottom:env(safe-area-inset-bottom,0px);}
+}
 </style>
 </head>
 <body>
@@ -1281,7 +1317,7 @@ const {useState,useEffect,useRef,useCallback,useMemo}=React;
    지역 아이콘은 data/mascot_map.json → assets/mascots/*.webp 기준으로만 표시한다.
    mascot_map.json 또는 이미지 파일이 없으면 아이콘 없이 텍스트만 표시한다.
 */
-const SRC_LABEL={"bustago":"버스타고","kobus":"코버스","tmoneygo":"티머니GO","asamaru":"아사마루","JNE2026":"전라남도 여비기준표","manual":"네이버지도 검증요금","manual_fare":"네이버지도 검증요금","manual_override":"네이버지도 검증요금","chat_override_latest":"네이버지도 검증요금","area_to_area_fares":"네이버지도 검증요금","area_graph":"네이버지도 검증요금","area_rule":"YBEZ 권역규칙","rural":"농어촌버스 조례","ferry":"전남여객선 조례","area_special":"기타교통비"};
+const SRC_LABEL={"bustago":"버스타고","kobus":"코버스","tmoneygo":"티머니GO","asamaru":"아사마루","JNE2026":"전라남도 여비기준표","manual":"네이버지도 검증요금","manual_fare":"네이버지도 검증요금","manual_override":"네이버지도 검증요금","chat_override_latest":"네이버지도 검증요금","area_to_area_fares":"네이버지도 검증요금","area_graph":"네이버지도 검증요금","area_rule":"YBEZ 권역규칙","rural":"농어촌버스 조례","ferry":"전남여객선 조례","area_special":"기타교통비","kakao":"카카오"};
 const SOURCES_INFO=[
   {key:"bustago",  label:"버스타고",       url:"bustago.or.kr",                    color:"#2563EB"},
   {key:"tmoneygo", label:"티머니GO",       url:"txbus.t-money.co.kr",              color:"#7C3AED"},
@@ -1508,6 +1544,9 @@ const SHINAN_WANDO_EXACT_SEARCH_NAMES=new Set([
   "군외","신지","고금","약산","청산","청산도","노화","보길","소안","금일","생일","금당","여서도"
 ]);
 const EXACT_ONLY_SEARCH_NAMES=new Set([...Object.keys(JEONNAM_SUB_TO_MAIN),...SHINAN_WANDO_EXACT_SEARCH_NAMES]);
+// 동명이역은 사용자가 후보를 직접 선택하게 한다.
+// 예: 광주 입력 중 광주(경기)를 입력하려는데 광주가 먼저 확정되는 문제 방지.
+const AMBIGUOUS_EXACT_NAMES=new Set(["광주","고성"]);
 const ALL_SEARCH_NAMES=[...new Set([...BASIC_SEARCH_NAMES,...EXACT_ONLY_SEARCH_NAMES])];
 const JEONNAM_GWANGJU_MAIN_NAMES=new Set([
   "광주","목포","여수","순천","나주","광양","담양","곡성","구례","고흥","보성","화순","장흥","강진","해남","영암","무안","함평","영광","장성","완도","진도","신안","남악"
@@ -1802,7 +1841,7 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list,mascotMap})=>{
   const listTouching=useRef(false); // 입력 UX 안정화: 목록 터치 중 blur 방지
   useEffect(()=>{
     const v=nz(value);
-    if(!v||list.includes(v)){setSug([]);return;}
+    if(!v||(list.includes(v)&&!AMBIGUOUS_EXACT_NAMES.has(nz(v)))){setSug([]);return;}
     const resolved=resolveJamo(v); // 복자음 분리 (ㄵ→ㄴㅈ)
     const isCho=/^[ㄱ-ㅎ]+$/.test(resolved);
     setSug(list.filter(c => {
@@ -1838,13 +1877,13 @@ const AcInput=({value,onChange,onSelect,placeholder,label,list,mascotMap})=>{
             className="input-field" placeholder={placeholder} value={value||""}
             onChange={e=>{const v=e.target.value;onChange(v);setIdx(-1);
               const exact=list.find(c=>nz(c)===nz(v)||c===v);
-              if(exact){onSelect(exact);setOpen(false);setSug([]);}
+              if(exact&&!AMBIGUOUS_EXACT_NAMES.has(nz(v))){onSelect(exact);setOpen(false);setSug([]);}
               else setOpen(true);}}
             onFocus={()=>setOpen(true)}
             onBlur={()=>setTimeout(()=>{if(!listTouching.current){setOpen(false);setIdx(-1);}},200)} // 입력 UX 안정화: 목록 터치 중이면 닫지 않음
             onKeyDown={e=>{if(comp.current)return;if(!open||!sug.length)return;if(e.key==="ArrowDown"){e.preventDefault();setIdx(p=>p<sug.length-1?p+1:0);}else if(e.key==="ArrowUp"){e.preventDefault();setIdx(p=>p>0?p-1:sug.length-1);}else if(e.key==="Enter"){e.preventDefault();if(idx>=0)pick(sug[idx]);else if(sug.length)pick(sug[0]);}else if(e.key==="Escape"){setOpen(false);setIdx(-1);}}}
             onCompositionStart={()=>{comp.current=true;}}
-            onCompositionEnd={e=>{comp.current=false;if(e.data&&list.includes(nz(e.data))){onSelect(nz(e.data));setOpen(false);setSug([]);}}}
+            onCompositionEnd={e=>{comp.current=false;const ev=nz(e.data);if(ev&&list.includes(ev)&&!AMBIGUOUS_EXACT_NAMES.has(ev)){onSelect(ev);setOpen(false);setSug([]);}}}
           />
         </div>
         {value&&<MascotIcon mascotMap={mascotMap} name={nz(value)} size={48} className="mascot-img" animate={true} badge={true} popKey={nz(value)}/>}
@@ -1931,6 +1970,8 @@ const App=()=>{
   const [nodesMap,setNodesMap]=useState(null);
   const [areaGraph,setAreaGraph]=useState(null);
   const [mascotMap,setMascotMap]=useState(null);
+  const [initialMascot,setInitialMascot]=useState(null);
+  const [accessFareTable,setAccessFareTable]=useState(null);
   const [loaded,setLoaded]=useState(false);
   const [dataErr,setDataErr]=useState("");
   const [cityListApi,setCityList]=useState([]);
@@ -2128,6 +2169,29 @@ const App=()=>{
     loadMascot();
   },[]);
 
+  /* 초기 랜덤 마스코트: mascotMap 로드 후 1회 선택 */
+  useEffect(()=>{
+    if(!mascotMap||initialMascot)return;
+    const keys=Object.keys(mascotMap.by_area_id||{});
+    if(keys.length)setInitialMascot(keys[Math.floor(Math.random()*keys.length)]);
+  },[mascotMap]);
+
+  /* ── 접근비용 추천표 로드: 실패해도 핵심 요금 산정은 계속 동작 ── */
+  useEffect(()=>{
+    const loadAccessFare=async()=>{
+      try{
+        const r=await fetch("./data/access_fare_table.json",{cache:"no-store"});
+        if(!r.ok)throw new Error("access_fare_table.json 실패");
+        const j=await r.json();
+        setAccessFareTable(j||null);
+      }catch(e){
+        console.warn("access_fare_table.json 로드 실패: 접근비용 추천값 없이 표시합니다.",e);
+        setAccessFareTable(null);
+      }
+    };
+    loadAccessFare();
+  },[]);
+
   /* ── 노드명 추적기 ── */
   const getNodeName = useCallback((nid, fallbackCity) => {
       if(!nid) return fallbackCity || "";
@@ -2178,6 +2242,9 @@ const App=()=>{
       "병점":    "NODE_0037",  // 병점정류장
       "양평":    "NODE_0231",  // 양평버스터미널
       "경기광주":"NODE_0213",  // 경기도광주종합터미널
+      "광주(경기)":"NODE_0213",
+      "광주경기":"NODE_0213",
+      "경기도광주":"NODE_0213",
     };
     if(GYEONGGI_DIRECT_NODES[c]) return [GYEONGGI_DIRECT_NODES[c]];
 
@@ -2371,6 +2438,59 @@ const App=()=>{
     console.warn("[YBEZ map] 좌표 없음:", raw);
     return null;
   },[aliasLinked,nodesMap]);
+
+  /* ── 동일생활권 접근비용 추천값 조회 ── */
+  const calcStraightKm=useCallback((a,b)=>{
+    if(!a||!b||a.lat==null||a.lng==null||b.lat==null||b.lng==null)return null;
+    const R=6371;
+    const toRad=x=>Number(x)*Math.PI/180;
+    const dLat=toRad(Number(b.lat)-Number(a.lat));
+    const dLng=toRad(Number(b.lng)-Number(a.lng));
+    const lat1=toRad(a.lat),lat2=toRad(b.lat);
+    const h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.min(1,Math.sqrt(h)));
+  },[]);
+
+  const macroCodeForArea=useCallback((area,areaId="")=>{
+    const raw=String(area?.macro_code||areaId.split("_")[0]||"").trim().toLowerCase();
+    const map={jg:"JG",gg:"GG",jb:"JB",cb:"CB",dsn:"DSN",gw:"GW",tk:"TK",pk:"PK",metro:"METRO"};
+    return map[raw]||raw.toUpperCase();
+  },[]);
+
+  const getAccessFareRecommendation=useCallback((macroCode,km)=>{
+    if(!accessFareTable||km==null||!Number.isFinite(Number(km)))return null;
+    const mc=String(macroCode||"").toUpperCase();
+    if(mc==="JG")return null; // 전남·광주는 일반 접근비용표 미사용
+    const items=Array.isArray(accessFareTable.items)?accessFareTable.items:[];
+    const row=items.find(x=>String(x.macro_code||"").toUpperCase()===mc
+      && Number(km)>=Number(x.distance_min_km||0)
+      && (x.distance_max_km==null||x.distance_max_km===""||Number(km)<Number(x.distance_max_km)));
+    if(!row)return null;
+    return{
+      code:row.code,macro_code:mc,macro_name:row.macro_name||mc,
+      fare:Number(row.recommended_fare_oneway)||0,
+      source:row.source||"kakao",sourceLabel:row.source_label||"카카오",
+      note:row.note||"접근비용 추천값"
+    };
+  },[accessFareTable]);
+
+  const buildSameLivingAccessInfo=useCallback((fr,tr,from,to)=>{
+    if(!fr||!tr||fr.areaId!==tr.areaId)return null;
+    const area=fr.area||tr.area||{};
+    const center=displayCityName(area.center||area.primary_hub||area.rep_search||area.area_name||from);
+    const fromC=getCityCoord(from);
+    const toC=getCityCoord(to);
+    const centerC=getCityCoord(center);
+    const dFrom=centerC&&fromC?calcStraightKm(centerC,fromC):null;
+    const dTo=centerC&&toC?calcStraightKm(centerC,toC):null;
+    const vals=[dFrom,dTo].filter(v=>v!=null&&Number.isFinite(v));
+    const km=vals.length?Math.max(...vals):null;
+    const macro=macroCodeForArea(area,fr.areaId);
+    const rec=getAccessFareRecommendation(macro,km);
+    const sameLivingLabel=displayCityName(area.area_name||area.rep_search||center);
+    return{center,km,macro,rec,sameLivingLabel,isWithin12:km!=null&&km<=12};
+  },[displayCityName,getCityCoord,calcStraightKm,macroCodeForArea,getAccessFareRecommendation]);
+
 
   /* ── 스마트 라우팅 ── */
   const findSmartRoute=useCallback((fromCity,toCity)=>{
@@ -2787,6 +2907,9 @@ const App=()=>{
     // 남악/일로/오룡 직접 검색: 메인요금은 유지하고, 0원 동일생활권 후보를 추가
     else if(isMokpo(fc)&&isSameTerm(tc))addSame("목포",tc);
     else if(isSameTerm(fc)&&isMokpo(tc))addSame(fc,"목포");
+    else if(isMuan(fc)&&isSameTerm(tc))addSame("무안",tc);
+    else if(isSameTerm(fc)&&isMuan(tc))addSame(fc,"무안");
+    else if(isSameTerm(fc)&&isSameTerm(tc)&&fc!==tc)addSame(fc,tc);
 
     if(out.specialSubs.length){
       // 동일생활권 대상은 일반 하위노드 직통 후보에서 중복 노출하지 않는다.
@@ -2797,6 +2920,26 @@ const App=()=>{
     }
     return out;
   },[]);
+
+  // 같은 생활권 내부는 실제요금/접근비용 후보와 별도로 “동일생활권 간주 0원” 후보도 제공한다.
+  const buildSameAreaZeroChoices=useCallback((fromCity,toCity,baseSubs={depSubs:[],arrSubs:[],specialSubs:[]})=>{
+    const fc=nz(fromCity), tc=nz(toCity);
+    const out={depSubs:[...(baseSubs.depSubs||[])],arrSubs:[...(baseSubs.arrSubs||[])],specialSubs:[...(baseSubs.specialSubs||[])]};
+    if(!fc||!tc||fc===tc||ISLAND_DB[fc]||ISLAND_DB[tc])return out;
+    const fr=resolveArea(fc), tr=resolveArea(tc);
+    if(!fr||!tr||fr.blocked||tr.blocked||fr.areaId!==tr.areaId)return out;
+    const exists=out.specialSubs.some(r=>Number(r.gen||0)===0&&nz(r.depName)===fc&&nz(r.arrName)===tc);
+    if(!exists){
+      const label=String(fr.area?.area_name||"동일생활권");
+      out.specialSubs.push({
+        depName:fc,arrName:tc,gen:0,pre:null,cost:0,surcharge:0,shipCost:0,
+        sources:["area_rule"],choiceType:"same_living",sameLiving:true,
+        routeTag:"동일생활권 간주",
+        note:`${label} 동일생활권 0원 후보`
+      });
+    }
+    return out;
+  },[resolveArea]);
 
 
   /* ══════════════════════════════════════════════════════
@@ -2965,10 +3108,14 @@ const App=()=>{
     to:displayCityName(seg.to),
     gen:(seg.gen===null||seg.gen===undefined||seg.gen==="")?null:Number(seg.gen),
     sources:seg.sources||["area_graph"],
+    source:seg.source||"",
     sourceLabel:seg.sourceLabel||seg.source||seg.source_name||"",
     depName:displayCityName(seg.from),
     arrName:displayCityName(seg.to),
-    note:seg.note||""
+    note:seg.note||"",
+    kind:seg.kind||"bus",
+    recommendFare:seg.recommendFare==null?null:Number(seg.recommendFare)||0,
+    accessDistanceKm:seg.accessDistanceKm==null?null:Number(seg.accessDistanceKm)||0
   })),[displayCityName]);
 
   const buildAreaResult=useCallback((edge,from,to,fromResolved,toResolved,extra={})=>{
@@ -3182,6 +3329,9 @@ const App=()=>{
     if(!fr?.areaId||!tr?.areaId)return null;
     // 핵심 안전장치: 전남·광주(jg_)가 한쪽이라도 포함되면 기존 2Gen 본모드가 처리한다.
     if(isJgAreaId(fr.areaId)||isJgAreaId(tr.areaId))return null;
+    // 같은 생활권 내부는 전국-전국 참고용으로 보내지 않고 권역 내부 판정으로 넘긴다.
+    // 예: 남원→임실, 전주→완주 등 실제 수집요금/접근비용 판단 대상.
+    if(fr.areaId===tr.areaId)return null;
 
     const start=fr.areaId;
     const goal=tr.areaId;
@@ -3272,7 +3422,46 @@ const App=()=>{
         origin:from,dest:to,via:viaN,areaRoute:true,areaScore:4.5,areaMethod:"권역 경유지 수동 지정",multiHop:{segs:[{from,to:viaN,gen:r1.gen,sources:r1.sources},{from:viaN,to,gen:r2.gen,sources:r2.sources}],path:[from,viaN,to]}};
     }
     if(fr.areaId===tr.areaId && !ISLAND_DB[from] && !ISLAND_DB[to]){
-      return{gen:0,pre:null,cost:0,surcharge:0,shipCost:0,sources:["area_rule"],dr:`${from}→${to}`,routeLabel:`${displayCityName(fr.area.area_name)} 권역 내부`,origin:from,dest:to,via:null,areaRoute:true,sameArea:true,areaScore:5,areaMethod:"동일 권역/관내 처리",multiHop:null};
+      const accessInfo=buildSameLivingAccessInfo(fr,tr,from,to);
+      const collected=lookupFare(from,to,false,1);
+      const recFare=accessInfo?.rec?.fare||0;
+      const recText=recFare?`편도 ${Number(recFare).toLocaleString()}원 / 왕복 ${Number(recFare*2).toLocaleString()}원`:`추천값 없음`;
+      const kmText=accessInfo?.km!=null?`${accessInfo.km.toFixed(1)}km`:"거리 확인 불가";
+
+      // 같은 생활권이라도 실제 시외·고속버스 수집요금이 있으면 본선 교통비로 우선 반영한다.
+      // 이 경우 접근비용은 추가교통비에 중복 입력하지 않는다.
+      if(collected&&Number(collected.gen)>0){
+        const depName=collected.depName||from;
+        const arrName=collected.arrName||to;
+        const srcs=collected.sources?.length?collected.sources:["bustago"];
+        const seg={from:depName,to:arrName,gen:Number(collected.gen)||0,sourceLabel:srcs[0]||"bustago",sources:srcs,note:`동일생활권 내부 실제 수집요금 우선 · 접근거리 ${kmText}`};
+        return{
+          gen:Number(collected.gen)||0,pre:collected.pre??null,cost:Number(collected.gen)||0,surcharge:0,shipCost:0,
+          sources:srcs,dr:collected.dr||`${depName}→${arrName}`,routeLabel:`${depName} → ${arrName}`,
+          origin:from,dest:to,via:null,areaRoute:true,areaScore:5,
+          areaMethod:"동일생활권 내부 실제 수집요금 우선",
+          areaDetail:`같은 생활권 내부이나 실제 수집 시외·고속버스 요금이 있어 본선 교통비에 반영합니다. 추가교통비에는 중복 반영하지 않습니다. 접근거리 ${kmText}.`,
+          needsManualFare:false,areaSegments:[seg],multiHop:{segs:[seg],path:[depName,arrName]},
+          depId:collected.depId||null,arrId:collected.arrId||null
+        };
+      }
+
+      const accessKind=accessInfo?.isWithin12?"관내+접근비용":"접근비용";
+      const seg={
+        from:accessInfo?.center||from,to:to,gen:null,sourceLabel:"카카오",source:"kakao",kind:"access",
+        recommendFare:recFare||null,accessDistanceKm:accessInfo?.km??null,
+        note:`${accessKind} · 약 ${kmText} · ${recText}`
+      };
+      return{
+        gen:0,pre:null,cost:0,surcharge:0,shipCost:0,sources:["area_rule","kakao"],
+        dr:`${from}→${to}`,routeLabel:`${displayCityName(fr.area.area_name)} 생활권 접근`,
+        origin:from,dest:to,via:null,areaRoute:true,sameArea:true,areaScore:accessInfo?.isWithin12?5:4.8,
+        areaMethod:accessInfo?.isWithin12?"동일생활권 12km 이내 관내+접근비용":"동일생활권 접근비용 추천",
+        areaDetail:`${accessInfo?.sameLivingLabel||displayCityName(fr.area.area_name)} 생활권 내부 이동입니다. 중심지 기준 약 ${kmText}이며 카카오 기준 접근비용 ${recText}을 추가교통비에 자동 반영합니다.`,
+        multiHop:{segs:[seg],path:[from,to]},areaSegments:[seg],
+        accessExtraEnabled:!!recFare,
+        accessExtraHint:recFare?`${accessKind} · 약 ${kmText} · 카카오 기준 ${recText} 자동 반영`:`${accessKind} · 실제 이용 시 추가교통비에 입력`
+      };
     }
 
     // 2세대 수기 보정: 경로 구조는 권역-권역, 표시는 실제 환승도시 기준
@@ -3286,6 +3475,8 @@ const App=()=>{
       areaDetail:detail,needsManualFare:!!opts.needsManualFare,areaSegments:segs?makeAreaSegments(segs):null,
       multiHop:segs?{segs:makeAreaSegments(segs),path:label.split(/\s*→\s*/)}:null,
       isShipOnlyRoute:!!opts.isShipOnlyRoute,areaSpecial:!!opts.areaSpecial,
+      userOrigin:opts.userOrigin||null,userDest:opts.userDest||null,
+      mainOrigin:opts.mainOrigin||null,mainDest:opts.mainDest||null,mainRouteLabel:opts.mainRouteLabel||"",
       accessExtraEnabled:!!opts.accessExtraEnabled,accessExtraHint:opts.accessExtraHint||"",islandLegs:opts.islandLegs||null,islandRouteLabel:opts.islandRouteLabel||""
     });
 
@@ -3322,12 +3513,12 @@ const App=()=>{
         if(!x)return;
         if(x.isConnected){
           const src=islandRuralSource(x);
-          notes.push(`${x.hub}↔${x.key} 농어촌버스 편도 1,000원 참고, 실제 이용 시 입력`);
-          islandLegs.push({kind:"rural",label:"농어촌버스",route:`${x.hub}→${x.key}`,fare:1000,source:src});
+          notes.push(`${x.hub}↔${x.key} 농어촌버스 편도 1,000원 / 왕복 2,000원 추가교통비 자동 반영`);
+          islandLegs.push({kind:"rural",label:"농어촌버스",route:`${x.hub}→${x.key}`,fare:1000,source:src,role:x===fs?"origin":"dest"});
         }else if(x.isShip){
           const src=islandFerrySource(x);
-          notes.push(`${x.hub}↔${x.key} 여객선·도선은 실제 이용내역에 따라 기타교통비에 입력`);
-          islandLegs.push({kind:"ferry",label:"여객선",route:`${x.hub}→${x.key}`,fare:1000,source:src});
+          notes.push(`${x.hub}↔${x.key} 여객선·도선 편도 1,000원 / 왕복 2,000원 기타교통비 자동 반영`);
+          islandLegs.push({kind:"ferry",label:"여객선",route:`${x.hub}→${x.key}`,fare:1000,source:src,role:x===fs?"origin":"dest"});
         }
       };
       addNote(fs); addNote(ts);
@@ -3339,8 +3530,17 @@ const App=()=>{
       const mergeIslandMeta=(baseRes,baseDetail="")=>{
         if(!baseRes||baseRes.blocked)return null;
         const merged={...baseRes};
+        const mainLabel=(baseRes.mainRouteLabel||baseRes.routeLabel||`${baseFrom} → ${baseTo}`).split(/\s*→\s*/).map(x=>x.trim()).filter(Boolean).filter((x,i,a)=>i===0||x!==a[i-1]).join(" → ");
+        merged.userOrigin=from;
+        merged.userDest=to;
+        merged.mainOrigin=baseFrom;
+        merged.mainDest=baseTo;
+        merged.mainRouteLabel=mainLabel;
         merged.origin=from;
         merged.dest=to;
+        // 특수지역 결과의 가운데 메인 요금카드는 육상 본선만 보여야 하므로 routeLabel도 메인 라벨로 고정한다.
+        merged.routeLabel=mainLabel;
+        merged.dr=mainLabel.replace(/\s*→\s*/g,"→");
         merged.areaSpecial=true;
         merged.islandHubBase=true;
         merged.sources=[...new Set([...(baseRes.sources||[]),"area_special"])] ;
@@ -3378,11 +3578,32 @@ const App=()=>{
         baseLabel,
         segs,
         `${baseLabel} 기준 메인 교통비. ${noteText}`,
-        {method:specialName,score:5,sources:["JNE2026","area_special"],areaSpecial:true,isShipOnlyRoute,accessExtraEnabled,accessExtraHint:notes.find(n=>/농어촌버스/.test(n))||"",islandLegs,islandRouteLabel:noteText}
+        {method:specialName,score:5,sources:["JNE2026","area_special"],areaSpecial:true,isShipOnlyRoute,accessExtraEnabled,accessExtraHint:notes.find(n=>/농어촌버스/.test(n))||"",islandLegs,islandRouteLabel:noteText,
+         userOrigin:from,userDest:to,mainOrigin:baseFrom,mainDest:baseTo,mainRouteLabel:baseLabel}
       );
       res.pre=pre;
       res.islandHubBase=true;
       return res;
+    };
+
+    const buildManualEndpointAccessSeg=(baseSegs,targetRaw,targetResolved)=>{
+      const segs=Array.isArray(baseSegs)?baseSegs:[];
+      const last=segs.length?segs[segs.length-1]:null;
+      const hub=displayCityName(last?.to||last?.arrName||"");
+      const target=displayCityName(targetRaw);
+      if(!hub||!target||hub===target)return null;
+      const hubCoord=getCityCoord(hub);
+      const targetCoord=getCityCoord(targetRaw)||getCityCoord(target);
+      const km=(hubCoord&&targetCoord)?calcStraightKm(hubCoord,targetCoord):null;
+      const macro=macroCodeForArea(targetResolved?.area,targetResolved?.areaId);
+      const rec=getAccessFareRecommendation(macro,km);
+      const kmText=km!=null?`${Number(km).toFixed(1)}km`:"거리 확인 불가";
+      const recText=rec?.fare?`편도 ${Number(rec.fare).toLocaleString()}원 / 왕복 ${Number(rec.fare*2).toLocaleString()}원`:"추천값 없음";
+      return {
+        from:hub,to:target,gen:null,source:"kakao",sourceLabel:"카카오",kind:"access",
+        recommendFare:rec?.fare||null,accessDistanceKm:km,
+        note:`접근비용 · 약 ${kmText} · 카카오 기준 ${recText}`
+      };
     };
 
     const manualFare=findManualAreaFare(fr.areaId,tr.areaId,to);
@@ -3390,10 +3611,15 @@ const App=()=>{
       const altNote=manualFare.alternatives?.length
         ? ` / ${manualFare.alternatives.map(a=>`${a.type||"참고"}: ${a.label} ${Number(a.fare||0).toLocaleString()}원`).join(" / ")}`
         : "";
+      const manualSegs=[...(manualFare.segments||[])];
+      if(manualFare.accessExtraEnabled){
+        const accessSeg=buildManualEndpointAccessSeg(manualSegs,to,tr);
+        if(accessSeg)manualSegs.push(accessSeg);
+      }
       return manualResult(
         manualFare.fare,
         manualFare.label,
-        manualFare.segments,
+        manualSegs,
         `${manualFare.detail||"사용자 수기요금 확인완료"}${altNote}`,
         {method:manualFare.method||"MANUAL_AREA_FARES",sources:["area_rule"],manualKey:manualFare.key,
           accessExtraEnabled:!!manualFare.accessExtraEnabled,
@@ -3447,6 +3673,35 @@ const App=()=>{
     const splitHubNames=(v)=>String(v||"").split(/[\/·,]+/).map(x=>x.replace(/병렬노드|지정허브|터미널/g,"").trim()).filter(Boolean);
     const hubAreaId=(hub)=>HUB_AREA_IDS[hub]||HUB_AREA_IDS[hub.replace(/\s/g,"")]||null;
     const isJeonnamArea=(areaId)=>String(areaId||"").startsWith("jg_")&&!String(areaId||"").includes("island");
+    // [직행 우선 보정 v1]
+    // 전남·광주 ↔ 관외권 산정에서 권역/허브 경유보다 routes.json의 실제 터미널 직행노선을 먼저 사용한다.
+    // 예: 광주→남원, 광주→순창은 순천 경유가 아니라 광주유스퀘어 직행요금이 우선이다.
+    const tryActualTerminalDirectRoute=()=>{
+      if(viaN)return null;
+      if(ISLAND_DB[from]||ISLAND_DB[to])return null;
+      if(areaIndex.specialByArea[fr.areaId]||areaIndex.specialByArea[tr.areaId])return null;
+      const fromIsJ=isJeonnamArea(fr.areaId),toIsJ=isJeonnamArea(tr.areaId);
+      if(fromIsJ===toIsJ)return null;
+      const direct=lookupFare(from,to,false,0);
+      if(!direct||!Number(direct.gen))return null;
+      const depName=direct.depName||displayCityName(from);
+      const arrName=direct.arrName||displayCityName(to);
+      const srcs=direct.sources?.length?direct.sources:["bustago"];
+      const sourceLabel=srcs.includes("bustago")?"버스타고":(srcs.includes("tmoneygo")?"티머니GO":(srcs.includes("kobus")?"코버스":"routes.json"));
+      const seg={from:depName,to:arrName,gen:Number(direct.gen)||0,sourceLabel,sources:srcs,note:"실제 터미널 직행노선 우선 적용"};
+      return{
+        gen:Number(direct.gen)||0,pre:direct.pre??null,cost:Number(direct.gen)||0,surcharge:0,shipCost:0,
+        sources:srcs,dr:direct.dr||`${depName}→${arrName}`,routeLabel:`${depName} → ${arrName}`,
+        origin:from,dest:to,via:null,areaRoute:true,areaScore:5,
+        areaMethod:"실제 터미널 직행노선 우선",
+        areaDetail:"routes.json에 실제 터미널 직행요금이 있어 권역/허브 경유보다 우선 적용",
+        needsManualFare:false,areaSegments:[seg],multiHop:{segs:[seg],path:[depName,arrName]},
+        depId:direct.depId||null,arrId:direct.arrId||null
+      };
+    };
+    const actualDirect=tryActualTerminalDirectRoute();
+    if(actualDirect)return actualDirect;
+
     const areaJneKeys=(area)=>[area?.area_name,area?.rep_search,area?.center].map(displayCityName).filter(Boolean);
     const lookupJneFare=(aNames,bNames)=>{
       for(const a of aNames){
@@ -3686,7 +3941,7 @@ const App=()=>{
     const edge=findAreaEdge(fr.areaId,tr.areaId);
     if(edge)return buildAreaResult(edge,from,to,fr,tr,{score:edge.method==="RULE_DERIVED_EDGE"?4.5:5});
     return{blocked:true,message:"권역-권역 산정 기준에 맞는 edge가 없습니다. 기존 전체 노드 자동탐색은 차단되었습니다."};
-  },[areaGraph,areaIndex,resolveArea,findAreaEdge,buildAreaResult,displayCityName,makeAreaSegments,findManualAreaFare]);
+  },[areaGraph,areaIndex,resolveArea,findAreaEdge,buildAreaResult,displayCityName,makeAreaSegments,findManualAreaFare,lookupFare,buildSameLivingAccessInfo,getCityCoord,calcStraightKm,macroCodeForArea,getAccessFareRecommendation]);
 
   /* 주 계산 */
   const calcSegment=useCallback((fromRaw,toRaw)=>{
@@ -3747,7 +4002,7 @@ const App=()=>{
       return;
     }
 
-    if(from&&to&&!nz(viaCity)&&from===to){
+    if(from&&to&&!nz(viaCity)&&from===to&&rawFrom===rawTo){
       const sameRes={gen:0,pre:null,cost:0,surcharge:0,shipCost:0,
         sources:["area_rule"],dr:`${from}→${to}`,routeLabel:`${from} → ${to}`,
         origin:from,dest:to,via:null,sameArea:true,areaRoute:true,areaScore:5,
@@ -3832,13 +4087,13 @@ const App=()=>{
           if(isConnected&&Number(info.cost||0)>0){
             const source=info.hub==="완도"?"완도군 농어촌버스 관련 조례":"신안군 농어촌버스 관련 조례";
             legs.push({kind:"rural",label:"농어촌버스",route,fare:1000,source,role});
-            notes.push(`${info.hub}↔${place} 농어촌버스 편도 1,000원 참고, 실제 이용 시 입력`);
+            notes.push(`${info.hub}↔${place} 농어촌버스 편도 1,000원 / 왕복 2,000원 추가교통비 자동 반영`);
           }else if(isShip){
             const source=info.hub==="완도"
               ?"완도군 주민 여객선 운임 등 지원 조례상 1,000원 적용 원칙 참고"
               :"신안군 여객선 관련 조례상 1,000원 요금제 참고";
             legs.push({kind:"ferry",label:"여객선",route,fare:1000,source,role});
-            notes.push(`${info.hub}↔${place} 여객선·도선은 실제 이용내역에 따라 기타교통비에 입력`);
+            notes.push(`${info.hub}↔${place} 여객선·도선 편도 1,000원 / 왕복 2,000원 기타교통비 자동 반영`);
           }
         };
         addLeg(from,fInfo,"origin");
@@ -3848,10 +4103,8 @@ const App=()=>{
         const isShipOnlyRoute=legs.some(x=>x.kind==="ferry");
         const hubName=(fInfo?.hub||tInfo?.hub||"");
         const method=hubName==="완도"?"완도 허브 강제":"신안 목포 1차허브 강제";
-        const routeParts=[];
-        if(fInfo){routeParts.push(from); if(baseFrom&&baseFrom!==from)routeParts.push(baseFrom);} else routeParts.push(mainFrom);
+        const routeParts=[mainFrom];
         if(baseFrom!==baseTo&&mainTo)routeParts.push(mainTo);
-        if(tInfo&&baseTo!==to)routeParts.push(to);
         const routeLabel=routeParts.filter(Boolean).filter((x,i,a)=>i===0||x!==a[i-1]).join(" → ");
         const areaSegments=baseFrom!==baseTo ? [{
           from:mainFrom,to:mainTo,gen,pre,sourceLabel:"2026.1.1.자 전라남도 여비기준표",note:`${method} 메인 교통비`
@@ -3862,6 +4115,7 @@ const App=()=>{
           sources:["JNE2026","area_special"],
           dr:routeLabel.replace(/\s*→\s*/g,"→"),
           routeLabel,
+          userOrigin:from,userDest:to,mainOrigin:mainFrom,mainDest:mainTo,mainRouteLabel:routeLabel,
           origin:from,dest:to,via:null,
           areaRoute:true,areaScore:5,areaMethod:method,
           areaDetail:notes.join(" / "),
@@ -3936,7 +4190,9 @@ const App=()=>{
         // 신안·완도 등 특수지역은 earlyIslandRes에서 별도 처리하므로 여기서는 제외한다.
         const allowJeonnamSubChoices=!viaN&&isJNE(from)&&isJNE(to)&&!ISLAND_DB[from]&&!ISLAND_DB[to];
         const baseChoiceSubs=allowJeonnamSubChoices?findSubResults(from,to):{depSubs:[],arrSubs:[],specialSubs:[]};
-        setSubResults(!viaN?buildMokpoMuanSameLivingChoices(from,to,baseChoiceSubs):baseChoiceSubs);
+        let choiceSubs=!viaN?buildMokpoMuanSameLivingChoices(from,to,baseChoiceSubs):baseChoiceSubs;
+        if(!viaN)choiceSubs=buildSameAreaZeroChoices(from,to,choiceSubs);
+        setSubResults(choiceSubs);
         setAltRoutes([]);
         setSmartResult(null);
         setBypassInfo([`✓ 권역-권역 산정 적용: ${areaRes.areaMethod||"YBEZ 2세대"}`]);
@@ -4073,7 +4329,7 @@ const App=()=>{
         setCalcSt("error_no_route");
       }
     },50);
-  },[calcSegment,findSubResults,buildMokpoMuanSameLivingChoices,findSmartRoute,lookupRouteWithAlternatives,findAreaRoute,findNationwideExperimentalRoute,addHistory,modalSt,origin,dest,via]);
+  },[calcSegment,findSubResults,buildMokpoMuanSameLivingChoices,buildSameAreaZeroChoices,findSmartRoute,lookupRouteWithAlternatives,findAreaRoute,findNationwideExperimentalRoute,addHistory,modalSt,origin,dest,via]);
 
   /* 선택 등급 요금 */
   const selectedFare=useMemo(()=>{
@@ -4179,16 +4435,60 @@ const App=()=>{
 
 
   const showAccessExtraInput=!!result;
+  const accessAutoSummary=useMemo(()=>{
+    if(!result)return {total:0,parts:[]};
+    const parts=[];
+    (result.islandLegs||[]).filter(x=>x.kind==="rural"&&Number(x.fare||0)>0).forEach(x=>{
+      const one=Number(x.fare||0); const round=one*2;
+      const route=String(x.route||"농어촌버스 구간").replace("→","↔");
+      parts.push({type:"rural",route,one,round,text:`${route} 농어촌버스 편도 ${fmt(one)}원 / 왕복 ${fmt(round)}원`});
+    });
+    (result.areaSegments||[]).filter(x=>x.kind==="access"&&Number(x.recommendFare||0)>0).forEach(x=>{
+      const one=Number(x.recommendFare||0); const round=one*2;
+      const km=x.accessDistanceKm!=null?`약 ${Number(x.accessDistanceKm).toFixed(1)}km`:((String(x.note||"").match(/([0-9]+(?:\.[0-9]+)?)km/)||[])[1]?`약 ${(String(x.note||"").match(/([0-9]+(?:\.[0-9]+)?)km/)||[])[1]}km`:"접근거리 확인");
+      parts.push({type:"access",route:`${x.from||"중심지"}↔${x.to||"하위지역"}`,one,round,text:`${x.from||"중심지"}↔${x.to||"하위지역"} 접근비용 ${km} · 카카오 기준 편도 ${fmt(one)}원 / 왕복 ${fmt(round)}원`});
+    });
+    return {total:parts.reduce((s,p)=>s+p.round,0),parts};
+  },[result]);
+
   const accessExtraHint=useMemo(()=>{
     if(!result)return "";
-    if(result.accessExtraHint)return `※ ${result.accessExtraHint}`;
-    const rural=(result.islandLegs||[]).find(x=>x.kind==="rural");
-    if(rural){
-      const route=String(rural.route||"농어촌버스 구간").replace("→","↔");
-      return `※ ${route} 농어촌버스 편도 ${fmt(rural.fare||0)}원 참고, 실제 이용 시 입력`;
+    if(accessAutoSummary.parts.length){
+      return `※ ${accessAutoSummary.parts.map(p=>p.text).join(" / ")} · 추가교통비에 자동 반영`;
     }
+    if(result.accessExtraHint)return `※ ${result.accessExtraHint}`;
     return "※ 농어촌버스·시내버스·터미널 접근비 등 추가 이동비가 있으면 입력";
+  },[result,accessAutoSummary]);
+
+  useEffect(()=>{
+    if(!result||accessExtraFocused.current)return;
+    const total=Number(accessAutoSummary.total||0);
+    setAccessExtraFare(total);
+    setAccessExtraInput(total===0?"":String(total));
+  },[result,accessAutoSummary]);
+
+  const shipAutoSummary=useMemo(()=>{
+    if(!result)return {total:0,parts:[]};
+    const parts=[];
+    (result.islandLegs||[]).filter(x=>x.kind==="ferry"&&Number(x.fare||0)>0).forEach(x=>{
+      const one=Number(x.fare||0); const round=one*2;
+      const route=String(x.route||"여객선·도선 구간").replace("→","↔");
+      parts.push({route,one,round,text:`${route} 여객선·도선 편도 ${fmt(one)}원 / 왕복 ${fmt(round)}원`});
+    });
+    return {total:parts.reduce((s,p)=>s+p.round,0),parts};
   },[result]);
+
+  const shipFareHint=useMemo(()=>{
+    if(!result||!shipAutoSummary.parts.length)return "";
+    return `※ ${shipAutoSummary.parts.map(p=>p.text).join(" / ")} · 기타교통비에 자동 반영`;
+  },[result,shipAutoSummary]);
+
+  useEffect(()=>{
+    if(!result||shipFareFocused.current)return;
+    const total=Number(shipAutoSummary.total||0);
+    setShipFare(total);
+    setShipFareInput(total===0?"":String(total));
+  },[result,shipAutoSummary]);
 
 
   /* 표시 레이어 보정: 계산명/생활권명/접근비용 안내 분리 */
@@ -4304,8 +4604,11 @@ const App=()=>{
     const d=displayEndpointName(dest);
     // 메인 1번 후보는 사용자가 하위노드 후보를 선택해도 항상 기존 대표 산정안 표시를 유지한다.
     // 선택된 하위노드명은 후보 카드와 왼쪽 산정표/오른쪽 여비계산에만 반영한다.
-    const raw=result.routeLabel||`${origin} → ${dest}`;
+    const raw=(result.areaSpecial&&(result.mainRouteLabel||result.landLabel)) || result.mainRouteLabel || result.routeLabel || `${origin} → ${dest}`;
     const rawParts=String(raw).split(/\s*→\s*/).map(x=>x.trim()).filter(Boolean);
+    if(result.areaSpecial&&rawParts.length>=2){
+      return rawParts.map(x=>centerHubDisplayName(x)).filter(Boolean).filter((x,i,a)=>i===0||x!==a[i-1]).join(" → ");
+    }
     const middle=rawParts.slice(1,-1)
       .map(x=>centerHubDisplayName(x))
       .filter(x=>x&&x!==o&&x!==d)
@@ -4359,11 +4662,11 @@ const App=()=>{
   const specialFareNotice=useMemo(()=>{
     if(!result)return "";
     const legs=result.islandLegs||[];
-    const hasRural=!!result.accessExtraEnabled||legs.some(x=>x.kind==="rural");
-    const hasFerry=!!result.isShipOnlyRoute||Number(result.shipCost||0)>0||legs.some(x=>x.kind==="ferry");
-    if(hasRural&&hasFerry)return "농어촌버스·선박 운임 미포함";
-    if(hasRural)return "농어촌버스 운임 미포함";
-    if(hasFerry)return "선박 운임 미포함";
+    const hasRural=legs.some(x=>x.kind==="rural");
+    const hasFerry=legs.some(x=>x.kind==="ferry");
+    if(hasRural&&hasFerry)return "농어촌버스는 추가교통비, 여객선·도선은 기타교통비에 기본 추천값이 자동 반영됩니다.";
+    if(hasRural)return "농어촌버스 기본 추천값이 추가교통비에 자동 반영됩니다.";
+    if(hasFerry)return "여객선·도선 기본 추천값이 기타교통비에 자동 반영됩니다.";
     return "";
   },[result]);
 
@@ -4373,8 +4676,11 @@ const App=()=>{
     const t=String(src||"").trim();
     if(!t)return "NAVER";
     // 화면에는 내부 데이터 키를 노출하지 않고 짧은 출처 태그만 표시한다.
-    if(/area_to_area_fares|manual_fare|manual_override|chat_override_latest|manual|area_graph|area_bridge|routes DB|권역자료|권역 edge|MANUAL|네이버/i.test(t))return "NAVER";
+    if(/routes\.json|routes DB|권역자료|권역 edge/i.test(t))return "요금DB";
+    if(/area_to_area_fares|manual_fare|manual_override|chat_override_latest|manual|area_graph|area_bridge|MANUAL|네이버/i.test(t))return "NAVER";
     if(/JNE2026|전남여비|여비기준|전라남도/i.test(t))return "JNE";
+    if(/kakao|카카오/i.test(t))return "카카오";
+    if(/농어촌버스|여객선|조례|도선|운임/i.test(t))return "조례";
     if(/bustago|버스타고/i.test(t))return "BUSTAGO";
     if(/tmoney|티머니/i.test(t))return "TMONEY";
     if(/kobus|코버스/i.test(t))return "KOBUS";
@@ -4383,6 +4689,7 @@ const App=()=>{
     const v=SRC_LABEL[t]||t;
     if(/네이버/i.test(v))return "NAVER";
     if(/전라남도|여비기준/i.test(v))return "JNE";
+    if(/카카오/i.test(v))return "카카오";
     if(/버스타고/i.test(v))return "BUSTAGO";
     if(/티머니/i.test(v))return "TMONEY";
     if(/코버스/i.test(v))return "KOBUS";
@@ -4436,13 +4743,15 @@ const App=()=>{
   const verticalRouteRows=useMemo(()=>{
     if(!result)return [];
     const rows=[];
-    const push=(from,to,fare,source,note,kind)=>{
+    const push=(from,to,fare,source,note,kind,recommendFare=null,accessDistanceKm=null)=>{
       if(!from&&!to)return;
       rows.push({
         from:terminalNameFor(from,"from",to),
         to:terminalNameFor(to,"to",from),
         rawFrom:from,rawTo:to,
         fare:fare==null?null:Number(fare)||0,
+        recommendFare:recommendFare==null?null:Number(recommendFare)||0,
+        accessDistanceKm:accessDistanceKm==null?null:Number(accessDistanceKm)||0,
         source:formatSourceLabel(source),note:note||"",kind:kind||"bus"
       });
     };
@@ -4480,7 +4789,7 @@ const App=()=>{
         if(clean(a)===destName||clean(b)===clean(info?.hub||"")){[a,b]=[b,a];}
         if(clean(b)!==destName&&info?.hub){a=info.hub;b=dest;}
       }
-      const note=x.kind==="ferry"?"기타교통비 참고 · 실제 이용액 입력":"편도 참고 · 실제 이용 시 추가교통비 입력";
+      const note=x.kind==="ferry"?"기타교통비 참고 · 실제 이용액 입력":"농어촌버스 · 편도 1,000원 / 왕복 2,000원 참고 · 실제 이용 시 추가교통비 입력";
       push(a||origin,b||dest,x.fare,x.source||x.kind,note,x.kind);
     };
 
@@ -4501,14 +4810,14 @@ const App=()=>{
       const subNote=selSub.sameLiving?"동일생활권 간주 0원 선택":"선택한 인근 터미널 직통";
       push(selSub.depName||origin,selSub.arrName||dest,selSub.gen,(selSub.sources||[])[0]||"네이버지도 검증요금",subNote,"bus");
     }else if(result.areaSegments?.length){
-      result.areaSegments.forEach(seg=>push(seg.from,seg.to,seg.gen,seg.sourceLabel||seg.source||"네이버지도 검증요금",seg.note,"bus"));
+      result.areaSegments.forEach(seg=>push(seg.from,seg.to,seg.gen,seg.sourceLabel||seg.source||"네이버지도 검증요금",seg.note,seg.kind||"bus",seg.recommendFare,seg.accessDistanceKm));
     }else if(result.multiHop?.segs?.length){
       result.multiHop.segs.forEach(seg=>push(seg.depName||seg.from,seg.arrName||seg.to,seg.gen,(seg.sources||[])[0]||seg.sourceLabel,seg.note,"bus"));
     }else if(result.seg1&&result.seg2){
       push(result.seg1.depName||result.seg1.from,result.seg1.arrName||result.seg1.to,result.seg1.gen,(result.seg1.sources||[])[0],result.seg1.note,"bus");
       push(result.seg2.depName||result.seg2.from,result.seg2.arrName||result.seg2.to,result.seg2.gen,(result.seg2.sources||[])[0],result.seg2.note,"bus");
     }else{
-      const parts=String(result.routeLabel||displayRouteLabel||`${origin} → ${dest}`).split(/\s*→\s*/).map(x=>x.trim()).filter(Boolean);
+      const parts=String(result.mainRouteLabel||result.landLabel||result.routeLabel||displayRouteLabel||`${origin} → ${dest}`).split(/\s*→\s*/).map(x=>x.trim()).filter(Boolean);
       if(parts.length>=2){
         const fare=result.needsManualFare?null:(selSub?.gen??result.gen);
         push(parts[0],parts[parts.length-1],fare,(result.sources||[])[0]||"네이버지도 검증요금",result.areaMethod||"대표 구간 산정","bus");
@@ -4532,7 +4841,7 @@ const App=()=>{
     destIslandLegs.forEach(x=>pushIslandLeg(x,"dest"));
     otherIslandLegs.forEach(x=>{
       const [a,b]=parseLeg(x);
-      const note=x.kind==="ferry"?"기타교통비 참고 · 실제 이용액 입력":"편도 참고 · 실제 이용 시 추가교통비 입력";
+      const note=x.kind==="ferry"?"기타교통비 참고 · 실제 이용액 입력":"농어촌버스 · 편도 1,000원 / 왕복 2,000원 참고 · 실제 이용 시 추가교통비 입력";
       push(a||origin,b||dest,x.fare,x.source||x.kind,note,x.kind);
     });
 
@@ -4547,6 +4856,14 @@ const App=()=>{
     const areaId=String(detailAreaInfo?.resolved?.areaId||"");
     const isJeonnamGeneral=areaId.startsWith("jg_");
     const ruralOrFerry=rows.find(r=>r.kind==="rural"||r.kind==="ferry"||/농어촌|여객선|기타교통비|조례/i.test(String(r.note||""))||String(r.source||"")==="조례");
+    const accessRow=rows.find(r=>r.kind==="access"||r.recommendFare!=null);
+
+    if(accessRow){
+      const one=Number(accessRow.recommendFare||0);
+      const fareText=one?` 카카오 기준 편도 ${fmt(one)}원 / 왕복 ${fmt(one*2)}원` : " 카카오 기준 추천값 없음";
+      const km=accessRow.accessDistanceKm!=null?`접근거리 약 ${Number(accessRow.accessDistanceKm).toFixed(1)}km · `:"";
+      out.push({icon:"↳",head:/관내/.test(String(accessRow.note||""))?"관내·접근비용":"접근비용 안내",body:`${accessRow.from} → ${accessRow.to} ${km}${fareText}. 왕복 추천값은 추가교통비에 자동 반영되며, 실제 이용액에 맞게 수정할 수 있습니다.`});
+    }
 
     if(selSub?.sameLiving){
       out.push({icon:"◎",head:"동일생활권 간주",body:"남악·일로·오룡은 목포 생활권으로 보아 동일생활권 0원 후보로 선택할 수 있습니다."});
@@ -4570,26 +4887,51 @@ const App=()=>{
           ? "추가교통비[왕복]"
           : "기타교통비[왕복]";
       const extraNote=/선박/.test(specialFareNotice)?" 실제 승선항·노선에 따라 금액이 달라질 수 있습니다.":"";
-      out.push({icon:"!",head:"미포함 운임 안내",body:`${specialFareNotice} · 실제 이용 시 여비계산창의 ${targetInput}에 직접 입력합니다.${extraNote}`});
+      out.push({icon:"!",head:"특수교통비 자동 반영",body:`${specialFareNotice} 필요 시 여비계산창의 ${targetInput}에서 수정할 수 있습니다.${extraNote}`});
     }
 
     if(ruralOrFerry){
       const isFerry=ruralOrFerry.kind==="ferry"||/여객선|도선|기타교통비/i.test(String(ruralOrFerry.note||""));
-      const targetInput=isFerry?"기타교통비":"추가 교통비";
-      const fareText=ruralOrFerry.fare!=null?` ${fmt(ruralOrFerry.fare)}원 참고`:"";
-      out.push({icon:"⚓",head:"조례·특수 안내",body:`${ruralOrFerry.from} → ${ruralOrFerry.to}${fareText} · 실제 이용 시 ${targetInput}에 입력합니다.`});
+      const targetInput=isFerry?"기타교통비":"추가교통비";
+      const one=Number(ruralOrFerry.fare||0);
+      const fareText=one?` 편도 ${fmt(one)}원 / 왕복 ${fmt(one*2)}원 참고`:"";
+      const head=isFerry?"조례·특수 안내":"농어촌버스 안내";
+      out.push({icon:"⚓",head,body:`${ruralOrFerry.from} → ${ruralOrFerry.to}${fareText} · 왕복 추천값은 ${targetInput}에 자동 반영됩니다.`});
     }else if(!externalSubDetailInfo&&displaySupportNote&&!isJeonnamGeneral){
       out.push({icon:"※",head:"산정 보조 설명",body:String(displaySupportNote).replace(/^\*\s*/,"")});
     }
 
     if((result?.islandRouteLabel||result?.isShipOnlyRoute||result?.shipCost>0)&&!out.some(x=>x.head==="조례·특수 안내")){
-      out.push({icon:"⚓",head:"조례·특수 안내",body:"신안·완도 등 섬지역은 여객선·도선 비용을 기타교통비에 별도 입력합니다. 예: 신안군 여객선 운영 및 지원 조례"});
+      out.push({icon:"⚓",head:"조례·특수 안내",body:"신안·완도 등 섬지역은 여객선·도선 왕복 추천값을 기타교통비에 자동 반영합니다. 실제 승선 운임에 맞게 수정할 수 있습니다."});
     }
     if(!out.length){
       out.push({icon:"i",head:"산정 기준",body:"위 구간요금은 선택한 터미널 기준 참고금액이며, 실제 예매 시 금액과 다를 수 있습니다."});
     }
-    return out.slice(0,3);
+    return out.slice(0,4);
   },[destLivingAreaLabel,detailAreaInfo,displaySupportNote,result,terminalNameFor,compactPlaceName,selSub,externalSubDetailInfo,specialFareNotice]);
+
+  const routeFareText=useCallback((r)=>{
+    if(r.kind==="rural")return "농어촌버스";
+    if(r.kind==="ferry")return "여객선조례";
+    if(r.kind==="access")return "접근비용";
+    if(r.recommendFare!=null)return "접근비용";
+    if(r.fare==null)return "수기확인";
+    return `${fmt(r.fare)}원`;
+  },[]);
+
+  const routeInlineText=useCallback((r)=>{
+    const note=String(r.note||"");
+    if(r.kind==="access"||r.recommendFare!=null){
+      const km=r.accessDistanceKm!=null?`약 ${Number(r.accessDistanceKm).toFixed(1)}km`:((note.match(/([0-9]+(?:\.[0-9]+)?)km/)||[])[1]?`약 ${(note.match(/([0-9]+(?:\.[0-9]+)?)km/)||[])[1]}km`:"");
+      return [(/관내/.test(note)?"관내·접근비용":"접근비용"),km].filter(Boolean).join(" · ");
+    }
+    if(r.kind==="rural")return "추가교통비";
+    if(r.kind==="ferry")return "기타교통비";
+    if(/접근/i.test(note))return "접근비용";
+    if(/농어촌/i.test(note))return "추가교통비";
+    if(/여객선|기타|조례/i.test(note))return "기타교통비";
+    return note?"산정근거":"";
+  },[]);
 
   const VerticalRouteTable=()=>{
     if(!result)return(
@@ -4617,9 +4959,9 @@ const App=()=>{
             </div>
             {rows.map((r,i)=>(
               <React.Fragment key={i}>
-                <div className="vroute-edge">
-                  <span className={`vroute-fare ${r.fare==null?"warn":""}`}>{r.fare==null?"수기확인":`${fmt(r.fare)}원`}</span>
-                  <span className="vroute-meta"><span className={`vroute-src-tag tag-${String(r.source||"").toLowerCase()}`}>{r.source}</span>{r.note&&<span className="vroute-note-inline">{/접근/i.test(r.note)?"접근비용":r.kind==="rural"?"추가교통비":r.kind==="ferry"?"기타교통비":/농어촌/i.test(r.note)?"추가교통비":/여객선|기타|조례/i.test(r.note)?"기타교통비":"산정근거"}</span>}</span>
+                <div className={`vroute-edge ${["access","local"].includes(r.kind)?"dotted":""}`}>
+                  <span className={`vroute-fare ${["rural","ferry","access"].includes(r.kind)||r.recommendFare!=null?"access":(r.fare==null?"warn":"")}`}>{routeFareText(r)}</span>
+                  <span className="vroute-meta"><span className={`vroute-src-tag tag-${String(r.source||"").toLowerCase()}`}>{r.source}</span>{routeInlineText(r)&&<span className="vroute-note-inline">{routeInlineText(r)}</span>}</span>
                 </div>
                 <div className={`vroute-node ${i===rows.length-1?"dest":""}`}>
                   <div className="vroute-dot"/>
@@ -4639,7 +4981,7 @@ const App=()=>{
           ))}
         </div>
         <div className="vroute-source-legend">
-          {["JNE","NAVER","BUSTAGO","KOBUS","TMONEY","조례"].map((x,i)=><span key={x} className="vroute-legend-chip"><span className="vroute-legend-dot" style={{background:["#007AFF","#7C3AED","#F59E0B","#10B981","#06B6D4","#6B7280"][i]}}/>{x}</span>)}
+          {["JNE","NAVER","BUSTAGO","KOBUS","TMONEY","카카오","조례"].map((x,i)=><span key={x} className="vroute-legend-chip"><span className="vroute-legend-dot" style={{background:["#007AFF","#7C3AED","#F59E0B","#10B981","#06B6D4","#8B5CF6","#6B7280"][i]}}/>{x}</span>)}
         </div>
       </div>
     );
@@ -4804,6 +5146,9 @@ const App=()=>{
           </div>
         </div>
 
+        {/* 모바일 마스코트 단독 표시 */}
+        {(()=>{const dmn=nz(dest)||nz(origin)||initialMascot;const entry=dmn&&mascotMap?getMascotEntry(mascotMap,dmn):null;return dmn&&entry?(<div className="mobile-mascot-area"><div className="mobile-mascot-circle"><img key={dmn} src={entry.image} alt={entry.alt||dmn} loading="lazy"/></div></div>):null;})()}
+
         {/* 결과 */}
         <div className="result-wrap">
           {result&&(
@@ -4888,6 +5233,10 @@ const App=()=>{
         )}
         {/* 가운데 하단 버튼 바 (PC) */}
         <div className="bottom-action-bar desktop-only">
+          <button className="action-btn" onClick={()=>window.open('https://padlet.com/jbyhee/hyonu-s-padlet-4m26339lwedx23dc','_blank')} title="피드백 남기기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            <span className="tooltip">피드백 남기기</span>
+          </button>
           <button className="action-btn" onClick={resetToMainKeepOrigin}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span className="tooltip">도착지 초기화 (출발지 유지)</span>
@@ -4917,30 +5266,20 @@ const App=()=>{
 
         {/* 모바일 하단 내비 바 */}
         {!mobileDetailOpen&&<nav className="mobile-bottom-nav">
-          {/* 홈 (출발지 남기고 초기화) */}
-          <div className="mnav-home" onClick={resetToMainKeepOrigin}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(0,122,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          {/* 홈 */}
+          <div className="mnav-home-wrap" onClick={resetToMainKeepOrigin}>
+            <div className="mnav-home">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span className="mnav-label">홈</span>
           </div>
-          {/* 히스토리 */}
-          <div style={{position:"relative"}}>
-            <button className="mnav-btn" onClick={()=>setShowHist(v=>!v)}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={showHist?"var(--blue)":"#ADB5BD"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-            </button>
-            {showHist&&(
-              <div className="mnav-hist-popup" onClick={e=>e.stopPropagation()}>
-                <div style={{fontSize:10,fontWeight:800,color:"#AEAEB2",padding:"4px 14px 6px",borderBottom:"1px solid rgba(0,0,0,0.05)"}}>최근 검색</div>
-                {history.length===0
-                  ?<div style={{padding:"12px 16px",textAlign:"center",fontSize:12,color:"#AEAEB2",fontWeight:700}}>기록이 없습니다</div>
-                  :history.slice(0,5).map((h,i)=>(
-                    <div key={i} className="hist-item" onClick={()=>{setOrigin(h.from);setDest(h.to);setShowHist(false);performCalc(h.from,h.to);}}>
-                      <span style={{color:"#374151",fontSize:12}}>{h.from} <span style={{color:"#C7C7CC"}}>→</span> {h.to}</span>
-                      <span style={{color:"var(--blue)",fontFamily:"var(--gm)",fontSize:11,marginLeft:8,fontWeight:800}}>{(h.gen||0).toLocaleString()}원</span>
-                    </div>
-                  ))
-                }
-              </div>
-            )}
-          </div>
+          {/* 피드백 */}
+          <button className="mnav-feedback" onClick={()=>window.open('https://padlet.com/jbyhee/hyonu-s-padlet-4m26339lwedx23dc','_blank')}>
+            <div className="mnav-feedback-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span className="mnav-label">피드백</span>
+          </button>
           {/* 여비계산 */}
           <button className="mnav-calc" disabled={!result} onClick={()=>{if(result)setShowDetail(true);}}>
             📋 여비계산
@@ -5232,6 +5571,7 @@ const App=()=>{
                   placeholder="0"/>
                 <span style={{fontSize:16,fontWeight:700}}>원</span>
               </div>
+              {shipFareHint&&<div style={{fontSize:9,color:"#6B7280",fontWeight:700,marginTop:2,lineHeight:1.35,textAlign:"right"}}>{shipFareHint}</div>}
             </div>
           )}
         </div>
@@ -5240,7 +5580,7 @@ const App=()=>{
           <span style={{fontWeight:900,fontSize:20}}>합계</span>
           <span style={{fontFamily:"var(--gm)",fontSize:24,fontWeight:900,color:"var(--blue)"}}>{fmt(detailCost.total)}<span style={{fontSize:13,marginLeft:2}}>원</span></span>
         </div>
-        <button onClick={closeTravelCalcOnMobile} className="confirm-btn">닫기</button>
+
       </div>
     );
   }
