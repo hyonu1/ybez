@@ -1367,12 +1367,14 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .ac-input-wrap .input-box{height:50px;border-radius:12px;padding:0 8px 0 10px;gap:6px;}
   .ac-input-wrap .input-label{display:none !important;}
   .ac-input-wrap .input-field{font-size:17px;}
-  .ac-input-wrap .sug-box{min-width:200px;}
+  .ac-input-wrap .sug-box{width:100% !important;min-width:0 !important;max-width:100% !important;left:0 !important;right:0 !important;}
+  .ac-input-wrap .sug-item{justify-content:flex-start !important;padding:12px 14px !important;}
+  .ac-input-wrap .sug-mascot-img{display:none !important;}
   .swap-btn{display:flex;}
   .status-bar{display:none;}
   .via-row-actions{padding-right:0;gap:6px;}
   .via-add-btn{height:30px;border-radius:10px;background:#FAFAFA;color:#9C8A72;border-color:#E0D4C5;font-size:12px;}
-  .via-swap-btn{width:34px;height:30px;border-radius:10px;}
+  .via-swap-btn{display:none !important;}
 
   /* 메인요금 카드: 좌측 요금 50% + 우측 마스코트 50% */
   .mobile-result-card{display:block;padding:0 13px 6px;}
@@ -1382,12 +1384,14 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .mobile-rc-placeholder{color:#C7B99A;font-size:12px;line-height:1.55;display:flex;align-items:center;justify-content:center;text-align:center;min-height:116px;}
   .mobile-rc-title{font-size:14px;font-weight:900;color:#1C1C1E;margin-bottom:5px;font-family:var(--gm);line-height:1.22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .mobile-rc-via{display:inline-flex;align-items:center;max-width:100%;padding:3px 7px;border-radius:8px;background:#FAF6EE;border:1px solid #EDE0CC;color:#8B7357;font-size:10px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:7px;}
-  .mobile-rc-summary-fare{display:flex;align-items:baseline;gap:6px;min-width:0;}
+  .mobile-rc-fare-block{display:inline-flex;flex-direction:column;align-items:flex-end;align-self:flex-start;max-width:100%;}
+  .mobile-rc-summary-fare{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;min-width:0;max-width:100%;}
   .mobile-rc-oneway-num{font-size:26px;font-weight:950;color:#C97D20;font-family:var(--gm);letter-spacing:-.8px;line-height:1;white-space:nowrap;}
   .mobile-rc-tag-oneway{display:inline-flex;align-items:center;justify-content:center;border-radius:7px;padding:3px 7px;font-size:11px;font-weight:900;font-family:var(--gm);background:#FEF6E8;color:#C97D20;border:1px solid rgba(201,125,32,.22);white-space:nowrap;}
-  .mobile-rc-round{margin-top:4px;display:flex;align-items:center;gap:5px;color:#8E8E93;font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap;}
+  .mobile-rc-round{margin-top:4px;display:flex;align-items:baseline;justify-content:flex-end;gap:6px;color:#8E8E93;font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap;text-align:right;}
   .mobile-rc-round-num{font-size:12px;color:#737373;font-weight:900;}
-  .mobile-rc-tag-round{display:inline-flex;align-items:center;justify-content:center;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:900;font-family:var(--gm);background:#F3F3F4;color:#777;border:1px solid #E5E5EA;}
+  .mobile-rc-tag-round{display:inline-flex;align-items:center;justify-content:center;min-width:38px;border-radius:7px;padding:3px 7px;font-size:10px;font-weight:900;font-family:var(--gm);background:#F3F3F4;color:#777;border:1px solid #E5E5EA;white-space:nowrap;}
+  .mobile-rc-tag-oneway{min-width:38px;}
   .mobile-rc-src{display:inline-flex;margin-top:6px;align-self:flex-start;font-size:9px;background:#FEF6E8;color:#C97D20;border:0.5px solid #E8C88A;padding:2px 6px;border-radius:5px;font-weight:800;line-height:1;}
 
   /* 마스코트 50% 영역: 기존 이미지 사용, 1:1 유지 */
@@ -2326,27 +2330,34 @@ const App=()=>{
   useEffect(()=>{
     if(!mascotMap||storyMode)return;
     const hasEntry=(name)=>!!getMascotEntry(mascotMap,name);
-    const sinanKeys=Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="목포"&&hasEntry(k));
-    const wandoKeys=Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="완도"&&hasEntry(k));
+    const sinanKeys=[...new Set(["신안",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="목포")])].filter(hasEntry);
+    const wandoKeys=[...new Set(["완도",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="완도")])].filter(hasEntry);
     const r=Math.random();
     if(r<0.4&&sinanKeys.length>0){
       setStoryMode("sinan");setStoryKeys(sinanKeys);setStoryIdx(0);
     }else if(r<0.8&&wandoKeys.length>0){
       setStoryMode("wando");setStoryKeys(wandoKeys);setStoryIdx(0);
     }else{
-      setStoryMode("random");
       const allKeys=Object.keys(mascotMap.by_area_id||{});
-      if(allKeys.length)setInitialMascot(allKeys[Math.floor(Math.random()*allKeys.length)]);
+      setStoryMode("random");
+      setStoryKeys(allKeys);
+      if(allKeys.length){
+        const start=Math.floor(Math.random()*allKeys.length);
+        setStoryIdx(start);
+        setInitialMascot(allKeys[start]);
+      }
     }
   },[mascotMap]);
 
-  /* 스토리 모드 타이머: idle(origin 없음)일 때만 순환 */
+  /* 스토리 모드 타이머: 모바일 마스코트 순환 */
   useEffect(()=>{
     if(storyTimerRef.current){clearInterval(storyTimerRef.current);storyTimerRef.current=null;}
-    if(storyMode==="random"||storyKeys.length<=1||nz(origin))return;
-    storyTimerRef.current=setInterval(()=>setStoryIdx(i=>(i+1)%storyKeys.length),3600);
+    const activeName=nz(dest)||nz(origin);
+    const isIslandStory=activeName&&(activeName==="신안"||activeName==="완도"||ISLAND_DB[activeName]?.hub==="목포"||ISLAND_DB[activeName]?.hub==="완도");
+    if(storyKeys.length<=1&&!isIslandStory)return;
+    storyTimerRef.current=setInterval(()=>setStoryIdx(i=>i+1),3600);
     return()=>{clearInterval(storyTimerRef.current);storyTimerRef.current=null;};
-  },[storyMode,storyKeys,origin]);
+  },[storyMode,storyKeys,origin,dest]);
 
   /* ── 접근비용 추천표 로드: 실패해도 핵심 요금 산정은 계속 동작 ── */
   useEffect(()=>{
@@ -5135,7 +5146,18 @@ const App=()=>{
   /* ── 모바일 결과 카드 컴포넌트: 기존틀 유지, 내부만 50:50 요약형 ── */
   const MobileResultCard=(()=>{
     const rows=verticalRouteRows;
-    const dmn=nz(dest)||nz(origin)||(storyMode==="random"?initialMascot:(storyKeys[storyIdx]||initialMascot));
+    const activeName=nz(dest)||nz(origin);
+    const hasMascotEntry=(name)=>!!getMascotEntry(mascotMap,name);
+    const sinanStoryKeys=[...new Set(["신안",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="목포")])].filter(hasMascotEntry);
+    const wandoStoryKeys=[...new Set(["완도",...Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="완도")])].filter(hasMascotEntry);
+    const activeStoryKeys=activeName&&(activeName==="신안"||ISLAND_DB[activeName]?.hub==="목포")
+      ? sinanStoryKeys
+      : activeName&&(activeName==="완도"||ISLAND_DB[activeName]?.hub==="완도")
+        ? wandoStoryKeys
+        : null;
+    const dmn=activeStoryKeys?.length
+      ? activeStoryKeys[storyIdx%activeStoryKeys.length]
+      : (activeName||(storyKeys.length?storyKeys[storyIdx%storyKeys.length]:initialMascot));
     const fare=result&&!result.needsManualFare?selectedFare:null;
     const srcLabel=(()=>{const s=result?.sources?.[0];return s?formatSourceLabel(s):null;})();
     const summaryTitle=result?`${displayCityName(nz(origin))||nz(origin)} → ${displayCityName(nz(dest))||nz(dest)}`:"";
@@ -5152,15 +5174,18 @@ const App=()=>{
                 <>
                   <div className="mobile-rc-title">{summaryTitle}</div>
                   {viaText&&<div className="mobile-rc-via">{viaText}</div>}
-                  <div className="mobile-rc-summary-fare">
-                    <span className="mobile-rc-oneway-num">{fare==null?"수기확인":`${fmt(fare)}원`}</span>
-                    <span className="mobile-rc-tag-oneway">편도</span>
-                  </div>
-                  {fare!=null&&(
-                    <div className="mobile-rc-round">
-                      <span>왕복</span><span className="mobile-rc-round-num">{fmt(fare*2)}원</span><span className="mobile-rc-tag-round">왕복</span>
+                  <div className="mobile-rc-fare-block">
+                    <div className="mobile-rc-summary-fare">
+                      <span className="mobile-rc-oneway-num">{fare==null?"수기확인":`${fmt(fare)}원`}</span>
+                      <span className="mobile-rc-tag-oneway">편도</span>
                     </div>
-                  )}
+                    {fare!=null&&(
+                      <div className="mobile-rc-round">
+                        <span className="mobile-rc-round-num">{fmt(fare*2)}원</span>
+                        <span className="mobile-rc-tag-round">왕복</span>
+                      </div>
+                    )}
+                  </div>
                   {srcLabel&&<span className="mobile-rc-src">{srcLabel}</span>}
                 </>
               )}
@@ -5372,7 +5397,7 @@ const App=()=>{
                 onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList} mascotMap={mascotMap}/>
             </div>
             <button className="swap-btn" onClick={handleSwap} title="출발지↔도착지 교환">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10m0 0-4-4m4 4-4 4"/><path d="M17 17H7m0 0 4-4m-4 4 4 4"/></svg>
             </button>
             <div className="ac-input-wrap">
               <AcInput label="" placeholder="도착지" value={dest}
@@ -5388,7 +5413,7 @@ const App=()=>{
                 + 경유지 추가
               </button>
               <button className="via-swap-btn" onClick={handleSwap} title="출발지↔도착지 교환" aria-label="출발지와 도착지 교환">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10m0 0-4-4m4 4-4 4"/><path d="M17 17H7m0 0 4-4m-4 4 4 4"/></svg>
               </button>
             </div>
           ):(
