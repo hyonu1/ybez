@@ -1304,6 +1304,37 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .mnav-feedback-circle:active,.mnav-feedback:active .mnav-feedback-circle{transform:scale(0.92);box-shadow:0 2px 8px rgba(201,125,32,0.2);}
   .mobile-bottom-nav{height:70px;padding:0 16px;padding-bottom:env(safe-area-inset-bottom,0px);}
 }
+
+/* ══ 모바일 가로 검색창 ══ */
+@media(max-width:699px){
+  .search-wrap{flex-direction:row !important;align-items:center !important;gap:0 !important;padding:10px 12px 6px !important;}
+  .ac-input-wrap{flex:1;min-width:0;}
+  .ac-input-wrap .input-box{height:52px !important;border-radius:14px !important;padding:0 8px 0 10px !important;gap:6px !important;}
+  .ac-input-wrap .input-field{font-size:17px !important;letter-spacing:-0.3px;}
+  .ac-input-wrap .input-label{font-size:9px !important;letter-spacing:0 !important;margin-bottom:0;}
+  .ac-input-wrap .mascot-badge{display:none !important;}
+  .ac-input-wrap .sug-box{min-width:220px;left:0 !important;right:auto !important;}
+  .ac-input-wrap svg[viewBox="0 0 24 24"]:first-of-type{width:16px !important;height:16px !important;}
+  /* 경유지·상태바는 별도 행 유지 */
+  .search-via-row,.status-bar{width:100% !important;}
+}
+/* 스왑 버튼 */
+.swap-btn{width:34px;height:34px;border-radius:50%;background:#FFFDF7;border:1.5px solid rgba(201,125,32,0.25);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin:0 5px;box-shadow:0 2px 6px rgba(0,0,0,0.07);transition:transform .28s;-webkit-tap-highlight-color:transparent;}
+.swap-btn:active{transform:rotate(180deg) scale(0.92);background:#FEF6E8;}
+@media(min-width:700px){.swap-btn{display:none !important;}}
+
+/* ══ 모바일 인라인 산정 섹션 ══ */
+.mobile-inline-result{display:none;}
+@media(max-width:699px){
+  .mobile-inline-result{display:block;padding:0 14px 100px;}
+  .mobile-inline-result .vertical-route-card{margin:8px 0 6px;}
+  /* 세부 산정 근거 접기 버튼 */
+  .mobile-detail-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:12px;border:1px solid rgba(201,125,32,0.18);background:#FEF9F0;cursor:pointer;font-family:var(--gm);font-size:13px;font-weight:800;color:#9C8A72;margin-bottom:4px;-webkit-tap-highlight-color:transparent;}
+  .mobile-detail-toggle:active{background:#FEF3DC;}
+}
+
+@media(max-width:699px){.mobile-info-hidden{display:none !important;}}
+@media(min-width:700px){.mobile-detail-toggle{display:none !important;}.mobile-info-hidden{display:block !important;}}
 </style>
 </head>
 <body>
@@ -1971,6 +2002,11 @@ const App=()=>{
   const [areaGraph,setAreaGraph]=useState(null);
   const [mascotMap,setMascotMap]=useState(null);
   const [initialMascot,setInitialMascot]=useState(null);
+  const [storyMode,setStoryMode]=useState(null); // 'sinan'|'wando'|'random'
+  const [storyKeys,setStoryKeys]=useState([]);
+  const [storyIdx,setStoryIdx]=useState(0);
+  const storyTimerRef=useRef(null);
+  const [showMobileInfo,setShowMobileInfo]=useState(false);
   const [accessFareTable,setAccessFareTable]=useState(null);
   const [loaded,setLoaded]=useState(false);
   const [dataErr,setDataErr]=useState("");
@@ -2043,6 +2079,13 @@ const App=()=>{
   const [ded,setDed]=useState({gov_vehicle:false,meal_1:false,meal_2:false,meal_3:false,meal_half:false,transport_proof:false,transport_gov_vehicle:false,transport_passenger:false});
   const [intraDed,setIntraDed]=useState({shortTime:false,govVehicle:false});
   const resetDed=()=>setDed({gov_vehicle:false,meal_1:false,meal_2:false,meal_3:false,meal_half:false,transport_proof:false,transport_gov_vehicle:false,transport_passenger:false});
+
+  const handleSwap=useCallback(()=>{
+    const o=nz(origin),d=nz(dest);
+    if(!o&&!d)return;
+    setOrigin(d);setDest(o);
+    if(o||d)performCalc(d,o,nz(via));
+  },[origin,dest,via,performCalc]);
 
   const resetToMainKeepOrigin=useCallback(()=>{
     setMobileDetailOpen(false);
@@ -2169,12 +2212,31 @@ const App=()=>{
     loadMascot();
   },[]);
 
-  /* 초기 랜덤 마스코트: mascotMap 로드 후 1회 선택 */
+  /* 스토리 모드 초기화: mascotMap 로드 후 sinan/wando/random 결정 */
   useEffect(()=>{
-    if(!mascotMap||initialMascot)return;
-    const keys=Object.keys(mascotMap.by_area_id||{});
-    if(keys.length)setInitialMascot(keys[Math.floor(Math.random()*keys.length)]);
+    if(!mascotMap||storyMode)return;
+    const hasEntry=(name)=>!!getMascotEntry(mascotMap,name);
+    const sinanKeys=Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="목포"&&hasEntry(k));
+    const wandoKeys=Object.keys(ISLAND_DB).filter(k=>ISLAND_DB[k].hub==="완도"&&hasEntry(k));
+    const r=Math.random();
+    if(r<0.4&&sinanKeys.length>0){
+      setStoryMode("sinan");setStoryKeys(sinanKeys);setStoryIdx(0);
+    }else if(r<0.8&&wandoKeys.length>0){
+      setStoryMode("wando");setStoryKeys(wandoKeys);setStoryIdx(0);
+    }else{
+      setStoryMode("random");
+      const allKeys=Object.keys(mascotMap.by_area_id||{});
+      if(allKeys.length)setInitialMascot(allKeys[Math.floor(Math.random()*allKeys.length)]);
+    }
   },[mascotMap]);
+
+  /* 스토리 모드 타이머: idle(origin 없음)일 때만 순환 */
+  useEffect(()=>{
+    if(storyTimerRef.current){clearInterval(storyTimerRef.current);storyTimerRef.current=null;}
+    if(storyMode==="random"||storyKeys.length<=1||nz(origin))return;
+    storyTimerRef.current=setInterval(()=>setStoryIdx(i=>(i+1)%storyKeys.length),2500);
+    return()=>{clearInterval(storyTimerRef.current);storyTimerRef.current=null;};
+  },[storyMode,storyKeys,origin]);
 
   /* ── 접근비용 추천표 로드: 실패해도 핵심 요금 산정은 계속 동작 ── */
   useEffect(()=>{
@@ -4630,7 +4692,7 @@ const App=()=>{
     if(!key||mobileAutoOpenedKeyRef.current===key)return;
     mobileAutoOpenedKeyRef.current=key;
     setShowDetail(false);
-    setMobileDetailOpen(true);
+    // setMobileDetailOpen(true); // 인라인 레이아웃으로 전환 — 바텀시트 비활성화
   },[result,origin,dest,via,displayRouteLabel,modalSt.type]);
 
   const displaySupportNote=useMemo(()=>{
@@ -4971,15 +5033,20 @@ const App=()=>{
             ))}
           </div>
         </div>
-        <div className="vroute-detail">
-          <div className="vroute-detail-title">세부 산정 근거</div>
-          {detailRows.map((d,i)=>(
-            <div className="vroute-detail-row" key={i}>
-              <div className="vroute-detail-ico">{d.icon}</div>
-              <div><div className="vroute-detail-head">{d.head}</div><div className="vroute-detail-body">{d.body}</div></div>
-            </div>
-          ))}
-        </div>
+        {detailRows.length>0&&(<>
+          <button className="mobile-detail-toggle" onClick={()=>setShowMobileInfo(v=>!v)}>
+            <span>세부 산정 근거</span><span>{showMobileInfo?"▲":"▼"}</span>
+          </button>
+          <div className={`vroute-detail${showMobileInfo?"":" mobile-info-hidden"}`}>
+            <div className="vroute-detail-title">세부 산정 근거</div>
+            {detailRows.map((d,i)=>(
+              <div className="vroute-detail-row" key={i}>
+                <div className="vroute-detail-ico">{d.icon}</div>
+                <div><div className="vroute-detail-head">{d.head}</div><div className="vroute-detail-body">{d.body}</div></div>
+              </div>
+            ))}
+          </div>
+        </>)}
         <div className="vroute-source-legend">
           {["JNE","NAVER","BUSTAGO","KOBUS","TMONEY","카카오","조례"].map((x,i)=><span key={x} className="vroute-legend-chip"><span className="vroute-legend-dot" style={{background:["#007AFF","#7C3AED","#F59E0B","#10B981","#06B6D4","#8B5CF6","#6B7280"][i]}}/>{x}</span>)}
         </div>
@@ -5027,6 +5094,7 @@ const App=()=>{
   };
 
   const MobileDetailSheet=()=>{
+    return null; // 인라인 레이아웃으로 전환 — 바텀시트 비활성화
     if(!mobileDetailOpen||!result||modalSt.type)return null;
     const fare=result.needsManualFare?null:selectedFare;
     const hasChoices=!(nz(via)||result.via)&&!!((subResults?.specialSubs?.length||0)+(subResults?.depSubs?.length||0)+(subResults?.arrSubs?.length||0));
@@ -5110,12 +5178,21 @@ const App=()=>{
 
         {/* 검색 입력 */}
         <div className="search-wrap" style={{display:"flex",flexDirection:"column",gap:8}}>
-          <AcInput label="출발지" placeholder="출발지" value={origin}
-            onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList} mascotMap={mascotMap}/>
-          <AcInput label="도착지" placeholder="도착지" value={dest}
-            onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList} mascotMap={mascotMap}/>
+          {/* 출발지 | 스왑 | 도착지 — 모바일에서 가로 한 줄 */}
+          <div className="ac-input-wrap">
+            <AcInput label="출발지" placeholder="출발지" value={origin}
+              onChange={v=>setOrigin(v)} onSelect={c=>{setOrigin(c);performCalc(c,dest,via);}} list={cityList} mascotMap={mascotMap}/>
+          </div>
+          <button className="swap-btn" onClick={handleSwap} title="출발지↔도착지 교환">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(201,125,32,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+          </button>
+          <div className="ac-input-wrap">
+            <AcInput label="도착지" placeholder="도착지" value={dest}
+              onChange={v=>setDest(v)} onSelect={c=>{setDest(c);performCalc(origin,c,via);}} list={cityList} mascotMap={mascotMap}/>
+          </div>
 
-          {/* 경유지는 자동완성 선택창과 겹치지 않도록 도착지 아래쪽에 배치 */}
+          {/* 경유지 (별도 행) */}
+          <div className="search-via-row" style={{width:"100%"}}>
           {!showVia?(
             <div style={{display:"flex",justifyContent:"flex-end",marginTop:-2,marginBottom:2}}>
               <button onClick={()=>setShowVia(true)}
@@ -5135,6 +5212,7 @@ const App=()=>{
                 style={{flexShrink:0,width:28,height:28,borderRadius:8,border:"1px solid #E0E0E0",background:"#F5F5F5",color:"#8E8E93",fontSize:14,fontWeight:700,cursor:"pointer",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
             </div>
           )}
+          </div>
 
           {/* 상태바 */}
           <div className={`status-bar ${calcSt==="done"?"sb-done":"sb-idle"}`}>
@@ -5147,7 +5225,11 @@ const App=()=>{
         </div>
 
         {/* 모바일 마스코트 단독 표시 */}
-        {(()=>{const dmn=nz(dest)||nz(origin)||initialMascot;const entry=dmn&&mascotMap?getMascotEntry(mascotMap,dmn):null;return dmn&&entry?(<div className="mobile-mascot-area"><div className="mobile-mascot-circle"><img key={dmn} src={entry.image} alt={entry.alt||dmn} loading="lazy"/></div></div>):null;})()}
+        {(()=>{
+  const dmn=nz(dest)||nz(origin)||(storyMode==="random"?initialMascot:(storyKeys[storyIdx]||initialMascot));
+  const entry=dmn&&mascotMap?getMascotEntry(mascotMap,dmn):null;
+  return entry?(<div className="mobile-mascot-area"><div className="mobile-mascot-circle"><img key={dmn} src={entry.image} alt={entry.alt||dmn} loading="lazy"/></div></div>):null;
+})()}
 
         {/* 결과 */}
         <div className="result-wrap">
@@ -5264,8 +5346,15 @@ const App=()=>{
         </div>
         </div>
 
+        {/* 모바일 인라인 산정표 */}
+        <div className="mobile-inline-result">
+          {result&&<>
+            <VerticalRouteTable/>
+          </>}
+        </div>
+
         {/* 모바일 하단 내비 바 */}
-        {!mobileDetailOpen&&<nav className="mobile-bottom-nav">
+        {<nav className="mobile-bottom-nav">
           {/* 홈 */}
           <div className="mnav-home-wrap" onClick={resetToMainKeepOrigin}>
             <div className="mnav-home">
