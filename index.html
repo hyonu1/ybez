@@ -3275,28 +3275,6 @@ const App = () => {
         }
         return out;
     }, []);
-    // 같은 생활권 내부는 실제요금/접근비용 후보와 별도로 “동일생활권 간주 0원” 후보도 제공한다.
-    const buildSameAreaZeroChoices = useCallback((fromCity, toCity, baseSubs = { depSubs: [], arrSubs: [], specialSubs: [] }) => {
-        var _a;
-        const fc = nz(fromCity), tc = nz(toCity);
-        const out = { depSubs: [...(baseSubs.depSubs || [])], arrSubs: [...(baseSubs.arrSubs || [])], specialSubs: [...(baseSubs.specialSubs || [])] };
-        if (!fc || !tc || fc === tc || ISLAND_DB[fc] || ISLAND_DB[tc])
-            return out;
-        const fr = resolveArea(fc), tr = resolveArea(tc);
-        if (!fr || !tr || fr.blocked || tr.blocked || fr.areaId !== tr.areaId)
-            return out;
-        const exists = out.specialSubs.some(r => Number(r.gen || 0) === 0 && nz(r.depName) === fc && nz(r.arrName) === tc);
-        if (!exists) {
-            const label = String(((_a = fr.area) === null || _a === void 0 ? void 0 : _a.area_name) || "동일생활권");
-            out.specialSubs.push({
-                depName: fc, arrName: tc, gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
-                sources: ["area_rule"], choiceType: "same_living", sameLiving: true,
-                routeTag: "동일생활권 간주",
-                note: `${label} 동일생활권 0원 후보`
-            });
-        }
-        return out;
-    }, [resolveArea]);
     /* ══════════════════════════════════════════════════════
        YBEZ 2세대 권역-권역 산출 엔진
        - 기존 전체 노드 그래프/광역허브 자동탐색보다 항상 우선
@@ -3419,6 +3397,29 @@ const App = () => {
         const area = areaIndex.areaById[picked.areaId];
         return area ? { areaId: picked.areaId, area, matched: picked.name || raw } : null;
     }, [areaIndex]);
+
+    // 같은 생활권 내부는 실제요금/접근비용 후보와 별도로 “동일생활권 간주 0원” 후보도 제공한다.
+    const buildSameAreaZeroChoices = useCallback((fromCity, toCity, baseSubs = { depSubs: [], arrSubs: [], specialSubs: [] }) => {
+        var _a;
+        const fc = nz(fromCity), tc = nz(toCity);
+        const out = { depSubs: [...(baseSubs.depSubs || [])], arrSubs: [...(baseSubs.arrSubs || [])], specialSubs: [...(baseSubs.specialSubs || [])] };
+        if (!fc || !tc || fc === tc || ISLAND_DB[fc] || ISLAND_DB[tc])
+            return out;
+        const fr = resolveArea(fc), tr = resolveArea(tc);
+        if (!fr || !tr || fr.blocked || tr.blocked || fr.areaId !== tr.areaId)
+            return out;
+        const exists = out.specialSubs.some(r => Number(r.gen || 0) === 0 && nz(r.depName) === fc && nz(r.arrName) === tc);
+        if (!exists) {
+            const label = String(((_a = fr.area) === null || _a === void 0 ? void 0 : _a.area_name) || "동일생활권");
+            out.specialSubs.push({
+                depName: fc, arrName: tc, gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
+                sources: ["area_rule"], choiceType: "same_living", sameLiving: true,
+                routeTag: "동일생활권 간주",
+                note: `${label} 동일생활권 0원 후보`
+            });
+        }
+        return out;
+    }, [resolveArea]);
     const isBlockedAreaEdge = useCallback((edge, fromAreaId, toAreaId) => {
         if (!edge)
             return false;
