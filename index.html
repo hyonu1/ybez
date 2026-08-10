@@ -3400,28 +3400,6 @@ const App = () => {
         return sortYbezSearchNames([...new Set([...ALL_SEARCH_NAMES, ...runtimeNames])]
             .filter(c => typeof c === "string" && c && !HIDDEN_FROM_LIST.has(c)));
     }, [regionRoleIndex]);
-    // F5-P: YBEZ는 전남광주↔전국 전용이다. 한쪽이 외부지역으로 확정되면 반대쪽 자동완성은 전남광주만 노출한다.
-    const isJeonnamGwangjuSearchName = useCallback((name) => {
-        const raw = nz(name);
-        if (!raw) return false;
-        const resolved = resolveArea(raw);
-        if (resolved && !resolved.blocked && String(resolved.areaId || "").startsWith("jg_")) return true;
-        const main = displayEndpointName(raw);
-        if (raw === "광주" || raw === "광주유스퀘어" || JEONNAM_GWANGJU_MAIN_NAMES.has(main) || JEONNAM_GWANGJU_MAIN_NAMES.has(JEONNAM_SUB_TO_MAIN[raw] || "")) return true;
-        const islandInfo = ISLAND_DB[raw];
-        return !!(islandInfo && ["목포", "완도", "진도", "장흥"].includes(nz(islandInfo.hub)));
-    }, [resolveArea, displayEndpointName]);
-    const jgSearchList = useMemo(() => cityList.filter(isJeonnamGwangjuSearchName), [cityList, isJeonnamGwangjuSearchName]);
-    const originSearchLockedToJg = useMemo(() => {
-        const raw = nz(dest);
-        return !!raw && cityList.includes(raw) && !isJeonnamGwangjuSearchName(raw);
-    }, [dest, cityList, isJeonnamGwangjuSearchName]);
-    const destSearchLockedToJg = useMemo(() => {
-        const raw = nz(origin);
-        return !!raw && cityList.includes(raw) && !isJeonnamGwangjuSearchName(raw);
-    }, [origin, cityList, isJeonnamGwangjuSearchName]);
-    const originSearchList = originSearchLockedToJg ? jgSearchList : cityList;
-    const destSearchList = destSearchLockedToJg ? jgSearchList : cityList;
     /* 노드 해석 */
     const resolveNodes = useCallback((city) => {
         if (!aliasLinked)
@@ -9750,6 +9728,28 @@ const App = () => {
         if (n === "점촌(문경)") return "문경";
         return compactPlaceName(JEONNAM_SUB_TO_MAIN[n] || METRO_DISTRICT_TO_MAIN[n] || n);
     }, [compactPlaceName]);
+    // F5-P: YBEZ는 전남광주↔전국 전용이다. 한쪽이 외부지역으로 확정되면 반대쪽 자동완성은 전남광주만 노출한다.
+    const isJeonnamGwangjuSearchName = useCallback((name) => {
+        const raw = nz(name);
+        if (!raw) return false;
+        const resolved = resolveArea(raw);
+        if (resolved && !resolved.blocked && String(resolved.areaId || "").startsWith("jg_")) return true;
+        const main = displayEndpointName(raw);
+        if (raw === "광주" || raw === "광주유스퀘어" || JEONNAM_GWANGJU_MAIN_NAMES.has(main) || JEONNAM_GWANGJU_MAIN_NAMES.has(JEONNAM_SUB_TO_MAIN[raw] || "")) return true;
+        const islandInfo = ISLAND_DB[raw];
+        return !!(islandInfo && ["목포", "완도", "진도", "장흥"].includes(nz(islandInfo.hub)));
+    }, [resolveArea, displayEndpointName]);
+    const jgSearchList = useMemo(() => cityList.filter(isJeonnamGwangjuSearchName), [cityList, isJeonnamGwangjuSearchName]);
+    const originSearchLockedToJg = useMemo(() => {
+        const raw = nz(dest);
+        return !!raw && cityList.includes(raw) && !isJeonnamGwangjuSearchName(raw);
+    }, [dest, cityList, isJeonnamGwangjuSearchName]);
+    const destSearchLockedToJg = useMemo(() => {
+        const raw = nz(origin);
+        return !!raw && cityList.includes(raw) && !isJeonnamGwangjuSearchName(raw);
+    }, [origin, cityList, isJeonnamGwangjuSearchName]);
+    const originSearchList = originSearchLockedToJg ? jgSearchList : cityList;
+    const destSearchList = destSearchLockedToJg ? jgSearchList : cityList;
     // 화면 표시 레이어 3분리 원칙
     // 1) 가운데 선택카드: 행정지역·생활권 이름만 사용
     // 2) 왼쪽 경로 정보: 행정지역·생활권 이름 + 구간요금·출처
