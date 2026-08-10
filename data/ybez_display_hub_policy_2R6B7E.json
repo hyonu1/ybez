@@ -1,0 +1,100 @@
+{
+  "version": "2R6B7E",
+  "scope": "전수조사 전 마지막 캡처 오류 통합: 부산 메인 병렬허브 고정 + 홍성 내포 공동생활권 0원",
+  "policy_notes": [
+    "기준본은 2R6B7D1이며 기존 C/D 성공보정과 원자료를 보호한다.",
+    "광주↔부산의 메인은 부산종합버스터미널 28,600원이며 부산서부사상 25,900원은 참고 병렬허브다.",
+    "광주↔홍성은 광주→논산→내포신도시까지 25,400원이며 내포신도시↔홍성은 공동생활권 0원으로 처리한다. 행정구역 동일 처리 문구는 사용하지 않는다.",
+    "문경은 사용자 지역명 문경, 실제 산정터미널 점촌터미널로 표시한다.",
+    "속초 경유 서울 허브는 동서울로 표시한다. 동서울/동대구/부산서부사상은 계산상 기존 호환성을 유지하면서 표시상 병렬허브로 구분한다.",
+    "이번 범위 밖 새 오류는 전수조사 교정목록으로 이관한다."
+  ],
+  "forced_routes": [
+    {
+      "id": "GJ_BUSAN_MAIN_PARALLEL_HUB_2R6B7E",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_MAIN_HUB",
+      "from": "광주",
+      "to": "부산",
+      "route_label_forward": "광주 → 부산",
+      "route_label_reverse": "부산 → 광주",
+      "display_route_label_forward": "광주 → 부산",
+      "display_route_label_reverse": "부산 → 광주",
+      "area_method": "부산 병렬허브 메인 고정",
+      "area_detail": "광주↔부산 메인은 부산종합버스터미널 28,600원. 부산서부사상 25,900원은 참고 병렬허브이며 최저가라는 이유로 메인으로 승격하지 않음.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "부산종합버스터미널",
+          "gen": 28600,
+          "sourceLabel": "ASAMARU",
+          "source": "ASAMARU",
+          "note": "부산 메인 병렬허브 · 28,600원",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "부산종합버스터미널"
+        }
+      ],
+      "parallel_hub_references": [
+        {
+          "hub": "부산서부사상",
+          "terminal": "부산서부사상터미널",
+          "fare": 25900,
+          "source": "NAVER",
+          "note": "참고용 병렬허브 · 메인 산정 미사용"
+        }
+      ]
+    },
+    {
+      "id": "GJ_HONGSEONG_NAEPO_JOINT_ZERO_2R6B7E",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_JOINT_LIVING_ZERO",
+      "from": "광주",
+      "to": "홍성",
+      "route_label_forward": "광주 → 논산 → 내포신도시 → 홍성",
+      "route_label_reverse": "홍성 → 내포신도시 → 논산 → 광주",
+      "display_route_label_forward": "광주 → 논산 → 내포신도시 → 홍성",
+      "display_route_label_reverse": "홍성 → 내포신도시 → 논산 → 광주",
+      "area_method": "내포신도시↔홍성 공동생활권 0원 보정",
+      "area_detail": "광주→논산 15,200원 + 논산→내포신도시 10,200원. 내포신도시↔홍성은 사용자 확정 공동생활권 0원. 행정구역 동일 처리 표현 미사용.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "논산고속버스터미널",
+          "gen": 15200,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "광주→논산",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "논산고속버스터미널"
+        },
+        {
+          "from": "논산고속버스터미널",
+          "to": "내포신도시고속시외버스정류소",
+          "gen": 10200,
+          "sourceLabel": "KOBUS",
+          "source": "KOBUS",
+          "note": "논산→내포신도시",
+          "kind": "bus",
+          "terminalFrom": "논산고속버스터미널",
+          "terminalTo": "내포신도시고속시외버스정류소"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_ZERO",
+        "lv4": "내포신도시",
+        "lv5": "홍성",
+        "oneway": 0,
+        "source": "YBEZ 공동생활권 정책",
+        "access_type": "공동생활권 0원",
+        "display_route": "내포신도시 → 홍성",
+        "local_label": "공동생활권 0원",
+        "detail_head": "공동생활권",
+        "detail_body": "내포신도시 → 홍성 구간은 공동생활권으로 접근비용 0원 처리합니다.",
+        "preserve_region_names": true,
+        "note": "행정경계 지역을 공동생활권 0원으로 처리"
+      }
+    }
+  ]
+}

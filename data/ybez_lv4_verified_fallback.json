@@ -1,0 +1,403 @@
+{
+  "metadata": {
+    "version": "ybez_lv4_verified_fallback_2R6A",
+    "generated_at": "2026-07-30",
+    "scope": "JEONNAM_GWANGJU_TO_NATIONWIDE",
+    "source": "XLSX designated LV3 entry hub + routes.json exact terminal segment",
+    "activation": "ONLY_WHEN_LV4_IS_NOT_EXACT_GRAPH_AREA",
+    "verified_count": 12,
+    "review_count": 0,
+    "missing_count": 9,
+    "patch_note": "검증 LV4 12건 호출 복구용. 사천 대표 목적지는 사천시외버스터미널로 정정."
+  },
+  "lv4_extensions": {
+    "보은": {
+      "lv4": "보은",
+      "macro": "충북",
+      "group_label": "충북 · 보옥영",
+      "expression": "충북_보은_청주시외버스터미널_보은",
+      "entry_terminal": "청주시외버스터미널",
+      "entry_hub_city": "청주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0087",
+        "to_node": "NODE_0077",
+        "fare": 7200,
+        "display_route": "보은시외버스공용정류장↔청주시외버스터미널",
+        "sources": [
+          "bustago",
+          "tmoneygo",
+          "asamaru"
+        ],
+        "from_name": "청주시외버스터미널",
+        "to_name": "보은시외버스공용정류장"
+      }
+    },
+    "인제": {
+      "lv4": "인제",
+      "macro": "강원",
+      "group_label": "강원 · 중앙내륙권",
+      "expression": "강원_인제_원주종합버스터미널_인제",
+      "entry_terminal": "원주종합버스터미널",
+      "entry_hub_city": "원주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0069",
+        "to_node": "NODE_0333",
+        "fare": 15400,
+        "display_route": "원주종합버스터미널↔인제터미널",
+        "sources": [
+          "bustago",
+          "tmoneygo",
+          "asamaru"
+        ],
+        "from_name": "원주종합버스터미널",
+        "to_name": "인제터미널"
+      }
+    },
+    "정선": {
+      "lv4": "정선",
+      "macro": "강원",
+      "group_label": "강원 · 남부산악권",
+      "expression": "강원_정선_원주종합버스터미널_정선",
+      "entry_terminal": "원주종합버스터미널",
+      "entry_hub_city": "원주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0069",
+        "to_node": "NODE_0340",
+      "fare": 14600,
+        "display_route": "원주종합버스터미널↔정선공영버스터미널",
+        "sources": [
+        "NAVER"
+        ],
+        "from_name": "원주종합버스터미널",
+        "to_name": "정선공영버스터미널"
+      }
+    },
+    "평창": {
+      "lv4": "평창",
+      "macro": "강원",
+      "group_label": "강원 · 영동중부권",
+      "expression": "강원_평창_원주종합버스터미널_평창",
+      "entry_terminal": "원주종합버스터미널",
+      "entry_hub_city": "원주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0069",
+        "to_node": "NODE_0366",
+        "fare": 8700,
+        "display_route": "원주종합버스터미널↔평창버스터미널",
+        "sources": [
+          "bustago",
+          "tmoneygo",
+          "asamaru"
+        ],
+        "from_name": "원주종합버스터미널",
+        "to_name": "평창버스터미널"
+      }
+    },
+    "양양": {
+      "lv4": "양양",
+      "macro": "강원",
+      "group_label": "강원 · 영동북부권",
+      "expression": "강원_양양_서울고속버스터미널_양양",
+      "entry_terminal": "서울고속버스터미널",
+      "entry_hub_city": "서울",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0002",
+        "to_node": "NODE_0066",
+        "fare": 15300,
+        "display_route": "서울고속버스터미널↔양양종합여객터미널",
+        "sources": [
+          "kobus",
+          "asamaru"
+        ],
+        "from_name": "서울고속버스터미널",
+        "to_name": "양양종합여객터미널"
+      }
+    },
+    "예천": {
+      "lv4": "예천",
+      "macro": "대경",
+      "group_label": "대경 · 행정신도시권",
+      "expression": "대구·경북_예천_동대구터미널_예천",
+      "entry_terminal": "동대구터미널",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0046",
+        "to_node": "NODE_0135",
+        "fare": 15700,
+        "display_route": "동대구터미널↔예천시외버스터미널",
+        "sources": [
+          "bustago",
+          "tmoneygo",
+          "asamaru"
+        ],
+        "from_name": "동대구터미널",
+        "to_name": "예천시외버스터미널"
+      }
+    },
+    "영천": {
+      "lv4": "영천",
+      "macro": "대경",
+      "group_label": "대경 · 역사관광가교권",
+      "expression": "대구·경북_영천_동대구터미널_영천",
+      "entry_terminal": "동대구터미널",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0046",
+        "to_node": "NODE_0133",
+        "fare": 4300,
+        "display_route": "동대구터미널↔우로지자연생태공원",
+        "sources": [
+          "bustago"
+        ],
+        "from_name": "동대구터미널",
+        "to_name": "우로지자연생태공원"
+      }
+    },
+    "울진": {
+      "lv4": "울진",
+      "macro": "대경",
+      "group_label": "대경 · 동해안오지권",
+      "expression": "대구·경북_울진_동대구터미널_울진",
+      "entry_terminal": "동대구터미널",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0046",
+        "to_node": "NODE_0478",
+        "fare": 31300,
+        "display_route": "동대구터미널↔울진종합버스터미널",
+        "sources": [
+          "bustago",
+          "tmoneygo",
+          "asamaru"
+        ],
+        "from_name": "동대구터미널",
+        "to_name": "울진종합버스터미널"
+      }
+    },
+    "청송": {
+      "lv4": "청송",
+      "macro": "대경",
+      "group_label": "대경 · 중앙산간남부전원권",
+      "expression": "대구·경북_청송_동대구터미널_청송",
+      "entry_terminal": "동대구터미널",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0046",
+        "to_node": "NODE_0487",
+        "fare": 17800,
+        "display_route": "동대구터미널↔청송버스터미널",
+        "sources": [
+          "tmoneygo",
+          "asamaru"
+        ],
+        "from_name": "동대구터미널",
+        "to_name": "청송버스터미널"
+      }
+    },
+    "사천": {
+      "lv4": "사천",
+      "macro": "부울경",
+      "group_label": "부울경 · 진주권",
+      "expression": "부산·울산·경남_사천_진주고속버스터미널_사천",
+      "entry_terminal": "진주고속버스터미널",
+      "entry_hub_city": "진주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0142",
+        "to_node": "NODE_0501",
+        "fare": 2100,
+        "display_route": "진주고속버스터미널↔사천시외버스터미널",
+        "sources": [
+          "bustago",
+          "asamaru"
+        ],
+        "from_name": "진주고속버스터미널",
+        "to_name": "사천시외버스터미널"
+      }
+    },
+    "합천": {
+      "lv4": "합천",
+      "macro": "부울경",
+      "group_label": "부울경 · 거창합천권",
+      "expression": "부산·울산·경남_합천_진주고속버스터미널_합천",
+      "entry_terminal": "진주고속버스터미널",
+      "entry_hub_city": "진주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0142",
+        "to_node": "NODE_0548",
+        "fare": 8600,
+        "display_route": "진주고속버스터미널↔합천버스정류장",
+        "sources": [
+          "bustago",
+          "tmoneygo"
+        ],
+        "from_name": "진주고속버스터미널",
+        "to_name": "합천버스정류장"
+      }
+    },
+    "거제": {
+      "lv4": "거제",
+      "macro": "부울경",
+      "group_label": "부울경 · 통영거제권",
+      "expression": "부산·울산·경남_거제_통영종합버스터미널_거제",
+      "entry_terminal": "통영종합버스터미널",
+      "entry_hub_city": "통영",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "VERIFIED",
+      "fallback_segment": {
+        "from_node": "NODE_0149",
+        "to_node": "NODE_0490",
+        "fare": 4200,
+        "display_route": "고현버스터미널↔통영종합버스터미널",
+        "sources": [
+          "asamaru"
+        ],
+        "from_name": "통영종합버스터미널",
+        "to_name": "고현버스터미널"
+      }
+    }
+  },
+  "review_candidates": {
+    "동서울": {
+      "lv4": "동서울",
+      "macro": "수도권",
+      "group_label": "수도권 · 서울",
+      "expression": "수도권_서울_동서울터미널_동서울",
+      "entry_terminal": "동서울터미널",
+      "entry_hub_city": "서울",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "서울남부": {
+      "lv4": "서울남부",
+      "macro": "수도권",
+      "group_label": "수도권 · 서울",
+      "expression": "수도권_서울_서울남부터미널_서울남부",
+      "entry_terminal": "서울남부터미널",
+      "entry_hub_city": "서울",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "세종": {
+      "lv4": "세종",
+      "macro": "대세남",
+      "group_label": "대세남 · 대전·세종권",
+      "expression": "대전·세종·충남_세종_대전복합터미널_세종",
+      "entry_terminal": "대전복합터미널",
+      "entry_hub_city": "대전복합",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "영동": {
+      "lv4": "영동",
+      "macro": "충북",
+      "group_label": "충북 · 보옥영",
+      "expression": "충북_영동_무주공용버스터미널_영동",
+      "entry_terminal": "무주공용버스터미널",
+      "entry_hub_city": "무주",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "고성": {
+      "lv4": "고성",
+      "macro": "강원",
+      "group_label": "강원 · 영동북부권",
+      "expression": "강원_고성_동서울종합터미널_고성",
+      "entry_terminal": "동서울종합터미널",
+      "entry_hub_city": "서울",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "성주": {
+      "lv4": "성주",
+      "macro": "대경",
+      "group_label": "대경 · 서부관문권",
+      "expression": "대구·경북_성주_서대구고속버스터미널_성주",
+      "entry_terminal": "서대구고속버스터미널",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "청도": {
+      "lv4": "청도",
+      "macro": "대경",
+      "group_label": "대경 · 중앙산간남부전원권",
+      "expression": "대구·경북_청도_대구서부정류장_청도",
+      "entry_terminal": "대구서부정류장",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "영양": {
+      "lv4": "영양",
+      "macro": "대경",
+      "group_label": "대경 · 중앙산간남부전원권",
+      "expression": "대구·경북_영양_서대구고속버스터미널_영양",
+      "entry_terminal": "서대구고속버스터미널",
+      "entry_hub_city": "대구",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    },
+    "마산": {
+      "lv4": "마산",
+      "macro": "부울경",
+      "group_label": "부울경 · 창원권",
+      "expression": "부산·울산·경남_마산_창원종합버스터미널_마산",
+      "entry_terminal": "창원종합버스터미널",
+      "entry_hub_city": "창원",
+      "graph_area_ids": [],
+      "connection_mode": "VIA_LV3_ENTRY_HUB",
+      "fallback_status": "NO_ROUTE_CANDIDATE",
+      "fallback_segment": null
+    }
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "version": "2R6B7D1",
+  "scope": "광주↔군포·의왕·과천(안양 중심), 광주↔광명·김포(부천 중심) 공동생활권 접근 보정",
+  "policy_notes": [
+    "이번 보정은 광주 pair에만 적용한다.",
+    "군포·의왕·과천은 안양 중심, 광명·김포는 부천 중심으로 처리한다.",
+    "접근비용은 공동생활권 0원을 기본으로 하고 경기 일반형 시내버스 교통카드 기본요금 1,650원을 선택값으로 제공한다.",
+    "광주↔부천 C-2 직행 30,900원은 변경하지 않는다.",
+    "기존 routes/nodes/graph/alias/access 원자료는 수정하지 않는다."
+  ],
+  "forced_routes": [
+    {
+      "id": "GJ_GYEONGGI_ANYANG_ACCESS_군포_2R6B7D1",
+      "status": "VERIFIED_FIX",
+      "from": "광주",
+      "to": "군포",
+      "route_label_forward": "광주 → 안산 → 안양 → 군포",
+      "route_label_reverse": "군포 → 안양 → 안산 → 광주",
+      "display_route_label_forward": "광주 → 안산 → 안양 → 군포",
+      "display_route_label_reverse": "군포 → 안양 → 안산 → 광주",
+      "area_method": "광주↔경기 안양중심 공동생활권 보정",
+      "area_detail": "광주↔군포: 기존 광주→안양 검증경로를 메인으로 사용하고 안양→군포은 공동생활권 0원/경기 시내버스 1,650원 선택",
+      "policy": "USER_CONFIRMED_GWANGJU_PAIR_ONLY",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안산버스터미널",
+          "gen": 30500,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "고속우등",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안산버스터미널"
+        },
+        {
+          "from": "안산버스터미널",
+          "to": "안양",
+          "gen": 1850,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "안산→안양 최종 연결",
+          "kind": "bus",
+          "terminalFrom": "안산버스터미널",
+          "terminalTo": "안양역"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "안양",
+        "lv5": "군포",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "안양→군포: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주↔군포 기존 서울/기타 허브 오선택",
+        "군포 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_GYEONGGI_ANYANG_ACCESS_의왕_2R6B7D1",
+      "status": "VERIFIED_FIX",
+      "from": "광주",
+      "to": "의왕",
+      "route_label_forward": "광주 → 안산 → 안양 → 의왕",
+      "route_label_reverse": "의왕 → 안양 → 안산 → 광주",
+      "display_route_label_forward": "광주 → 안산 → 안양 → 의왕",
+      "display_route_label_reverse": "의왕 → 안양 → 안산 → 광주",
+      "area_method": "광주↔경기 안양중심 공동생활권 보정",
+      "area_detail": "광주↔의왕: 기존 광주→안양 검증경로를 메인으로 사용하고 안양→의왕은 공동생활권 0원/경기 시내버스 1,650원 선택",
+      "policy": "USER_CONFIRMED_GWANGJU_PAIR_ONLY",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안산버스터미널",
+          "gen": 30500,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "고속우등",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안산버스터미널"
+        },
+        {
+          "from": "안산버스터미널",
+          "to": "안양",
+          "gen": 1850,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "안산→안양 최종 연결",
+          "kind": "bus",
+          "terminalFrom": "안산버스터미널",
+          "terminalTo": "안양역"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "안양",
+        "lv5": "의왕",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "안양→의왕: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주↔의왕 기존 서울/기타 허브 오선택",
+        "의왕 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_GYEONGGI_ANYANG_ACCESS_과천_2R6B7D1",
+      "status": "VERIFIED_FIX",
+      "from": "광주",
+      "to": "과천",
+      "route_label_forward": "광주 → 안산 → 안양 → 과천",
+      "route_label_reverse": "과천 → 안양 → 안산 → 광주",
+      "display_route_label_forward": "광주 → 안산 → 안양 → 과천",
+      "display_route_label_reverse": "과천 → 안양 → 안산 → 광주",
+      "area_method": "광주↔경기 안양중심 공동생활권 보정",
+      "area_detail": "광주↔과천: 기존 광주→안양 검증경로를 메인으로 사용하고 안양→과천은 공동생활권 0원/경기 시내버스 1,650원 선택",
+      "policy": "USER_CONFIRMED_GWANGJU_PAIR_ONLY",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안산버스터미널",
+          "gen": 30500,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "고속우등",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안산버스터미널"
+        },
+        {
+          "from": "안산버스터미널",
+          "to": "안양",
+          "gen": 1850,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "안산→안양 최종 연결",
+          "kind": "bus",
+          "terminalFrom": "안산버스터미널",
+          "terminalTo": "안양역"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "안양",
+        "lv5": "과천",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "안양→과천: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주↔과천 기존 서울/기타 허브 오선택",
+        "과천 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_GYEONGGI_BUCHEON_ACCESS_광명_2R6B7D1",
+      "status": "VERIFIED_FIX",
+      "from": "광주",
+      "to": "광명",
+      "route_label_forward": "광주 → 부천 → 광명",
+      "route_label_reverse": "광명 → 부천 → 광주",
+      "display_route_label_forward": "광주 → 부천 → 광명",
+      "display_route_label_reverse": "광명 → 부천 → 광주",
+      "area_method": "광주↔경기 부천중심 공동생활권 보정",
+      "area_detail": "광주↔광명: C-2 광주↔부천 직행 30,900원을 메인으로 사용하고 부천→광명은 공동생활권 0원/경기 시내버스 1,650원 선택",
+      "policy": "USER_CONFIRMED_GWANGJU_PAIR_ONLY",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "부천",
+          "gen": 30900,
+          "sourceLabel": "Bustago",
+          "source": "Bustago",
+          "note": "시외우등 · 검증 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "부천터미널소풍"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "부천",
+        "lv5": "광명",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "부천→광명: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주↔광명 기존 인천/기타 허브 오선택",
+        "광명 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_GYEONGGI_BUCHEON_ACCESS_김포_2R6B7D1",
+      "status": "VERIFIED_FIX",
+      "from": "광주",
+      "to": "김포",
+      "route_label_forward": "광주 → 부천 → 김포",
+      "route_label_reverse": "김포 → 부천 → 광주",
+      "display_route_label_forward": "광주 → 부천 → 김포",
+      "display_route_label_reverse": "김포 → 부천 → 광주",
+      "area_method": "광주↔경기 부천중심 공동생활권 보정",
+      "area_detail": "광주↔김포: C-2 광주↔부천 직행 30,900원을 메인으로 사용하고 부천→김포은 공동생활권 0원/경기 시내버스 1,650원 선택",
+      "policy": "USER_CONFIRMED_GWANGJU_PAIR_ONLY",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "부천",
+          "gen": 30900,
+          "sourceLabel": "Bustago",
+          "source": "Bustago",
+          "note": "시외우등 · 검증 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "부천터미널소풍"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "부천",
+        "lv5": "김포",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "부천→김포: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주↔김포 기존 인천/기타 허브 오선택",
+        "김포 접근비용 누락"
+      ]
+    }
+  ]
+}

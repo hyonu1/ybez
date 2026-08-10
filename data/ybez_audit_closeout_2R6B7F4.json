@@ -1,0 +1,85 @@
+{
+  "version": "2R6B7F4",
+  "generated_at": "2026-08-09T17:47:00+09:00",
+  "status": "VERIFIED_FIX",
+  "scope": "353장 캡처 잔여오류 마감: 속초·고령",
+  "notes": [
+    "속초: 기존 2R6B2 exact의 두 번째 세그먼트가 역방향 저장되어 있던 것을 정방향 체인으로 명시.",
+    "고령: fare_normalized Bustago에서 광주(유스퀘어)↔거창 15,600원, 거창↔고령 5,100원 확인. 기존 화면 라벨의 대구 경유 표시는 잘못되어 거창 경유로 수정.",
+    "F4 sidecar는 기존 F2-B/C2/D1/E 보정보다 우선 적용하며 기존 원자료는 수정하지 않음."
+  ],
+  "forced_routes": [
+    {
+      "id": "GJ_SOKCHO_VIA_DONGSEOUL_F4",
+      "status": "VERIFIED_FIX",
+      "policy": "AUDIT_CLOSEOUT_EXISTING_EXACT",
+      "from": "광주",
+      "to": "속초",
+      "route_label_forward": "광주 → 동서울 → 속초",
+      "route_label_reverse": "속초 → 동서울 → 광주",
+      "area_method": "2R6B7F4 속초 exact 방향 정상화",
+      "area_detail": "광주유스퀘어→동서울종합터미널 33,300원 + 동서울종합터미널→속초시외버스터미널 21,300원 = 편도 54,600원. 기존 exact 저장방향 오류 수정.",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "동서울",
+          "gen": 33300,
+          "sourceLabel": "NAVER",
+          "source": "naver",
+          "note": "고속우등",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "동서울종합터미널"
+        },
+        {
+          "from": "동서울",
+          "to": "속초",
+          "gen": 21300,
+          "sourceLabel": "NAVER",
+          "source": "naver",
+          "note": "시외우등",
+          "kind": "bus",
+          "terminalFrom": "동서울종합터미널",
+          "terminalTo": "속초시외버스터미널"
+        }
+      ],
+      "expected_oneway": 54600
+    },
+    {
+      "id": "GJ_GORYEONG_VIA_GEochang_BUSTAGO_F4",
+      "status": "VERIFIED_FIX",
+      "policy": "FARE_NORMALIZED_BUSTAGO",
+      "from": "광주",
+      "to": "고령",
+      "route_label_forward": "광주 → 거창 → 고령",
+      "route_label_reverse": "고령 → 거창 → 광주",
+      "area_method": "2R6B7F4 Bustago 실데이터 경로 보정",
+      "area_detail": "fare_normalized: 광주(유스퀘어)↔거창 15,600원 + 거창↔고령 5,100원 = 편도 20,700원. 기존 '대구→고령' 화면 라벨은 세그먼트와 불일치해 거창 경유로 수정.",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "거창",
+          "gen": 15600,
+          "sourceLabel": "Bustago",
+          "source": "bustago",
+          "note": "시외일반",
+          "kind": "bus",
+          "terminalFrom": "광주(유ㆍ스퀘어)",
+          "terminalTo": "거창버스터미널"
+        },
+        {
+          "from": "거창",
+          "to": "고령",
+          "gen": 5100,
+          "sourceLabel": "Bustago",
+          "source": "bustago",
+          "note": "시외우등",
+          "kind": "bus",
+          "terminalFrom": "거창버스터미널",
+          "terminalTo": "고령시외버스정류장"
+        }
+      ],
+      "expected_oneway": 20700
+    }
+  ]
+}

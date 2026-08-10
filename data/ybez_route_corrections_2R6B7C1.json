@@ -1,0 +1,78 @@
+{
+  "version": "2R6B7C1",
+  "generated_at": "2026-08-07T10:20:00+09:00",
+  "status": "VERIFIED_FIX",
+  "scope": "해남↔남원·해남↔성주 사용자 확정 경유구조",
+  "runtime_policy": "기존 routes/graph/양방향 correction을 수정하지 않고 정확한 사용자 지역쌍에만 우선 적용",
+  "forced_routes": [
+    {
+      "id": "HN_NW_VIA_GJ",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED",
+      "from": "해남",
+      "to": "남원",
+      "route_label_forward": "해남 → 광주 → 남원",
+      "route_label_reverse": "남원 → 광주 → 해남",
+      "segments_forward": [
+        {
+          "from": "해남",
+          "to": "광주",
+          "gen": 13700,
+          "pre": 16900,
+          "sourceLabel": "2026.1.1.자 전라남도 여비기준표",
+          "source": "JNE2026",
+          "note": "전남·광주 메인 교통비",
+          "kind": "bus"
+        },
+        {
+          "from": "광주",
+          "to": "남원",
+          "gen": 6300,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "광주→남원 단일시외",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "HN_SJ_VIA_GJ_DG",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED",
+      "from": "해남",
+      "to": "성주",
+      "route_label_forward": "해남 → 광주 → 대구 → 성주",
+      "route_label_reverse": "성주 → 대구 → 광주 → 해남",
+      "segments_forward": [
+        {
+          "from": "해남",
+          "to": "광주",
+          "gen": 13700,
+          "pre": 16900,
+          "sourceLabel": "2026.1.1.자 전라남도 여비기준표",
+          "source": "JNE2026",
+          "note": "전남·광주 메인 교통비",
+          "kind": "bus"
+        },
+        {
+          "from": "광주",
+          "to": "대구",
+          "gen": 22900,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "광주유스퀘어→서대구고속버스터미널 · 고속우등",
+          "kind": "bus"
+        },
+        {
+          "from": "대구",
+          "to": "성주",
+          "gen": 2000,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "대구→성주 지역버스 최종 연결",
+          "kind": "bus"
+        }
+      ]
+    }
+  ]
+}

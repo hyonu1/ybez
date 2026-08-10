@@ -1,0 +1,486 @@
+{
+  "version": "YBEZ_BIDIRECTIONAL_ROUTE_CORRECTIONS_2R6A2_1_20260731",
+  "generated_at": "2026-07-31T13:40:00+09:00",
+  "runtime_policy": "ONLY_VERIFIED_FIX; unordered area-pair match; endpoint_pattern must match non-JG endpoint; missing file safely falls back to legacy runtime; 2R6A2.1 display-layer suppression; bare 고성 blocked; 고령군 canonical alias",
+  "source_scope": "YBEZ 2Gen correction layer; routes.json/nodes.json/alias/area graph remain read-only",
+  "correction_count": 13,
+  "corrections": [
+    {
+      "id": "GJ_CW_DIRECT_23300",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "pk_cw",
+      "endpoint_pattern": "^(창원)$",
+      "from_name": "광주",
+      "to_name": "창원",
+      "fare": 23300,
+      "route_label_forward": "광주 → 창원",
+      "route_label_reverse": "창원 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "창원종합버스터미널",
+          "gen": 23300,
+          "sourceLabel": "routes.json · asamaru",
+          "note": "실제 창원 행정권 직행노선 고정"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "중앙은 창원이나 상세 종점이 서대구로 선택되던 오류 차단",
+      "evidence": [
+        {
+          "type": "routes.json",
+          "route_key": "NODE_0053_NODE_0147",
+          "display_route": "광주유스퀘어↔창원종합버스터미널",
+          "fare": 23300,
+          "sources": [
+            "asamaru"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GJ_GIMCHEON_25100",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "tk_gs",
+      "endpoint_pattern": "^(김천)$",
+      "from_name": "광주",
+      "to_name": "김천",
+      "fare": 25100,
+      "route_label_forward": "광주 → 김천",
+      "route_label_reverse": "김천 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "김천",
+          "gen": 25100,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "대경 서부관문권 확인값"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "목적지 방향에서만 적용되던 25,100원 수기요금을 양방향 통일",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__tk_gs__gimcheon",
+          "fare": 25100
+        }
+      ]
+    },
+    {
+      "id": "GJ_GORYEONG_20700",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "tk_gccy",
+      "endpoint_pattern": "^(고령|고령군)$",
+      "from_name": "광주",
+      "to_name": "고령",
+      "fare": 20700,
+      "route_label_forward": "광주 → 거창 → 고령",
+      "route_label_reverse": "고령 → 거창 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "거창",
+          "gen": 15600,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "거창버스터미널 기준"
+        },
+        {
+          "from": "거창",
+          "to": "고령",
+          "gen": 5100,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "거창→고령"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "기존 확인 세부구간과 중앙 라벨을 일치시키고 양방향 통일",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__tk_gccy__goryeong",
+          "fare": 20700
+        }
+      ],
+      "aliases": [
+        "고령",
+        "고령군"
+      ]
+    },
+    {
+      "id": "GJ_SEONGJU_23800",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "tk_gs",
+      "endpoint_pattern": "^(성주)$",
+      "from_name": "광주",
+      "to_name": "성주",
+      "fare": 23800,
+      "route_label_forward": "광주 → 대구 → 성주",
+      "route_label_reverse": "성주 → 대구 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "서대구",
+          "gen": 22100,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "서대구고속버스터미널"
+        },
+        {
+          "from": "서대구",
+          "to": "성주",
+          "gen": 1700,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "서대구→성주 접근구간"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "성주 수기요금의 역방향 누락 방지",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__tk_gs__seongju",
+          "fare": 23800
+        }
+      ]
+    },
+    {
+      "id": "GJ_CHEONGDO_25100",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "tk_gccy",
+      "endpoint_pattern": "^(청도)$",
+      "from_name": "광주",
+      "to_name": "청도",
+      "fare": 25100,
+      "route_label_forward": "광주 → 대구 → 청도",
+      "route_label_reverse": "청도 → 대구 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "동대구",
+          "gen": 22900,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "동대구터미널"
+        },
+        {
+          "from": "동대구",
+          "to": "청도",
+          "gen": 2200,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "대구→청도 접근구간"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "청도 수기요금의 역방향 누락 방지",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__tk_gccy__cheongdo",
+          "fare": 25100
+        }
+      ]
+    },
+    {
+      "id": "GJ_YEONGYANG_41000",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "tk_gccy",
+      "endpoint_pattern": "^(영양)$",
+      "from_name": "광주",
+      "to_name": "영양",
+      "fare": 41000,
+      "route_label_forward": "광주 → 대구 → 영양",
+      "route_label_reverse": "영양 → 대구 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "서대구",
+          "gen": 22900,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "광주→서대구"
+        },
+        {
+          "from": "서대구",
+          "to": "대구북부",
+          "gen": 0,
+          "sourceLabel": "YBEZ 병렬허브",
+          "note": "대구 병렬허브 내부 이동 0원"
+        },
+        {
+          "from": "대구북부",
+          "to": "영양",
+          "gen": 18100,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "대구북부→영양"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "41,000원 수기요금 양방향 통일 및 대구 병렬허브 구간 명시",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__tk_gccy__yeongyang",
+          "fare": 41000
+        }
+      ]
+    },
+    {
+      "id": "GJ_JINAN_12500",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "jb_mj",
+      "endpoint_pattern": "^(진안)$",
+      "from_name": "광주",
+      "to_name": "진안",
+      "fare": 12500,
+      "route_label_forward": "광주 → 전주 → 진안",
+      "route_label_reverse": "진안 → 전주 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "전주",
+          "gen": 7900,
+          "sourceLabel": "routes DB",
+          "note": "광주유스퀘어↔전주고속버스터미널"
+        },
+        {
+          "from": "전주",
+          "to": "진안",
+          "gen": 4600,
+          "sourceLabel": "routes DB",
+          "note": "전주고속버스터미널↔진안터미널"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "진안 수기요금의 역방향 누락 방지",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__jb_mj__jinan",
+          "fare": 12500
+        }
+      ]
+    },
+    {
+      "id": "GJ_MUJU_19300",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "jb_mj",
+      "endpoint_pattern": "^(무주)$",
+      "from_name": "광주",
+      "to_name": "무주",
+      "fare": 19300,
+      "route_label_forward": "광주 → 무주",
+      "route_label_reverse": "무주 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "무주공용버스터미널",
+          "gen": 19300,
+          "sourceLabel": "기존 확인 routes DB",
+          "note": "직접노선 확인값"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "무주 확인 직행값을 양방향 동일 적용",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__jb_mj__muju",
+          "fare": 19300
+        }
+      ]
+    },
+    {
+      "id": "GJ_JANGSU_11500",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "jb_mj",
+      "endpoint_pattern": "^(장수)$",
+      "from_name": "광주",
+      "to_name": "장수",
+      "fare": 11500,
+      "route_label_forward": "광주 → 장수",
+      "route_label_reverse": "장수 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "장수공용버스터미널",
+          "gen": 11500,
+          "sourceLabel": "routes.json · bustago",
+          "note": "직접노선 확인값"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "장수 직행 11,500원을 양방향 동일 적용",
+      "evidence": [
+        {
+          "type": "routes.json",
+          "route_key": "NODE_0052_NODE_0572",
+          "display_route": "광주비아정류소↔장수공용버스터미널",
+          "fare": 11500,
+          "sources": [
+            "bustago"
+          ]
+        },
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__jb_mj__jangsu",
+          "fare": 11500
+        }
+      ]
+    },
+    {
+      "id": "GJ_SEONGNAM_30100",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "gg_shg",
+      "endpoint_pattern": "^(성남)$",
+      "from_name": "광주",
+      "to_name": "성남",
+      "fare": 30100,
+      "route_label_forward": "광주 → 성남",
+      "route_label_reverse": "성남 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "성남종합버스터미널",
+          "gen": 30100,
+          "sourceLabel": "기존 확인 대표요금",
+          "note": "성남 1차허브"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "성남 대표 우등요금을 양방향 동일 적용",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__gg_shg__seongnam",
+          "fare": 30100
+        },
+        {
+          "type": "routes.json",
+          "route_key": "NODE_0008_NODE_0052",
+          "fare_grade": "우등",
+          "fare": 30100
+        }
+      ]
+    },
+    {
+      "id": "GJ_ANSAN_30500",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "gg_as",
+      "endpoint_pattern": "^(안산)$",
+      "from_name": "광주",
+      "to_name": "안산",
+      "fare": 30500,
+      "route_label_forward": "광주 → 안산",
+      "route_label_reverse": "안산 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안산버스터미널",
+          "gen": 30500,
+          "sourceLabel": "기존 확인 대표요금",
+          "note": "안산 1차허브"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "안산 대표요금을 양방향 동일 적용",
+      "evidence": [
+        {
+          "type": "existing_confirmed_manual",
+          "key": "jg_gj__gg_as__ansan",
+          "fare": 30500
+        }
+      ]
+    },
+    {
+      "id": "GJ_MIRYANG_30600",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "pk_my",
+      "endpoint_pattern": "^(밀양)$",
+      "from_name": "광주",
+      "to_name": "밀양",
+      "fare": 30600,
+      "route_label_forward": "광주 → 창원 → 밀양",
+      "route_label_reverse": "밀양 → 창원 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "창원",
+          "gen": 23300,
+          "sourceLabel": "routes.json · asamaru",
+          "note": "광주유스퀘어↔창원종합버스터미널"
+        },
+        {
+          "from": "창원",
+          "to": "밀양",
+          "gen": 7300,
+          "sourceLabel": "routes.json · bustago",
+          "note": "창원권↔밀양"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "기존 확인 총액 30,600원의 세부구간을 명시하고 양방향 통일",
+      "evidence": [
+        {
+          "type": "existing_hardcoded_manual",
+          "fare": 30600
+        },
+        {
+          "type": "routes.json",
+          "route_key": "NODE_0053_NODE_0147",
+          "fare": 23300
+        },
+        {
+          "type": "routes.json",
+          "route_key": "NODE_0140_NODE_0146",
+          "fare": 7300
+        }
+      ]
+    },
+    {
+      "id": "GJ_GOSEONG_GN_22300",
+      "status": "VERIFIED_FIX",
+      "from_area": "jg_gj",
+      "to_area": "pk_tg",
+      "endpoint_pattern": "^(고성\\(경남\\))$",
+      "from_name": "광주",
+      "to_name": "고성(경남)",
+      "fare": 22300,
+      "route_label_forward": "광주 → 진주 → 고성(경남)",
+      "route_label_reverse": "고성(경남) → 진주 → 광주",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "진주",
+          "gen": 17700,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "광주→진주"
+        },
+        {
+          "from": "진주",
+          "to": "고성(경남)",
+          "gen": 4600,
+          "sourceLabel": "기존 확인 수기요금",
+          "note": "진주→고성"
+        }
+      ],
+      "method": "YBEZ 2Gen 양방향 노선보정",
+      "reason": "경남 고성만 명시적으로 양방향 통일; 일반 고성은 동명이역 검토 유지",
+      "evidence": [
+        {
+          "type": "existing_hardcoded_manual",
+          "fare": 22300
+        }
+      ]
+    }
+  ]
+}

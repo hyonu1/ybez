@@ -1,0 +1,380 @@
+{
+  "version": "2R.6B-2",
+  "status": "VERIFIED_EXACT_ONLY",
+  "scope": "광주 exact 출발·도착 ↔ 전국",
+  "source_workbook": "YBEZ_광주_전국_LV4_연결검증_2R6B2_광주완성.xlsx",
+  "source_basis": "우선조사_목록 · NAVER",
+  "policy": {
+    "origin_area_id": "jg_gj",
+    "origin_exact_names": ["광주"],
+    "destination_exact_match": true,
+    "max_transfers": 1,
+    "main_fare_only": true,
+    "access_cost_display_deferred": true,
+    "excluded_unresolved": ["군위", "옥천", "영동", "영덕"]
+  },
+  "overrides": [
+    {
+      "id": "GJ_EXACT_GURI_30600",
+      "destination": "구리",
+      "target_area_id": "gg_gn",
+      "fare": 30600,
+      "route_label_forward": "광주 → 구리",
+      "route_label_reverse": "구리 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"구리시외버스정류장","gen":30600,"sourceLabel":"NAVER","note":"구리공항버스정류장 기준 확인값","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__gg_gn"]
+    },
+    {
+      "id": "GJ_EXACT_GOSEONG_GW_56700",
+      "destination": "고성(강원)",
+      "target_area_id": "gw_sgy",
+      "fare": 56700,
+      "route_label_forward": "광주 → 서울 → 고성(강원)",
+      "route_label_reverse": "고성(강원) → 서울 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동서울종합터미널","gen":33300,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"동서울종합터미널","to":"간성터미널","gen":23400,"sourceLabel":"NAVER","note":"고성(강원) 최종 연결 단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: gw_sgy__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_INJE_50500",
+      "destination": "인제",
+      "target_area_id": "gw_hi",
+      "fare": 50500,
+      "route_label_forward": "광주 → 원주 → 인제",
+      "route_label_reverse": "인제 → 원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"원주시외버스터미널","to":"인제터미널","gen":15400,"sourceLabel":"NAVER","note":"단일시외 · 원주 관내 터미널 이동은 별도 합산하지 않음","kind":"bus"}],
+      "supersedes": ["fallback: 인제", "area_graph: gw_hi__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_PYEONGCHANG_45100",
+      "destination": "평창",
+      "target_area_id": "gw_gp",
+      "fare": 45100,
+      "route_label_forward": "광주 → 원주 → 평창",
+      "route_label_reverse": "평창 → 원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"원주시외버스터미널","to":"평창버스터미널","gen":10000,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["fallback: 평창", "area_graph: gw_gp__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_GANGNEUNG_48400",
+      "destination": "강릉",
+      "target_area_id": "gw_gp",
+      "fare": 48400,
+      "route_label_forward": "광주 → 원주 → 강릉",
+      "route_label_reverse": "강릉 → 원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"원주종합버스터미널","to":"강릉시외버스터미널","gen":13300,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["area_graph: gw_gp__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_SOKCHO_54600",
+      "destination": "속초",
+      "target_area_id": "gw_sgy",
+      "fare": 54600,
+      "route_label_forward": "광주 → 서울 → 속초",
+      "route_label_reverse": "속초 → 서울 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동서울종합터미널","gen":33300,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"속초시외버스터미널","to":"동서울종합버스터미널","gen":21300,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["area_graph: gw_sgy__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_YEONGWOL_39500",
+      "destination": "영월",
+      "target_area_id": "gw_hi",
+      "fare": 39500,
+      "route_label_forward": "광주 → 영월",
+      "route_label_reverse": "영월 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"영월시외버스터미널","gen":39500,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["area_graph: gw_tjy__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_WONJU_35100",
+      "destination": "원주",
+      "target_area_id": "gw_wh",
+      "fare": 35100,
+      "route_label_forward": "광주 → 원주",
+      "route_label_reverse": "원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__gw_wh"]
+    },
+    {
+      "id": "GJ_EXACT_JEONGSEON_49700",
+      "destination": "정선",
+      "target_area_id": "gw_hi",
+      "fare": 49700,
+      "route_label_forward": "광주 → 원주 → 정선",
+      "route_label_reverse": "정선 → 원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"원주시외버스터미널","to":"정선공영버스터미널","gen":14600,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["fallback: 정선", "area_graph: gw_tjy__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_CHEORWON_41900",
+      "destination": "철원",
+      "target_area_id": "gw_cw",
+      "fare": 41900,
+      "route_label_forward": "광주 → 서울 → 철원",
+      "route_label_reverse": "철원 → 서울 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"센트럴시티터미널","gen":30800,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"신철원터미널","to":"센트럴시티터미널","gen":11100,"sourceLabel":"NAVER","note":"단일고속","kind":"bus"}],
+      "supersedes": ["MANUAL_AREA_FARES: jg_gj__gw_cw"]
+    },
+    {
+      "id": "GJ_EXACT_TAEBAEK_54800",
+      "destination": "태백",
+      "target_area_id": "gw_tjy",
+      "fare": 54800,
+      "route_label_forward": "광주 → 원주 → 태백",
+      "route_label_reverse": "태백 → 원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"원주종합버스터미널","to":"태백버스터미널","gen":19700,"sourceLabel":"NAVER","note":"시외일반","kind":"bus"}],
+      "supersedes": ["area_graph: gw_tjy__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_HONGCHEON_42500",
+      "destination": "홍천",
+      "target_area_id": "gw_hi",
+      "fare": 42500,
+      "route_label_forward": "광주 → 원주 → 홍천",
+      "route_label_reverse": "홍천 → 원주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"원주고속버스터미널","gen":35100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"원주시외버스터미널","to":"홍천종합버스터미널","gen":7400,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: gw_hi__jg_gj"]
+    },
+    {
+      "id": "GJ_ACCESS_BUCHEON_IC_32800_1650",
+      "destination": "부천",
+      "target_area_id": "gg_bgg",
+      "fare": 32800,
+      "route_label_forward": "광주 → 인천 → 부천",
+      "route_label_reverse": "부천 → 인천 → 광주",
+      "sources": ["NAVER"],
+      "main_segments_forward": [{"from":"광주유스퀘어","to":"인천종합버스터미널","gen":32800,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"}],
+      "segments_forward": [{"from":"광주유스퀘어","to":"인천종합버스터미널","gen":32800,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"인천종합버스터미널","to":"부천","gen":1650,"sourceLabel":"NAVER","note":"인천권 접근비용 선택","kind":"access"}],
+      "access_choice": {"mode":"JOINT_ZONE_CHOICES","lv4":"인천","lv5":"부천","oneway":1650,"source":"NAVER","note":"부천은 인천권 접근비용 선택으로 처리"},
+      "supersedes": ["area_graph: jg_gj__gg_bgg", "기존 최종합계 34550원"]
+    },
+    {
+      "id": "GJ_EXACT_SUWON_27800",
+      "destination": "수원",
+      "target_area_id": "gg_sho",
+      "fare": 27800,
+      "route_label_forward": "광주 → 수원",
+      "route_label_reverse": "수원 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"수원버스터미널","gen":27800,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__gg_sho"]
+    },
+    {
+      "id": "GJ_EXACT_ANYANG_32350",
+      "destination": "안양",
+      "target_area_id": "gg_agug",
+      "fare": 32350,
+      "route_label_forward": "광주 → 안산 → 안양",
+      "route_label_reverse": "안양 → 안산 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"안산버스터미널","gen":30500,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"안산버스터미널","to":"안양","gen":1850,"sourceLabel":"NAVER","note":"안산→안양 최종 연결","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__gg_agug"]
+    },
+    {
+      "id": "GJ_EXACT_GYEONGJU_28100",
+      "destination": "경주",
+      "target_area_id": "tk_gy",
+      "fare": 28100,
+      "route_label_forward": "광주 → 경주",
+      "route_label_reverse": "경주 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"경주고속버스터미널","gen":28100,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__tk_gy"]
+    },
+    {
+      "id": "GJ_EXACT_SANGJU_34100",
+      "destination": "상주",
+      "target_area_id": "tk_sj",
+      "fare": 34100,
+      "route_label_forward": "광주 → 대구 → 상주",
+      "route_label_reverse": "상주 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동대구터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"동대구터미널","to":"상주터미널","gen":11200,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["MANUAL_AREA_FARES: jg_gj__tk_su__sangju_recommended", "MANUAL_AREA_FARES: jg_gj__tk_sj__sangju_recommended"]
+    },
+    {
+      "id": "GJ_EXACT_ANDONG_35100",
+      "destination": "안동",
+      "target_area_id": "tk_ay",
+      "fare": 35100,
+      "route_label_forward": "광주 → 대구 → 안동",
+      "route_label_reverse": "안동 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동대구터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"동대구터미널","to":"안동터미널","gen":12200,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__tk_ay"]
+    },
+    {
+      "id": "GJ_EXACT_YEONGJU_37800",
+      "destination": "영주",
+      "target_area_id": "tk_yb",
+      "fare": 37800,
+      "route_label_forward": "광주 → 대구 → 영주",
+      "route_label_reverse": "영주 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동대구터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"동대구터미널","to":"영주꽃동산정류소","gen":14900,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__tk_yb"]
+    },
+    {
+      "id": "GJ_EXACT_UISEONG_31400",
+      "destination": "의성",
+      "target_area_id": "tk_us",
+      "fare": 31400,
+      "route_label_forward": "광주 → 대구 → 의성",
+      "route_label_reverse": "의성 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"서대구고속버스터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"서대구고속버스터미널","to":"의성시외버스터미널","gen":8500,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__tk_us"]
+    },
+    {
+      "id": "GJ_EXACT_BORYEONG_27100",
+      "destination": "보령",
+      "target_area_id": "dsn_bsc",
+      "fare": 27100,
+      "route_label_forward": "광주 → 군산 → 보령",
+      "route_label_reverse": "보령 → 군산 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"군산시외버스터미널","gen":18600,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"},{"from":"군산시외버스터미널","to":"보령종합터미널","gen":8500,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__dsn_bsc"]
+    },
+    {
+      "id": "GJ_EXACT_SEOSAN_22600",
+      "destination": "서산",
+      "target_area_id": "dsn_sdt",
+      "fare": 22600,
+      "route_label_forward": "광주 → 서산",
+      "route_label_reverse": "서산 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"서산공용버스터미널","gen":22600,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["area_graph: dsn_sdt__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_HONGSEONG_31900",
+      "destination": "홍성",
+      "target_area_id": "dsn_hy",
+      "fare": 31900,
+      "route_label_forward": "광주 → 군산 → 홍성",
+      "route_label_reverse": "홍성 → 군산 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"군산시외버스터미널","gen":18600,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"},{"from":"군산시외버스터미널","to":"내포신도시고속버스정류소","gen":13300,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["MANUAL_AREA_FARES: jg_gj__dsn_hy__hongseong"]
+    },
+    {
+      "id": "GJ_EXACT_GEOCHANG_15600",
+      "destination": "거창",
+      "target_area_id": "pk_gh",
+      "fare": 15600,
+      "route_label_forward": "광주 → 거창",
+      "route_label_reverse": "거창 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"거창버스터미널","gen":15600,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: pk_gh__jg_gj"]
+    },
+    {
+      "id": "GJ_ACCESS_YANGSAN_BS_25900_1550",
+      "destination": "양산",
+      "target_area_id": "pk_ys",
+      "fare": 25900,
+      "route_label_forward": "광주 → 부산 → 양산",
+      "route_label_reverse": "양산 → 부산 → 광주",
+      "sources": ["NAVER"],
+      "main_segments_forward": [{"from":"광주유스퀘어","to":"부산서부사상버스터미널","gen":25900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"}],
+      "segments_forward": [{"from":"광주유스퀘어","to":"부산서부사상버스터미널","gen":25900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"부산서부사상버스터미널","to":"양산","gen":1550,"sourceLabel":"NAVER","note":"부산권 접근비용 선택","kind":"access"}],
+      "access_choice": {"mode":"JOINT_ZONE_CHOICES","lv4":"부산","lv5":"양산","oneway":1550,"source":"NAVER","note":"양산은 부산권 접근비용 선택으로 처리"},
+      "supersedes": ["MANUAL_AREA_FARES: jg_gj__pk_ys", "area_graph: jg_gj__pk_ys"]
+    },
+    {
+      "id": "GJ_EXACT_HAMYANG_14700",
+      "destination": "함양",
+      "target_area_id": "pk_hy",
+      "fare": 14700,
+      "route_label_forward": "광주 → 함양",
+      "route_label_reverse": "함양 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"함양시외버스터미널","gen":14700,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: pk_hy__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_NAMWON_6300",
+      "destination": "남원",
+      "target_area_id": "jb_nw",
+      "fare": 6300,
+      "route_label_forward": "광주 → 남원",
+      "route_label_reverse": "남원 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"남원공용버스터미널","gen":6300,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["area_graph: jb_nw__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_IKSAN_14300",
+      "destination": "익산",
+      "target_area_id": "jb_ik",
+      "fare": 14300,
+      "route_label_forward": "광주 → 익산",
+      "route_label_reverse": "익산 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"익산시외버스터미널","gen":14300,"sourceLabel":"NAVER","note":"시외우등 · 일반요금 11,000원 별도 확인값은 다음 요금등급 패치에서 처리","kind":"bus"}],
+      "supersedes": ["area_graph: jb_ik__jg_gj"]
+    },
+    {
+      "id": "GJ_EXACT_JINCHEON_29200",
+      "destination": "진천",
+      "target_area_id": "cb_je",
+      "fare": 29200,
+      "route_label_forward": "광주 → 대전 → 진천",
+      "route_label_reverse": "진천 → 대전 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"유성복합터미널","gen":18000,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"유성복합터미널","to":"진천종합버스터미널","gen":11200,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["area_graph: jg_gj__cb_je"]
+    },
+    {
+      "id": "GJ_EXACT_GORYEONG_26300",
+      "destination": "고령",
+      "target_area_id": "tk_gccy",
+      "fare": 26300,
+      "route_label_forward": "광주 → 대구 → 고령",
+      "route_label_reverse": "고령 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동대구터미널","gen":22600,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"동대구터미널","to":"고령시외버스정류장","gen":3700,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["GJ_GORYEONG_20700", "MANUAL_AREA_FARES: jg_gj__tk_gccy__goryeong"]
+    },
+    {
+      "id": "GJ_EXACT_GIMCHEON_28300",
+      "destination": "김천",
+      "target_area_id": "tk_gs",
+      "fare": 28300,
+      "route_label_forward": "광주 → 구미 → 김천",
+      "route_label_reverse": "김천 → 구미 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"구미종합터미널","gen":25100,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"},{"from":"구미종합터미널","to":"김천","gen":3200,"sourceLabel":"NAVER","note":"최종 지역 연결 · 다음 패치에서 접근비용 성격 검토","kind":"bus"}],
+      "supersedes": ["GJ_GIMCHEON_25100", "MANUAL_AREA_FARES: jg_gj__tk_gs__gimcheon"]
+    },
+    {
+      "id": "GJ_EXACT_SEONGJU_24900",
+      "destination": "성주",
+      "target_area_id": "tk_gs",
+      "fare": 24900,
+      "route_label_forward": "광주 → 대구 → 성주",
+      "route_label_reverse": "성주 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"서대구고속버스터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"대구","to":"성주","gen":2000,"sourceLabel":"NAVER","note":"지역버스 최종 연결 · 다음 패치에서 접근비용 분리","kind":"bus"}],
+      "supersedes": ["GJ_SEONGJU_23800", "MANUAL_AREA_FARES: jg_gj__tk_gs__seongju"]
+    },
+    {
+      "id": "GJ_EXACT_YEONGYANG_46400",
+      "destination": "영양",
+      "target_area_id": "tk_gccy",
+      "fare": 46400,
+      "route_label_forward": "광주 → 대구 → 영양",
+      "route_label_reverse": "영양 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"대구북부시외버스터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"대구북부시외버스터미널","to":"영양버스정류장","gen":23500,"sourceLabel":"NAVER","note":"시외우등","kind":"bus"}],
+      "supersedes": ["GJ_YEONGYANG_41000", "MANUAL_AREA_FARES: jg_gj__tk_gccy__yeongyang"]
+    },
+    {
+      "id": "GJ_EXACT_CHEONGDO_25500",
+      "destination": "청도",
+      "target_area_id": "tk_gccy",
+      "fare": 25500,
+      "route_label_forward": "광주 → 대구 → 청도",
+      "route_label_reverse": "청도 → 대구 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"동대구터미널","gen":22900,"sourceLabel":"NAVER","note":"고속우등","kind":"bus"},{"from":"동대구역","to":"청도역","gen":2600,"sourceLabel":"NAVER","note":"지역철도 최종 연결 · 다음 패치에서 접근비용 분리","kind":"bus"}],
+      "supersedes": ["GJ_CHEONGDO_25100", "MANUAL_AREA_FARES: jg_gj__tk_gccy__cheongdo"]
+    },
+    {
+      "id": "GJ_EXACT_JINAN_16600",
+      "destination": "진안",
+      "target_area_id": "jb_mj",
+      "fare": 16600,
+      "route_label_forward": "광주 → 장수 → 진안",
+      "route_label_reverse": "진안 → 장수 → 광주",
+      "segments_forward": [{"from":"광주유스퀘어","to":"장계시외버스공용터미널","gen":13400,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"},{"from":"장계시외버스터미널","to":"진안시외버스공용정류장","gen":3200,"sourceLabel":"NAVER","note":"단일시외","kind":"bus"}],
+      "supersedes": ["GJ_JINAN_12500", "MANUAL_AREA_FARES: jg_gj__jb_mj__jinan"]
+    }
+  ],
+  "excluded_candidates": [
+    {"destination":"군위","reason":"확인 경로가 서대구에서 끝나 군위 최종구간 미확정"},
+    {"destination":"옥천","reason":"대전 내부 이동값만 확인되어 옥천 최종구간 미확정"},
+    {"destination":"영동","reason":"대전역·영동역 철도 접근이 포함되어 1회 환승 기준과 최종 분류 미확정"},
+    {"destination":"영덕","reason":"확인 경로가 광주→대구→포항→영덕으로 2회 환승이 되어 최대 1회 기준 충돌"}
+  ]
+}
