@@ -151,10 +151,10 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .vroute-fare.warn{background:#FFF7ED;color:#D97706;border-color:rgba(217,119,6,.22);}
 .vroute-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0;}
 .vroute-src-tag{display:inline-flex;align-items:center;padding:3px 7px;border-radius:7px;font-family:var(--gm);font-size:10px;font-weight:900;line-height:1;background:#FEF6E8;color:var(--blue);border:1px solid rgba(201,125,32,.18);}
-.vroute-src-tag.tag-naver{background:#ECFDF5;color:#059669;border-color:rgba(5,150,105,.20);}
+.vroute-src-tag.tag-naver{background:#03C75A;color:#FFFFFF;border-color:#03A94D;}
 .vroute-src-tag.tag-jne{background:#FEF6E8;color:#C97D20;border-color:rgba(201,125,32,.20);}
 .vroute-src-tag.tag-조례{background:#FFF7ED;color:#D97706;border-color:rgba(217,119,6,.22);}
-.vroute-src-tag.tag-카카오,.vroute-src-tag.tag-kakao{background:#F3E8FF;color:#7C3AED;border-color:rgba(124,58,237,.22);}
+.vroute-src-tag.tag-kakao,.vroute-src-tag.tag-카카오{background:#FEE500;color:#191919;border-color:#E2CD00;}
 .vroute-src-tag.tag-access{background:#EEF2FF;color:#4F46E5;border-color:rgba(79,70,229,.20);}
 .vroute-edge.dotted{border-left-style:dashed;border-left-color:#A7B3C5;}
 .vroute-fare.access{background:#F5F3FF;color:#7C3AED;border-color:rgba(124,58,237,.22);}
@@ -1563,13 +1563,13 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    height:24px;
+    height:27px;
     border-radius:999px;
     border:1px solid rgba(201,125,32,0.20);
     background:#FEF6E8;
     color:#8B5E20;
     font-family:var(--gm);
-    font-size:11px;
+    font-size:13px;
     font-weight:900;
     white-space:nowrap;
   }
@@ -1585,13 +1585,13 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    height:22px;
+    height:25px;
     border-radius:999px;
     border:1px solid rgba(201,125,32,0.16);
     background:#FEF9F0;
     color:#8B5E20;
     font-family:var(--gm);
-    font-size:10px;
+    font-size:12px;
     font-weight:900;
     white-space:nowrap;
   }
@@ -1601,6 +1601,17 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     text-overflow:ellipsis;
     white-space:nowrap;
   }
+  .input-region-tag.region-jg,.sug-region-tag.region-jg{background:#F5E9DD;color:#7A5534;border-color:#DFC9B3;}
+  .input-region-tag.region-seoul,.sug-region-tag.region-seoul{background:#E9EEF5;color:#51647B;border-color:#CAD5E1;}
+  .input-region-tag.region-incheon,.sug-region-tag.region-incheon{background:#E7F1F1;color:#4D6F71;border-color:#C5DCDD;}
+  .input-region-tag.region-gyeonggi,.sug-region-tag.region-gyeonggi{background:#EDF1E7;color:#61704F;border-color:#D2DBC6;}
+  .input-region-tag.region-chungnam,.sug-region-tag.region-chungnam{background:#EEEAF4;color:#665B78;border-color:#D8CFE3;}
+  .input-region-tag.region-chungbuk,.sug-region-tag.region-chungbuk{background:#E8F1F3;color:#526E74;border-color:#CBDDE0;}
+  .input-region-tag.region-jeonbuk,.sug-region-tag.region-jeonbuk{background:#F2EAEF;color:#755D6A;border-color:#DECED7;}
+  .input-region-tag.region-bugyeong,.sug-region-tag.region-bugyeong{background:#E8EEF5;color:#526A82;border-color:#CAD7E4;}
+  .input-region-tag.region-daegyeong,.sug-region-tag.region-daegyeong{background:#F4ECE5;color:#7A604D;border-color:#DFD0C2;}
+  .input-region-tag.region-gangwon,.sug-region-tag.region-gangwon{background:#EAF2EA;color:#55705B;border-color:#CEDDCF;}
+  .input-region-tag.region-jeju,.sug-region-tag.region-jeju{background:#E8F2EF;color:#4F7169;border-color:#C9DDD7;}
   .col-right > .sec-hdr:first-child,
   .col-right > .sec-hdr:first-child + div{
     display:none !important;
@@ -1909,23 +1920,14 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     flex-direction:column;
     align-items:flex-start;
     justify-content:flex-end;
-    gap:5px;
-  }
-  .pc-grade-segment-label{
-    padding-left:3px;
-    color:#8E8E93;
-    font-size:10px;
-    font-weight:850;
-    line-height:1.2;
-    white-space:nowrap;
-    letter-spacing:-.1px;
+    gap:0;
   }
   .pc-grade-wrap .pc-grade-control{order:initial;}
   .pc-grade-control{
     order:1;
     width:auto;
     min-width:184px;
-    min-height:56px;
+    min-height:70px;
     display:flex;
     align-items:flex-end;
     justify-content:flex-start;
@@ -1936,8 +1938,8 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
   .pc-grade-option{
     width:88px;
-    height:56px;
-    padding:6px 8px 5px;
+    height:70px;
+    padding:6px 7px 6px;
     border-radius:13px;
     border:1.5px solid #E5D8C4;
     background:linear-gradient(180deg,#FFFDF8,#F8F2E8);
@@ -1962,8 +1964,10 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     color:#8E5512;
     box-shadow:0 3px 9px rgba(201,125,32,.17),inset 0 1px 0 rgba(255,255,255,.72);
   }
-  .pc-grade-name{font-size:14px;font-weight:950;line-height:1;}
-  .pc-grade-fare{font-size:11px;font-weight:850;line-height:1;color:#8E8E93;}
+  .pc-grade-route{font-size:9px;font-weight:800;line-height:1.1;color:#9A948B;white-space:nowrap;letter-spacing:-.15px;}
+  .pc-grade-name{font-size:14px;font-weight:950;line-height:1;white-space:nowrap;}
+  .pc-grade-fare{font-size:10.5px;font-weight:850;line-height:1;color:#8E8E93;white-space:nowrap;}
+  .pc-grade-option.selected .pc-grade-route{color:#9B6F36;}
   .pc-grade-option.selected .pc-grade-fare{color:#9B621E;}
   .pc-grade-option.placeholder{
     cursor:default;
@@ -1983,34 +1987,42 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
   .legacy-grade-choice{display:none !important;}
 
+  /* R5-J2: PC 중앙 마스코트 확대 + 연한 액자 + 순수 디졸브 */
   .pc-center-mascot-card{
     order:2;
-    width:108px !important;
-    height:110px !important;
-    padding:6px 4px 4px !important;
+    width:148px !important;
+    height:148px !important;
+    padding:3px !important;
     margin-left:auto !important;
-    border-radius:14px !important;
-    background:transparent !important;
-    border:none !important;
-    box-shadow:none !important;
+    border-radius:19px !important;
+    background:rgba(255,253,247,.82) !important;
+    border:1px solid rgba(156,138,114,.20) !important;
+    box-shadow:0 2px 8px rgba(92,69,43,.055) !important;
     overflow:hidden !important;
   }
   .pc-center-mascot-stage{
-    width:100px !important;
-    height:100px !important;
-    flex:0 0 100px !important;
+    width:140px !important;
+    height:140px !important;
+    flex:0 0 140px !important;
     overflow:hidden !important;
-    -webkit-mask-image:radial-gradient(ellipse at 50% 52%,#000 68%,rgba(0,0,0,.96) 78%,rgba(0,0,0,.58) 89%,rgba(0,0,0,0) 100%) !important;
-    mask-image:radial-gradient(ellipse at 50% 52%,#000 68%,rgba(0,0,0,.96) 78%,rgba(0,0,0,.58) 89%,rgba(0,0,0,0) 100%) !important;
+    border-radius:16px !important;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 52%,#000 72%,rgba(0,0,0,.88) 83%,rgba(0,0,0,.38) 94%,rgba(0,0,0,0) 100%) !important;
+    mask-image:radial-gradient(ellipse at 50% 52%,#000 72%,rgba(0,0,0,.88) 83%,rgba(0,0,0,.38) 94%,rgba(0,0,0,0) 100%) !important;
   }
-  .pc-center-mascot-card .mobile-rc-mascot-stage{width:100px !important;height:100px !important;}
+  .pc-center-mascot-card .mobile-rc-mascot-stage{width:140px !important;height:140px !important;}
   .pc-center-mascot-card .mobile-rc-mascot-img{
-    width:100px !important;
-    height:100px !important;
+    width:140px !important;
+    height:140px !important;
     padding:0 !important;
     object-fit:contain !important;
     object-position:center bottom !important;
+    transition:opacity .72s ease !important;
+    transform:none !important;
   }
+  .pc-center-mascot-card .mobile-rc-mascot-img.base{opacity:1 !important;transform:none !important;}
+  .pc-center-mascot-card .mobile-rc-mascot-img.base.dim{opacity:0 !important;transform:none !important;}
+  .pc-center-mascot-card .mobile-rc-mascot-img.incoming{opacity:0 !important;transform:none !important;}
+  .pc-center-mascot-card .mobile-rc-mascot-img.incoming.on{opacity:1 !important;transform:none !important;}
 
   .status-bar{
     min-height:36px !important;
@@ -2074,7 +2086,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
    지역 아이콘은 data/mascot_map.json → assets/mascots/*.webp 기준으로만 표시한다.
    mascot_map.json 또는 이미지 파일이 없으면 아이콘 없이 텍스트만 표시한다.
 */
-const SRC_LABEL = { "bustago": "버스타고", "kobus": "코버스", "tmoneygo": "티머니GO", "asamaru": "아사마루", "JNE2026": "전라남도 여비기준표", "manual": "네이버지도 검증요금", "manual_fare": "네이버지도 검증요금", "manual_override": "네이버지도 검증요금", "chat_override_latest": "네이버지도 검증요금", "latest_chat": "네이버지도 검증요금", "lastest_chat": "네이버지도 검증요금", "fare_table": "네이버지도 검증요금", "route_db": "네이버지도 검증요금", "routes": "네이버지도 검증요금", "area_to_area_fares": "네이버지도 검증요금", "area_graph": "네이버지도 검증요금", "area_rule": "YBEZ 권역규칙", "rural": "농어촌버스 조례", "ferry": "전남여객선 조례", "area_special": "기타교통비", "kakao": "카카오" };
+const SRC_LABEL = { "bustago": "버스타고", "kobus": "코버스", "tmoneygo": "티머니GO", "asamaru": "아사마루", "JNE2026": "전라남도 여비기준표", "manual": "네이버지도 검증요금", "manual_fare": "네이버지도 검증요금", "manual_override": "네이버지도 검증요금", "chat_override_latest": "네이버지도 검증요금", "latest_chat": "네이버지도 검증요금", "lastest_chat": "네이버지도 검증요금", "fare_table": "네이버지도 검증요금", "route_db": "네이버지도 검증요금", "routes": "네이버지도 검증요금", "area_to_area_fares": "네이버지도 검증요금", "area_graph": "네이버지도 검증요금", "area_rule": "YBEZ 권역규칙", "rural": "농어촌버스 조례", "ferry": "전남여객선 조례", "area_special": "기타교통비", "kakao": "KAKAO" };
 /* ── F5-I 표시 전용 출처 정규화 ──
    원자료 source 값은 보존하고, 왼쪽 경로정보/접근선택 UI에 보여주는 명칭만 통일한다. */
 const YBEZ_ACCESS_SOURCE_DISPLAY = Object.freeze({
@@ -2101,7 +2113,7 @@ function ybezRouteSourceDisplay(src) {
     if (/JNE2026|전남여비|여비기준|전라남도\s*여비/i.test(t)) return "JNE시외버스요금표";
     if (/routes\.json|routes DB|권역자료|권역 edge/i.test(t)) return "NAVER";
     if (/area_to_area_fares|manual_fare|manual_override|chat_override_latest|latest_chat|lastest_chat|chat_latest|manual|area_graph|area_bridge|네이버/i.test(t)) return "NAVER";
-    if (/kakao|카카오/i.test(t)) return "카카오";
+    if (/kakao|카카오/i.test(t)) return "KAKAO";
     if (/(?:bustago|버스타고)/i.test(t) && /(?:tmoney|티머니)/i.test(t)) return "BUSTAGO · TMONEY";
     if (/bustago|버스타고/i.test(t)) return "BUSTAGO";
     if (/tmoney|티머니/i.test(t)) return "TMONEY";
@@ -2149,7 +2161,7 @@ function ybezSourceTagClass(label) {
     if (/NAVER/.test(t)) return "naver";
     if (/JNE시외버스요금표/.test(t)) return "jne";
     if (/조례/.test(t)) return "조례";
-    if (/카카오/.test(t)) return "카카오";
+    if (/KAKAO|카카오/i.test(t)) return "kakao";
     if (/누리집|운송사업조합|운송조합|버스정보시스템|대중교통정보|광역생활권/.test(t)) return "access";
     return t.toLowerCase().replace(/\s+/g, "-");
 }
@@ -2383,6 +2395,53 @@ const CANON_CITY_NODE_SUPPLEMENTS = Object.freeze({
     "화성": ["NODE_0263"], "향남": ["NODE_0263"], "동탄": ["NODE_0262"],
     "병점": ["NODE_0037"], "양평": ["NODE_0231"], "경기광주": ["NODE_0213"]
 });
+
+/* ── R5-J: canonical identity 최소 안정화 ──
+   R5-I의 정상 결과를 보존하면서, nodes/alias/area 정책이 같은 도시 identity를 지지하는 경우에만
+   오래된 cross-city canonical 후보를 제거한다. 데이터끼리 대표허브가 충돌하는 도시는 자동교정하지 않는다.
+   - 광주: area graph 확정 NODE_0053, NODE_0052 광주비아·NODE_0213 경기광주는 대표 canonical에서 제외
+   - 천안: alias main NODE_0112, 오래된 NODE_0028(용인IC) 제외
+   - 청주: 오래된 NODE_0044(대전 유성)만 제외하고 대표노드는 기존 alias/runtime 후보에 맡김
+   - 강릉: alias main NODE_0061, 오래된 NODE_0065(속초) 제외
+   창원/서울 등 병렬허브·데이터 충돌 지역은 진단만 하고 기존 정책을 유지한다. */
+const R5J_CANONICAL_PRIMARY = Object.freeze({
+    "광주": "NODE_0053",
+    "천안": "NODE_0112",
+    "청주": null,
+    "강릉": "NODE_0061"
+});
+const R5J_CANONICAL_BLOCKED = Object.freeze({
+    "광주": Object.freeze(["NODE_0052", "NODE_0213"]),
+    "천안": Object.freeze(["NODE_0028"]),
+    "청주": Object.freeze(["NODE_0044"]),
+    "강릉": Object.freeze(["NODE_0065"])
+});
+const r5jFilterCanonicalNodes = (city, ids) => {
+    const blocked = new Set(R5J_CANONICAL_BLOCKED[city] || []);
+    return [...new Set((ids || []).filter(Boolean).filter(id => !blocked.has(id)))];
+};
+const r5jHasCanonicalOverride = (city) => Object.prototype.hasOwnProperty.call(R5J_CANONICAL_PRIMARY, city);
+const r5jCanonicalPrimaryNode = (city) =>
+    r5jHasCanonicalOverride(city) ? R5J_CANONICAL_PRIMARY[city] : (MEGA_MAIN[city] || null);
+const r5jCanonicalBonus = (city, nodeId) => {
+    if (r5jHasCanonicalOverride(city)) {
+        const primary = R5J_CANONICAL_PRIMARY[city];
+        return primary && nodeId === primary ? 1 : 0;
+    }
+    return Object.values(MEGA_MAIN).includes(nodeId) ? 1 : 0;
+};
+if (typeof window !== "undefined") {
+    window.__YBEZ_R5J_CANONICAL_AUDIT__ = {
+        applied: { ...R5J_CANONICAL_PRIMARY },
+        blocked: Object.fromEntries(Object.entries(R5J_CANONICAL_BLOCKED).map(([k, v]) => [k, [...v]])),
+        suppressedLegacyPrimary: { "청주": "NODE_0044" },
+        diagnoseOnly: {
+            "창원": { legacy: "NODE_0047", aliasMain: "NODE_0525", areaPreferred: "NODE_0147", reason: "alias와 area 대표허브 충돌로 자동교정 금지" },
+            "서울": { legacy: "NODE_0003", reason: "서울 내부 병렬허브로 cross-city 오염이 아니므로 기존 정책 유지" }
+        },
+        fareAuthority: "shadow only: JNE>KOBUS>Bustago>Tmoney>NAVER>other; actual selection preserved"
+    };
+}
 
 /* 사용자가 KOBUS에서 직접 확인한 canonical 직행. routesDB에서 같은 KOBUS 직행을 찾으면
    DB 터미널정보를 우선 사용하고, 못 찾을 때만 이 값을 안전 fallback으로 쓴다. */
@@ -2755,6 +2814,16 @@ const mascotHtml = (mascotMap, name, size = 28, delay = 0) => {
     }
     return "";
 };
+/* ── 대권역 배지 표시색 ── */
+function ybezRegionTagClass(label) {
+    const t = String(label || "").trim();
+    const map = {
+        "전남광주": "jg", "서울": "seoul", "인천": "incheon", "경기": "gyeonggi",
+        "대전·세종·충남": "chungnam", "충북": "chungbuk", "전북": "jeonbuk",
+        "부산·울산·경남": "bugyeong", "대구·경북": "daegyeong", "강원": "gangwon", "제주": "jeju"
+    };
+    return map[t] || "neutral";
+}
 /* ── AutocompleteInput ── */
 const AcInput = ({ value, onChange, onSelect, placeholder, label, list, mascotMap, regionLabelForName = null }) => {
     const [sug, setSug] = useState([]);
@@ -2822,7 +2891,7 @@ const AcInput = ({ value, onChange, onSelect, placeholder, label, list, mascotMa
             React.createElement("div", { className: "input-inner" },
                 label && React.createElement("div", { className: "input-label" }, label),
                 React.createElement("div", { className: "input-line" },
-                    regionLabel && React.createElement("span", { className: "input-region-tag" }, regionLabel),
+                    regionLabel && React.createElement("span", { className: `input-region-tag region-${ybezRegionTagClass(regionLabel)}` }, regionLabel),
                     React.createElement("input", { ref: inRef, autoComplete: "off", autoCorrect: "off", autoCapitalize: "off", spellCheck: "false", className: "input-field", placeholder: placeholder, value: value || "", onChange: e => {
                             const v = e.target.value;
                             onChange(v);
@@ -2872,7 +2941,7 @@ const AcInput = ({ value, onChange, onSelect, placeholder, label, list, mascotMa
             const sugRegionLabel = regionLabelForName ? regionLabelForName(c) : "";
             return React.createElement("div", { key: c, className: `sug-item ${i === idx ? "sel" : ""}`, onMouseDown: e => e.preventDefault(), onClick: () => pick(c), onTouchStart: touchStart, onTouchMove: touchMove, onTouchEnd: e => touchEnd(e, c) },
                 React.createElement("span", { className: "sug-name-line", style: { fontFamily: "var(--gm)", fontWeight: 700 } },
-                    sugRegionLabel && React.createElement("span", { className: "sug-region-tag" }, sugRegionLabel),
+                    sugRegionLabel && React.createElement("span", { className: `sug-region-tag region-${ybezRegionTagClass(sugRegionLabel)}` }, sugRegionLabel),
                     React.createElement("span", { className: "sug-name-text" }, c)),
                 React.createElement(MascotIcon, { mascotMap: mascotMap, name: c, size: 34, className: "sug-mascot-img" }));
         }))));
@@ -3421,8 +3490,8 @@ const App = () => {
         if (verifiedEntryNode)
             return [verifiedEntryNode];
         const c = normalizeCity(city);
-        const supplement = CANON_CITY_NODE_SUPPLEMENTS[c] || [];
-        const mergeCanonical = (arr) => [...new Set([...(supplement || []), ...((arr || []).filter(Boolean))])];
+        const supplement = r5jFilterCanonicalNodes(c, CANON_CITY_NODE_SUPPLEMENTS[c] || []);
+        const mergeCanonical = (arr) => r5jFilterCanonicalNodes(c, [...(supplement || []), ...((arr || []).filter(Boolean))]);
 
         // canonical 노드가 확인된 도시는 그 도시 identity를 먼저 유지한다.
         // 옥천→대전 같은 NEARBY_ALIAS는 canonical node가 없는 legacy fallback에서만 사용한다.
@@ -3437,9 +3506,9 @@ const App = () => {
             CITY_GROUP_MAP[c].forEach(sub => { if (aliasLinked[sub])
                 r.push(...(aliasLinked[sub].node_ids || [aliasLinked[sub].main_node].filter(Boolean))); });
             const grouped = mergeCanonical(r);
-            const mn = MEGA_MAIN[c];
-            if (mn && !grouped.includes(mn)) grouped.unshift(mn);
-            else if (mn && grouped[0] !== mn) { grouped.splice(grouped.indexOf(mn), 1); grouped.unshift(mn); }
+            const mn = r5jCanonicalPrimaryNode(c);
+            if (mn && !grouped.includes(mn) && !(R5J_CANONICAL_BLOCKED[c] || []).includes(mn)) grouped.unshift(mn);
+            else if (mn && grouped.includes(mn) && grouped[0] !== mn) { grouped.splice(grouped.indexOf(mn), 1); grouped.unshift(mn); }
             return grouped;
         }
         // 대구 대표명 (동대구+대구서부)
@@ -3459,9 +3528,9 @@ const App = () => {
         if (aliasLinked[c]) {
             const e = aliasLinked[c];
             const nodes = mergeCanonical(e.node_ids || [e.main_node].filter(Boolean));
-            const mn = MEGA_MAIN[c];
-            if (mn && !nodes.includes(mn)) nodes.unshift(mn);
-            else if (mn && nodes[0] !== mn) { nodes.splice(nodes.indexOf(mn), 1); nodes.unshift(mn); }
+            const mn = r5jCanonicalPrimaryNode(c);
+            if (mn && !nodes.includes(mn) && !(R5J_CANONICAL_BLOCKED[c] || []).includes(mn)) nodes.unshift(mn);
+            else if (mn && nodes.includes(mn) && nodes[0] !== mn) { nodes.splice(nodes.indexOf(mn), 1); nodes.unshift(mn); }
             return nodes;
         }
         // 보완표만으로도 identity가 확실한 도시는 legacy 광역대체보다 우선한다.
@@ -3521,6 +3590,20 @@ const App = () => {
         if (ss.includes("jne2026")) return 2;
         if (ss.some(x => /naver|manual|chat_override|latest_chat/.test(x))) return 4;
         return 3;
+    };
+    // R5-J 최신 확정 authority: JNE → KOBUS → Bustago → Tmoney → NAVER → 기타.
+    // 동일요금 Shadow 비교에만 사용한다. 실제 후보 선택은 R5-I comparator를 그대로 보존한다.
+    const routeAuthorityPriority = (srcs) => {
+        const ss = (srcs || []).map(x => String(x || "").toLowerCase());
+        const rankOne = (s) => {
+            if (/^jne|jne2026/.test(s)) return 0;
+            if (s === "kobus") return 10;
+            if (s === "bustago") return 20;
+            if (/tmoney/.test(s)) return 30;
+            if (/naver/.test(s)) return 40;
+            return 50;
+        };
+        return ss.length ? Math.min(...ss.map(rankOne)) : 60;
     };
     /* sources에서 우선소스 있으면 asamaru 숨김 */
     const dispSrcs = (srcs) => {
@@ -3647,6 +3730,30 @@ const App = () => {
             return cand.pre;
         return cand.gen || cand.pre || 0;
     };
+    const r5jBetterRouteCandidate = (cand, best) => {
+        if (!best) return true;
+        const cf = Number(candidateFare(cand) || 0), bf = Number(candidateFare(best) || 0);
+        const ca = Number(cand._authorityRank != null ? cand._authorityRank : routeAuthorityPriority(cand.all_sources || cand.sources || []));
+        const ba = Number(best._authorityRank != null ? best._authorityRank : routeAuthorityPriority(best.all_sources || best.sources || []));
+        const cr = Number(cand._sourceRank != null ? cand._sourceRank : 99);
+        const br = Number(best._sourceRank != null ? best._sourceRank : 99);
+        const cm = Number(cand._megaCount || 0), bm = Number(best._megaCount || 0);
+        const legacyBetter = cr < br || (cr === br && cm > bm) || (cr === br && cm === bm && cf < bf);
+        // R5-J shadow only: 동일요금이어도 최신 authority가 다른 터미널쌍을 고르는 사례가 확인되어
+        // 실제 선택은 R5-I legacy comparator를 그대로 보존하고 차이만 비표시 audit에 기록한다.
+        if (cf > 0 && cf === bf && ca !== ba) {
+            const authorityBetter = ca < ba;
+            if (authorityBetter !== legacyBetter && typeof window !== "undefined") {
+                const hist = Array.isArray(window.__YBEZ_R5J_FARE_AUTHORITY_SHADOW__) ? window.__YBEZ_R5J_FARE_AUTHORITY_SHADOW__ : [];
+                window.__YBEZ_R5J_FARE_AUTHORITY_SHADOW__ = [...hist.slice(-99), {
+                    fare: cf, authorityBetter, legacyBetter,
+                    candidate: { depId: cand.depId || cand._dx || null, arrId: cand.arrId || cand._dy || null, sources: cand.all_sources || cand.sources || [] },
+                    current: { depId: best.depId || best._dx || null, arrId: best.arrId || best._dy || null, sources: best.all_sources || best.sources || [] }
+                }];
+            }
+        }
+        return legacyBetter;
+    };
     const lookupRoute = useCallback((fromCity, toCity, prefOnly = false, minFare = 0) => {
         if (!routesDB)
             return null;
@@ -3667,20 +3774,16 @@ const App = () => {
                         continue;
                     if (prefOnly && !srcs.some(s => PREF_SRC.has(s)))
                         continue;
-                    const isMegaDep = Object.values(MEGA_MAIN).includes(dep);
-                    const isMegaArr = Object.values(MEGA_MAIN).includes(arr);
                     const candidate = {
                         gen, pre, depId: dep, arrId: arr,
                         depName: getNodeName(dep, fromCity),
                         arrName: getNodeName(arr, toCity),
                         sources: dispSrcs(srcs), all_sources: srcs, dr: rt.display_route || "",
                         gradeSelectable: picked.gradeSelectable, gradeDefault: picked.gradeDefault, fareGrade: picked.fareGrade, kobusUdeung: picked.kobusUdeung,
-                        _sourceRank: routeSourcePriority(srcs), _megaCount: Number(isMegaDep) + Number(isMegaArr)
+                        _sourceRank: routeSourcePriority(srcs), _authorityRank: routeAuthorityPriority(srcs),
+                        _megaCount: r5jCanonicalBonus(normalizeCity(fromCity), dep) + r5jCanonicalBonus(normalizeCity(toCity), arr)
                     };
-                    const better = !best
-                        || candidate._sourceRank < best._sourceRank
-                        || (candidate._sourceRank === best._sourceRank && candidate._megaCount > best._megaCount)
-                        || (candidate._sourceRank === best._sourceRank && candidate._megaCount === best._megaCount && candidateFare(candidate) < candidateFare(best));
+                    const better = r5jBetterRouteCandidate(candidate, best);
                     if (gen && better) best = candidate;
                 }
             }
@@ -3760,9 +3863,9 @@ const App = () => {
         const tc = nz(toCity);
         const fEntry = aliasLinked[fc];
         const tEntry = aliasLinked[tc];
-        // MEGA_MAIN 하드코딩 우선, 없으면 alias_linked main_node
-        const fMainNode = MEGA_MAIN[fc] || (fEntry === null || fEntry === void 0 ? void 0 : fEntry.main_node);
-        const tMainNode = MEGA_MAIN[tc] || (tEntry === null || tEntry === void 0 ? void 0 : tEntry.main_node);
+        // R5-J: 명백한 cross-city legacy만 현재 canonical primary로 교정하고, 나머지는 기존 fallback 유지.
+        const fMainNode = r5jCanonicalPrimaryNode(normalizeCity(fc)) || (fEntry === null || fEntry === void 0 ? void 0 : fEntry.main_node);
+        const tMainNode = r5jCanonicalPrimaryNode(normalizeCity(tc)) || (tEntry === null || tEntry === void 0 ? void 0 : tEntry.main_node);
         const fNodes = resolveNodes(fromCity);
         const tNodes = resolveNodes(toCity);
         let primary = null;
@@ -3984,15 +4087,16 @@ const App = () => {
         const lf = (a, b) => {
             var _a, _b;
             const toNd = (city) => {
-                // MEGA_MAIN 노드를 반드시 맨 앞에 포함 (청주고속 등 누락 방지)
-                const mega = MEGA_MAIN[city] ? [MEGA_MAIN[city]] : [];
-                const canon = CANON_NODES[city] || [];
                 const e = aliasLinked ? aliasLinked[city] : null;
-                const fromAlias = (e && e.node_ids && e.node_ids.length) ? e.node_ids.slice(0, 6) : [];
-                return [...new Set([...mega, ...canon, ...fromAlias])].filter(Boolean).slice(0, 8) || [city];
+                const primary = r5jCanonicalPrimaryNode(city);
+                const canon = r5jFilterCanonicalNodes(city, CANON_NODES[city] || []);
+                const fromAlias = r5jFilterCanonicalNodes(city, (e && e.node_ids && e.node_ids.length) ? e.node_ids.slice(0, 6) : []);
+                const merged = r5jFilterCanonicalNodes(city, [...(primary ? [primary] : []), ...canon, ...fromAlias]);
+                return merged.length ? merged.slice(0, 8) : [city];
             };
             const an = toNd(a), bn = toNd(b);
-            const megaA = MEGA_MAIN[a], megaB = MEGA_MAIN[b];
+            const megaA = r5jCanonicalPrimaryNode(a);
+            const megaB = r5jCanonicalPrimaryNode(b);
             let best = null;
             for (const x of an) {
                 for (const y of bn) {
@@ -4011,12 +4115,10 @@ const App = () => {
                             from: a, to: b, _dx: x, _dy: y, depId: x, arrId: y,
                             depName: getNodeName(x, a), arrName: getNodeName(y, b),
                             gradeSelectable: picked.gradeSelectable, gradeDefault: picked.gradeDefault, fareGrade: picked.fareGrade, kobusUdeung: picked.kobusUdeung,
-                            _sourceRank: routeSourcePriority(rt.sources || []), _megaCount: Number(isMegaDep) + Number(isMegaArr)
+                            _sourceRank: routeSourcePriority(rt.sources || []), _authorityRank: routeAuthorityPriority(rt.sources || []),
+                            _megaCount: Number(isMegaDep) + Number(isMegaArr)
                         };
-                        const better = !best
-                            || cand._sourceRank < best._sourceRank
-                            || (cand._sourceRank === best._sourceRank && cand._megaCount > best._megaCount)
-                            || (cand._sourceRank === best._sourceRank && cand._megaCount === best._megaCount && candidateFare(cand) < candidateFare(best));
+                        const better = r5jBetterRouteCandidate(cand, best);
                         if (better) best = cand;
                     }
                 }
@@ -5020,7 +5122,7 @@ const App = () => {
         const raw = canonicalEndpointName ? canonicalEndpointName(value) : nz(value);
         const c = normalizeCity(raw);
         const out = [];
-        const add = (ids) => (ids || []).forEach(id => { if (id && !out.includes(id)) out.push(id); });
+        const add = (ids) => r5jFilterCanonicalNodes(c, ids || []).forEach(id => { if (id && !out.includes(id)) out.push(id); });
         add(CANON_CITY_NODE_SUPPLEMENTS[c] || []);
         if (CITY_GROUP_MAP[c]) {
             CITY_GROUP_MAP[c].forEach(k => {
@@ -5038,6 +5140,8 @@ const App = () => {
                 if (dn && dn.includes(c)) add([n.node_id]);
             });
         }
+        const primary = R5J_CANONICAL_PRIMARY[c] || null;
+        if (primary && out.includes(primary) && out[0] !== primary) { out.splice(out.indexOf(primary), 1); out.unshift(primary); }
         return out;
     }, [canonicalEndpointName, aliasLinked, nodesMap]);
 
@@ -5063,21 +5167,18 @@ const App = () => {
                 depName: getNodeName(dep, from), arrName: getNodeName(arr, to),
                 sources: dispSrcs(srcs), all_sources: srcs, dr: rt.display_route || `${from}→${to}`,
                 gradeSelectable: picked.gradeSelectable, gradeDefault: picked.gradeDefault, fareGrade: picked.fareGrade, kobusUdeung: picked.kobusUdeung,
-                _sourceRank: routeSourcePriority(srcs),
-                _megaCount: Number(MEGA_MAIN[from] === dep) + Number(MEGA_MAIN[to] === arr),
+                _sourceRank: routeSourcePriority(srcs), _authorityRank: routeAuthorityPriority(srcs),
+                _megaCount: r5jCanonicalBonus(from, dep) + r5jCanonicalBonus(to, arr),
                 f5fCanonicalDirect: true
             };
-            const better = !best
-                || cand._sourceRank < best._sourceRank
-                || (cand._sourceRank === best._sourceRank && cand._megaCount > best._megaCount)
-                || (cand._sourceRank === best._sourceRank && cand._megaCount === best._megaCount && candidateFare(cand) < candidateFare(best));
+            const better = r5jBetterRouteCandidate(cand, best);
             if (better) best = cand;
         }
         // JNE direct is trusted above generic/NAVER route candidates when no KOBUS/BUSTAGO candidate exists.
         const jne = (JNE_FARES[from] && JNE_FARES[from][to]) || (JNE_FARES[to] && JNE_FARES[to][from]) || null;
         if (jne) {
             const jc = { ...jne, pre: jne.pre || null, depId: null, arrId: null, depName: from, arrName: to,
-                sources: ["JNE2026"], all_sources: ["JNE2026"], dr: `${from}→${to}`, _sourceRank: 2, _megaCount: 0, f5fCanonicalDirect: true };
+                sources: ["JNE2026"], all_sources: ["JNE2026"], dr: `${from}→${to}`, _sourceRank: 2, _authorityRank: 0, _megaCount: 0, f5fCanonicalDirect: true };
             if (!best || jc._sourceRank < best._sourceRank || (jc._sourceRank === best._sourceRank && candidateFare(jc) < candidateFare(best))) best = jc;
         }
         // 사용자 KOBUS 검증 직행은 DB KOBUS 후보가 없거나 더 낮은 신뢰후보만 있을 때 canonical fallback.
@@ -5088,7 +5189,7 @@ const App = () => {
                 gen: Number(fixed.gen), pre: null, depId: null, arrId: null, depName: from, arrName: to,
                 sources: [fixed.source], all_sources: [fixed.source], dr: `${from}→${to}`,
                 gradeSelectable: false, gradeDefault: "gen", fareGrade: fixed.fareGrade || "고속", kobusUdeung: fixed.source === "kobus",
-                _sourceRank: 0, _megaCount: 0, f5fCanonicalDirect: true, verifiedCanonicalDetail: fixed.detail || ""
+                _sourceRank: 0, _authorityRank: routeAuthorityPriority([fixed.source]), _megaCount: 0, f5fCanonicalDirect: true, verifiedCanonicalDetail: fixed.detail || ""
             };
         }
         return best;
@@ -9744,8 +9845,8 @@ const App = () => {
             setAccessSelection("none");
             setAccessSelections({ origin: "fare", destination: "fare" });
             setBypassInfo([
-                "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.",
-                "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요."
+                "2세대는 전남광주↔전국 구간을 지원하는 웹앱입니다.",
+                "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요."
             ]);
             setCalcSt("error_scope");
             const scopeAudit = {
@@ -9818,9 +9919,9 @@ const App = () => {
                 dr: routeLabel.replace(/\s*→\s*/g, "→"), routeLabel, mainRouteLabel: routeLabel, displayRouteLabel: routeLabel,
                 origin: rawFrom, dest: rawTo, userOrigin: rawFrom, userDest: rawTo, via: null,
                 areaRoute: true, areaSpecial: true, areaScore: 5, areaMethod: "제주 교통비 실비 입력",
-                areaDetail: "제주 이동은 항공·선박·육상 접근경로가 다양하여 2세대에서는 자동 산정하지 않습니다. 기타교통비에 실제 이용액을 입력합니다.",
+                areaDetail: "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.",
                 needsManualFare: true, manualFareLabel: "실비 입력", manualOtherTransportOnly: true,
-                specialTransportNotice: "제주 이동은 자동 산정하지 않습니다. 기타교통비에 실제 이용액을 실비 입력해주세요.",
+                specialTransportNotice: "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.",
                 areaSegments: null, multiHop: null, islandLegs: [], islandRouteLabel: "", isShipOnlyRoute: false
             };
             applyCalcResult(manualRes);
@@ -10203,6 +10304,7 @@ const App = () => {
                 const deriveR5GradeTotals = (opt) => {
                     const trace = Array.isArray(opt && opt.fareTrace) ? opt.fareTrace : [];
                     let genTotal = 0, preTotal = 0, variableCount = 0, firstFrom = "", lastTo = "";
+                    const gradeChoiceSegments = [];
                     for (const t of trace) {
                         const binding = t && t.binding;
                         const candidates = Array.isArray(binding && binding.candidates) ? binding.candidates : [];
@@ -10221,13 +10323,20 @@ const App = () => {
                             genTotal += g; preTotal += pr; variableCount += 1;
                             if (!firstFrom) firstFrom = t.from || "전남광주";
                             lastTo = t.to || firstFrom;
+                            gradeChoiceSegments.push({
+                                from: t.from || "전남광주",
+                                to: t.to || t.from || "전남광주",
+                                gen: g,
+                                pre: pr,
+                                source: String(binding && binding.selectedSource || chosen && chosen.source || "JNE2026")
+                            });
                         } else {
                             const fixed = Number(t && t.fare || 0);
                             genTotal += fixed; preTotal += fixed;
                         }
                     }
                     return variableCount > 0 && genTotal > 0 && preTotal > 0
-                        ? { gen: genTotal, pre: preTotal, variableCount, from: firstFrom, to: lastTo }
+                        ? { gen: genTotal, pre: preTotal, variableCount, from: firstFrom, to: lastTo, gradeChoiceSegments }
                         : null;
                 };
                 // R5-D2 access handoff는 경로 승격 성공과 접근비용 분리를 로그에서도 구분한다.
@@ -10261,7 +10370,10 @@ const App = () => {
                             from: r5GradeTotals.from, to: r5GradeTotals.to,
                             source: "JNE2026", sourceLabel: "2026.1.1.자 전라남도 여비기준표",
                             fareType: "일반/우등", inherited: true, runtime: true,
-                            r5WholeRouteGradeTotal: true, variableCount: r5GradeTotals.variableCount
+                            r5WholeRouteGradeTotal: true, variableCount: r5GradeTotals.variableCount,
+                            segmentGen: Number((r5GradeTotals.gradeChoiceSegments[0] || {}).gen || 0),
+                            segmentPre: Number((r5GradeTotals.gradeChoiceSegments[0] || {}).pre || 0),
+                            gradeChoiceSegments: r5GradeTotals.gradeChoiceSegments
                         } : (promoted.gradeSegmentOverride || null),
                         routeLabel: selectedOption.routeLabel || promoted.routeLabel,
                         mainRouteLabel: selectedOption.routeLabel || promoted.mainRouteLabel || promoted.routeLabel,
@@ -11279,8 +11391,8 @@ const App = () => {
                 setAccessSelection("none");
                 setAccessSelections({ origin: "fare", destination: "fare" });
                 setBypassInfo([
-                    "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.",
-                    "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요."
+                    "2세대는 전남광주↔전국 구간을 지원하는 웹앱입니다.",
+                    "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요."
                 ]);
                 setCalcSt("error_scope");
                 const scopePayload = {
@@ -11361,7 +11473,11 @@ const App = () => {
                 sourceLabel: inheritedSeg.sourceLabel || inheritedSeg.source || "JNE2026",
                 fareType: inheritedSeg.fareType || "일반/우등",
                 inherited: true,
-                runtime: !!inheritedSeg.runtime
+                runtime: !!inheritedSeg.runtime,
+                r5WholeRouteGradeTotal: !!inheritedSeg.r5WholeRouteGradeTotal,
+                segmentGen: Number(inheritedSeg.segmentGen || inheritedSeg.gen || 0),
+                segmentPre: Number(inheritedSeg.segmentPre || inheritedSeg.pre || 0),
+                gradeChoiceSegments: Array.isArray(inheritedSeg.gradeChoiceSegments) ? inheritedSeg.gradeChoiceSegments : []
             };
         }
         const runtimeOv = result.runtimeFareOverride;
@@ -11594,13 +11710,13 @@ const App = () => {
         ? (((subResults === null || subResults === void 0 ? void 0 : subResults.specialSubs) || []).find(r => r && r.sameLiving) || null)
         : null;
     const accessNoticeText = activeAccessPlans.filter(p => p && p.mode === "JOINT_ZONE_CHOICES").length > 1
-        ? `${activeAccessPlans.filter(p => p && p.mode === "JOINT_ZONE_CHOICES").map(p => p.side === "origin" ? `${p.lv5} → ${p.lv4}` : `${p.lv4} → ${p.lv5}`).join(" / ")} 구간은 같은 광역생활권입니다. 각 접근비용 반영 여부를 선택하세요.`
+        ? `${activeAccessPlans.filter(p => p && p.mode === "JOINT_ZONE_CHOICES").map(p => p.side === "origin" ? `${p.lv5}→${p.lv4}` : `${p.lv4}→${p.lv5}`).join(" / ")} 구간은 같은 광역생활권으로 분류됩니다. 각 구간별로 광역생활권 처리(0원)와 접근비용 반영 중 하나를 선택해 주세요.`
         : accessPlanForNotice && accessPlanForNotice.mode === "JOINT_ZONE_CHOICES"
-        ? `${accessPlanForNotice.side === "origin" ? accessPlanForNotice.lv5 : accessPlanForNotice.lv4} → ${accessPlanForNotice.side === "origin" ? accessPlanForNotice.lv4 : accessPlanForNotice.lv5} 구간은 같은 광역생활권입니다. 광역생활권 처리(0원) 또는 접근비용 반영 여부를 선택하세요.`
+        ? `${accessPlanForNotice.side === "origin" ? accessPlanForNotice.lv5 : accessPlanForNotice.lv4}→${accessPlanForNotice.side === "origin" ? accessPlanForNotice.lv4 : accessPlanForNotice.lv5} 구간은 같은 광역생활권으로 분류됩니다. 광역생활권 처리(0원)와 접근비용 반영 중 하나를 선택해 주세요.`
         : accessPlanForNotice && accessPlanForNotice.mode === "JOINT_ZONE_ZERO"
             ? `${accessPlanForNotice.side === "origin" ? accessPlanForNotice.lv5 : accessPlanForNotice.lv4} → ${accessPlanForNotice.side === "origin" ? accessPlanForNotice.lv4 : accessPlanForNotice.lv5} 구간은 같은 광역생활권으로 0원 처리합니다.`
         : sameLivingNoticeItem
-            ? `${sameLivingNoticeItem.depName} → ${sameLivingNoticeItem.arrName} 구간은 같은 광역생활권입니다. 광역생활권 처리(0원) 또는 접근비용 반영 여부를 선택하세요.`
+            ? `${sameLivingNoticeItem.depName}→${sameLivingNoticeItem.arrName} 구간은 같은 광역생활권으로 분류됩니다. 광역생활권 처리(0원)와 접근비용 반영 중 하나를 선택해 주세요.`
             : "";
     const partialRouteNoticeText = useMemo(() => {
         const p = result && result.partialRoute;
@@ -11680,6 +11796,12 @@ const App = () => {
     useEffect(() => {
         if (!result)
             return;
+        if (result.manualOtherTransportOnly) {
+            setManualTransport(null);
+            if (!transportFocused.current)
+                setManualTransportInput("");
+            return;
+        }
         const fare = Number(selectedFare || 0);
         const next = (fare + activeAccessOneWay) * 2;
         setManualTransport(next);
@@ -11703,7 +11825,7 @@ const App = () => {
     }, [result]);
     const shipFareHint = useMemo(() => {
         if (!result) return "";
-        if (result.manualOtherTransportOnly) return "제주 이동 교통비는 기타교통비에 실비 입력합니다.";
+        if (result.manualOtherTransportOnly) return "";
         if (shipAutoSummary.parts.length) return shipAutoSummary.parts.map(p => `${p.route} 여객선 조례 · 편도 ${fmt(p.one)}원 / 왕복 ${fmt(p.round)}원`).join(" / ");
         const realCostLegs = (result.islandLegs || []).filter(x => x.kind === "ferry" && (x.realCost || x.fare == null));
         if (realCostLegs.length) return `${realCostLegs.map(x => String(x.route || "여객선 구간").replace("→", " ↔ ")).join(" / ")} 여객선 운임 · 실비 입력`;
@@ -12233,7 +12355,7 @@ const App = () => {
         if (!result)
             return "";
         if (result.partialRoute) return "일부 구간만 반영";
-        if (result.manualOtherTransportOnly) return "기타교통비 실비 입력";
+        if (result.manualOtherTransportOnly) return "실비 입력";
         const legs = result.islandLegs || [];
         const ruralLegs = legs.filter(x => x.kind === "rural");
         const hasRural = ruralLegs.length > 0;
@@ -12251,13 +12373,13 @@ const App = () => {
     }, [result]);
     const specialTransportStatusText = useMemo(() => {
         if (!result || result.partialRoute) return "";
-        if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 교통비는 기타교통비에 실비 입력해주세요.";
+        if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.";
         const ferry = (result.islandLegs || []).find(x => x.kind === "ferry");
         if (!ferry) return "";
-        const route = String(ferry.route || "여객선 구간").replace("→", " → ");
-        if (ferry.realCost || ferry.fare == null) return `${route} 여객선 운임은 기타교통비에 실비 입력합니다.`;
+        const route = String(ferry.route || "여객선 구간").replace(/\s*→\s*/g, "→");
+        if (ferry.realCost || ferry.fare == null) return `${route} 여객선 운임은 별도 조례 기준이 없어, 실제 운임을 직접 확인하신 후 기타교통비에 실비로 입력해 주세요.`;
         const one = Number(ferry.fare || 0);
-        return `${route} 여객선은 조례 기준 편도 ${fmt(one)}원 · 왕복 ${fmt(one * 2)}원을 기타교통비에 반영합니다.`;
+        return `${route} 여객선은 조례 기준으로 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 기타교통비에 자동 반영됩니다. 실제 운임과 다를 경우 직접 수정해 주세요.`;
     }, [result]);
     /* 지도 폐기 후 표시 전용: 터미널명·구간요금 세로 경로표 */
     const formatSourceLabel = useCallback((src) => ybezRouteSourceDisplay(src), []);
@@ -12423,6 +12545,7 @@ const App = () => {
                 const inherited = activeJneGradePair && activeJneGradePair.inherited && result.gradeSegmentOverride && index === result.gradeSegmentOverride.segmentIndex;
                 const namakDirectGrade = !!(result.namakExactBinding && activeJneGradePair && index === 0);
                 const activePairSegment = !!(activeJneGradePair
+                    && !activeJneGradePair.r5WholeRouteGradeTotal
                     && ((sameContinuityPlace(seg.from, activeJneGradePair.from) && sameContinuityPlace(seg.to, activeJneGradePair.to))
                         || (sameContinuityPlace(seg.from, activeJneGradePair.to) && sameContinuityPlace(seg.to, activeJneGradePair.from))));
                 const useSelectedGrade = inherited || namakDirectGrade || activePairSegment;
@@ -12649,7 +12772,7 @@ const App = () => {
         return "";
     }, []);
     /* ── 모바일 마스코트: 기존 이미지 유지 + 깜빡임 없는 디졸브 전환 ── */
-    const MobileMascotImage = (({ dmn, mascotMap }) => {
+    const MobileMascotImage = (({ dmn, mascotMap, transitionMs = 600 }) => {
         const [entry, setEntry] = React.useState(null);
         const [incoming, setIncoming] = React.useState(null);
         const [incomingOn, setIncomingOn] = React.useState(false);
@@ -12668,9 +12791,9 @@ const App = () => {
             setIncoming(next);
             setIncomingOn(false);
             const raf = requestAnimationFrame(() => setIncomingOn(true));
-            const t = setTimeout(() => { setEntry(next); setIncoming(null); setIncomingOn(false); }, 600);
+            const t = setTimeout(() => { setEntry(next); setIncoming(null); setIncomingOn(false); }, transitionMs);
             return () => { cancelAnimationFrame(raf); clearTimeout(t); };
-        }, [dmn, mascotMap, entry === null || entry === void 0 ? void 0 : entry.image]);
+        }, [dmn, mascotMap, entry === null || entry === void 0 ? void 0 : entry.image, transitionMs]);
         if (!entry && !incoming)
             return React.createElement("div", { className: "mobile-rc-mascot-fallback" }, "\u00B7");
         return (React.createElement("div", { className: "mobile-rc-mascot-stage" },
@@ -12722,7 +12845,7 @@ const App = () => {
         const dmn = activeName || (storyKeys.length ? storyKeys[storyIdx % storyKeys.length] : initialMascot);
         return React.createElement("div", { className: "pc-center-mascot-card", "aria-label": dmn ? `${dmn} 사진` : "지역 사진" },
             React.createElement("div", { className: "pc-center-mascot-stage" },
-                React.createElement(MobileMascotImage, { dmn: dmn, mascotMap: mascotMap })));
+                React.createElement(MobileMascotImage, { dmn: dmn, mascotMap: mascotMap, transitionMs: 720 })));
     });
     const selectRuntimeGrade = (nextGrade) => {
         chooseRuntimeGrade(nextGrade);
@@ -12735,18 +12858,25 @@ const App = () => {
                     React.createElement("button", { type: "button", className: "pc-grade-option placeholder", disabled: true, "aria-hidden": "true", tabIndex: -1 }),
                     React.createElement("button", { type: "button", className: "pc-grade-option placeholder", disabled: true, "aria-hidden": "true", tabIndex: -1 })));
         }
+        const buttonGenFare = activeJneGradePair.r5WholeRouteGradeTotal
+            ? Number(activeJneGradePair.segmentGen || 0)
+            : Number(activeJneGradePair.gen || 0);
+        const buttonPreFare = activeJneGradePair.r5WholeRouteGradeTotal
+            ? Number(activeJneGradePair.segmentPre || 0)
+            : Number(activeJneGradePair.pre || 0);
+        const buttonRouteLabel = `${activeJneGradePair.from} → ${activeJneGradePair.to}`;
         return React.createElement("div", { className: "pc-grade-wrap" },
-            React.createElement("div", { className: "pc-grade-segment-label" }, activeGradeSegmentLabel),
-            React.createElement("div", { className: "pc-grade-control active", "aria-label": `${activeGradeSegmentLabel} 일반 우등 선택` },
-                [["gen", "일반", activeJneGradePair.gen], ["pre", "우등", activeJneGradePair.pre]].map(([g, label, fare]) =>
+            React.createElement("div", { className: "pc-grade-control active", "aria-label": `${activeGradeSegmentLabel} 시외 일반 우등 선택` },
+                [["gen", "시외일반", buttonGenFare], ["pre", "시외우등", buttonPreFare]].map(([g, label, fare]) =>
                     React.createElement("button", {
                         key: g,
                         type: "button",
                         className: `pc-grade-option ${grade === g ? "selected" : ""}`,
                         onClick: () => selectRuntimeGrade(g),
                         "aria-pressed": grade === g,
-                        title: `${activeGradeSegmentLabel} · ${label} ${fmt(fare)}원`
+                        title: `${buttonRouteLabel} · ${label} ${fmt(fare)}원`
                     },
+                        React.createElement("span", { className: "pc-grade-route" }, buttonRouteLabel),
                         React.createElement("span", { className: "pc-grade-name" }, label),
                         React.createElement("span", { className: "pc-grade-fare" }, `${fmt(fare)}원`)))));
     });
@@ -12759,8 +12889,8 @@ const App = () => {
                 React.createElement("div", { className: "vroute-detail" },
                     React.createElement("div", { className: "vroute-detail-body" }, calcSt === "error_scope"
                         ? React.createElement(React.Fragment, null,
-                            "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.", React.createElement("br", null),
-                            "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요.")
+                            "2세대는 전남광주↔전국 구간을 지원하는 웹앱입니다.", React.createElement("br", null),
+                            "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요.")
                         : "출발지와 도착지를 검색하면 구간별 요금과 출처가 표시됩니다."))));
         const rows = verticalRouteRows;
         if (!rows.length)
@@ -12922,10 +13052,9 @@ const App = () => {
                 React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"} ${(calcSt === "error_scope" || (!result && !nz(origin) && !nz(dest))) ? "status-tall" : ""}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
-                        "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.", React.createElement("br", null),
-                        "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요.")) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" }, partialRouteNoticeText)) : specialTransportStatusText ? (React.createElement("span", { className: "status-message access" }, specialTransportStatusText)) : accessNoticeText ? (React.createElement("span", { className: "status-message access" }, accessNoticeText)) : showGradeGuide ? (React.createElement("span", { className: "status-message grade" }, "해당 구간은 일반/우등 요금이 존재합니다. 요금을 선택해 주세요.")) : !result && !nz(origin) && !nz(dest) ? (React.createElement("span", { className: "status-message intro" },
-                        "전남광주와 전국 지역 간 출장 여비 계산을 돕는 웹앱입니다.", React.createElement("br", null),
-                        "행정구역「시, 군」의 이름으로 검색해 주세요.")) : React.createElement("span", { className: "status-message default" }, "오류·누락은 메신저나 jbyhee@korea.kr로 제보해주세요."))),
+                        "2세대는 전남광주↔전국 구간을 지원하는 웹앱입니다.", React.createElement("br", null),
+                        "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요.")) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" }, partialRouteNoticeText)) : specialTransportStatusText ? (React.createElement("span", { className: "status-message access" }, specialTransportStatusText)) : accessNoticeText ? (React.createElement("span", { className: "status-message access" }, accessNoticeText)) : showGradeGuide ? (React.createElement("span", { className: "status-message grade" }, `${activeJneGradePair.from}→${activeJneGradePair.to} 구간은 시외일반·시외우등 요금이 각각 있습니다. 이용하실 등급을 선택해 주세요.`)) : !result && !nz(origin) && !nz(dest) ? (React.createElement("span", { className: "status-message intro" },
+                        "2세대는 전남광주를 기준으로, 전국 어디로든 떠나는 출장 수요를 포괄하기 위해 개발되었습니다. 「전현우(a.k.a. 병희)」")) : React.createElement("span", { className: "status-message default" }, "피드백은 JNE메신저 또는 업무메일로 부탁드립니다. 「전현우(a.k.a. 병희)」"))),
             React.createElement("div", { className: "result-wrap" },
                 result && (React.createElement(React.Fragment, null,
                     result.experimentalNationwide && (React.createElement("div", { style: { marginBottom: 12, padding: "12px 14px", borderRadius: 18, background: "#FFF7ED", border: "1px solid #FDBA74", boxShadow: "0 6px 18px rgba(251,146,60,.12)" } },
@@ -13235,13 +13364,12 @@ const App = () => {
             React.createElement("div", { style: { paddingTop: 8, borderTop: "1px dashed #E5E5EA" } },
                 React.createElement("div", { style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 40 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 2 } },
-                        React.createElement("span", { style: { fontSize: 13, marginRight: 2 } }, "\uD83D\uDE8C"),
                         React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 18 } }, "\uAD50\uD1B5\uBE44"),
                         React.createElement("span", { className: `tag-side ${tagStyle("왕복")}` }, "\uC655\uBCF5")),
                     React.createElement("button", { onClick: () => setActiveModal("transport"), className: `deduct-btn ${ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger ? "active" : ""}` }, "\uAC10\uC561"),
                     React.createElement("div", { style: { textAlign: "right", flex: 1 } }, !(ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger) ? (React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 } },
                         React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4 } },
-                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ship-input", value: manualTransportInput, onFocus: e => { transportFocused.current = true; e.target.select(); }, onBlur: () => { transportFocused.current = false; setManualTransportInput(manualTransport == null || manualTransport === 0 ? "" : String(manualTransport)); }, onChange: e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v)); }, placeholder: "0" }),
+                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ship-input", value: manualTransportInput, onFocus: e => { transportFocused.current = true; e.target.select(); }, onBlur: () => { transportFocused.current = false; setManualTransportInput(manualTransport == null || manualTransport === 0 ? "" : String(manualTransport)); }, onChange: e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v)); }, placeholder: (result && result.manualOtherTransportOnly) ? "" : "0" }),
                             React.createElement("span", { style: { fontSize: 13, fontWeight: 700 } }, "\uC6D0")),
                         (result === null || result === void 0 ? void 0 : result.surcharge) > 0 && React.createElement("span", { style: { fontSize: 9, fontWeight: 700, color: "#059669" } }, "\uCD94\uAC00 \uAD50\uD1B5\uBE44 \uCC38\uACE0"))) : (React.createElement("div", { style: { textAlign: "right" } },
                         React.createElement("span", { style: { fontSize: 20, fontWeight: 900, color: "#AEAEB2" } }, "0\uC6D0"),
@@ -13260,13 +13388,12 @@ const App = () => {
                 result && (React.createElement("div", { style: { marginTop: 4, paddingTop: 2 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 36 } },
                         React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 16 } },
-                            React.createElement("span", { style: { fontSize: 13, marginRight: 3 } }, "\uD83D\uDEA2 \u2708\uFE0F"),
                             "\uAE30\uD0C0\uAD50\uD1B5\uBE44 ",
                             React.createElement("span", { className: `tag-side ${tagStyle("왕복")}` }, "\uC655\uBCF5")),
                         React.createElement("div", { style: { marginLeft: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 4, minWidth: 118 } },
                             React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ship-input", value: shipFareInput, onFocus: e => { shipFareFocused.current = true; e.target.select(); }, onBlur: () => { shipFareFocused.current = false; setShipFareInput(shipFare === 0 ? "" : String(shipFare)); }, onChange: e => { const v = onlyDigits(e.target.value); setShipFareInput(v); setShipFare(v === "" ? 0 : Number(v)); }, placeholder: hasRealCostFerry ? "" : "0" }),
                             React.createElement("span", { style: { fontSize: 16, fontWeight: 700 } }, "\uC6D0"))),
-                    shipFareHint && React.createElement("div", { style: { fontSize: 10, color: "#6B7280", fontWeight: 700, marginTop: 1, paddingLeft: 25, paddingRight: 2, paddingBottom: 4, lineHeight: 1.4, textAlign: "left" } }, shipFareHint)))),
+                    shipFareHint && React.createElement("div", { style: { fontSize: 10, color: "#6B7280", fontWeight: 700, marginTop: 1, paddingLeft: 0, paddingRight: 2, paddingBottom: 4, lineHeight: 1.4, textAlign: "left" } }, shipFareHint)))),
             React.createElement("div", { style: { paddingTop: 10, borderTop: "2px solid #E5E5EA", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 } },
                 React.createElement("span", { style: { fontWeight: 900, fontSize: 20 } }, result && result.partialRoute ? "현재 확인액" : "\uD569\uACC4"),
                 React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 24, fontWeight: 900, color: "var(--blue)" } },
