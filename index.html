@@ -74,6 +74,8 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
 /* ── 상태바 ── */
 .status-bar{margin:0 16px 10px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;}
+.status-bar.status-tall{height:auto;min-height:42px;padding:6px 10px;line-height:1.45;text-align:center;}
+.status-message.scope,.status-message.intro{white-space:normal;word-break:keep-all;}
 .sb-idle{background:#F2F2F7;border:1px solid #E5E5EA;color:#AEAEB2;}
 .sb-done{background:linear-gradient(135deg,#FEF6E8,#FDECC8);border:1px solid rgba(201,125,32,0.15);color:var(--blue);}
 
@@ -3034,6 +3036,10 @@ const App = () => {
     // 2R.6A-2: normalizeCity가 동일 권역의 세부 시군명을 대표명으로 바꾸기 전에
     // 사용자가 입력한 원문 endpoint를 보존해 양방향 보정 항목을 정확히 구분한다.
     const routeCorrectionRequestRef = useRef({ fromRaw: "", toRaw: "", fromAreaId: "", toAreaId: "" });
+    // R5-D2.1: 계산 세대 토큰. 새 계산/범위차단/초기화가 시작되면 이전 비동기 callback은 결과 상태를 쓸 수 없다.
+    const calcGenerationRef = useRef(0);
+    // R5-D2.3: 현재 계산 요청 identity. endpoint/등급이 바뀐 뒤 도착한 이전 결과는 화면·audit에 적용하지 않는다.
+    const activeCalcKeyRef = useRef("");
     const markPopupResolved = (type, key) => {
         if (type !== "origin" && type !== "destination")
             return;
@@ -3080,6 +3086,9 @@ const App = () => {
             performCalc(d, o, nz(via));
     }, [origin, dest, via]);
     const resetToMainKeepOrigin = useCallback(() => {
+        // R5-D2.1/D2.3: 진행 중인 이전 계산 callback/result identity 무효화
+        calcGenerationRef.current += 1;
+        activeCalcKeyRef.current = "";
         setMobileDetailOpen(false);
         setShowDetail(false);
         setShowHist(false);
@@ -3541,6 +3550,93 @@ const App = () => {
             kobusUdeung: false
         };
     };
+    /* ── R5-F2: 전남광주 LV5 정확 터미널 노드/요금 조회 ──
+       JEONNAM_SUB_TO_MAIN 정규화 전에 실제 하위 터미널 노드를 먼저 확인한다.
+       manual_bridge는 부모 대표노드용이므로 exact terminal identity에서는 제외하고,
+       TERM_NODE + 운영사 alias(kobus/bustago/tmoney)만 exact 후보로 사용한다. */
+    const exactTerminalNodeIndex = useMemo(() => {
+        const idx = {};
+        const keyOf = (v) => String(v || "").replace(/\s/g, "").toLowerCase();
+        const add = (name, id) => {
+            const k = keyOf(name); if (!k || !id) return;
+            if (!idx[k]) idx[k] = [];
+            if (!idx[k].includes(id)) idx[k].push(id);
+        };
+        Object.entries(TERM_NODE).forEach(([name, id]) => add(name, id));
+        Object.values(nodesMap || {}).forEach(n => {
+            if (!n || !n.node_id) return;
+            const aliases = n.aliases || {};
+            [aliases.kobus, aliases.bustago, aliases.tmoney].forEach(list => {
+                if (Array.isArray(list)) list.forEach(name => add(name, n.node_id));
+            });
+        });
+        return idx;
+    }, [nodesMap]);
+    const exactTerminalNodeIds = useCallback((rawName) => {
+        const key = String(nz(rawName)).replace(/\s/g, "").toLowerCase();
+        return key && exactTerminalNodeIndex[key] ? exactTerminalNodeIndex[key] : [];
+    }, [exactTerminalNodeIndex]);
+    const exactTerminalFareCache = useMemo(() => new Map(), [routesDB, nodesMap, grade]);
+    const lookupExactTerminalFare = useCallback((fromRaw, toRaw, preferredOnly = false) => {
+        const cacheKey = `${nz(fromRaw)}|${nz(toRaw)}|${grade}|${preferredOnly ? "P" : "A"}`;
+        if (exactTerminalFareCache.has(cacheKey)) return exactTerminalFareCache.get(cacheKey);
+        if (!routesDB) return null;
+        const fExact = exactTerminalNodeIds(fromRaw);
+        const tExact = exactTerminalNodeIds(toRaw);
+        const fNodes = fExact.length ? fExact : resolveNodes(fromRaw);
+        const tNodes = tExact.length ? tExact : resolveNodes(toRaw);
+        // 적어도 한쪽은 exact terminal이어야 한다. 일반 도시쌍 조회는 기존 lookupFare에 맡긴다.
+        if (!fExact.length && !tExact.length) return null;
+        const sourceRank = (srcs) => {
+            const ss = (srcs || []).map(x => String(x || "").toLowerCase());
+            if (ss.includes("kobus")) return 10;
+            if (ss.includes("bustago")) return 20;
+            if (ss.some(x => /tmoney/.test(x))) return 30;
+            if (ss.some(x => /naver/.test(x))) return 40;
+            return 50;
+        };
+        let best = null;
+        for (const dep of fNodes) for (const arr of tNodes) {
+            if (!dep || !arr || dep === arr) continue;
+            const [a, b] = [dep, arr].sort();
+            const rt = routesDB[`${a}_${b}`];
+            if (!(rt && rt.fares)) continue;
+            const srcs = rt.sources || [];
+            const rank = sourceRank(srcs);
+            if (preferredOnly && rank >= 50) continue;
+            const picked = pickRouteFares(rt);
+            const normal = Number(picked.gen || 0);
+            const premium = Number(picked.pre || 0);
+            let selected = normal > 0 ? normal : premium;
+            if (picked.gradeSelectable && normal > 0 && premium > 0) selected = grade === "pre" ? premium : normal;
+            if (!(selected > 0)) continue;
+            const source = [...srcs].sort((x, y) => sourceRank([x]) - sourceRank([y]))[0] || "routesDB";
+            const cand = {
+                gen: selected, pre: null,
+                referenceGeneralFare: picked.gradeSelectable ? normal : null,
+                depId: dep, arrId: arr,
+                depName: getNodeName(dep, fromRaw), arrName: getNodeName(arr, toRaw),
+                sources: dispSrcs(srcs), all_sources: srcs,
+                source, sourceLabel: source,
+                dr: rt.display_route || `${fromRaw}→${toRaw}`,
+                gradeSelectable: false, gradeDefault: "gen", fareGrade: picked.fareGrade || "",
+                exactRawTerminalRoute: true, _sourceRank: rank,
+                c3Trace: {
+                    finalized: true, gradeMode: grade,
+                    from: fromRaw, to: toRaw,
+                    selectedFare: selected, selectedSource: source,
+                    selectedLayer: "EXACT_RAW_TERMINAL_ROUTE",
+                    selectedPriority: rank, selectedVerification: "RUNTIME_ROUTE",
+                    selectedEvidenceId: `${dep}|${arr}`
+                }
+            };
+            const better = !best || rank < best._sourceRank || (rank === best._sourceRank && selected < Number(best.gen || Infinity));
+            if (better) best = cand;
+        }
+        exactTerminalFareCache.set(cacheKey, best);
+        return best;
+    }, [routesDB, exactTerminalNodeIds, resolveNodes, getNodeName, grade, exactTerminalFareCache]);
+
     const candidateFare = (cand, g = grade) => {
         if (!cand)
             return 0;
@@ -4812,6 +4908,24 @@ const App = () => {
         return !!ag && !!bg && ag === bg;
     }, [sameContinuityPlace, endpointHubGroupKey]);
 
+    /* ── R5-B: 일반 main-route 역방향 materialization 공통화 ──
+       검증된 정방향 세그먼트를 역방향으로 사용할 때 논리 지명만 뒤집지 않고
+       터미널명·노드ID·조회방향까지 함께 반전한다. 요금/출처/등급은 동일 검증 세그먼트의 속성을 보존한다.
+       신안·완도·도서·공항·선착장 등 특수교통은 이 helper를 자동 fallback으로 호출하지 않는다. */
+    const reverseVerifiedMainSegments = useCallback((segments) => [...(segments || [])].reverse().map(seg => ({
+        ...seg,
+        from: seg.to,
+        to: seg.from,
+        terminalFrom: seg.terminalTo || seg.arrName || null,
+        terminalTo: seg.terminalFrom || seg.depName || null,
+        depName: seg.arrName || seg.terminalTo || null,
+        arrName: seg.depName || seg.terminalFrom || null,
+        depId: seg.arrId || null,
+        arrId: seg.depId || null,
+        lookupFrom: seg.lookupTo || seg.to || null,
+        lookupTo: seg.lookupFrom || seg.from || null
+    })), []);
+
     // 2R6B7F1-R: exact JSON의 저장 방향과 사용자 경로 방향을 분리한다.
     // route_label_forward의 인접 지역쌍을 기준으로 각 세그먼트를 정방향으로 정렬한 뒤 역방향은 이 체인을 뒤집는다.
     const normalizeExactForwardSegments = useCallback((item) => {
@@ -4827,11 +4941,11 @@ const App = () => {
             const a = parts[index], b = parts[index + 1];
             if (sameContinuityPlace(x.from, a) && sameContinuityPlace(x.to, b)) return x;
             if (sameContinuityPlace(x.to, a) && sameContinuityPlace(x.from, b)) {
-                return { ...x, from: x.to, to: x.from, terminalFrom: x.terminalTo || null, terminalTo: x.terminalFrom || null };
+                return reverseVerifiedMainSegments([x])[0] || x;
             }
             return x;
         });
-    }, [sameContinuityPlace]);
+    }, [sameContinuityPlace, reverseVerifiedMainSegments]);
     const findForcedContinuityRoute = useCallback((fromRaw, toRaw) => {
         const list = (routeContinuityCorrections && routeContinuityCorrections.forced_routes) || [];
         const fromKey = continuityPlaceKey(fromRaw), toKey = continuityPlaceKey(toRaw);
@@ -4844,13 +4958,7 @@ const App = () => {
             const src = Array.isArray(item.segments_forward) ? item.segments_forward : [];
             const segments = forward
                 ? src.map(x => ({ ...x }))
-                : [...src].reverse().map(x => ({
-                    ...x,
-                    from: x.to,
-                    to: x.from,
-                    terminalFrom: x.terminalTo || null,
-                    terminalTo: x.terminalFrom || null
-                }));
+                : reverseVerifiedMainSegments(src);
             const routeLabel = forward ? item.route_label_forward : item.route_label_reverse;
             const displayRouteLabel = forward
                 ? (item.display_route_label_forward || routeLabel)
@@ -4892,7 +5000,7 @@ const App = () => {
             return inheritSingleMainGrade(base);
         }
         return null;
-    }, [routeContinuityCorrections, continuityPlaceKey, inheritSingleMainGrade]);
+    }, [routeContinuityCorrections, continuityPlaceKey, inheritSingleMainGrade, reverseVerifiedMainSegments]);
     // 2R6B7F2: 검색 alias와 최종 표시 canonical을 분리한다.
     const endpointCanonicalAliasMap = useMemo(() => ({
         "청산도": "청산",
@@ -4989,6 +5097,8 @@ const App = () => {
     const logicalCityAcceptsNode = useCallback((logical, nodeId, terminal) => {
         const raw = canonicalEndpointName(logical);
         if (nodeId) {
+            // R5-F2: 관산·독천·삼호 등 raw LV5의 실제 터미널 노드는 부모도시 정규화보다 우선한다.
+            if (exactTerminalNodeIds(raw).includes(nodeId)) return true;
             const allowed = resolveCanonicalCityNodes(raw);
             if (allowed.includes(nodeId)) return true;
         }
@@ -4996,7 +5106,7 @@ const App = () => {
         // canonical node목록이 존재하는데 node가 다르면 문자열이 비어 있어도 다른 도시로 보아 거부한다.
         if (nodeId && resolveCanonicalCityNodes(raw).length) return false;
         return !terminal || sameContinuityPlace(raw, terminal) || isEndpointHubEquivalent(raw, terminal);
-    }, [canonicalEndpointName, resolveCanonicalCityNodes, sameContinuityPlace, isEndpointHubEquivalent]);
+    }, [canonicalEndpointName, resolveCanonicalCityNodes, exactTerminalNodeIds, sameContinuityPlace, isEndpointHubEquivalent]);
 
     /* ── 패치 2R6B7F5-E: 논리 경로 ↔ 실제 산정 터미널 공통 guard ──
        중앙 경로의 논리 지역명과 세부 산정 터미널이 다른 도시를 가리키는데도
@@ -5016,7 +5126,7 @@ const App = () => {
     const auditRouteContinuity = useCallback((baseResult, fromRaw, toRaw) => {
         if (!baseResult || baseResult.blocked || baseResult.sameArea || baseResult.areaSpecial || baseResult.islandRouteLabel)
             return baseResult;
-        const originalMain = Array.isArray(baseResult.areaSegments)
+        let originalMain = Array.isArray(baseResult.areaSegments)
             ? baseResult.areaSegments.map((seg, index) => ({ ...seg, __mainIndex: index }))
             : (baseResult.multiHop && Array.isArray(baseResult.multiHop.segs)
                 ? baseResult.multiHop.segs.map((seg, index) => ({ ...seg, __mainIndex: index }))
@@ -5027,6 +5137,66 @@ const App = () => {
             : (baseResult.ybezAccessPlan ? [baseResult.ybezAccessPlan] : []);
         const originPlans = accessPlans.filter(p => p.mode !== "FIXED_ACCESS" && p.side === "origin");
         const destPlans = accessPlans.filter(p => p.mode !== "FIXED_ACCESS" && p.side === "destination");
+
+        /* R5-F2: JG LV5가 normalizeCity()에서 부모 LV4로 접히며 사라진 실제 첫/끝 버스구간을 복원한다.
+           exact raw terminal 노선이 routesDB에 실제 존재할 때만 삽입하며, access/special 구간은 건드리지 않는다. */
+        let workingResult = baseResult;
+        let endpointCompletionFare = 0;
+        const endpointCompletionSources = [];
+        const makeExactFeeder = (a, b, fare, note) => ({
+            from: canonicalEndpointName(a), to: canonicalEndpointName(b),
+            gen: Number(fare.gen || 0), pre: null,
+            source: fare.sourceLabel || fare.source || ((fare.sources || [])[0]) || "routesDB",
+            sourceLabel: fare.sourceLabel || fare.source || ((fare.sources || [])[0]) || "routesDB",
+            terminalFrom: fare.depName || null, terminalTo: fare.arrName || null,
+            depId: fare.depId || null, arrId: fare.arrId || null,
+            kind: "bus", note,
+            exactRawTerminalFeeder: true
+        });
+        const fromEndpoint = canonicalEndpointName(fromRaw);
+        const toEndpoint = canonicalEndpointName(toRaw);
+        const frResolvedF2 = resolveArea(fromEndpoint);
+        const trResolvedF2 = resolveArea(toEndpoint);
+        const fromJgF2 = !!(frResolvedF2 && !frResolvedF2.blocked && String(frResolvedF2.areaId || "").startsWith("jg_"));
+        const toJgF2 = !!(trResolvedF2 && !trResolvedF2.blocked && String(trResolvedF2.areaId || "").startsWith("jg_"));
+        if (fromJgF2 && !originPlans.length && originalMain.length
+            && !sameContinuityPlace(fromEndpoint, originalMain[0].from)
+            && !isEndpointHubEquivalent(fromEndpoint, originalMain[0].from)) {
+            const feeder = lookupExactTerminalFare(fromEndpoint, originalMain[0].from, false);
+            if (feeder && Number(feeder.gen || 0) > 0) {
+                originalMain.unshift(makeExactFeeder(fromEndpoint, originalMain[0].from, feeder, "R5-F2 JG LV5→현재 본선 시작점 exact feeder"));
+                endpointCompletionFare += Number(feeder.gen || 0);
+                endpointCompletionSources.push(feeder.sourceLabel || feeder.source || ((feeder.sources || [])[0]));
+            }
+        }
+        if (toJgF2 && !destPlans.length && originalMain.length
+            && !sameContinuityPlace(originalMain[originalMain.length - 1].to, toEndpoint)
+            && !isEndpointHubEquivalent(originalMain[originalMain.length - 1].to, toEndpoint)) {
+            const feeder = lookupExactTerminalFare(originalMain[originalMain.length - 1].to, toEndpoint, false);
+            if (feeder && Number(feeder.gen || 0) > 0) {
+                originalMain.push(makeExactFeeder(originalMain[originalMain.length - 1].to, toEndpoint, feeder, "R5-F2 현재 본선 종료점→JG LV5 exact feeder"));
+                endpointCompletionFare += Number(feeder.gen || 0);
+                endpointCompletionSources.push(feeder.sourceLabel || feeder.source || ((feeder.sources || [])[0]));
+            }
+        }
+        if (endpointCompletionFare > 0) {
+            originalMain = originalMain.map((seg, index) => ({ ...seg, __mainIndex: index }));
+            const cleanForResult = originalMain.map(({ __mainIndex, ...seg }) => seg);
+            const routeParts = [cleanForResult[0].from, ...cleanForResult.map(seg => seg.to)].filter(Boolean);
+            if (originPlans.length && originPlans[0].lv5 && !sameContinuityPlace(routeParts[0], originPlans[0].lv5)) routeParts.unshift(originPlans[0].lv5);
+            if (destPlans.length && destPlans[0].lv5 && !sameContinuityPlace(routeParts[routeParts.length - 1], destPlans[0].lv5)) routeParts.push(destPlans[0].lv5);
+            const newGen = Number(baseResult.gen || 0) + endpointCompletionFare;
+            workingResult = {
+                ...baseResult,
+                gen: newGen,
+                cost: newGen + Number(baseResult.surcharge || 0),
+                sources: [...new Set([...(baseResult.sources || []), ...endpointCompletionSources.filter(Boolean)])],
+                routeLabel: routeParts.join(" → "), mainRouteLabel: routeParts.join(" → "), displayRouteLabel: routeParts.join(" → "),
+                dr: routeParts.join("→"), areaSegments: cleanForResult,
+                multiHop: { segs: cleanForResult, path: [cleanForResult[0].from, ...cleanForResult.map(seg => seg.to)] },
+                r5fJgLv5Completion: true
+            };
+        }
         const ordered = [];
         originPlans.forEach((plan, index) => ordered.push({
             from: plan.lv5, to: plan.lv4,
@@ -5085,7 +5255,7 @@ const App = () => {
             const finalConnected = sameContinuityPlace(expected, finalEndpoint) || isEndpointHubEquivalent(expected, finalEndpoint);
             if (!finalConnected) missing = { type: "connection", from: expected, to: finalEndpoint };
         }
-        if (!missing) return { ...baseResult, ybezAccessPlans: accessPlans, ybezAccessPlan: accessPlans[0] || null, routeContinuityAudit: { status: "PASS" } };
+        if (!missing) return { ...workingResult, ybezAccessPlans: accessPlans, ybezAccessPlan: accessPlans[0] || null, routeContinuityAudit: { status: "PASS" } };
         const missingLabel = missing.type === "fare"
             ? "버스 운임 미확인"
             : (missing.type === "terminal" ? "실제 산정 터미널 불일치" : "연결경로 미확인");
@@ -5094,8 +5264,8 @@ const App = () => {
         const confirmedFare = confirmedMain.reduce((sum, seg) => sum + Number(seg.gen || 0), 0);
         const prefixLabel = confirmedPath.filter(Boolean).join(" → ") || nz(fromRaw);
         const partial = {
-            ...baseResult,
-            gen: confirmedFare, pre: null, cost: confirmedFare + Number(baseResult.surcharge || 0),
+            ...workingResult,
+            gen: confirmedFare, pre: null, cost: confirmedFare + Number(workingResult.surcharge || 0),
             // F4-A: 단절 이전 결과에서 상속된 등급 메타데이터를 먼저 폐기한다.
             // 확인된 main segment만 inheritSingleMainGrade()가 다시 평가하도록 하여
             // 첫 메인구간 전에 끊긴 경우 9,300원 같은 유령 일반/우등 요금이 살아나지 않게 한다.
@@ -5105,15 +5275,15 @@ const App = () => {
             areaSegments: cleanMain, multiHop: { segs: cleanMain, path: confirmedPath },
             ybezAccessPlan: includedAccess[0] || null, ybezAccessPlans: includedAccess,
             ybezEndpointPlans: {
-                origin: includedAccess.some(p => p.side === "origin") && baseResult.ybezEndpointPlans ? baseResult.ybezEndpointPlans.origin : null,
-                destination: includedAccess.some(p => p.side === "destination") && baseResult.ybezEndpointPlans ? baseResult.ybezEndpointPlans.destination : null
+                origin: includedAccess.some(p => p.side === "origin") && workingResult.ybezEndpointPlans ? workingResult.ybezEndpointPlans.origin : null,
+                destination: includedAccess.some(p => p.side === "destination") && workingResult.ybezEndpointPlans ? workingResult.ybezEndpointPlans.destination : null
             },
             needsManualFare: false, fareReliable: false,
             partialRoute: { type: missing.type, missingFrom: nz(missing.from), missingTo: nz(missing.to), confirmedFare, confirmedThrough: continuityPlaceKey(expected) || nz(expected), message: missingLabel },
             routeContinuityAudit: { status: "PARTIAL", missing }
         };
         return inheritSingleMainGrade(partial);
-    }, [continuityPlaceKey, sameContinuityPlace, isEndpointHubEquivalent, inheritSingleMainGrade, canonicalEndpointName, isMainSegmentTerminalCoherent]);
+    }, [continuityPlaceKey, sameContinuityPlace, isEndpointHubEquivalent, inheritSingleMainGrade, canonicalEndpointName, isMainSegmentTerminalCoherent, resolveArea, lookupExactTerminalFare]);
 
     // 패치 2R.6A-2: unordered 지역쌍 + 관외 endpoint 이름으로 VERIFIED_FIX를 찾는다.
     // 보정표에 없는 정상 노선은 기존 계산경로를 그대로 사용한다.
@@ -5136,11 +5306,11 @@ const App = () => {
                 catch (_a) { if (!endpoint.includes(item.endpoint_pattern)) continue; }
             }
             const src = Array.isArray(item.segments_forward) ? item.segments_forward : [];
-            const segments = forward ? src.map(x => ({ ...x })) : [...src].reverse().map(x => ({ ...x, from: x.to, to: x.from }));
+            const segments = forward ? src.map(x => ({ ...x })) : reverseVerifiedMainSegments(src);
             return { item, forward, segments };
         }
         return null;
-    }, [bidirectionalRouteCorrections]);
+    }, [bidirectionalRouteCorrections, reverseVerifiedMainSegments]);
     // 패치 2R.6B-2: 원문 endpoint가 정확히 “광주”일 때만 광주 전용 exact overlay를 찾는다.
     // 경기광주·광주(경기)·광주 하위정류장은 이 층에서 절대 매칭하지 않는다.
     const findGwangjuExactOverride = useCallback((fromRaw, toRaw) => {
@@ -5200,6 +5370,33 @@ const App = () => {
             if (x.target_area_id && x.target_area_id === destinationAreaId && destinationKeys.some(k => itemKeys.some(itemKey => k.includes(itemKey) || itemKey.includes(k))))
                 return true;
             return false;
+        });
+        return item ? { item, forward, destination } : null;
+    }, [suncheonConnectionOverrides]);
+    // R5-C3.1 SHADOW 전용: exact 목적지는 생활권/areaName으로 확장하지 않고 endpoint 이름이 정확히 맞을 때만 선택한다.
+    // 실제 UI의 기존 순천 exact 동작은 R5-D 전까지 보존하기 위해 별도 helper로 분리한다.
+    const findSuncheonExactOverrideStrict = useCallback((fromRaw, toRaw, fromCtx = {}, toCtx = {}) => {
+        const list = (suncheonConnectionOverrides === null || suncheonConnectionOverrides === void 0 ? void 0 : suncheonConnectionOverrides.overrides) || [];
+        if (!list.length) return null;
+        const exactName = (v) => String(v || "").replace(/\s/g, "");
+        const isExactSuncheon = (raw, ctx) => {
+            const rawKey = exactName(raw);
+            const normalizedKey = exactName(ctx && ctx.normalized);
+            if (rawKey === "순천") return true;
+            if (normalizedKey === "순천" && !/북부|신대|CGV|종합|터미널|정류/.test(rawKey)) return true;
+            return false;
+        };
+        const forward = isExactSuncheon(fromRaw, fromCtx);
+        const reverse = isExactSuncheon(toRaw, toCtx);
+        if (!forward && !reverse) return null;
+        const destination = forward ? toRaw : fromRaw;
+        // exact 단계에서는 생활권 대표명/normalized를 섞지 않는다. 입력 endpoint 자체와 item alias만 정확 비교한다.
+        const destinationKeys = [destination].map(exactName).filter(Boolean);
+        const item = list.find(x => {
+            if (!x) return false;
+            const itemKeys = [x.destination, ...(Array.isArray(x.destination_aliases) ? x.destination_aliases : [])]
+                .map(exactName).filter(Boolean);
+            return destinationKeys.some(k => itemKeys.includes(k));
         });
         return item ? { item, forward, destination } : null;
     }, [suncheonConnectionOverrides]);
@@ -5842,7 +6039,7 @@ const App = () => {
             };
             return map[key] || null;
         };
-        const reverseSegs = (segs) => [...(segs || [])].reverse().map(s => ({ ...s, from: s.to, to: s.from }));
+        const reverseSegs = (segs) => reverseVerifiedMainSegments(segs);
         const fareBetweenAreas = (fromAreaId, toAreaId, destHint = "") => {
             var _a;
             const manual = findManualAreaFare(fromAreaId, toAreaId, destHint);
@@ -6781,13 +6978,7 @@ const App = () => {
         const jgRole = resolveRuntimeRole(jgRaw);
         if (jgRole && jgRole.access_mode === "SPECIAL_TRANSPORT") return null;
 
-        const reverseSegs = (arr) => arr.slice().reverse().map(seg => ({
-            ...seg,
-            from: seg.to,
-            to: seg.from,
-            terminalFrom: seg.terminalTo || null,
-            terminalTo: seg.terminalFrom || null
-        }));
+        const reverseSegs = (arr) => reverseVerifiedMainSegments(arr);
         const fareSeg = (a, b, fare, note) => {
             if (!fare) return null;
             const gen = Number(fare.gen || 0);
@@ -6877,13 +7068,7 @@ const App = () => {
         const f = roleNorm(canonicalEndpointName(rawFrom));
         const t = roleNorm(canonicalEndpointName(rawTo));
         const samePair = (a, b) => (f === roleNorm(a) && t === roleNorm(b)) || (f === roleNorm(b) && t === roleNorm(a));
-        const reverseSegs = (arr) => arr.slice().reverse().map(seg => ({
-            ...seg,
-            from: seg.to,
-            to: seg.from,
-            terminalFrom: seg.terminalTo || null,
-            terminalTo: seg.terminalFrom || null
-        }));
+        const reverseSegs = (arr) => reverseVerifiedMainSegments(arr);
         const finalize = (routeNames, segs, method, detail, extra = {}) => {
             const gen = segs.reduce((sum, seg) => sum + Number(seg.gen || 0), 0);
             const routeLabel = routeNames.join(" → ");
@@ -7015,13 +7200,7 @@ const App = () => {
         const def = forward ? F5J_GWANGJU_SURVEY_REPAIRS[toKey] : F5J_GWANGJU_SURVEY_REPAIRS[fromKey];
         if (!def) return null;
         const forwardSegs = def.segments.map(x => ({ ...x }));
-        const segs = forward ? forwardSegs : [...forwardSegs].reverse().map(x => ({
-            ...x,
-            from: x.to,
-            to: x.from,
-            terminalFrom: x.terminalTo || null,
-            terminalTo: x.terminalFrom || null
-        }));
+        const segs = forward ? forwardSegs : reverseVerifiedMainSegments(forwardSegs);
         const routeNames = forward
             ? ["광주", ...forwardSegs.map(x => x.to)]
             : [def.target, ...segs.map(x => x.to)];
@@ -7070,13 +7249,7 @@ const App = () => {
         const forwardMainSegments = normalizeExactForwardSegments(item);
         const segments = hit.forward
             ? forwardMainSegments.map(x => ({ ...x }))
-            : [...forwardMainSegments].reverse().map(x => ({
-                ...x,
-                from: x.to,
-                to: x.from,
-                terminalFrom: x.terminalTo || null,
-                terminalTo: x.terminalFrom || null
-            }));
+            : reverseVerifiedMainSegments(forwardMainSegments);
         const fare = Number(item.fare || 0);
         const routeLabel = hit.forward ? item.route_label_forward : item.route_label_reverse;
         const path = segments.length ? [segments[0].from, ...segments.map(x => x.to)] : [fromRaw, toRaw];
@@ -7682,11 +7855,7 @@ const App = () => {
             };
             return normalizeSegmentFare(raw, note);
         };
-        const reverseSegments = (arr) => arr.slice().reverse().map(seg => ({
-            ...seg, from: seg.to, to: seg.from,
-            terminalFrom: seg.terminalTo || null, terminalTo: seg.terminalFrom || null,
-            depId: seg.arrId || null, arrId: seg.depId || null
-        }));
+        const reverseSegments = (arr) => reverseVerifiedMainSegments(arr);
         const cleanSegments = (arr) => (Array.isArray(arr) ? arr : []).map(seg => normalizeSegmentFare({ ...seg })).filter(Boolean);
         const extractSegments = (res) => {
             if (!res || res.blocked || res.partialRoute || res.needsManualFare) return null;
@@ -7897,9 +8066,7 @@ const App = () => {
                 note, kind: "bus"
             }, note);
         };
-        const reverse = (segs) => [...segs].reverse().map(x => ({ ...x, from: x.to, to: x.from,
-            terminalFrom: x.terminalTo || null, terminalTo: x.terminalFrom || null,
-            depId: x.arrId || null, arrId: x.depId || null }));
+        const reverse = (segs) => reverseVerifiedMainSegments(segs);
         const clean = (segs) => (Array.isArray(segs) ? segs : []).map(x => normalizeSeg({ ...x,
             source: sourceOf(x), sourceLabel: sourceOf(x), terminalFrom: x.terminalFrom || x.depName || null,
             terminalTo: x.terminalTo || x.arrName || null, depId: x.depId || null, arrId: x.arrId || null,
@@ -8031,6 +8198,779 @@ const App = () => {
         }
         return null;
     }, [canonicalEndpointName, resolveArea, resolveRuntimeRole, roleNorm, lookupF5FCanonicalDirect, lookupFare, findSmartRoute, buildSmartVerifiedFallbackRoute, auditRouteContinuity, inheritSingleMainGrade, sameContinuityPlace, isEndpointHubEquivalent]);
+
+    /* ── R5-D2: 검증 예외경로/요금 최소 보정 ──
+       구조좌표를 재분류하지 않고, 사용자가 이번 검수에서 폐기/확정한 노선만 실제 계산보다 먼저 적용한다.
+       - 광주↔서산: 단일시외 22,600원 / KAKAO
+       - 순천↔대전: 잘못 수집된 direct를 사용하지 않고 순천↔광양 2,500(JNE) + 광양↔대전 20,400(NAVER·BUSTAGO)
+       - 장성·화순·나주·담양↔서울: ASAMARU direct 폐기, 광주 경유
+       - 광주↔서울: KOBUS 사용자 검증값 33,300원만 인정
+       광양은 순천의 구조 LV3로 승격하지 않으며, 서울 부속 4개 시군도 원래 JG LV4 좌표를 유지한다. */
+    const R5D2_SEOUL_GWANGJU_SATELLITES = useMemo(() => new Set(["장성", "화순", "나주", "담양"].map(roleNorm)), [roleNorm]);
+    const buildR5D2CuratedRoute = useCallback((rawFrom, rawTo) => {
+        const fromName = canonicalEndpointName(rawFrom), toName = canonicalEndpointName(rawTo);
+        const from = normalizeCity(fromName), to = normalizeCity(toName);
+        const fk = roleNorm(from), tk = roleNorm(to);
+        if (!fk || !tk || fk === tk) return null;
+        const same = (a, b) => roleNorm(a) && roleNorm(a) === roleNorm(b);
+        const makeSeg = (a, b, fare, sourceLabel, extra = {}) => ({
+            from: a, to: b, gen: Number(fare || 0), pre: null,
+            source: sourceLabel, sourceLabel,
+            terminalFrom: extra.terminalFrom || null, terminalTo: extra.terminalTo || null,
+            depId: null, arrId: null, kind: "bus", fareType: extra.fareType || null,
+            note: extra.note || "R5-D2 사용자 검증 보정"
+        });
+        const materialize = (forwardSegs, method, detail, meta = {}) => {
+            if (!Array.isArray(forwardSegs) || !forwardSegs.length) return null;
+            const logicalStart = forwardSegs[0].from, logicalEnd = forwardSegs[forwardSegs.length - 1].to;
+            const forward = same(from, logicalStart) && same(to, logicalEnd);
+            const reverse = same(from, logicalEnd) && same(to, logicalStart);
+            if (!forward && !reverse) return null;
+            const segs = forward ? forwardSegs.map(x => ({...x})) : reverseVerifiedMainSegments(forwardSegs);
+            const total = segs.reduce((sum, x) => sum + Number(x.gen || 0), 0);
+            if (!(total > 0)) return null;
+            const path = [segs[0].from, ...segs.map(x => x.to)];
+            let out = {
+                gen: total, pre: null, cost: total, surcharge: 0, shipCost: 0,
+                sources: [...new Set(segs.flatMap(x => String(x.sourceLabel || x.source || "").split(/[·,]/).map(v => v.trim()).filter(Boolean)))],
+                dr: path.join("→"), routeLabel: path.join(" → "), mainRouteLabel: path.join(" → "), displayRouteLabel: path.join(" → "),
+                origin: fromName, dest: toName, userOrigin: fromName, userDest: toName, via: null,
+                areaRoute: true, areaScore: 10, areaMethod: method, areaDetail: detail,
+                areaSegments: segs, multiHop: { segs, path }, fareReliable: true, needsManualFare: false,
+                r5d2CuratedRoute: meta
+            };
+            out = auditRouteContinuity(out, fromName, toName);
+            if (!out || out.blocked || out.partialRoute || out.needsManualFare) return null;
+            return inheritSingleMainGrade(out);
+        };
+
+        // 광주↔서산: 이 구간만 KAKAO 단일시외 22,600원으로 보정한다.
+        if ((same(from, "광주") && same(to, "서산")) || (same(from, "서산") && same(to, "광주"))) {
+            return materialize([
+                makeSeg("광주", "서산", 22600, "KAKAO", {
+                    terminalFrom: "광주유스퀘어", terminalTo: "서산공용버스터미널",
+                    fareType: "단일시외", note: "R5-D2 광주유스퀘어↔서산공용버스터미널 단일시외 22,600원 · KAKAO"
+                })
+            ], "R5-D2 광주↔서산 단일시외 보정", "광주유스퀘어↔서산공용버스터미널 단일시외 22,600원 · KAKAO", { id: "R5D2_GJ_SEOSAN_22600", source: "KAKAO" });
+        }
+
+        // 순천↔대전: 잘못 수집된 direct는 쓰지 않고 여순광의 실제 병렬출구 검증경로를 사용한다.
+        if ((same(from, "순천") && same(to, "대전")) || (same(from, "대전") && same(to, "순천"))) {
+            return materialize([
+                makeSeg("순천", "광양", 2500, "2026.1.1.자 전라남도 여비기준표", {
+                    terminalFrom: "순천종합버스터미널", terminalTo: "광양터미널",
+                    fareType: "단일시외", note: "JNE 순천↔광양 2,500원"
+                }),
+                makeSeg("광양", "대전", 20400, "NAVER · BUSTAGO", {
+                    terminalFrom: "광양터미널", terminalTo: "대전복합터미널",
+                    fareType: "시외우등", note: "사용자 확인 광양↔대전 시외우등 20,400원 · NAVER/BUSTAGO"
+                })
+            ], "R5-D2 여순광 LOCAL_PARALLEL_EXIT", "순천↔대전 가짜 direct 폐기 · 순천↔광양↔대전 검증경로 우선 · 광양은 구조 LV3로 승격하지 않음", { id: "R5D2_SC_GY_DJ_22900", localParallelExit: true, fakeDirectRejected: true });
+        }
+
+        // 광주↔서울은 ASAMARU를 쓰지 않고 KOBUS 사용자 검증 고속우등 33,300원만 인정한다.
+        const gjSeoulSeg = makeSeg("광주", "서울", 33300, "KOBUS", {
+            terminalFrom: "광주유스퀘어", terminalTo: "센트럴시티터미널",
+            fareType: "고속우등", note: "광주유스퀘어↔센트럴시티 KOBUS 고속우등 33,300원"
+        });
+        if ((same(from, "광주") && same(to, "서울")) || (same(from, "서울") && same(to, "광주"))) {
+            return materialize([gjSeoulSeg], "R5-D2 광주↔서울 KOBUS only", "광주↔서울 ASAMARU 폐기 · KOBUS 고속우등 33,300원만 인정", { id: "R5D2_GJ_SEOUL_KOBUS_33300", asamaruRejected: true, source: "KOBUS" });
+        }
+
+        // 장성·화순·나주·담양↔서울: 서울 direct ASAMARU를 폐기하고 광주를 통해 KOBUS 서울축으로 연결한다.
+        const fromSatellite = R5D2_SEOUL_GWANGJU_SATELLITES.has(fk);
+        const toSatellite = R5D2_SEOUL_GWANGJU_SATELLITES.has(tk);
+        const satellite = fromSatellite ? from : (toSatellite ? to : "");
+        const hasSeoul = same(from, "서울") || same(to, "서울");
+        if (satellite && hasSeoul) {
+            const jne = (JNE_FARES[satellite] && JNE_FARES[satellite]["광주"])
+                || (JNE_FARES["광주"] && JNE_FARES["광주"][satellite]) || null;
+            if (!jne || !(Number(jne.gen || 0) > 0 || Number(jne.pre || 0) > 0)) return null;
+            const localFare = grade === "pre" && Number(jne.pre || 0) > 0 ? Number(jne.pre) : Number(jne.gen || jne.pre || 0);
+            const localSeg = makeSeg(satellite, "광주", localFare, "2026.1.1.자 전라남도 여비기준표", {
+                terminalTo: "광주유스퀘어", fareType: Number(jne.pre || 0) > 0 ? (grade === "pre" ? "시외우등" : "시외일반") : "단일시외",
+                note: `${satellite}↔광주 JNE 공식요금`
+            });
+            return materialize([localSeg, gjSeoulSeg], "R5-D2 서울축 광주 허브 승계", `${satellite}↔서울 ASAMARU direct 폐기 · ${satellite}↔광주(JNE) + 광주↔서울(KOBUS)`, { id: `R5D2_${satellite}_GJ_SEOUL`, asamaruRejected: true, viaGwangju: true });
+        }
+        return null;
+    }, [canonicalEndpointName, normalizeCity, roleNorm, reverseVerifiedMainSegments, auditRouteContinuity, inheritSingleMainGrade, R5D2_SEOUL_GWANGJU_SATELLITES, grade]);
+
+    /* ── R5-C2 SHADOW: 계층 좌표 기반 동부권 광주/순천 Dual-route ──
+       YBEZ 원래 구조좌표(대권역→검색어→LV3 진입허브→LV4 중심지→LV5)를 먼저 읽는다.
+       전국 노드 자유탐색(findSmartRoute)은 사용하지 않는다.
+       직행이 없을 때만 아래 허용 패턴을 차례대로 검사한다.
+       1) JG LV4 → 외부 최종지(LV5/LV4)
+       2) JG LV4 → 외부 LV4 (+ LV4→LV5 actual/access)
+       3) JG LV3 → 외부 최종지 (+ JG LV4→LV3)
+       4) JG LV3 → 외부 LV4 (+ 양쪽 tail)
+       5) JG LV3 → 외부 LV3 → LV4 (+ tail)
+       동부권(pk_/tk_/gw_)에서는 JG LV3 후보를 광주/순천으로 병렬화하되,
+       외부 LV3(entry_hub_city)는 데이터에 지정된 기능적 진입허브를 강제한다.
+       화면은 바꾸지 않고 window.__YBEZ_R5_SHADOW_LAST__에만 기록한다. */
+    const buildR5DualRouteShadow = useCallback((rawFrom, rawTo) => {
+        const fromName = canonicalEndpointName(rawFrom), toName = canonicalEndpointName(rawTo);
+        const fr = resolveArea(fromName), tr = resolveArea(toName);
+        if (!fr || !tr || fr.blocked || tr.blocked || !fr.areaId || !tr.areaId) return { status: "NOT_APPLICABLE", reason: "unresolved" };
+        const fromIsJg = String(fr.areaId).startsWith("jg_"), toIsJg = String(tr.areaId).startsWith("jg_");
+        if (fromIsJg === toIsJg) return { status: "NOT_APPLICABLE", reason: "not_jg_nationwide" };
+
+        const outside = fromIsJg ? tr : fr;
+        if (!/^(pk_|tk_|gw_)/.test(String(outside.areaId || ""))) return { status: "NOT_APPLICABLE", reason: "western_or_other" };
+        if (ISLAND_DB[fromName] || ISLAND_DB[toName]) return { status: "NOT_APPLICABLE", reason: "special_transport" };
+
+        const jgRaw = fromIsJg ? fromName : toName;
+        const outRaw = fromIsJg ? toName : fromName;
+        const jgRole = resolveRuntimeRole(jgRaw), outRole = resolveRuntimeRole(outRaw);
+        if ((jgRole && jgRole.access_mode === "SPECIAL_TRANSPORT") || (outRole && outRole.access_mode === "SPECIAL_TRANSPORT"))
+            return { status: "NOT_APPLICABLE", reason: "special_transport" };
+        if (!outRole) return { status: "DUAL_FAIL", from: fromName, to: toName, outsideAreaId: outside.areaId, reason: "outside_role_missing", options: [] };
+
+        // R5-D2: 고령의 과거 광주→거창→고령 검증경로가 구조 LV3로 오염된 값을 런타임에서만 교정한다.
+        // 원본 region-role DB는 수정하지 않는다. 광주↔고령은 기존 exact/curated 검증경로를 보존한다.
+        const r5d2PreserveGwangjuGoryeongExact = roleNorm(jgRaw) === roleNorm("광주")
+            && roleNorm(outRaw) === roleNorm("고령")
+            && !!findGwangjuExactOverride(jgRaw, outRaw);
+        if (r5d2PreserveGwangjuGoryeongExact)
+            return { status: "NOT_APPLICABLE", from: fromName, to: toName, outsideAreaId: outside.areaId, reason: "r5d2_preserve_gwangju_goryeong_exact" };
+        const r5d2StructuralLv3 = roleNorm(outRaw) === roleNorm("고령") && String(outRole.macro || "") === "대경"
+            ? "대구" : (outRole.entry_hub_city || outRole.lv4 || outRaw);
+
+        const sourceOf = (fare, fallback = "routesDB") => (Array.isArray(fare && fare.sources) && fare.sources[0]) || (fare && (fare.sourceLabel || fare.source)) || fallback;
+        const isJgPlace = (name) => {
+            const rr = resolveArea(name);
+            return !!(rr && !rr.blocked && String(rr.areaId || "").startsWith("jg_"));
+        };
+        const same = (a, b) => roleNorm(a) && roleNorm(a) === roleNorm(b);
+        const uniqueNames = (arr) => arr.filter(Boolean).filter((x, i, a) => a.findIndex(y => same(x, y)) === i);
+
+        /* 현재 UI 일반/우등 선택을 JG 내부 feeder에도 그대로 반영한다.
+           전국 구간은 기존 정책대로 pre(우등)가 있으면 우등을 본선값으로 사용한다. */
+        const normalizeShadowSeg = (seg, note = "R5-C2 shadow") => {
+            if (!seg || seg.kind === "missing") return null;
+            let gen = Number(seg.gen || 0), pre = Number(seg.pre || 0);
+            if (!(gen > 0) && !(pre > 0)) return null;
+            const bothJg = isJgPlace(seg.from) && isJgPlace(seg.to);
+            const fareFinalized = !!(seg.fareBinding && seg.fareBinding.finalized);
+            let picked = gen > 0 ? gen : pre;
+            let refGeneral = seg.referenceGeneralFare || null;
+            let gradeNote = fareFinalized ? ` · C3.1 최종요금(${grade === "pre" ? "우등" : "일반"})` : "";
+            let src = sourceOf(seg);
+            if (fareFinalized) {
+                picked = Number(seg.fareBinding.selectedFare || gen || pre || 0);
+                src = seg.fareBinding.selectedSource || src;
+            } else if (bothJg) {
+                const pair = getDirectedGradeSegmentFare(seg.from, seg.to);
+                if (pair && Number(pair.gen || 0) > 0 && Number(pair.pre || 0) > 0) {
+                    picked = grade === "pre" ? Number(pair.pre) : Number(pair.gen);
+                    refGeneral = Number(pair.gen);
+                    src = pair.sourceLabel || pair.source || src;
+                    gradeNote = grade === "pre" ? " · 현재선택=우등" : " · 현재선택=일반";
+                    gen = Number(pair.gen);
+                    pre = Number(pair.pre);
+                } else if (grade === "pre" && pre > 0) {
+                    picked = pre;
+                    refGeneral = gen || null;
+                    gradeNote = " · 현재선택=우등";
+                }
+            } else if (pre > 0) {
+                picked = pre;
+                refGeneral = gen || null;
+                gradeNote = " · 전국구간 우등";
+            }
+            if (!(picked > 0)) return null;
+            return {
+                ...seg,
+                gen: picked,
+                pre: null,
+                referenceGeneralFare: refGeneral,
+                source: src, sourceLabel: src,
+                terminalFrom: seg.terminalFrom || seg.depName || null,
+                terminalTo: seg.terminalTo || seg.arrName || null,
+                depId: seg.depId || null, arrId: seg.arrId || null,
+                kind: seg.kind || "bus",
+                note: `${seg.note || note}${gradeNote}`
+            };
+        };
+        const toSeg = (a, b, fare, note) => fare ? normalizeShadowSeg({
+            from: a, to: b,
+            gen: Number(fare.gen || 0), pre: Number(fare.pre || 0) || null,
+            source: sourceOf(fare), sourceLabel: sourceOf(fare),
+            terminalFrom: fare.depName || fare.terminalFrom || null,
+            terminalTo: fare.arrName || fare.terminalTo || null,
+            depId: fare.depId || null, arrId: fare.arrId || null,
+            fareBinding: fare.c3Trace || fare.fareBinding || null,
+            kind: "bus", note
+        }, note) : null;
+        const singleSegmentExactFare = (a, b) => {
+            const aCtx = { normalized: normalizeCity(a), displayName: a, resolved: resolveArea(a) };
+            const bCtx = { normalized: normalizeCity(b), displayName: b, resolved: resolveArea(b) };
+            const gx = findGwangjuExactOverride(a, b);
+            const sx = findSuncheonExactOverrideStrict(a, b, aCtx, bCtx);
+            const hit = gx || sx;
+            if (!hit || !hit.item || !Array.isArray(hit.item.segments_forward) || hit.item.segments_forward.length !== 1) return null;
+            const seg = hit.item.segments_forward[0] || {};
+            const fare = Number(hit.item.fare || seg.gen || 0);
+            if (!(fare > 0)) return null;
+            return {
+                gen: fare, pre: null,
+                sources: hit.item.sources || [seg.sourceLabel || seg.source || "verified_exact"],
+                sourceLabel: seg.sourceLabel || seg.source || ((hit.item.sources || [])[0]) || "verified_exact",
+                depName: seg.from || a, arrName: seg.to || b
+            };
+        };
+        /* ── R5-C3.1 SHADOW: Exact Destination + Fare Authority Finalization ──
+           C2가 확정한 구조 세그먼트는 절대 바꾸지 않고 그 세그먼트의 요금만 최종 선택한다.
+           확정 우선순위: 전남 시외버스 요금표(JNE) → KOBUS → Bustago → Tmoney/TmoneyGO → NAVER → 기타.
+           USER_VERIFIED는 별도 최상위 소스가 아니라 원래 source를 유지한 verification flag로만 기록한다.
+           Fare Binding이 끝난 세그먼트는 기존 grade/legacy 로직이 다시 덮어쓰지 못한다. */
+        const shadowFarePoint = (v) => {
+            let k = roleNorm(canonicalEndpointName(normalizeCity(v) || v));
+            if (!k) return "";
+            const aliases = {
+                "광주유스퀘어": "광주", "유스퀘어": "광주",
+                "순천종합버스터미널": "순천", "순천시외버스터미널": "순천",
+                "진주여객자동차터미널": "진주", "진주시외버스터미널": "진주", "진주고속버스터미널": "진주",
+                "사천시외버스터미널": "사천",
+                "동대구터미널": "대구", "동대구": "대구", "서대구": "대구", "서대구고속": "대구", "대구북부": "대구", "대구서부": "대구",
+                "부산서부사상버스터미널": "부산", "부산종합버스터미널": "부산"
+            };
+            if (aliases[k]) return roleNorm(aliases[k]);
+            k = k.replace(/(종합|공용)?(시외|고속)?버스터미널$/g, "")
+                 .replace(/여객자동차터미널$/g, "")
+                 .replace(/(시외|고속)?터미널$/g, "")
+                 .replace(/(버스)?정류(장|소)$/g, "");
+            if (["동대구", "서대구", "서대구고속", "대구북부", "대구서부"].includes(k)) return roleNorm("대구");
+            return k;
+        };
+        const sameFarePoint = (a, b) => !!shadowFarePoint(a) && shadowFarePoint(a) === shadowFarePoint(b);
+        const shadowSourceRank = (src) => {
+            const s = String(src || "").toLowerCase();
+            if (/jne2026|전라남도|전남.*요금|여비기준표/.test(s)) return 0;
+            if (/kobus|코버스/.test(s)) return 10;
+            if (/bustago|버스타고/.test(s)) return 20;
+            if (/tmoney|티머니/.test(s)) return 30;
+            if (/naver|네이버/.test(s)) return 40;
+            return 50;
+        };
+        // R5-D1: 같은 출처 안에서는 승인/curated 근거를 generic runtime보다 먼저 쓴다.
+        // source rank 자체는 JNE > KOBUS > Bustago > Tmoney > NAVER > 기타 순서를 그대로 유지한다.
+        const shadowEvidenceQuality = (verification, layer) => {
+            const v = String(verification || "").toUpperCase();
+            const l = String(layer || "").toUpperCase();
+            if (/APPROVED|USER_VERIFIED_CURRENT/.test(v) || /APPROVED_BACKBONE/.test(l)) return 0;
+            if (/OFFICIAL_FARE_TABLE/.test(v)) return 0;
+            if (/CURATED_RUNTIME/.test(v) || /CURATED_RUNTIME_OVERRIDE/.test(l)) return 10;
+            if (/USER_VERIFIED/.test(v)) return 15;
+            if (/RUNTIME_ROUTE/.test(v) || /EXISTING_ROUTE/.test(l)) return 30;
+            return 50;
+        };
+        const endpointFitsAreaRepresentative = (name, resolved) => {
+            if (!resolved || !resolved.area) return false;
+            const cands = [resolved.area.center, resolved.area.rep_search, resolved.area.area_name].filter(Boolean);
+            return cands.some(x => sameFarePoint(name, x));
+        };
+        const collectVerifiedSegmentCandidates = (a, b) => {
+            const out = [];
+            const pushSegs = (items, dataset) => {
+                for (const item of (items || [])) {
+                    if (!item || (item.status && item.status !== "VERIFIED_FIX")) continue;
+                    for (const seg of (item.segments_forward || [])) {
+                        const fare = Number(seg && (seg.gen || seg.fare) || 0);
+                        if (!(fare > 0)) continue;
+                        if (!((sameFarePoint(seg.from, a) && sameFarePoint(seg.to, b)) || (sameFarePoint(seg.from, b) && sameFarePoint(seg.to, a)))) continue;
+                        out.push({
+                            gen: fare, pre: Number(seg.pre || 0) || null,
+                            source: seg.sourceLabel || ((item.sources || [])[0]) || dataset,
+                            sourceLabel: seg.sourceLabel || ((item.sources || [])[0]) || dataset,
+                            layer: "VERIFIED_EXACT_SEGMENT", rank: shadowSourceRank(seg.sourceLabel || ((item.sources || [])[0]) || dataset),
+                            verification: "USER_VERIFIED", qualityRank: 15, evidenceId: item.id || null, dataset,
+                            depName: a, arrName: b
+                        });
+                    }
+                }
+            };
+            pushSegs((gwangjuConnectionOverrides && gwangjuConnectionOverrides.overrides) || [], "GWANGJU_EXACT");
+            pushSegs((suncheonConnectionOverrides && suncheonConnectionOverrides.overrides) || [], "SUNCHEON_EXACT");
+            pushSegs((bidirectionalRouteCorrections && bidirectionalRouteCorrections.corrections) || [], "BIDIRECTIONAL_CORRECTION");
+            const mk = `${normalizeCity(a)}|${normalizeCity(b)}`;
+            const mkr = `${normalizeCity(b)}|${normalizeCity(a)}`;
+            const manual = YBEZ_FARE_OVERRIDES[mk] || YBEZ_FARE_OVERRIDES[mkr];
+            if (manual && Number(manual.gen || 0) > 0) out.push({
+                ...manual, gen: Number(manual.gen), pre: Number(manual.pre || 0) || null,
+                source: ((manual.sources || [])[0]) || "manual", sourceLabel: ((manual.sources || [])[0]) || "manual",
+                layer: "MANUAL_CORRECTION", rank: shadowSourceRank(((manual.sources || [])[0]) || "manual"), verification: "USER_VERIFIED", qualityRank: 15, evidenceId: mk, depName: a, arrName: b
+            });
+            return out;
+        };
+        const resolveC3SegmentFare = (a, b, baseFare) => {
+            if (!baseFare) return null; // C3는 경로 존재 여부를 새로 만들지 않는다.
+            const candidates = collectVerifiedSegmentCandidates(a, b);
+            const fr2 = resolveArea(a), tr2 = resolveArea(b);
+            if (fr2 && tr2 && !fr2.blocked && !tr2.blocked && fr2.areaId !== tr2.areaId
+                && endpointFitsAreaRepresentative(a, fr2) && endpointFitsAreaRepresentative(b, tr2)) {
+                const ov = getRuntimeFareOverride(fr2.areaId, tr2.areaId);
+                if (ov && ov.apply_stage === "POST_ROUTE_ONLY") {
+                    const normal = Number(ov.normal_fare || 0), premium = Number(ov.premium_fare || 0), single = Number(ov.single_fare || 0);
+                    let picked = 0, pre = null;
+                    if (ov.scope === "JG_INTERNAL" && normal > 0 && premium > 0) {
+                        picked = grade === "pre" ? premium : normal; pre = premium;
+                    } else picked = premium || single || normal;
+                    if (picked > 0) candidates.push({
+                        gen: picked, pre, source: String(ov.source || "runtime_override"), sourceLabel: String(ov.source || "runtime_override"),
+                        layer: "CURATED_RUNTIME_OVERRIDE", rank: shadowSourceRank(String(ov.source || "runtime_override")), verification: "CURATED_RUNTIME", qualityRank: 10, evidenceId: ov.area_pair_key || null,
+                        depName: a, arrName: b, fareType: ov.fare_type || null
+                    });
+                }
+            }
+            const jne = (JNE_FARES[normalizeCity(a)] && JNE_FARES[normalizeCity(a)][normalizeCity(b)])
+                || (JNE_FARES[normalizeCity(b)] && JNE_FARES[normalizeCity(b)][normalizeCity(a)]) || null;
+            if (jne && Number(jne.gen || 0) > 0) candidates.push({
+                ...jne, gen: Number(jne.gen), pre: Number(jne.pre || 0) || null,
+                source: "JNE2026", sourceLabel: "2026.1.1.자 전라남도 여비기준표",
+                layer: "JNE_FARE", rank: 0, verification: "OFFICIAL_FARE_TABLE", qualityRank: 0, depName: a, arrName: b
+            });
+
+            // R5-D1: 기존 승인된 동부 backbone을 같은 출처의 generic route보다 먼저 후보화한다.
+            // 현재 승인 고정값: 순천↔대구 BUSTAGO 우등 26,200원.
+            const approvedBackboneKey = [roleNorm(a), roleNorm(b)].sort().join("|");
+            const approvedBackbone = F5LR_VERIFIED_BACKBONES && F5LR_VERIFIED_BACKBONES[approvedBackboneKey];
+            if (approvedBackbone && Number(approvedBackbone.gen || 0) > 0) {
+                const approvedFare = Number(approvedBackbone.gen || 0);
+                const forwardApproved = roleNorm(a) === roleNorm(approvedBackbone.a);
+                candidates.push({
+                    gen: 0, pre: approvedFare,
+                    source: approvedBackbone.source || "bustago", sourceLabel: String(approvedBackbone.source || "bustago").toUpperCase(),
+                    layer: "APPROVED_BACKBONE", rank: shadowSourceRank(approvedBackbone.source || "bustago"),
+                    verification: "APPROVED_CURATED", qualityRank: 0, evidenceId: "F5LR_VERIFIED_BACKBONE_SC_DAEGU_26200",
+                    depName: a, arrName: b,
+                    terminalFrom: forwardApproved ? approvedBackbone.terminalA : approvedBackbone.terminalB,
+                    terminalTo: forwardApproved ? approvedBackbone.terminalB : approvedBackbone.terminalA,
+                    fareType: "우등", note: approvedBackbone.note || "승인 backbone"
+                });
+            }
+
+            const baseSrc = sourceOf(baseFare);
+            // lookupFare가 한 가격을 gen으로 평탄화해도 raw routes의 일반/우등 증거를 복원한다.
+            let baseGen = Number(baseFare.gen || 0), basePre = Number(baseFare.pre || 0) || null;
+            let rawRoute = null;
+            if (baseFare.depId && baseFare.arrId && routesDB) {
+                const rawKey = [baseFare.depId, baseFare.arrId].sort().join("_");
+                rawRoute = routesDB[rawKey] || null;
+            }
+            const rawFares = (rawRoute && rawRoute.fares) || {};
+            const rawGen = Number(rawFares["일반"] || rawFares["고속"] || 0);
+            const rawPre = Number(rawFares["우등"] || rawFares["프리미엄"] || 0);
+            if (rawGen > 0) baseGen = rawGen;
+            if (rawPre > 0) basePre = rawPre;
+            if (!(rawGen > 0) && rawPre > 0) baseGen = 0;
+            candidates.push({
+                ...baseFare,
+                gen: baseGen, pre: basePre,
+                source: baseSrc, sourceLabel: baseSrc,
+                layer: "EXISTING_ROUTE", rank: shadowSourceRank(baseSrc), verification: "RUNTIME_ROUTE", qualityRank: 30,
+                evidenceId: baseFare.depId && baseFare.arrId ? `${baseFare.depId}|${baseFare.arrId}` : null,
+                depName: baseFare.depName || a, arrName: baseFare.arrName || b,
+                rawFareKeys: Object.keys(rawFares || {})
+            });
+            const selectFareForGrade = (x) => {
+                const genFare = Number(x && x.gen || 0);
+                const preFare = Number(x && x.pre || 0);
+                if (grade === "pre" && preFare > 0) return preFare;
+                return genFare > 0 ? genFare : preFare;
+            };
+            const valid = candidates
+                .map((x, order) => ({ ...x, _order: order, _selectedFare: selectFareForGrade(x) }))
+                .filter(x => Number(x._selectedFare || 0) > 0)
+                .sort((x, y) => (Number(x.rank == null ? 99 : x.rank) - Number(y.rank == null ? 99 : y.rank))
+                    || (Number(x.qualityRank == null ? shadowEvidenceQuality(x.verification, x.layer) : x.qualityRank) - Number(y.qualityRank == null ? shadowEvidenceQuality(y.verification, y.layer) : y.qualityRank))
+                    || (x._order - y._order));
+            const picked = valid[0];
+            if (!picked) return baseFare;
+            const selectedFare = Number(picked._selectedFare || 0);
+            const generalFare = Number(picked.gen || 0) || null;
+            const premiumFare = Number(picked.pre || 0) || null;
+            return {
+                ...picked,
+                gen: selectedFare,
+                pre: null,
+                referenceGeneralFare: premiumFare && generalFare ? generalFare : (picked.referenceGeneralFare || null),
+                c3Trace: {
+                    finalized: true,
+                    gradeMode: grade,
+                    from: a, to: b,
+                    selectedFare,
+                    selectedSource: picked.sourceLabel || picked.source || "",
+                    selectedLayer: picked.layer || "",
+                    selectedPriority: Number(picked.rank == null ? 99 : picked.rank),
+                    selectedVerification: picked.verification || null,
+                    selectedEvidenceQuality: Number(picked.qualityRank == null ? shadowEvidenceQuality(picked.verification, picked.layer) : picked.qualityRank),
+                    selectedEvidenceId: picked.evidenceId || null,
+                    candidates: valid.map(x => ({
+                        fare: Number(x._selectedFare || 0), generalFare: Number(x.gen || 0) || null, premiumFare: Number(x.pre || 0) || null,
+                        source: x.sourceLabel || x.source || "", layer: x.layer || "", rank: Number(x.rank == null ? 99 : x.rank),
+                        qualityRank: Number(x.qualityRank == null ? shadowEvidenceQuality(x.verification, x.layer) : x.qualityRank),
+                        verification: x.verification || null, evidenceId: x.evidenceId || null
+                    }))
+                }
+            };
+        };
+        const verifiedPairTotal = (a, b) => {
+            const mkCtx = (v) => {
+                const resolved = resolveArea(v);
+                return { normalized: normalizeCity(v), displayName: v, resolved, areaName: resolved && resolved.area && resolved.area.area_name, matched: resolved && resolved.matched };
+            };
+            const gx = findGwangjuExactOverride(a, b);
+            const sx = findSuncheonExactOverrideStrict(a, b, mkCtx(a), mkCtx(b));
+            const hit = gx || sx;
+            const fare = Number(hit && hit.item && hit.item.fare || 0);
+            return fare > 0 ? { fare, id: hit.item.id || null, source: ((hit.item.sources || [])[0]) || "verified_exact" } : null;
+        };
+        const segmentTraceFor = (segs) => (segs || []).map((seg, index) => ({
+            index, from: seg.from, to: seg.to, fare: Number(seg.gen || 0),
+            source: seg.sourceLabel || seg.source || "", binding: seg.fareBinding || null
+        }));
+        const pairAuditFor = (branchHub, segs) => {
+            if (!(branchHub === "광주" || branchHub === "순천")) return null;
+            const pair = verifiedPairTotal(branchHub, outRaw);
+            if (!pair) return null;
+            const idx = (segs || []).findIndex(seg => sameFarePoint(seg.from, branchHub));
+            if (idx < 0) return null;
+            const subtotal = (segs || []).slice(idx).reduce((sum, seg) => sum + Number(seg.gen || 0), 0);
+            return {
+                from: branchHub, to: outRaw, pairTotal: pair.fare, segmentTotal: subtotal,
+                status: subtotal === pair.fare ? "MATCH" : "PAIR_TOTAL_MISMATCH",
+                authority: "SEGMENT_TOTAL",
+                pairRole: "REFERENCE_ONLY",
+                farePriority: "JNE>KOBUS>BUSTAGO>TMONEY>NAVER>OTHER",
+                evidenceId: pair.id, source: pair.source
+            };
+        };
+        const directSeg = (a, b, note) => {
+            if (!a || !b || same(a, b)) return null;
+            const baseFare = lookupF5FCanonicalDirect(a, b) || singleSegmentExactFare(a, b) || lookupFare(a, b, false, 0);
+            if (!baseFare) return null;
+            const fare = resolveC3SegmentFare(a, b, baseFare);
+            return toSeg(a, b, fare, note);
+        };
+        const exactRawTerminalSeg = (a, b, note, preferredOnly = false) => {
+            if (!a || !b || same(a, b)) return null;
+            const fare = lookupExactTerminalFare(a, b, preferredOnly);
+            return fare ? toSeg(a, b, fare, note) : null;
+        };
+        const areaJgSeg = (a, b, note) => {
+            if (!a || !b || same(a, b)) return [];
+            const direct = directSeg(a, b, note);
+            if (direct) return [direct];
+            let area = null;
+            try { area = findAreaRoute(a, b, ""); } catch (_) { area = null; }
+            if (!area || area.blocked || area.needsManualFare || !(Number(area.gen || 0) > 0)) return null;
+            const rebound = resolveC3SegmentFare(a, b, {
+                gen: Number(area.gen || 0), pre: Number(area.pre || 0) || null,
+                sources: area.sources || [], source: (Array.isArray(area.sources) && area.sources[0]) || "area_graph",
+                sourceLabel: (Array.isArray(area.sources) && area.sources[0]) || "area_graph",
+                depName: a, arrName: b
+            });
+            const seg = normalizeShadowSeg({
+                from: a, to: b, gen: Number(rebound && rebound.gen || 0), pre: Number(rebound && rebound.pre || 0) || null,
+                source: sourceOf(rebound, "area_graph"), sourceLabel: sourceOf(rebound, "area_graph"),
+                fareBinding: rebound && rebound.c3Trace || null,
+                kind: "bus", note: note || "전남광주 LV4↔LV3 연결"
+            }, note);
+            return seg ? [seg] : null;
+        };
+        const cleanMain = (segs, branchHub) => {
+            if (!Array.isArray(segs) || !segs.length) return false;
+            for (let i = 0; i < segs.length; i++) if (!segs[i] || !(Number(segs[i].gen || 0) > 0)) return false;
+            for (let i = 1; i < segs.length; i++) {
+                if (!(sameContinuityPlace(segs[i - 1].to, segs[i].from) || isEndpointHubEquivalent(segs[i - 1].to, segs[i].from))) return false;
+            }
+            const keys = [segs[0].from, ...segs.map(x => x.to)].map(roleNorm).filter(Boolean);
+            if (keys.length !== new Set(keys).size) return false;
+            if (branchHub === "광주" || branchHub === "순천") {
+                const opposite = roleNorm(branchHub === "광주" ? "순천" : "광주");
+                if (keys.slice(1, -1).includes(opposite)) return false;
+            }
+            return true;
+        };
+
+        const jgPlanBase = buildEndpointPlan(jgRaw, "origin");
+        const outPlanBase = buildEndpointPlan(outRaw, "destination");
+        const jgLv4 = normalizeCity((jgRole && jgRole.lv4) || (jgPlanBase && jgPlanBase.calcName) || jgRaw);
+        const outLv5 = outRole.role === "LV5" ? normalizeCity(outRaw) : "";
+        const outLv4 = normalizeCity(outRole.lv4 || outRaw);
+        const outLv3 = normalizeCity(r5d2StructuralLv3 || outLv4);
+        const outSpecific = outLv5 || outLv4;
+
+        const coordinate = {
+            jg: {
+                raw: jgRaw,
+                role: (jgRole && jgRole.role) || null,
+                lv4: jgLv4,
+                baseLv3: (jgRole && jgRole.entry_hub_city) || "광주"
+            },
+            outside: {
+                raw: outRaw,
+                macro: outRole.macro || null,
+                role: outRole.role || null,
+                lv3: outLv3,
+                lv4: outLv4,
+                lv5: outLv5 || null,
+                expression: outRole.expression || null,
+                structuralLv3Correction: roleNorm(outRaw) === roleNorm("고령") ? { original: outRole.entry_hub_city || null, effective: outLv3, mode: "RUNTIME_ONLY" } : null
+            }
+        };
+
+        const planReachedRaw = (plan, raw) => ({
+            ...(plan || {}), calcName: normalizeCity(raw), accessPlan: null, lv4Extension: null
+        });
+        const originPrefixToLv4 = () => {
+            if (same(jgRaw, jgLv4)) return { segs: [], plan: planReachedRaw(jgPlanBase, jgRaw) };
+            const exactActual = exactRawTerminalSeg(jgRaw, jgLv4, "R5-F2 JG LV5→LV4 exact terminal feeder");
+            if (exactActual) return { segs: [exactActual], plan: planReachedRaw(jgPlanBase, jgRaw) };
+            const actual = directSeg(jgRaw, jgLv4, "R5-C2 JG LV5→LV4 actual");
+            if (actual) return { segs: [actual], plan: planReachedRaw(jgPlanBase, jgRaw) };
+            if (jgPlanBase && jgPlanBase.accessPlan && same(jgPlanBase.calcName, jgLv4))
+                return { segs: [], plan: jgPlanBase };
+            return null;
+        };
+        const destinationTailFrom = (start) => {
+            const segs = [];
+            let current = start;
+            let plan = outPlanBase;
+            if (same(current, outRaw)) return { segs, plan: planReachedRaw(outPlanBase, outRaw), reachesRawByMain: true };
+            if (same(current, outLv3) && !same(outLv3, outLv4)) {
+                const s = directSeg(outLv3, outLv4, "R5-C2 OUT LV3→LV4");
+                if (!s) return null;
+                segs.push(s); current = outLv4;
+            }
+            if (same(current, outLv4) && !same(outLv4, outRaw)) {
+                const actual = directSeg(outLv4, outRaw, "R5-C2 OUT LV4→LV5 actual");
+                if (actual) {
+                    segs.push(actual);
+                    return { segs, plan: planReachedRaw(outPlanBase, outRaw), reachesRawByMain: true };
+                }
+                if (outPlanBase && outPlanBase.accessPlan && same(outPlanBase.calcName, outLv4))
+                    return { segs, plan: outPlanBase, reachesRawByMain: false };
+                return null;
+            }
+            if (same(current, outRaw)) return { segs, plan: planReachedRaw(outPlanBase, outRaw), reachesRawByMain: true };
+            if (same(current, outLv4) && same(outLv4, outRaw)) return { segs, plan: planReachedRaw(outPlanBase, outRaw), reachesRawByMain: true };
+            return null;
+        };
+
+        const attachR5ActualResult = (summary, actualResult) => {
+            if (!summary || !actualResult) return summary;
+            try { Object.defineProperty(summary, "_r5ActualResult", { value: actualResult, enumerable: false, configurable: true }); }
+            catch (_) { summary._r5ActualResult = actualResult; }
+            return summary;
+        };
+        const materializeForward = (segs, aPlan, bPlan, branchHub, pattern) => {
+            if (!cleanMain(segs, branchHub)) return null;
+            const total = segs.reduce((sum, x) => sum + Number(x.gen || 0), 0);
+            if (!(total > 0)) return null;
+            const path = [segs[0].from, ...segs.map(x => x.to)].filter(Boolean).filter((x, i, arr) => i === 0 || !same(x, arr[i - 1]));
+            let out = {
+                gen: total, pre: null, cost: total, surcharge: 0, shipCost: 0,
+                sources: [...new Set(segs.map(x => x.sourceLabel).filter(Boolean))],
+                dr: path.join("→"), routeLabel: path.join(" → "), mainRouteLabel: path.join(" → "), displayRouteLabel: path.join(" → "),
+                origin: jgRaw, dest: outRaw, userOrigin: jgRaw, userDest: outRaw, via: null,
+                areaRoute: true, areaScore: 9.8, areaMethod: "R5-C2 Coordinate Hierarchical Shadow",
+                areaDetail: `${branchHub} LV3 branch · ${pattern} · 화면 미적용`,
+                areaSegments: segs, multiHop: { segs, path }, fareReliable: true, needsManualFare: false,
+                r5DualShadow: { branchHub, pattern, coordinate, fareTrace: segmentTraceFor(segs), pairTotalAudit: pairAuditFor(branchHub, segs) }
+            };
+            out = applyEndpointPlans(out, aPlan, bPlan, jgRaw, outRaw);
+            out = auditRouteContinuity(out, jgRaw, outRaw);
+            if (!out || out.blocked || out.partialRoute || out.needsManualFare) return null;
+            return out;
+        };
+
+        const buildPattern = (branchHub, fromPoint, toPoint, pattern, useLv3) => {
+            let prefix = null;
+            let segs = [];
+            // R5-F2: JG LV5→LV3 실제 직행이 있으면 LV4를 억지로 찍지 않는다.
+            // 예: 관산→광주 실제 터미널 노선은 관산→장흥→광주보다 우선한다.
+            if (useLv3 && !same(jgRaw, jgLv4) && !same(jgRaw, branchHub)) {
+                const rawToBranch = exactRawTerminalSeg(jgRaw, branchHub, `R5-F2 ${jgRaw}→${branchHub} exact LV3 direct`);
+                if (rawToBranch) {
+                    prefix = { segs: [rawToBranch], plan: planReachedRaw(jgPlanBase, jgRaw) };
+                    segs = [rawToBranch];
+                }
+            }
+            if (!prefix) {
+                prefix = originPrefixToLv4();
+                if (!prefix) return null;
+                segs = [...prefix.segs];
+                if (useLv3 && !same(jgLv4, branchHub)) {
+                    const feeder = areaJgSeg(jgLv4, branchHub, `R5-C2 ${branchHub} LV4→LV3`);
+                    if (!feeder) return null;
+                    segs.push(...feeder);
+                }
+            }
+            const logicalFrom = useLv3 ? branchHub : jgLv4;
+            if (!same(logicalFrom, fromPoint)) return null;
+            const middle = directSeg(fromPoint, toPoint, `R5-C2 ${pattern}`);
+            if (!middle) return null;
+            segs.push(middle);
+            const tail = destinationTailFrom(toPoint);
+            if (!tail) return null;
+            segs.push(...tail.segs);
+            return materializeForward(segs, prefix.plan, tail.plan, branchHub, pattern);
+        };
+
+        const runTests = (branchHub, tests) => {
+            const seen = new Set();
+            for (const t of tests) {
+                const key = [roleNorm(t.from), roleNorm(t.to), t.useLv3 ? "L3" : "L4"].join("|");
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const res = buildPattern(branchHub, t.from, t.to, t.pattern, t.useLv3);
+                if (res) return res;
+            }
+            return null;
+        };
+        const buildLv4Forward = () => {
+            const tests = [{ from: jgLv4, to: outSpecific, pattern: "LV4→FINAL", useLv3: false }];
+            if (!same(outSpecific, outLv4)) tests.push({ from: jgLv4, to: outLv4, pattern: "LV4→LV4", useLv3: false });
+            return runTests("LV4", tests);
+        };
+        const buildBranchForward = (branchHub) => {
+            const tests = [{ from: branchHub, to: outSpecific, pattern: "LV3→FINAL", useLv3: true }];
+            if (!same(outSpecific, outLv4)) tests.push({ from: branchHub, to: outLv4, pattern: "LV3→LV4", useLv3: true });
+            if (outLv3 && !same(outLv3, outLv4) && !same(outLv3, outSpecific))
+                tests.push({ from: branchHub, to: outLv3, pattern: "LV3→OUT_LV3→LV4", useLv3: true });
+            return runTests(branchHub, tests);
+        };
+
+        /* 사용자 endpoint 직행은 계층을 뛰어넘어도 항상 최우선. */
+        const exactFareBase = lookupExactTerminalFare(jgRaw, outRaw, true) || lookupF5FCanonicalDirect(jgRaw, outRaw) || lookupFare(jgRaw, outRaw, false, 0);
+        const exactFare = exactFareBase ? resolveC3SegmentFare(jgRaw, outRaw, exactFareBase) : null;
+        const exactSeg = toSeg(jgRaw, outRaw, exactFare, "R5-C2 endpoint direct");
+        if (exactSeg) {
+            const directFare = Number(exactSeg.gen || 0);
+            let directActual = materializeForward(
+                [exactSeg],
+                planReachedRaw(jgPlanBase, jgRaw),
+                planReachedRaw(outPlanBase, outRaw),
+                "DIRECT",
+                "ENDPOINT_DIRECT"
+            );
+            if (directActual && !fromIsJg) {
+                const reversedSegs = reverseVerifiedMainSegments(directActual.areaSegments || []);
+                let reversed = {
+                    ...directActual,
+                    origin: outRaw, dest: jgRaw, userOrigin: outRaw, userDest: jgRaw,
+                    areaSegments: reversedSegs,
+                    multiHop: { segs: reversedSegs, path: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)] : [] },
+                    routeLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : directActual.routeLabel,
+                    mainRouteLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : directActual.mainRouteLabel,
+                    displayRouteLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : directActual.displayRouteLabel
+                };
+                reversed = auditRouteContinuity(reversed, outRaw, jgRaw);
+                directActual = (reversed && !reversed.blocked && !reversed.partialRoute && !reversed.needsManualFare) ? reversed : null;
+            }
+            if (directActual && !directActual.blocked && !directActual.partialRoute && !directActual.needsManualFare && directFare > 0) {
+                const pairRef = verifiedPairTotal(jgRaw, outRaw);
+                const directSummary = {
+                    status: "DIRECT_ONLY", from: fromName, to: toName, fare: directFare,
+                    routeLabel: directActual.routeLabel || `${fromName} → ${toName}`, pattern: "ENDPOINT_DIRECT", audit: "PASS",
+                    coordinate, gradeMode: grade,
+                    fareTrace: segmentTraceFor(directActual.areaSegments || [exactSeg]),
+                    pairTotalAudit: pairRef ? {
+                        from: jgRaw, to: outRaw,
+                        pairTotal: Number(pairRef.fare || 0), segmentTotal: directFare,
+                        status: Number(pairRef.fare || 0) === directFare ? "MATCH" : "PAIR_TOTAL_MISMATCH",
+                        authority: "SEGMENT_TOTAL", pairRole: "REFERENCE_ONLY",
+                        farePriority: "JNE>KOBUS>BUSTAGO>TMONEY>NAVER>OTHER",
+                        evidenceId: pairRef.id || null, source: pairRef.source || null
+                    } : null,
+                    options: []
+                };
+                return attachR5ActualResult(directSummary, directActual);
+            }
+            // 직행 세그먼트가 실제 결과로 완주하지 못하면 여기서 막지 않고 LV4/LV3 hierarchy를 계속 탐색한다.
+        }
+
+        // LV4 단계에서 연결이 끝나면 LV3로 더 올라가지 않는다.
+        const lv4Forward = buildLv4Forward();
+        if (lv4Forward) {
+            let lv4Res = lv4Forward;
+            if (!fromIsJg) {
+                const reversedSegs = reverseVerifiedMainSegments(lv4Forward.areaSegments || []);
+                let reversed = {
+                    ...lv4Forward,
+                    origin: outRaw, dest: jgRaw, userOrigin: outRaw, userDest: jgRaw,
+                    areaSegments: reversedSegs,
+                    multiHop: { segs: reversedSegs, path: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)] : [] },
+                    routeLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : lv4Forward.routeLabel,
+                    mainRouteLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : lv4Forward.mainRouteLabel,
+                    displayRouteLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : lv4Forward.displayRouteLabel
+                };
+                reversed = auditRouteContinuity(reversed, outRaw, jgRaw);
+                if (reversed && !reversed.blocked && !reversed.partialRoute && !reversed.needsManualFare) lv4Res = reversed;
+                else lv4Res = null;
+            }
+            if (lv4Res) {
+                const lv4Summary = attachR5ActualResult({
+                    hub: "LV4", fare: Number(lv4Res.gen || 0),
+                    routeLabel: lv4Res.routeLabel || lv4Res.displayRouteLabel || "",
+                    pattern: (lv4Forward.r5DualShadow && lv4Forward.r5DualShadow.pattern) || "LV4",
+                    audit: (lv4Res.routeContinuityAudit && lv4Res.routeContinuityAudit.status) || "PASS",
+                    segmentCount: Array.isArray(lv4Res.areaSegments) ? lv4Res.areaSegments.length : 0,
+                    fareTrace: segmentTraceFor(lv4Res.areaSegments || []),
+                    pairTotalAudit: (lv4Forward.r5DualShadow && lv4Forward.r5DualShadow.pairTotalAudit) || null,
+                    coordinate
+                }, lv4Res);
+                return {
+                    status: "SINGLE_PASS", from: fromName, to: toName, outsideAreaId: outside.areaId,
+                    gradeMode: grade, coordinate, options: [lv4Summary]
+                };
+            }
+        }
+
+        // LV4까지 실패했을 때만 동부권 LV3 출구(광주/순천)를 병렬 비교한다.
+        const branchResults = [];
+        for (const hub of ["광주", "순천"]) {
+            const forward = buildBranchForward(hub);
+            if (!forward) continue; // 순천이 목적지 좌표까지 실제 연결되지 않으면 광주만 남는다.
+            let res = forward;
+            if (!fromIsJg) {
+                const reversedSegs = reverseVerifiedMainSegments(forward.areaSegments || []);
+                let reversed = {
+                    ...forward,
+                    origin: outRaw, dest: jgRaw, userOrigin: outRaw, userDest: jgRaw,
+                    areaSegments: reversedSegs,
+                    multiHop: { segs: reversedSegs, path: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)] : [] },
+                    routeLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : forward.routeLabel,
+                    mainRouteLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : forward.mainRouteLabel,
+                    displayRouteLabel: reversedSegs.length ? [reversedSegs[0].from, ...reversedSegs.map(x => x.to)].join(" → ") : forward.displayRouteLabel
+                };
+                reversed = auditRouteContinuity(reversed, outRaw, jgRaw);
+                if (!reversed || reversed.blocked || reversed.partialRoute || reversed.needsManualFare) continue;
+                res = reversed;
+            }
+            branchResults.push(attachR5ActualResult({
+                hub,
+                fare: Number(res.gen || 0),
+                routeLabel: res.routeLabel || res.displayRouteLabel || "",
+                pattern: (forward.r5DualShadow && forward.r5DualShadow.pattern) || "",
+                audit: (res.routeContinuityAudit && res.routeContinuityAudit.status) || "PASS",
+                segmentCount: Array.isArray(res.areaSegments) ? res.areaSegments.length : 0,
+                fareTrace: segmentTraceFor(res.areaSegments || []),
+                pairTotalAudit: (forward.r5DualShadow && forward.r5DualShadow.pairTotalAudit) || null,
+                coordinate
+            }, res));
+        }
+        branchResults.sort((a, b) => a.fare - b.fare);
+        return {
+            status: branchResults.length === 2 ? "DUAL_PASS" : branchResults.length === 1 ? "SINGLE_PASS" : "DUAL_FAIL",
+            from: fromName, to: toName, outsideAreaId: outside.areaId,
+            gradeMode: grade,
+            coordinate,
+            options: branchResults
+        };
+    }, [canonicalEndpointName, resolveArea, resolveRuntimeRole, lookupF5FCanonicalDirect, lookupFare, findGwangjuExactOverride, findSuncheonExactOverride, findSuncheonExactOverrideStrict, findAreaRoute, buildEndpointPlan, normalizeCity, roleNorm, sameContinuityPlace, isEndpointHubEquivalent, applyEndpointPlans, auditRouteContinuity, reverseVerifiedMainSegments, getDirectedGradeSegmentFare, getRuntimeFareOverride, gwangjuConnectionOverrides, suncheonConnectionOverrides, bidirectionalRouteCorrections, F5LR_VERIFIED_BACKBONES, routesDB, grade]);
 
     /* ── 패치 2R6B7F5-E: 여수 캡처에서 발견된 잔여오류의 전남광주 공통화 ──
        여수에서 발견됐다는 이유로 여수 exact를 추가하지 않는다.
@@ -8321,6 +9261,8 @@ const App = () => {
         };
     }, [lookupFare, getNodeName, aliasLinked]);
     const performCalc = useCallback((o = origin, d = dest, viaCity = via) => {
+        // R5-D2.1: 이 호출을 현재 계산 세대로 지정한다. 이후 호출이 오면 아래 비동기 결과는 폐기된다.
+        const calcGeneration = ++calcGenerationRef.current;
         resetDed();
         // 2R6B7F5-G: 새 계산 시작 시 이전 성공결과가 no-route 화면에 남지 않도록 표시 상태를 먼저 비운다.
         setResult(null);
@@ -8338,16 +9280,75 @@ const App = () => {
         setAltRoutes([]);
         const rawFrom = canonicalEndpointName(nz(o));
         const rawTo = canonicalEndpointName(nz(d));
+        const calcKey = `${rawFrom}|${rawTo}|${grade === "gen" ? "gen" : "pre"}`;
+        activeCalcKeyRef.current = calcKey;
+        const applyCalcResult = (value) => {
+            if (calcGeneration !== calcGenerationRef.current || activeCalcKeyRef.current !== calcKey)
+                return false;
+            if (value && typeof value === "object")
+                value = { ...value, __ybezCalcKey: calcKey, __ybezCalcGeneration: calcGeneration };
+            setResult(value);
+            return true;
+        };
         const rawFromResolvedForCorrection = resolveArea(rawFrom);
         const rawToResolvedForCorrection = resolveArea(rawTo);
-        // F5-P: 검색·히스토리·스왑 어떤 진입경로에서도 전국↔전국 계산은 막는다.
-        // 최소 한쪽이 전남광주(jg_)여야 YBEZ 계산을 진행한다.
+        // R5-D2.3: 계산 파이프라인 최상단 Scope Guard.
+        // resolveArea/role 한쪽이 비어도 실제 검색목록의 확정 행정구역이면 외부지역으로 판정한다.
         const f5pFromAreaId = String((rawFromResolvedForCorrection === null || rawFromResolvedForCorrection === void 0 ? void 0 : rawFromResolvedForCorrection.areaId) || "");
         const f5pToAreaId = String((rawToResolvedForCorrection === null || rawToResolvedForCorrection === void 0 ? void 0 : rawToResolvedForCorrection.areaId) || "");
-        if (f5pFromAreaId && f5pToAreaId && !f5pFromAreaId.startsWith("jg_") && !f5pToAreaId.startsWith("jg_")) {
+        const f5pFromRole = resolveRuntimeRole(rawFrom);
+        const f5pToRole = resolveRuntimeRole(rawTo);
+        const isJgEndpoint = (raw, areaId, role) => {
+            if (String(areaId || "").startsWith("jg_") || String((role && role.macro) || "") === "전남광주") return true;
+            if (raw === "광주" || raw === "광주유스퀘어" || JEONNAM_GWANGJU_MAIN_NAMES.has(raw) || JEONNAM_GWANGJU_MAIN_NAMES.has(JEONNAM_SUB_TO_MAIN[raw] || "")) return true;
+            const islandInfo = ISLAND_DB[raw];
+            return !!(islandInfo && ["목포", "완도", "진도", "장흥"].includes(nz(islandInfo.hub)));
+        };
+        const f5pFromKnown = !!rawFrom && (cityList.includes(rawFrom) || !!f5pFromAreaId || !!f5pFromRole);
+        const f5pToKnown = !!rawTo && (cityList.includes(rawTo) || !!f5pToAreaId || !!f5pToRole);
+        const f5pFromJg = isJgEndpoint(rawFrom, f5pFromAreaId, f5pFromRole);
+        const f5pToJg = isJgEndpoint(rawTo, f5pToAreaId, f5pToRole);
+        if (f5pFromKnown && f5pToKnown && !f5pFromJg && !f5pToJg) {
+            // R5-D2.1 Scope Guard Atomic Reset:
+            // 이전 계산의 화면/상세/접근/수기 상태를 한 번에 비우고, 이 세대의 scope 상태만 남긴다.
             setResult(null);
-            setBypassInfo(["YBEZ는 전남광주 ↔ 전국 여비 산정 전용입니다. 출발지와 도착지 중 한 곳은 전남광주 지역을 선택해 주세요."]);
-            setCalcSt("error_no_route");
+            setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
+            setShowSubChoices(false);
+            setSelSub(null);
+            setSmartResult(null);
+            setAltRoutes([]);
+            setShowDetail(false);
+            setMobileDetailOpen(false);
+            setIntraCityOpen(false);
+            setActiveModal(null);
+            setModalSt({ type: null, data: [] });
+            setManualTransport(null);
+            setManualTransportInput("");
+            setShipFare(0);
+            setShipFareInput("");
+            setAccessExtraFare(0);
+            setAccessExtraInput("");
+            setAccessSelection("none");
+            setAccessSelections({ origin: "fare", destination: "fare" });
+            setBypassInfo([
+                "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.",
+                "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요."
+            ]);
+            setCalcSt("error_scope");
+            const scopeAudit = {
+                ts: new Date().toISOString(),
+                status: "SCOPE_BLOCKED",
+                from: rawFrom,
+                to: rawTo,
+                actualApplied: false,
+                reason: "non_jg_to_non_jg",
+                calcGeneration,
+                calcKey
+            };
+            try {
+                window.__YBEZ_R5_ACTUAL_LAST__ = scopeAudit;
+                window.__YBEZ_R5_SHADOW_LAST__ = { ...scopeAudit, shadow: true };
+            } catch (_scopeAuditErr) { }
             return;
         }
         routeCorrectionRequestRef.current = {
@@ -8367,13 +9368,13 @@ const App = () => {
         const skipPopup = skipPopupOnceRef.current;
         skipPopupOnceRef.current = false;
         if ([from, to, rawFrom, rawTo].some(x => /광주비아|비아정류|^비아$/.test(nz(x)))) {
-            setResult(null);
+            applyCalcResult(null);
             setBypassInfo(["⚠ 광주비아는 광주유스퀘어 하위정류장이므로 여비 산정 목적지로 별도 계산하지 않습니다."]);
             setCalcSt("error_no_route");
             return;
         }
         if (rawFrom === "고성" || rawTo === "고성") {
-            setResult(null);
+            applyCalcResult(null);
             setManualTransport(null);
             setBypassInfo(["⚠ 고성은 동명이역입니다. 고성(강원) 또는 고성(경남)을 선택해 주세요."]);
             setCalcSt("error_no_route");
@@ -8384,7 +9385,7 @@ const App = () => {
                 sources: ["area_rule"], dr: `${from}→${to}`, routeLabel: `${from} → ${to}`,
                 origin: from, dest: to, via: null, sameArea: true, areaRoute: true, areaScore: 5,
                 areaMethod: "동일 출발지·목적지 0원 처리", multiHop: null, areaSegments: null };
-            setResult(sameRes);
+            applyCalcResult(sameRes);
             setManualTransport(0);
             setShipFare(0);
             setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
@@ -8409,7 +9410,7 @@ const App = () => {
                 specialTransportNotice: "제주 이동은 자동 산정하지 않습니다. 기타교통비에 실제 이용액을 실비 입력해주세요.",
                 areaSegments: null, multiHop: null, islandLegs: [], islandRouteLabel: "", isShipOnlyRoute: false
             };
-            setResult(manualRes);
+            applyCalcResult(manualRes);
             setManualTransport(null);
             setManualTransportInput("");
             setShipFare(0);
@@ -8423,6 +9424,181 @@ const App = () => {
             setCalcSt("done");
             return;
         }
+        // R5-D 준비: C2/C3.1 Shadow를 한 번만 계산하고 이후 실제 승격에서도 같은 결과를 사용한다.
+        let r5ShadowResult = null;
+        if (!nz(viaCity)) {
+            try {
+                r5ShadowResult = buildR5DualRouteShadow(rawFrom, rawTo);
+                if (typeof window !== "undefined") {
+                    const payload = { ts: new Date().toISOString(), ...r5ShadowResult };
+                    window.__YBEZ_R5_SHADOW_LAST__ = payload;
+                    const hist = Array.isArray(window.__YBEZ_R5_SHADOW_HISTORY__) ? window.__YBEZ_R5_SHADOW_HISTORY__ : [];
+                    window.__YBEZ_R5_SHADOW_HISTORY__ = [...hist.slice(-99), payload];
+                }
+            } catch (e) {
+                r5ShadowResult = { status: "SHADOW_ERROR", from: rawFrom, to: rawTo, message: String((e && e.message) || e || "shadow error") };
+                if (typeof window !== "undefined") window.__YBEZ_R5_SHADOW_LAST__ = { ts: new Date().toISOString(), ...r5ShadowResult };
+            }
+        }
+
+        /* ── R5-D2: LV4_ACCESS_REQUIRED → ACCESS_HANDOFF 복구 ──
+           원 목적지 LV5까지 시외 본선이 없더라도 LV4까지 정상 main route가 있으면 FAIL로 보지 않는다.
+           LV4→LV5는 기존 access_cost_nationwide 선택정책으로 넘기고 main fare에는 자동합산하지 않는다. */
+        if (!nz(viaCity) && r5ShadowResult && ["DUAL_FAIL", "NOT_APPLICABLE"].includes(r5ShadowResult.status)) {
+            try {
+                const frD2 = resolveArea(rawFrom), trD2 = resolveArea(rawTo);
+                const fromIsJgD2 = !!(frD2 && !frD2.blocked && String(frD2.areaId || "").startsWith("jg_"));
+                const toIsJgD2 = !!(trD2 && !trD2.blocked && String(trD2.areaId || "").startsWith("jg_"));
+                if (fromIsJgD2 !== toIsJgD2) {
+                    const outsideRawD2 = fromIsJgD2 ? rawTo : rawFrom;
+                    const jgRawD2 = fromIsJgD2 ? rawFrom : rawTo;
+                    const outsideRoleD2 = resolveRuntimeRole(outsideRawD2);
+                    if (outsideRoleD2 && outsideRoleD2.role === "LV5" && outsideRoleD2.main_route_mode === "LV4_ACCESS_REQUIRED" && outsideRoleD2.lv4) {
+                        const lv4D2 = normalizeCity(outsideRoleD2.lv4);
+                        const mainFromD2 = fromIsJgD2 ? jgRawD2 : lv4D2;
+                        const mainToD2 = fromIsJgD2 ? lv4D2 : jgRawD2;
+                        let mainShadowD2 = buildR5DualRouteShadow(mainFromD2, mainToD2);
+                        let mainOptionsD2 = [];
+                        if (mainShadowD2 && mainShadowD2.status === "DIRECT_ONLY" && mainShadowD2._r5ActualResult) {
+                            mainOptionsD2 = [{
+                                hub: "DIRECT", fare: Number(mainShadowD2.fare || 0), routeLabel: mainShadowD2.routeLabel || `${mainFromD2} → ${mainToD2}`,
+                                pattern: "ENDPOINT_DIRECT", audit: "PASS", fareTrace: mainShadowD2.fareTrace || [], pairTotalAudit: mainShadowD2.pairTotalAudit || null,
+                                _r5ActualResult: mainShadowD2._r5ActualResult
+                            }];
+                        } else if (mainShadowD2 && Array.isArray(mainShadowD2.options)) {
+                            mainOptionsD2 = mainShadowD2.options.filter(Boolean);
+                        }
+                        // 동부 R5가 적용되지 않는 권역도 기존 검증 공통경로가 있으면 같은 handoff 규칙을 재사용한다.
+                        if (!mainOptionsD2.length) {
+                            const commonD2 = buildF5FCommonRoutingRoute(mainFromD2, mainToD2);
+                            if (commonD2 && !commonD2.blocked && !commonD2.partialRoute && !commonD2.needsManualFare) {
+                                mainOptionsD2 = [{ hub: "COMMON", fare: Number(commonD2.gen || 0), routeLabel: commonD2.routeLabel || "", pattern: "COMMON→LV4", audit: "PASS", fareTrace: [], pairTotalAudit: null, _r5ActualResult: commonD2 }];
+                            }
+                        }
+                        const outsidePlanD2 = buildEndpointPlan(outsideRawD2, fromIsJgD2 ? "destination" : "origin");
+                        const jgPlanD2 = { side: fromIsJgD2 ? "origin" : "destination", rawName: jgRawD2, calcName: normalizeCity(jgRawD2), role: resolveRuntimeRole(jgRawD2), lv4Extension: null, accessPlan: null };
+                        if (outsidePlanD2 && outsidePlanD2.accessPlan && roleNorm(outsidePlanD2.calcName) === roleNorm(lv4D2)) {
+                            const rebuiltD2 = [];
+                            for (const opt of mainOptionsD2) {
+                                let actualD2 = opt && opt._r5ActualResult ? { ...opt._r5ActualResult } : null;
+                                if (!actualD2) continue;
+                                actualD2 = fromIsJgD2
+                                    ? applyEndpointPlans(actualD2, jgPlanD2, outsidePlanD2, rawFrom, rawTo)
+                                    : applyEndpointPlans(actualD2, outsidePlanD2, jgPlanD2, rawFrom, rawTo);
+                                actualD2 = { ...actualD2, origin: rawFrom, dest: rawTo, userOrigin: rawFrom, userDest: rawTo, r5d2AccessHandoff: true };
+                                actualD2 = auditRouteContinuity(actualD2, rawFrom, rawTo);
+                                if (!actualD2 || actualD2.blocked || actualD2.partialRoute || actualD2.needsManualFare) continue;
+                                const summaryD2 = {
+                                    ...opt,
+                                    fare: Number(actualD2.gen || opt.fare || 0), routeLabel: actualD2.routeLabel || opt.routeLabel || "",
+                                    pattern: `${opt.pattern || "LV4"}+ACCESS_HANDOFF`, audit: "PASS",
+                                    accessHandoff: { lv4: lv4D2, lv5: outsideRawD2, mode: outsidePlanD2.accessPlan.mode, oneway: Number(outsidePlanD2.accessPlan.oneway || 0), autoSum: false },
+                                    coordinate: mainShadowD2 && mainShadowD2.coordinate ? mainShadowD2.coordinate : null
+                                };
+                                try { Object.defineProperty(summaryD2, "_r5ActualResult", { value: actualD2, enumerable: false, configurable: true }); }
+                                catch (_) { summaryD2._r5ActualResult = actualD2; }
+                                rebuiltD2.push(summaryD2);
+                            }
+                            if (rebuiltD2.length) {
+                                rebuiltD2.sort((a, b) => Number(a.fare || 0) - Number(b.fare || 0));
+                                r5ShadowResult = {
+                                    status: rebuiltD2.length >= 2 ? "DUAL_PASS" : "SINGLE_PASS",
+                                    from: rawFrom, to: rawTo, outsideAreaId: fromIsJgD2 ? trD2.areaId : frD2.areaId,
+                                    gradeMode: grade,
+                                    coordinate: { ...(mainShadowD2 && mainShadowD2.coordinate || {}), accessHandoff: { lv4: lv4D2, lv5: outsideRawD2, mode: outsidePlanD2.accessPlan.mode } },
+                                    options: rebuiltD2, r5d2AccessHandoff: true
+                                };
+                                if (typeof window !== "undefined") window.__YBEZ_R5_SHADOW_LAST__ = { ts: new Date().toISOString(), ...r5ShadowResult };
+                            }
+                        }
+                    }
+                }
+            } catch (_) { /* D2 handoff 실패 시 기존 fallback 보존 */ }
+        }
+
+        // R5-D2: 사용자 검증 예외는 잘못된 수집 direct/ASAMARU보다 먼저 확정한다.
+        if (!nz(viaCity)) {
+            const r5d2Curated = buildR5D2CuratedRoute(rawFrom, rawTo);
+            if (r5d2Curated) {
+                const fareD2 = Number(r5d2Curated.gen || 0);
+                applyCalcResult(r5d2Curated);
+                setManualTransport(null);
+                setManualTransportInput("");
+                setShipFare(0);
+                setAccessExtraFare(0);
+                setAccessSelection("none");
+                setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
+                setShowSubChoices(false);
+                setAltRoutes([]);
+                setSmartResult(null);
+                setBypassInfo([`✓ R5-D2 검증경로 적용: ${r5d2Curated.routeLabel} · 편도 ${fmt(fareD2)}원`]);
+                addHistory(o, d, fareD2);
+                setCalcSt("done");
+                if (typeof window !== "undefined") {
+                    const payloadD2 = { ts: new Date().toISOString(), status: "R5D2_CURATED_PROMOTED", from: rawFrom, to: rawTo, fare: fareD2, routeLabel: r5d2Curated.routeLabel, meta: r5d2Curated.r5d2CuratedRoute || null, actualApplied: true };
+                    window.__YBEZ_R5_ACTUAL_LAST__ = payloadD2;
+                    const histD2 = Array.isArray(window.__YBEZ_R5_ACTUAL_HISTORY__) ? window.__YBEZ_R5_ACTUAL_HISTORY__ : [];
+                    window.__YBEZ_R5_ACTUAL_HISTORY__ = [...histD2.slice(-99), payloadD2];
+                }
+                return;
+            }
+        }
+
+        /* ── R5-F2: JG LV5 실제 endpoint 직행 우선 ──
+           관산·대덕·독천·삼호처럼 normalizeCity()에서 부모도시로 접히는 하위검색지역은
+           KOBUS/BUSTAGO/TMONEY의 정확 raw terminal 직행이 실제 존재할 때 그 노선을 먼저 쓴다.
+           ASAMARU-only 장거리 직행은 이 층에서 승격하지 않아 기존 서울축 오염 보호정책을 지킨다. */
+        if (!nz(viaCity)) {
+            const frF2 = resolveArea(rawFrom), trF2 = resolveArea(rawTo);
+            const fromJgF2 = !!(frF2 && !frF2.blocked && String(frF2.areaId || "").startsWith("jg_"));
+            const toJgF2 = !!(trF2 && !trF2.blocked && String(trF2.areaId || "").startsWith("jg_"));
+            if (fromJgF2 !== toJgF2) {
+                const jgRawF2 = fromJgF2 ? rawFrom : rawTo;
+                const jgRoleF2 = resolveRuntimeRole(jgRawF2);
+                const isJgLv5F2 = roleNorm(normalizeCity(jgRawF2)) !== roleNorm(jgRawF2) || !!(jgRoleF2 && jgRoleF2.role === "LV5");
+                if (isJgLv5F2) {
+                    const directF2 = lookupExactTerminalFare(rawFrom, rawTo, true);
+                    if (directF2 && Number(directF2.gen || 0) > 0) {
+                        const fareF2 = Number(directF2.gen || 0);
+                        const srcF2 = directF2.sourceLabel || directF2.source || ((directF2.sources || [])[0]) || "routesDB";
+                        const segF2 = {
+                            from: rawFrom, to: rawTo, gen: fareF2, pre: null,
+                            source: srcF2, sourceLabel: srcF2,
+                            terminalFrom: directF2.depName || null, terminalTo: directF2.arrName || null,
+                            depId: directF2.depId || null, arrId: directF2.arrId || null,
+                            kind: "bus", note: "R5-F2 JG LV5 exact endpoint direct",
+                            fareBinding: directF2.c3Trace || null
+                        };
+                        let resultF2 = {
+                            gen: fareF2, pre: null, cost: fareF2, surcharge: 0, shipCost: 0,
+                            sources: directF2.sources || [srcF2], dr: `${rawFrom}→${rawTo}`,
+                            routeLabel: `${rawFrom} → ${rawTo}`, mainRouteLabel: `${rawFrom} → ${rawTo}`, displayRouteLabel: `${rawFrom} → ${rawTo}`,
+                            origin: rawFrom, dest: rawTo, userOrigin: rawFrom, userDest: rawTo, via: null,
+                            areaRoute: true, areaScore: 5, areaMethod: "R5-F2 JG LV5 실제 endpoint 직행",
+                            areaDetail: "정규화 전 하위터미널의 KOBUS/BUSTAGO/TMONEY 실제 직행을 우선",
+                            areaSegments: [segF2], multiHop: { segs: [segF2], path: [rawFrom, rawTo] },
+                            fareReliable: true, needsManualFare: false, r5fExactRawDirect: true
+                        };
+                        resultF2 = auditRouteContinuity(resultF2, rawFrom, rawTo);
+                        if (resultF2 && !resultF2.blocked && !resultF2.partialRoute && !resultF2.needsManualFare) {
+                            applyCalcResult(resultF2);
+                            setManualTransport(null); setManualTransportInput(""); setShipFare(0); setAccessExtraFare(0); setAccessSelection("none");
+                            setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] }); setShowSubChoices(false); setAltRoutes([]); setSmartResult(null);
+                            setBypassInfo([`✓ R5-F2 실제 하위터미널 직행: ${rawFrom} → ${rawTo} · 편도 ${fmt(fareF2)}원`]);
+                            addHistory(o, d, fareF2); setCalcSt("done");
+                            if (typeof window !== "undefined") {
+                                const payloadF2 = { ts: new Date().toISOString(), status: "R5F2_EXACT_DIRECT_PROMOTED", from: rawFrom, to: rawTo, fare: fareF2, routeLabel: resultF2.routeLabel, source: srcF2, actualApplied: true };
+                                window.__YBEZ_R5_ACTUAL_LAST__ = payloadF2;
+                                const histF2 = Array.isArray(window.__YBEZ_R5_ACTUAL_HISTORY__) ? window.__YBEZ_R5_ACTUAL_HISTORY__ : [];
+                                window.__YBEZ_R5_ACTUAL_HISTORY__ = [...histF2.slice(-99), payloadF2];
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
         // 2R6B7F5-G2: 사용자 검증 canonical direct는 오래된 광주 exact보다 먼저 확정한다.
         // 대상은 F5F_VERIFIED_CANONICAL_DIRECTS에 명시된 검증쌍만이며, 일반 direct 전체를 재정렬하지 않는다.
         if (!nz(viaCity)) {
@@ -8456,7 +9632,7 @@ const App = () => {
                     const directRes = inheritSingleMainGrade(auditRouteContinuity(directResBase, rawFrom, rawTo));
                     if (directRes && !directRes.blocked && !directRes.partialRoute && !directRes.needsManualFare) {
                         const directFare = directRes.gradeSelectable && directRes.pre ? directRes.pre : directRes.gen;
-                        setResult(directRes);
+                        applyCalcResult(directRes);
                         setManualTransport(Number(directFare || 0) * 2);
                         setShipFare(0);
                         setAccessExtraFare(0);
@@ -8479,7 +9655,7 @@ const App = () => {
             const f5jSurveyRepair = buildF5JGwangjuSurveyRepairRoute(rawFrom, rawTo);
             if (f5jSurveyRepair) {
                 const f5jFare = Number(f5jSurveyRepair.gen || 0);
-                setResult(f5jSurveyRepair);
+                applyCalcResult(f5jSurveyRepair);
                 setManualTransport(f5jFare * 2);
                 setShipFare(0);
                 setAccessExtraFare(0);
@@ -8501,7 +9677,7 @@ const App = () => {
             if (forcedBase) {
                 const forcedRes = auditRouteContinuity(forcedBase, rawFrom, rawTo);
                 const forcedDefaultFare = forcedRes.gradeSelectable && forcedRes.pre ? forcedRes.pre : forcedRes.gen;
-                setResult(forcedRes);
+                applyCalcResult(forcedRes);
                 setManualTransport(Number(forcedDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(forcedRes.ybezAccessPlan && forcedRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -8519,7 +9695,7 @@ const App = () => {
             const namakExact = findNamakExactRoute(rawFrom, rawTo);
             if (namakExact) {
                 const defaultFare = namakExact.gradeSelectable && namakExact.pre ? namakExact.pre : namakExact.gen;
-                setResult(namakExact);
+                applyCalcResult(namakExact);
                 setManualTransport(Number(defaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection("none");
@@ -8537,6 +9713,187 @@ const App = () => {
             }
         }
 
+        /* ── R5-D ACTUAL PROMOTION: Coordinate Resolver → 실제 결과 승격 ──
+           보호순서: G2 검증직행 / F5-J / forced continuity / 남악 exact / F5-LR2 pinpoint가 우선한다.
+           그 아래에서 C2 구조 + C3.1 요금이 모두 PASS한 경우에만 실제 결과로 승격한다.
+           DUAL_PASS는 공신력(JNE/KOBUS/Bustago/Tmoney) 후보끼리면 총액이 싼 경로를 채택한다.
+           한쪽만 공신력이고 다른 쪽이 NAVER/legacy fallback에 의존하면 DUAL_REVIEW_REQUIRED로 승격을 보류한다.
+           DIRECT_ONLY는 완전한 endpoint 직행이면 DIRECT_PROMOTED로 실제 승격한다.
+           NOT_APPLICABLE / FAIL / unresolved만 기존 보호층으로 넘긴다. */
+        if (!nz(viaCity) && r5ShadowResult && (r5ShadowResult.status === "DIRECT_ONLY" || r5ShadowResult.status === "DUAL_PASS" || r5ShadowResult.status === "SINGLE_PASS")) {
+            // F5-LR2는 기존 승인 핀포인트이므로 R5-D보다 우선권을 유지한다. 실제 적용은 아래 기존 블록에서 수행한다.
+            const r5dPinpointProtected = !!buildF5LR2PinpointGate(rawFrom, rawTo);
+            if (!r5dPinpointProtected) {
+                const optionTier = (opt) => {
+                    const trace = Array.isArray(opt && opt.fareTrace) ? opt.fareTrace : [];
+                    const priorities = trace.map(t => Number(t && t.binding && t.binding.selectedPriority)).filter(Number.isFinite);
+                    const worst = priorities.length ? Math.max(...priorities) : 99;
+                    return { worstPriority: worst, officialOperator: worst <= 30, fallback: worst >= 40 };
+                };
+                const directSynthetic = r5ShadowResult.status === "DIRECT_ONLY" && r5ShadowResult._r5ActualResult ? {
+                    hub: "DIRECT", fare: Number(r5ShadowResult.fare || 0), routeLabel: r5ShadowResult.routeLabel || `${rawFrom} → ${rawTo}`,
+                    pattern: "ENDPOINT_DIRECT", audit: "PASS", fareTrace: r5ShadowResult.fareTrace || [],
+                    pairTotalAudit: r5ShadowResult.pairTotalAudit || null, _r5ActualResult: r5ShadowResult._r5ActualResult
+                } : null;
+                const promotionCandidates = directSynthetic ? [directSynthetic] : (Array.isArray(r5ShadowResult.options) ? r5ShadowResult.options : []);
+                const validOptions = promotionCandidates
+                    .filter(opt => opt && opt.audit === "PASS" && Number(opt.fare || 0) > 0 && opt._r5ActualResult
+                        && !opt._r5ActualResult.blocked && !opt._r5ActualResult.partialRoute && !opt._r5ActualResult.needsManualFare);
+                let selectedOption = null;
+                let promotionStatus = "NO_VALID_OPTION";
+                if (r5ShadowResult.status === "DIRECT_ONLY" && validOptions.length === 1) {
+                    selectedOption = validOptions[0];
+                    promotionStatus = "DIRECT_PROMOTED";
+                } else if (validOptions.length === 1) {
+                    selectedOption = validOptions[0];
+                    promotionStatus = "SINGLE_PROMOTED";
+                } else if (validOptions.length >= 2) {
+                    const ranked = validOptions.map(opt => ({ opt, tier: optionTier(opt) })).sort((a, b) => Number(a.opt.fare || 0) - Number(b.opt.fare || 0));
+                    const firstTwo = ranked.slice(0, 2);
+                    const mixedAuthority = firstTwo.length === 2 && firstTwo.some(x => x.tier.officialOperator) && firstTwo.some(x => x.tier.fallback);
+                    if (mixedAuthority) {
+                        promotionStatus = "DUAL_REVIEW_REQUIRED";
+                    } else {
+                        selectedOption = ranked[0].opt;
+                        promotionStatus = "DUAL_PROMOTED";
+                    }
+                }
+
+                const deriveR5GradeTotals = (opt) => {
+                    const trace = Array.isArray(opt && opt.fareTrace) ? opt.fareTrace : [];
+                    let genTotal = 0, preTotal = 0, variableCount = 0, firstFrom = "", lastTo = "";
+                    for (const t of trace) {
+                        const binding = t && t.binding;
+                        const candidates = Array.isArray(binding && binding.candidates) ? binding.candidates : [];
+                        const chosen = candidates.find(c =>
+                            Number(c.rank) === Number(binding && binding.selectedPriority)
+                            && String(c.source || "") === String(binding && binding.selectedSource || "")
+                            && String(c.layer || "") === String(binding && binding.selectedLayer || "")
+                            && String(c.evidenceId || "") === String(binding && binding.selectedEvidenceId || ""))
+                            || candidates.find(c => Number(c.rank) === Number(binding && binding.selectedPriority)) || null;
+                        const frA = resolveArea(t.from), frB = resolveArea(t.to);
+                        const bothJg = !!(frA && frB && !frA.blocked && !frB.blocked
+                            && String(frA.areaId || "").startsWith("jg_") && String(frB.areaId || "").startsWith("jg_"));
+                        const g = Number(chosen && chosen.generalFare || 0);
+                        const pr = Number(chosen && chosen.premiumFare || 0);
+                        if (bothJg && g > 0 && pr > 0) {
+                            genTotal += g; preTotal += pr; variableCount += 1;
+                            if (!firstFrom) firstFrom = t.from || "전남광주";
+                            lastTo = t.to || firstFrom;
+                        } else {
+                            const fixed = Number(t && t.fare || 0);
+                            genTotal += fixed; preTotal += fixed;
+                        }
+                    }
+                    return variableCount > 0 && genTotal > 0 && preTotal > 0
+                        ? { gen: genTotal, pre: preTotal, variableCount, from: firstFrom, to: lastTo }
+                        : null;
+                };
+                // R5-D2 access handoff는 경로 승격 성공과 접근비용 분리를 로그에서도 구분한다.
+                if (selectedOption && selectedOption.accessHandoff) promotionStatus = "ACCESS_HANDOFF_PROMOTED";
+                const actualAuditBase = {
+                    ts: new Date().toISOString(),
+                    status: promotionStatus,
+                    shadowStatus: r5ShadowResult.status,
+                    from: rawFrom, to: rawTo,
+                    gradeMode: r5ShadowResult.gradeMode || grade,
+                    candidates: validOptions.map(opt => ({
+                        hub: opt.hub, fare: Number(opt.fare || 0), routeLabel: opt.routeLabel || "",
+                        pattern: opt.pattern || "", sourceTier: optionTier(opt), pairTotalAudit: opt.pairTotalAudit || null
+                    }))
+                };
+
+                if (selectedOption) {
+                    const selectedTier = optionTier(selectedOption);
+                    let promoted = { ...selectedOption._r5ActualResult };
+                    const selectedFare = Number(selectedOption.fare || promoted.gen || 0);
+                    const r5GradeTotals = deriveR5GradeTotals(selectedOption);
+                    promoted = {
+                        ...promoted,
+                        gen: r5GradeTotals ? Number(r5GradeTotals.gen) : selectedFare,
+                        pre: r5GradeTotals ? Number(r5GradeTotals.pre) : null,
+                        cost: r5GradeTotals ? Number(r5GradeTotals.gen) : selectedFare,
+                        gradeSelectable: !!r5GradeTotals,
+                        gradeDefault: r5GradeTotals ? (r5ShadowResult.gradeMode || grade) : null,
+                        gradeSegmentOverride: r5GradeTotals ? {
+                            gen: Number(r5GradeTotals.gen), pre: Number(r5GradeTotals.pre), fixedExtra: 0,
+                            from: r5GradeTotals.from, to: r5GradeTotals.to,
+                            source: "JNE2026", sourceLabel: "2026.1.1.자 전라남도 여비기준표",
+                            fareType: "일반/우등", inherited: true, runtime: true,
+                            r5WholeRouteGradeTotal: true, variableCount: r5GradeTotals.variableCount
+                        } : (promoted.gradeSegmentOverride || null),
+                        routeLabel: selectedOption.routeLabel || promoted.routeLabel,
+                        mainRouteLabel: selectedOption.routeLabel || promoted.mainRouteLabel || promoted.routeLabel,
+                        displayRouteLabel: selectedOption.routeLabel || promoted.displayRouteLabel || promoted.routeLabel,
+                        areaMethod: selectedOption.accessHandoff ? "R5-D2 LV4 Access Handoff Promotion" : "R5-D1 Coordinate Actual Promotion",
+                        areaDetail: selectedOption.accessHandoff
+                            ? `${selectedOption.hub} branch · ${selectedOption.pattern} · LV4 main 완주 후 LV5 접근비용 분리`
+                            : `${selectedOption.hub} branch · ${selectedOption.pattern} · C2 구조 + D1 요금근거 품질 실제 승격`,
+                        fareReliable: true, needsManualFare: false,
+                        r5ActualPromotion: {
+                            shadowStatus: r5ShadowResult.status,
+                            promotionStatus,
+                            selectedHub: selectedOption.hub,
+                            selectedFare,
+                            pattern: selectedOption.pattern,
+                            accessHandoff: selectedOption.accessHandoff || null,
+                            gradeMode: r5ShadowResult.gradeMode || grade,
+                            sourceTier: selectedTier,
+                            coordinate: r5ShadowResult.coordinate || null,
+                            pairTotalAudit: selectedOption.pairTotalAudit || null,
+                            fareTrace: selectedOption.fareTrace || []
+                        }
+                    };
+                    promoted = auditRouteContinuity(promoted, rawFrom, rawTo);
+                    if (promoted && !promoted.blocked && !promoted.partialRoute && !promoted.needsManualFare) {
+                        applyCalcResult(promoted);
+                        // R5-D는 main fare와 access_cost를 분리 유지한다. manualTransport로 main만 고정하지 않는다.
+                        setManualTransport(null);
+                        setManualTransportInput("");
+                        setShipFare(0);
+                        setAccessExtraFare(0);
+                        const r5AccessPlans = Array.isArray(promoted.ybezAccessPlans) && promoted.ybezAccessPlans.length
+                            ? promoted.ybezAccessPlans.filter(Boolean)
+                            : (promoted.ybezAccessPlan ? [promoted.ybezAccessPlan] : []);
+                        setAccessSelection(r5AccessPlans.length === 1 && r5AccessPlans[0].mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
+                        setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
+                        setShowSubChoices(false);
+                        setAltRoutes([]);
+                        setSmartResult(null);
+                        setBypassInfo([`✓ R5-D1 좌표경로 적용: ${promoted.routeLabel} · 편도 ${fmt(selectedFare)}원`]);
+                        addHistory(o, d, selectedFare);
+                        setCalcSt("done");
+                        if (typeof window !== "undefined") {
+                            const actualPayload = { ...actualAuditBase, status: promotionStatus, selected: {
+                                hub: selectedOption.hub, fare: selectedFare, routeLabel: promoted.routeLabel,
+                                pattern: selectedOption.pattern, sourceTier: selectedTier, accessHandoff: selectedOption.accessHandoff || null
+                            }, actualApplied: true, match: Number(((r5ShadowResult.gradeMode || grade) === "pre" && promoted.pre ? promoted.pre : promoted.gen) || 0) === selectedFare ? "MATCH" : "ACTUAL_SHADOW_MISMATCH" };
+                            window.__YBEZ_R5_ACTUAL_LAST__ = actualPayload;
+                            const hist = Array.isArray(window.__YBEZ_R5_ACTUAL_HISTORY__) ? window.__YBEZ_R5_ACTUAL_HISTORY__ : [];
+                            window.__YBEZ_R5_ACTUAL_HISTORY__ = [...hist.slice(-99), actualPayload];
+                        }
+                        return;
+                    }
+                    promotionStatus = "ACTUAL_AUDIT_REJECTED";
+                }
+                if (typeof window !== "undefined") {
+                    const actualPayload = { ...actualAuditBase, status: promotionStatus, actualApplied: false };
+                    window.__YBEZ_R5_ACTUAL_LAST__ = actualPayload;
+                    const hist = Array.isArray(window.__YBEZ_R5_ACTUAL_HISTORY__) ? window.__YBEZ_R5_ACTUAL_HISTORY__ : [];
+                    window.__YBEZ_R5_ACTUAL_HISTORY__ = [...hist.slice(-99), actualPayload];
+                }
+            }
+        } else if (!nz(viaCity) && typeof window !== "undefined" && r5ShadowResult) {
+            const actualPayload = {
+                ts: new Date().toISOString(), status: r5ShadowResult.status === "DIRECT_ONLY" ? "DIRECT_REJECTED" : "NO_PROMOTION",
+                shadowStatus: r5ShadowResult.status, from: rawFrom, to: rawTo, actualApplied: false,
+                reason: r5ShadowResult.reason || null
+            };
+            window.__YBEZ_R5_ACTUAL_LAST__ = actualPayload;
+            const hist = Array.isArray(window.__YBEZ_R5_ACTUAL_HISTORY__) ? window.__YBEZ_R5_ACTUAL_HISTORY__ : [];
+            window.__YBEZ_R5_ACTUAL_HISTORY__ = [...hist.slice(-99), actualPayload];
+        }
+
         // 2R.6B-2: 광주 exact 오버레이는 popup·endpoint fallback·기존 correction보다 먼저 확정한다.
         // 이 블록은 원문 출발·도착 중 하나가 정확히 “광주”인 경우에만 작동한다.
         if (!nz(viaCity)) {
@@ -8546,7 +9903,7 @@ const App = () => {
                 const forwardMainSegments = normalizeExactForwardSegments(item);
                 const segments = gwangjuExact.forward
                     ? forwardMainSegments.map(x => ({ ...x }))
-                    : [...forwardMainSegments].reverse().map(x => ({ ...x, from: x.to, to: x.from, terminalFrom: x.terminalTo || null, terminalTo: x.terminalFrom || null }));
+                    : reverseVerifiedMainSegments(forwardMainSegments);
                 const fare = Number(item.fare || 0);
                 const routeLabel = gwangjuExact.forward ? item.route_label_forward : item.route_label_reverse;
                 const path = segments.length ? [segments[0].from, ...segments.map(x => x.to)] : [rawFrom, rawTo];
@@ -8583,7 +9940,7 @@ const App = () => {
                 };
                 const exactRes2R6B6 = auditRouteContinuity(applyRuntimeFareOverride(exactRes, rawFrom, rawTo), rawFrom, rawTo);
                 const exactDefaultFare2R6B6 = exactRes2R6B6.gradeSelectable && exactRes2R6B6.pre ? exactRes2R6B6.pre : exactRes2R6B6.gen;
-                setResult(exactRes2R6B6);
+                applyCalcResult(exactRes2R6B6);
                 setManualTransport(Number(exactDefaultFare2R6B6 || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(accessPlan && accessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -8602,7 +9959,7 @@ const App = () => {
             const f5lr2Pinpoint = buildF5LR2PinpointGate(rawFrom, rawTo);
             if (f5lr2Pinpoint) {
                 const fare = f5lr2Pinpoint.gradeSelectable && f5lr2Pinpoint.pre ? f5lr2Pinpoint.pre : f5lr2Pinpoint.gen;
-                setResult(f5lr2Pinpoint);
+                applyCalcResult(f5lr2Pinpoint);
                 setManualTransport(Number(fare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection("none");
@@ -8638,7 +9995,7 @@ const App = () => {
                 const forwardMainSegments = Array.isArray(item.main_segments_forward) ? item.main_segments_forward : forwardSegments;
                 const segments = suncheonExact.forward
                     ? forwardMainSegments.map(x => ({ ...x }))
-                    : [...forwardMainSegments].reverse().map(x => ({ ...x, from: x.to, to: x.from }));
+                    : reverseVerifiedMainSegments(forwardMainSegments);
                 const fare = Number(item.fare || 0);
                 const routeLabel = suncheonExact.forward ? item.route_label_forward : item.route_label_reverse;
                 const displayOriginName = suncheonExact.forward ? "순천" : (item.destination || rawFrom);
@@ -8684,7 +10041,7 @@ const App = () => {
                 };
                 const exactRes2R6B6 = auditRouteContinuity(applyRuntimeFareOverride(exactRes, rawFrom, rawTo), rawFrom, rawTo);
                 const exactDefaultFare2R6B6 = exactRes2R6B6.gradeSelectable && exactRes2R6B6.pre ? exactRes2R6B6.pre : exactRes2R6B6.gen;
-                setResult(exactRes2R6B6);
+                applyCalcResult(exactRes2R6B6);
                 setManualTransport(Number(exactDefaultFare2R6B6 || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(accessPlan && accessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -8715,11 +10072,11 @@ const App = () => {
         }
         if (!from || !to) {
             setCalcSt("idle");
-            setResult(null);
+            applyCalcResult(null);
             return;
         }
         if ([from, to, rawFrom, rawTo].some(x => /광주비아|비아정류|^비아$/.test(nz(x)))) {
-            setResult(null);
+            applyCalcResult(null);
             setBypassInfo(["⚠ 광주비아는 광주유스퀘어 하위정류장이므로 여비 산정 목적지로 별도 계산하지 않습니다."]);
             setCalcSt("error_no_route");
             return;
@@ -8738,6 +10095,9 @@ const App = () => {
         }
         setCalcSt("working");
         setTimeout(() => {
+            // R5-D2.1: 더 최신 계산/범위차단/초기화가 시작됐다면 이 callback은 완전히 폐기한다.
+            if (calcGeneration !== calcGenerationRef.current)
+                return;
             var _a, _b, _c, _d;
             const viaN = nz(viaCity);
             // [긴급보정] 신안/완도 세부지역은 권역엔진 진입 전에 허브 기준으로 확정 처리
@@ -8752,8 +10112,15 @@ const App = () => {
                 const tInfo = ISLAND_DB[to] || null;
                 if (!fInfo && !tInfo)
                     return null;
-                const baseFrom = (fInfo === null || fInfo === void 0 ? void 0 : fInfo.hub) || from;
-                const baseTo = (tInfo === null || tInfo === void 0 ? void 0 : tInfo.hub) || to;
+                // R5-G1: 특수출발/도착과 반대편 LV5 접근비용을 서로 독립시킨다.
+                // 예) 하의→화성: 하의→목포(특수) + 목포→광주→수원(main) + 수원→화성(access).
+                // 원본 role/access DB는 바꾸지 않고 기존 buildEndpointPlan의 확정 access만 재사용한다.
+                const earlyOriginPlan = !fInfo ? buildEndpointPlan(rawFrom, "origin") : null;
+                const earlyDestPlan = !tInfo ? buildEndpointPlan(rawTo, "destination") : null;
+                const baseFrom = (fInfo === null || fInfo === void 0 ? void 0 : fInfo.hub)
+                    || ((earlyOriginPlan && earlyOriginPlan.accessPlan) ? earlyOriginPlan.calcName : from);
+                const baseTo = (tInfo === null || tInfo === void 0 ? void 0 : tInfo.hub)
+                    || ((earlyDestPlan && earlyDestPlan.accessPlan) ? earlyDestPlan.calcName : to);
                 let gen = 0, pre = null;
                 let mainFrom = baseFrom, mainTo = baseTo;
                 let landSegments = [];
@@ -8890,13 +10257,28 @@ const App = () => {
                 };
             };
             const earlyIslandBaseRes = makeEarlyIslandHubResult();
-            const earlyIslandUsesNationwideLand = !!(earlyIslandBaseRes && [ISLAND_DB[from], ISLAND_DB[to]].filter(Boolean).some(info => info.hub === "포항"));
-            const earlyIslandRes = earlyIslandUsesNationwideLand ? inheritSingleMainGrade(earlyIslandBaseRes) : inheritSingleIslandMainGrade(earlyIslandBaseRes);
+            let earlyIslandPlannedRes = earlyIslandBaseRes;
+            if (earlyIslandBaseRes) {
+                const earlyOriginPlan = ISLAND_DB[from]
+                    ? { side: "origin", rawName: rawFrom, calcName: from, role: resolveRuntimeRole(rawFrom), lv4Extension: null, accessPlan: null }
+                    : buildEndpointPlan(rawFrom, "origin");
+                const earlyDestPlan = ISLAND_DB[to]
+                    ? { side: "destination", rawName: rawTo, calcName: to, role: resolveRuntimeRole(rawTo), lv4Extension: null, accessPlan: null }
+                    : buildEndpointPlan(rawTo, "destination");
+                if ((earlyOriginPlan && earlyOriginPlan.accessPlan) || (earlyDestPlan && earlyDestPlan.accessPlan)) {
+                    earlyIslandPlannedRes = applyEndpointPlans(earlyIslandBaseRes, earlyOriginPlan, earlyDestPlan, rawFrom, rawTo);
+                    earlyIslandPlannedRes = { ...earlyIslandPlannedRes, r5g1SpecialEndpointAccess: true };
+                }
+            }
+            const earlyIslandUsesNationwideLand = !!(earlyIslandPlannedRes && [ISLAND_DB[from], ISLAND_DB[to]].filter(Boolean).some(info => info.hub === "포항"));
+            const earlyIslandRes = earlyIslandUsesNationwideLand ? inheritSingleMainGrade(earlyIslandPlannedRes) : inheritSingleIslandMainGrade(earlyIslandPlannedRes);
             if (earlyIslandRes) {
-                setResult(earlyIslandRes);
+                applyCalcResult(earlyIslandRes);
                 const earlyDefaultFare = earlyIslandRes.gradeSelectable && earlyIslandRes.pre ? earlyIslandRes.pre : earlyIslandRes.gen;
                 setManualTransport(Number(earlyDefaultFare || 0) * 2);
                 setShipFare(0);
+                setAccessExtraFare(0);
+                setAccessSelection(earlyIslandRes.ybezAccessPlan && earlyIslandRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
                 setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
                 setAltRoutes([]);
                 setSmartResult(null);
@@ -8908,7 +10290,7 @@ const App = () => {
             // 2R6B7C-1B2: 대구↔달성/경산은 전국 참고경로보다 사용자 확정 접근정책을 먼저 적용한다.
             const daeguLocalAccessRes = !viaN ? makeDaeguLocalAccessResult(rawFrom, rawTo) : null;
             if (daeguLocalAccessRes) {
-                setResult(daeguLocalAccessRes);
+                applyCalcResult(daeguLocalAccessRes);
                 setManualTransport(0);
                 setShipFare(0);
                 setAccessExtraFare(0);
@@ -8924,7 +10306,7 @@ const App = () => {
             // 2R6B7F5-A1: 사용자가 이번 검수에서 확정한 여수↔사천/여수↔옥천 두 쌍을 먼저 적용한다.
             const f5aPinpointRes = !viaN ? buildF5APinpointRoute(rawFrom, rawTo) : null;
             if (f5aPinpointRes) {
-                setResult(f5aPinpointRes);
+                applyCalcResult(f5aPinpointRes);
                 setManualTransport(Number(f5aPinpointRes.gen || 0) * 2);
                 setShipFare(0);
                 setAccessExtraFare(0);
@@ -8943,7 +10325,7 @@ const App = () => {
             const f5fCommonRes = !viaN ? buildF5FCommonRoutingRoute(rawFrom, rawTo) : null;
             if (f5fCommonRes) {
                 const f5fFare = f5fCommonRes.gradeSelectable && f5fCommonRes.pre ? f5fCommonRes.pre : f5fCommonRes.gen;
-                setResult(f5fCommonRes);
+                applyCalcResult(f5fCommonRes);
                 setManualTransport(Number(f5fFare || 0) * 2);
                 setShipFare(0);
                 setAccessExtraFare(0);
@@ -8962,7 +10344,7 @@ const App = () => {
             const f5dDestinationHubRes = !viaN ? buildF5DDestinationHubRoute(rawFrom, rawTo) : null;
             if (f5dDestinationHubRes) {
                 const f5dDefaultFare = f5dDestinationHubRes.gradeSelectable && f5dDestinationHubRes.pre ? f5dDestinationHubRes.pre : f5dDestinationHubRes.gen;
-                setResult(f5dDestinationHubRes);
+                applyCalcResult(f5dDestinationHubRes);
                 setManualTransport(Number(f5dDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessExtraFare(0);
@@ -8981,7 +10363,7 @@ const App = () => {
             const f5eCommonCapturedRes = !viaN ? buildF5ECommonCapturedRepairRoute(rawFrom, rawTo) : null;
             if (f5eCommonCapturedRes) {
                 const f5eFare = f5eCommonCapturedRes.gradeSelectable && f5eCommonCapturedRes.pre ? f5eCommonCapturedRes.pre : f5eCommonCapturedRes.gen;
-                setResult(f5eCommonCapturedRes);
+                applyCalcResult(f5eCommonCapturedRes);
                 setManualTransport(Number(f5eFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(f5eCommonCapturedRes.ybezAccessPlan && f5eCommonCapturedRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -8998,7 +10380,7 @@ const App = () => {
             const f5c1YeongdongRes = !viaN ? buildF5C1YeongdongRoute(rawFrom, rawTo) : null;
             if (f5c1YeongdongRes) {
                 const f5c1DefaultFare = f5c1YeongdongRes.gradeSelectable && f5c1YeongdongRes.pre ? f5c1YeongdongRes.pre : f5c1YeongdongRes.gen;
-                setResult(f5c1YeongdongRes);
+                applyCalcResult(f5c1YeongdongRes);
                 setManualTransport(Number(f5c1DefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessExtraFare(0);
@@ -9017,7 +10399,7 @@ const App = () => {
             const f5cTargetedRes = !viaN ? buildF5CTargetedBridgeRoute(rawFrom, rawTo) : null;
             if (f5cTargetedRes) {
                 const f5cDefaultFare = f5cTargetedRes.gradeSelectable && f5cTargetedRes.pre ? f5cTargetedRes.pre : f5cTargetedRes.gen;
-                setResult(f5cTargetedRes);
+                applyCalcResult(f5cTargetedRes);
                 setManualTransport(Number(f5cDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(f5cTargetedRes.ybezAccessPlan && f5cTargetedRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -9035,7 +10417,7 @@ const App = () => {
             const f5lrBackboneRes = !viaN ? buildF5LRDestinationBackboneRoute(rawFrom, rawTo) : null;
             if (f5lrBackboneRes) {
                 const f5lrDefaultFare = f5lrBackboneRes.gradeSelectable && f5lrBackboneRes.pre ? f5lrBackboneRes.pre : f5lrBackboneRes.gen;
-                setResult(f5lrBackboneRes);
+                applyCalcResult(f5lrBackboneRes);
                 setManualTransport(Number(f5lrDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(f5lrBackboneRes.ybezAccessPlan && f5lrBackboneRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -9052,7 +10434,7 @@ const App = () => {
             const directionalJgRes = !viaN ? buildDirectionalJgSmartRoute(rawFrom, rawTo) : null;
             if (directionalJgRes) {
                 const directionalDefaultFare = directionalJgRes.gradeSelectable && directionalJgRes.pre ? directionalJgRes.pre : directionalJgRes.gen;
-                setResult(directionalJgRes);
+                applyCalcResult(directionalJgRes);
                 setManualTransport(Number(directionalDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(directionalJgRes.ybezAccessPlan && directionalJgRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -9069,7 +10451,7 @@ const App = () => {
             const inheritedGwangjuRes = !viaN ? buildGwangjuHubInheritedRoute(rawFrom, rawTo) : null;
             if (inheritedGwangjuRes) {
                 const inheritedDefaultFare = inheritedGwangjuRes.gradeSelectable && inheritedGwangjuRes.pre ? inheritedGwangjuRes.pre : inheritedGwangjuRes.gen;
-                setResult(inheritedGwangjuRes);
+                applyCalcResult(inheritedGwangjuRes);
                 setManualTransport(Number(inheritedDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(inheritedGwangjuRes.ybezAccessPlan && inheritedGwangjuRes.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -9083,7 +10465,7 @@ const App = () => {
             }
             const nationwideRes = !viaN ? findNationwideExperimentalRoute(from, to) : null;
             if (nationwideRes === null || nationwideRes === void 0 ? void 0 : nationwideRes.blocked) {
-                setResult(null);
+                applyCalcResult(null);
                 setBypassInfo([`⚠ ${nationwideRes.message}`]);
                 setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
                 setAltRoutes([]);
@@ -9093,7 +10475,7 @@ const App = () => {
             }
             if (nationwideRes) {
                 const nationwideChecked = auditRouteContinuity(nationwideRes, rawFrom, rawTo);
-                setResult(nationwideChecked);
+                applyCalcResult(nationwideChecked);
                 setManualTransport((nationwideChecked.gen || 0) * 2);
                 setShipFare(0);
                 setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
@@ -9127,7 +10509,7 @@ const App = () => {
                     : applyEndpointPlans(areaResRaw, originPlan, destPlan, rawFrom, rawTo))
                 : areaResRaw;
             if (areaRes === null || areaRes === void 0 ? void 0 : areaRes.blocked) {
-                setResult(null);
+                applyCalcResult(null);
                 setBypassInfo([`⚠ ${areaRes.message}`]);
                 setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
                 setAltRoutes([]);
@@ -9154,7 +10536,7 @@ const App = () => {
                     ? repairedPartial
                     : (preferSmartQualityResult(checkedArea, smartAlt) ? smartAlt : checkedArea);
                 const areaDefaultFare2R6B6 = areaRes2R6B6.gradeSelectable && areaRes2R6B6.pre ? areaRes2R6B6.pre : areaRes2R6B6.gen;
-                setResult(areaRes2R6B6);
+                applyCalcResult(areaRes2R6B6);
                 setManualTransport(Number(areaDefaultFare2R6B6 || 0) * 2);
                 setShipFare(0);
                 if (areaRes2R6B6.ybezAccessPlan) {
@@ -9185,7 +10567,7 @@ const App = () => {
             const noAreaRepair = noAreaSmart || noAreaGwangjuRepair;
             if (noAreaRepair) {
                 const smartDefaultFare = noAreaRepair.gradeSelectable && noAreaRepair.pre ? noAreaRepair.pre : noAreaRepair.gen;
-                setResult(noAreaRepair);
+                applyCalcResult(noAreaRepair);
                 setManualTransport(Number(smartDefaultFare || 0) * 2);
                 setShipFare(0);
                 setAccessSelection(noAreaRepair.ybezAccessPlan && noAreaRepair.ybezAccessPlan.mode === "JOINT_ZONE_CHOICES" ? "fare" : "none");
@@ -9197,7 +10579,7 @@ const App = () => {
                 setCalcSt("done");
                 return;
             }
-            setResult(null);
+            applyCalcResult(null);
             setManualTransport(null);
             setManualTransportInput("");
             setBypassInfo(["⚠ 권역-권역 산정 불가: 검증된 연결경로를 찾지 못했습니다."]);
@@ -9216,7 +10598,7 @@ const App = () => {
                 const sameRes = { gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
                     sources: ["manual"], dr: from, routeLabel: `${from} (동일 지역)`,
                     origin: from, dest: to, sameArea: true };
-                setResult(sameRes);
+                applyCalcResult(sameRes);
                 addHistory(o, d, 0);
                 setCalcSt("done");
                 return;
@@ -9330,7 +10712,10 @@ const App = () => {
                     setShipFare(0);
                 }
             }
-            setResult(res);
+            // R5-D2.1: callback 후반에서도 현재 세대인지 재확인한다.
+            if (calcGeneration !== calcGenerationRef.current)
+                return;
+            applyCalcResult(res);
             if (res && !res.multiHop)
                 setSubResults(findSubResults(sFrom, sTo));
             else
@@ -9343,7 +10728,124 @@ const App = () => {
                 setCalcSt("error_no_route");
             }
         }, 50);
-    }, [calcSegment, findSubResults, buildMokpoMuanSameLivingChoices, buildSameAreaZeroChoices, findSmartRoute, lookupRouteWithAlternatives, findAreaRoute, findNationwideExperimentalRoute, addHistory, modalSt, origin, dest, via, resolveArea, displayCityName, buildEndpointPlan, applyEndpointPlans, findGwangjuExactOverride, findSuncheonExactOverride, applyRuntimeFareOverride, inheritSingleIslandMainGrade, findForcedContinuityRoute, auditRouteContinuity, findNamakExactRoute, lookupF5FCanonicalDirect, canonicalEndpointName, normalizeCity, buildGwangjuHubInheritedRoute, resolveGwangjuRouteForInheritance, buildF5APinpointRoute, buildF5JGwangjuSurveyRepairRoute, buildF5FCommonRoutingRoute, buildF5DDestinationHubRoute, buildF5ECommonCapturedRepairRoute, buildF5C1YeongdongRoute, buildF5CTargetedBridgeRoute, buildF5LR2PinpointGate, buildF5LRDestinationBackboneRoute, buildDirectionalJgSmartRoute, buildSmartVerifiedFallbackRoute, preferSmartQualityResult, inheritSingleMainGrade, normalizeExactForwardSegments]);
+    }, [calcSegment, findSubResults, buildMokpoMuanSameLivingChoices, buildSameAreaZeroChoices, findSmartRoute, lookupRouteWithAlternatives, findAreaRoute, findNationwideExperimentalRoute, addHistory, modalSt, origin, dest, via, resolveArea, displayCityName, buildEndpointPlan, applyEndpointPlans, findGwangjuExactOverride, findSuncheonExactOverride, applyRuntimeFareOverride, inheritSingleIslandMainGrade, findForcedContinuityRoute, auditRouteContinuity, findNamakExactRoute, lookupF5FCanonicalDirect, canonicalEndpointName, normalizeCity, buildGwangjuHubInheritedRoute, resolveGwangjuRouteForInheritance, buildF5APinpointRoute, buildF5JGwangjuSurveyRepairRoute, buildF5FCommonRoutingRoute, buildF5DDestinationHubRoute, buildF5ECommonCapturedRepairRoute, buildF5C1YeongdongRoute, buildF5CTargetedBridgeRoute, buildF5LR2PinpointGate, buildF5LRDestinationBackboneRoute, buildDirectionalJgSmartRoute, buildSmartVerifiedFallbackRoute, preferSmartQualityResult, inheritSingleMainGrade, normalizeExactForwardSegments, buildR5DualRouteShadow, buildR5D2CuratedRoute, resolveRuntimeRole, grade, cityList]);
+    // R5-D2.2: 최종 화면 결과 공통 audit fallback.
+    // R5 승격/Scope Guard가 이미 더 상세한 audit를 기록했다면 덮어쓰지 않고,
+    // 광주→서울처럼 기존 보호/legacy 조기-return 경로도 동일 명령으로 확인 가능하게 한다.
+    useEffect(() => {
+        if (typeof window === "undefined" || calcSt !== "done" || !result)
+            return;
+        const rawFrom = canonicalEndpointName(nz(origin));
+        const rawTo = canonicalEndpointName(nz(dest));
+        if (!rawFrom || !rawTo)
+            return;
+        const expectedCalcKey = `${rawFrom}|${rawTo}|${grade === "gen" ? "gen" : "pre"}`;
+        const resultCalcKey = String((result && result.__ybezCalcKey) || "");
+        // R5-D2.3: 현재 입력과 다른 계산요청에서 온 결과는 정상 결과로 인증하지 않는다.
+        if (!resultCalcKey || resultCalcKey !== expectedCalcKey || activeCalcKeyRef.current !== expectedCalcKey) {
+            // R5-D2.4: stale result가 현재 외부↔외부 입력에 걸린 경우 audit만 남기지 말고
+            // 화면 상태 자체를 원자적으로 SCOPE_BLOCKED로 전환한다.
+            const currentFromResolved = resolveArea(rawFrom);
+            const currentToResolved = resolveArea(rawTo);
+            const currentFromRole = resolveRuntimeRole(rawFrom);
+            const currentToRole = resolveRuntimeRole(rawTo);
+            const currentFromAreaId = String((currentFromResolved === null || currentFromResolved === void 0 ? void 0 : currentFromResolved.areaId) || "");
+            const currentToAreaId = String((currentToResolved === null || currentToResolved === void 0 ? void 0 : currentToResolved.areaId) || "");
+            const currentKnown = (raw, areaId, role) => !!raw && (cityList.includes(raw) || !!areaId || !!role);
+            const currentIsJg = (raw, areaId, role) => {
+                if (String(areaId || "").startsWith("jg_") || String((role && role.macro) || "") === "전남광주") return true;
+                if (raw === "광주" || raw === "광주유스퀘어" || JEONNAM_GWANGJU_MAIN_NAMES.has(raw) || JEONNAM_GWANGJU_MAIN_NAMES.has(JEONNAM_SUB_TO_MAIN[raw] || "")) return true;
+                const islandInfo = ISLAND_DB[raw];
+                return !!(islandInfo && ["목포", "완도", "진도", "장흥"].includes(nz(islandInfo.hub)));
+            };
+            const currentScopeBlocked = currentKnown(rawFrom, currentFromAreaId, currentFromRole)
+                && currentKnown(rawTo, currentToAreaId, currentToRole)
+                && !currentIsJg(rawFrom, currentFromAreaId, currentFromRole)
+                && !currentIsJg(rawTo, currentToAreaId, currentToRole);
+            if (currentScopeBlocked) {
+                calcGenerationRef.current += 1;
+                activeCalcKeyRef.current = expectedCalcKey;
+                setResult(null);
+                setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
+                setShowSubChoices(false);
+                setSelSub(null);
+                setSmartResult(null);
+                setAltRoutes([]);
+                setShowDetail(false);
+                setMobileDetailOpen(false);
+                setIntraCityOpen(false);
+                setActiveModal(null);
+                setModalSt({ type: null, data: [] });
+                setManualTransport(null);
+                setManualTransportInput("");
+                setShipFare(0);
+                setShipFareInput("");
+                setAccessExtraFare(0);
+                setAccessExtraInput("");
+                setAccessSelection("none");
+                setAccessSelections({ origin: "fare", destination: "fare" });
+                setBypassInfo([
+                    "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.",
+                    "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요."
+                ]);
+                setCalcSt("error_scope");
+                const scopePayload = {
+                    ts: new Date().toISOString(),
+                    status: "SCOPE_BLOCKED",
+                    from: rawFrom,
+                    to: rawTo,
+                    actualApplied: false,
+                    reason: "non_jg_to_non_jg",
+                    calcKey: expectedCalcKey,
+                    staleResultCalcKey: resultCalcKey || null
+                };
+                window.__YBEZ_R5_ACTUAL_LAST__ = scopePayload;
+                window.__YBEZ_R5_SHADOW_LAST__ = { ...scopePayload, shadow: true };
+                return;
+            }
+            const stalePayload = {
+                ts: new Date().toISOString(),
+                status: "STALE_RESULT",
+                from: rawFrom,
+                to: rawTo,
+                actualApplied: false,
+                reason: "calc_key_mismatch",
+                expectedCalcKey,
+                resultCalcKey: resultCalcKey || null
+            };
+            window.__YBEZ_R5_ACTUAL_LAST__ = stalePayload;
+            return;
+        }
+        const current = window.__YBEZ_R5_ACTUAL_LAST__;
+        if (current && current.from === rawFrom && current.to === rawTo && current.actualApplied === true)
+            return;
+        const genFare = Number(result.gen || result.cost || 0);
+        const preFare = Number(result.pre || 0);
+        const selectedFare = grade === "pre" && preFare > 0 ? preFare : genFare;
+        const routeLabel = result.displayRouteLabel || result.mainRouteLabel || result.routeLabel || result.dr || `${rawFrom} → ${rawTo}`;
+        const sources = Array.isArray(result.sources) ? result.sources.filter(Boolean) : [];
+        const source = (result.runtimeFareOverride && (result.runtimeFareOverride.sourceLabel || result.runtimeFareOverride.source))
+            || (result.gradeSegmentOverride && (result.gradeSegmentOverride.sourceLabel || result.gradeSegmentOverride.source))
+            || sources[0] || "";
+        const payload = {
+            ts: new Date().toISOString(),
+            status: "RESULT_APPLIED",
+            from: rawFrom,
+            to: rawTo,
+            gradeMode: grade,
+            fare: Number(selectedFare || 0),
+            routeLabel,
+            source,
+            sources,
+            actualApplied: true,
+            auditFallback: true,
+            calcKey: expectedCalcKey
+        };
+        window.__YBEZ_R5_ACTUAL_LAST__ = payload;
+        const hist = Array.isArray(window.__YBEZ_R5_ACTUAL_HISTORY__) ? window.__YBEZ_R5_ACTUAL_HISTORY__ : [];
+        window.__YBEZ_R5_ACTUAL_HISTORY__ = [...hist.slice(-99), payload];
+    }, [result, calcSt, origin, dest, grade, canonicalEndpointName, resolveArea, resolveRuntimeRole, cityList]);
+
     /* 선택 등급 요금 */
     const activeJneGradePair = useMemo(() => {
         if (!result || nz(via) || (result === null || result === void 0 ? void 0 : result.via))
@@ -9521,12 +11023,19 @@ const App = () => {
     };
     // F5-P: 일반/우등은 페이지(탭) 전체 공통 선택값이다.
     // 일반/우등이 없는 노선을 거쳐도 sessionStorage 값을 지우지 않는다.
+    const r5dGradeRecalcRef = useRef(false);
     const chooseRuntimeGrade = useCallback((nextGrade) => {
         const safe = nextGrade === "gen" ? "gen" : "pre";
+        if (result && result.r5ActualPromotion && safe !== grade) r5dGradeRecalcRef.current = true;
         setGrade(safe);
         try { sessionStorage.setItem("ybez_grade_session_F5P", safe); }
         catch (_a) { }
-    }, []);
+    }, [result, grade]);
+    useEffect(() => {
+        if (!r5dGradeRecalcRef.current) return;
+        r5dGradeRecalcRef.current = false;
+        if (result && result.r5ActualPromotion && nz(origin) && nz(dest)) performCalc(origin, dest, via);
+    }, [grade]);
     useEffect(() => {
         if (!activeJneGradePair) return;
         try {
@@ -9816,7 +11325,11 @@ const App = () => {
             if (!region)
                 return;
             const names = [node === null || node === void 0 ? void 0 : node.display_name];
-            Object.values((node === null || node === void 0 ? void 0 : node.aliases) || {}).forEach(items => {
+            // R5-A: manual_bridge는 경로 탐색용 연결 alias이며 화면 지역명 판정에는 사용하지 않는다.
+            // display_name + 실제 수집원 alias만 표시 사전에 허용하여 부산→용인, 천안→아산 같은 first-win 오염을 차단한다.
+            Object.entries((node === null || node === void 0 ? void 0 : node.aliases) || {}).forEach(([aliasType, items]) => {
+                if (aliasType === "manual_bridge")
+                    return;
                 if (Array.isArray(items))
                     names.push(...items);
             });
@@ -9884,6 +11397,22 @@ const App = () => {
             return "전남광주";
         if (/경기광주|광주\(경기\)|경기도광주/.test(raw))
             return "경기";
+        // R5-D2: 괄호형 LV5(가산(칠곡)·동명(칠곡) 등)도 이름목록이 아니라 role macro로 대권역을 표시한다.
+        const macroRole = resolveRuntimeRole(raw);
+        const macroName = String((macroRole && macroRole.macro) || "");
+        // 수도권 macro는 서울·인천을 함께 담으므로 role의 실제 생활권을 한 번 더 본다.
+        // 대경/부울경처럼 UI 대권역명이 macro와 1:1인 권역만 그대로 공통 매핑한다.
+        if (macroName === "수도권") {
+            const metroKey = `${(macroRole && macroRole.search_name) || ""} ${(macroRole && macroRole.lv4) || ""} ${(macroRole && macroRole.expression) || ""}`;
+            if (/인천/.test(metroKey)) return "인천";
+            return "서울";
+        }
+        const macroLabel = {
+            "전남광주": "전남광주", "경기": "경기",
+            "대세남": "대전·세종·충남", "충북": "충북", "전북": "전북",
+            "부울경": "부산·울산·경남", "대경": "대구·경북", "강원": "강원", "제주": "제주"
+        }[macroName];
+        if (macroLabel) return macroLabel;
         if (has(["서울", "동서울", "센트럴시티", "서울고속", "서울남부", "김포공항"]))
             return "서울";
         if (has(["인천", "부평", "검암", "계양", "강화", "영종", "인천공항", "인천연안여객터미널"]))
@@ -9905,7 +11434,7 @@ const App = () => {
         if (has(["제주", "서귀포"]))
             return "제주";
         return "";
-    }, [displayEndpointName, routeDisplayKey]);
+    }, [displayEndpointName, routeDisplayKey, resolveRuntimeRole]);
     const splitAreaNames = useCallback((txt) => String(txt || "")
         .split(/[,/·]+/)
         .map(x => compactPlaceName(x.trim()))
@@ -10040,8 +11569,127 @@ const App = () => {
         const parts = [o || routeRegionDisplayName(rawParts[0] || origin), ...middle, d || routeRegionDisplayName(rawParts[rawParts.length - 1] || dest)]
             .filter(Boolean)
             .filter((x, i, a) => i === 0 || x !== a[i - 1]);
+
+        /* ── F5-R1: 중앙 메인카드 다구간 표시 보정 (표시 전용) ─────────────
+           계산에 사용된 일반 버스 areaSegments가 기존 displayRouteLabel보다 더 상세하고,
+           모든 세그먼트가 실제로 연속된 경우에만 중앙 카드의 경로 문자열을 보완한다.
+           라우팅/요금/접근비용/특수교통 결과 객체는 수정하지 않는다. */
+        const canAuditActualSegments = !result.partialRoute
+            && !result.areaSpecial
+            && !result.isShipOnlyRoute
+            && !result.needsManualFare
+            && !result.islandRouteLabel
+            && !result.islandLegs
+            && routeActualSegments.length >= 2
+            && routeActualSegments.every(seg => seg && seg.from && seg.to && String(seg.kind || "bus") === "bus")
+            && routeActualSegments.every((seg, idx, arr) => idx === arr.length - 1 || sameContinuityPlace(seg.to, arr[idx + 1].from));
+        if (canAuditActualSegments) {
+            const actualRawParts = [routeActualSegments[0].from, ...routeActualSegments.map(seg => seg.to)];
+            const actualMiddle = actualRawParts.slice(1, -1)
+                .map(displayMiddlePart)
+                .filter(x => x && x !== o && x !== d)
+                .filter(x => !/권역|생활권|영동중부|영동남부|영동북부|정·고·부|정고부|남·임·순|남임순|무진장|성하광|의양동포연|통영거제|보옥영/.test(x));
+            const actualParts = [
+                o || routeRegionDisplayName(actualRawParts[0] || origin),
+                ...actualMiddle,
+                d || routeRegionDisplayName(actualRawParts[actualRawParts.length - 1] || dest)
+            ].filter(Boolean).filter((x, i, a) => i === 0 || x !== a[i - 1]);
+            // R1은 기존 표시보다 실제 계산 체인이 더 상세할 때만 교체한다.
+            // 같은 길이의 잘못된 라벨(예: 양산/용인)은 R3에서 별도로 다룬다.
+            if (actualParts.length > parts.length)
+                return actualParts.join(" → ");
+        }
+        /* ── F5-R2: LV4→LV5 접근끝단 중앙 경로표시 보정 (표시 전용) ──────
+           JOINT_ZONE 접근계획이 메인 버스 areaSegments와 실제로 연속될 때만
+           중앙 경로문자열에 LV4/LV5 끝단을 복원한다. 계산/요금/선택상태는 수정하지 않는다. */
+        const rawAccessPlansForDisplay = Array.isArray(result.ybezAccessPlans) && result.ybezAccessPlans.length
+            ? result.ybezAccessPlans.filter(Boolean)
+            : (result.ybezAccessPlan ? [result.ybezAccessPlan] : []);
+        const displayAccessPlans = rawAccessPlansForDisplay.filter(plan => plan
+            && !plan.integratedIntoMainFare
+            && (plan.mode === "JOINT_ZONE_CHOICES" || plan.mode === "JOINT_ZONE_ZERO")
+            && plan.lv4 && plan.lv5
+            && (plan.side === "origin" || plan.side === "destination"));
+        const canAuditAccessEndpoint = !result.partialRoute
+            && !result.areaSpecial
+            && !result.isShipOnlyRoute
+            && !result.needsManualFare
+            && !result.islandRouteLabel
+            && !result.islandLegs
+            && routeActualSegments.length >= 1
+            && routeActualSegments.every(seg => seg && seg.from && seg.to && String(seg.kind || "bus") === "bus")
+            && routeActualSegments.every((seg, idx, arr) => idx === arr.length - 1 || sameContinuityPlace(seg.to, arr[idx + 1].from));
+        if (canAuditAccessEndpoint && displayAccessPlans.length) {
+            const accessRawParts = [routeActualSegments[0].from, ...routeActualSegments.map(seg => seg.to)];
+            let accessAdded = false;
+            const originAccess = displayAccessPlans.find(plan => plan.side === "origin"
+                && sameContinuityPlace(plan.lv4, accessRawParts[0]));
+            if (originAccess && !sameContinuityPlace(originAccess.lv5, accessRawParts[0])) {
+                accessRawParts.unshift(originAccess.lv5);
+                accessAdded = true;
+            }
+            const destAccess = displayAccessPlans.find(plan => plan.side === "destination"
+                && sameContinuityPlace(plan.lv4, accessRawParts[accessRawParts.length - 1]));
+            if (destAccess && !sameContinuityPlace(destAccess.lv5, accessRawParts[accessRawParts.length - 1])) {
+                accessRawParts.push(destAccess.lv5);
+                accessAdded = true;
+            }
+            if (accessAdded) {
+                const accessShownParts = accessRawParts.map((value, idx) => {
+                    if (idx === 0) return o || routeRegionDisplayName(value, true);
+                    if (idx === accessRawParts.length - 1) return d || routeRegionDisplayName(value, true);
+                    return displayMiddlePart(value);
+                }).filter(Boolean).filter((x, i, a) => i === 0 || x !== a[i - 1]);
+                // R2도 기존 중앙표시보다 실제 접근 포함 체인이 더 상세할 때만 교체한다.
+                if (accessShownParts.length > parts.length)
+                    return accessShownParts.join(" → ");
+            }
+        }
+        /* ── F5-R4: 범용 stale 중간허브 표시 audit (표시 전용) ──────────
+           실제 계산 areaSegments(+검증된 JOINT_ZONE LV4↔LV5 끝단)가 완전한 경우에만
+           중앙 표시와 비교한다. 실제 체인이 더 상세하거나 같은 길이인데 중간허브가
+           다르면 실제 계산 체인을 우선한다. 라우팅/요금/result 객체는 수정하지 않는다. */
+        const canAuditStaleMiddle = !result.partialRoute
+            && !result.areaSpecial
+            && !result.isShipOnlyRoute
+            && !result.needsManualFare
+            && !result.islandRouteLabel
+            && !result.islandLegs
+            && routeActualSegments.length >= 1
+            && routeActualSegments.every(seg => seg && seg.from && seg.to && String(seg.kind || "bus") === "bus")
+            && routeActualSegments.every((seg, idx, arr) => idx === arr.length - 1 || sameContinuityPlace(seg.to, arr[idx + 1].from));
+        if (canAuditStaleMiddle) {
+            const auditedRawParts = [routeActualSegments[0].from, ...routeActualSegments.map(seg => seg.to)];
+            const originAccess = displayAccessPlans.find(plan => plan.side === "origin"
+                && sameContinuityPlace(plan.lv4, auditedRawParts[0])
+                && sameContinuityPlace(plan.lv5, origin));
+            if (originAccess && !sameContinuityPlace(originAccess.lv5, auditedRawParts[0]))
+                auditedRawParts.unshift(originAccess.lv5);
+            const destAccess = displayAccessPlans.find(plan => plan.side === "destination"
+                && sameContinuityPlace(plan.lv4, auditedRawParts[auditedRawParts.length - 1])
+                && sameContinuityPlace(plan.lv5, dest));
+            if (destAccess && !sameContinuityPlace(destAccess.lv5, auditedRawParts[auditedRawParts.length - 1]))
+                auditedRawParts.push(destAccess.lv5);
+
+            const actualStartsAtUser = auditedRawParts.length > 0 && sameContinuityPlace(auditedRawParts[0], origin);
+            const actualEndsAtUser = auditedRawParts.length > 0 && sameContinuityPlace(auditedRawParts[auditedRawParts.length - 1], dest);
+            if (actualStartsAtUser && actualEndsAtUser) {
+                const auditedParts = auditedRawParts.map((value, idx) => {
+                    if (idx === 0) return o || routeRegionDisplayName(value, true);
+                    if (idx === auditedRawParts.length - 1) return d || routeRegionDisplayName(value, true);
+                    return displayMiddlePart(value);
+                }).filter(Boolean)
+                  .filter(x => !/권역|생활권|영동중부|영동남부|영동북부|정·고·부|정고부|남·임·순|남임순|무진장|성하광|의양동포연|통영거제|보옥영/.test(x))
+                  .filter((x, i, a) => i === 0 || x !== a[i - 1]);
+                const sameLengthMiddleConflict = auditedParts.length === parts.length
+                    && auditedParts.length >= 3
+                    && auditedParts.slice(1, -1).some((x, idx) => x !== parts[idx + 1]);
+                if (auditedParts.length > parts.length || sameLengthMiddleConflict)
+                    return auditedParts.join(" → ");
+            }
+        }
         return parts.join(" → ");
-    }, [result, origin, dest, displayEndpointName, centerHubDisplayName, routeRegionDisplayName, compactPlaceName]);
+    }, [result, origin, dest, displayEndpointName, centerHubDisplayName, routeRegionDisplayName, compactPlaceName, sameContinuityPlace]);
     useEffect(() => {
         if (!result) {
             setMobileDetailOpen(false);
@@ -10613,9 +12261,13 @@ const App = () => {
             return (React.createElement("div", { className: "vertical-route-card" },
                 React.createElement("div", { className: "vroute-title" },
                     React.createElement("span", null, "경로 정보"),
-                    React.createElement("small", null, "검색 후 표시")),
+                    React.createElement("small", null, calcSt === "error_scope" ? "계산 범위 안내" : "검색 후 표시")),
                 React.createElement("div", { className: "vroute-detail" },
-                    React.createElement("div", { className: "vroute-detail-body" }, "출발지와 도착지를 검색하면 구간별 요금과 출처가 표시됩니다."))));
+                    React.createElement("div", { className: "vroute-detail-body" }, calcSt === "error_scope"
+                        ? React.createElement(React.Fragment, null,
+                            "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.", React.createElement("br", null),
+                            "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요.")
+                        : "출발지와 도착지를 검색하면 구간별 요금과 출처가 표시됩니다."))));
         const rows = verticalRouteRows;
         if (!rows.length)
             return null;
@@ -10741,7 +12393,7 @@ const App = () => {
                 React.createElement("div", null,
                     React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 6 } },
                         React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 23, fontWeight: 900, color: "var(--blue)" } }, "여비EZ 2세대")),
-                    React.createElement("div", { style: { fontSize: 11, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
+                    React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
                 React.createElement("div", { className: "mode-wrap", onClick: () => { const next = !intraCityOpen; setIntraCityOpen(next); if (next)
                         setShowMap(false); } },
                     React.createElement("div", { className: `mode-knob ${intraCityOpen ? "intra" : "extra"}` }),
@@ -10773,9 +12425,13 @@ const App = () => {
                 React.createElement("div", { className: "pc-control-row" },
                     React.createElement(CenterMascotCard, null),
                     React.createElement(CenterGradeChoice, null)),
-                React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
+                React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"} ${(calcSt === "error_scope" || (!result && !nz(origin) && !nz(dest))) ? "status-tall" : ""}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
-                    React.createElement("span", null, "노선 탐색 중..."))) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" }, partialRouteNoticeText)) : specialTransportStatusText ? (React.createElement("span", { className: "status-message access" }, specialTransportStatusText)) : accessNoticeText ? (React.createElement("span", { className: "status-message access" }, accessNoticeText)) : showGradeGuide ? (React.createElement("span", { className: "status-message grade" }, "해당 구간은 일반/우등 요금이 존재합니다. 요금을 선택해 주세요.")) : React.createElement("span", { className: "status-message default" }, "기획·제작: 전현우@우수영초등학교"))),
+                    React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
+                        "여비이지 2세대는 전남광주↔전국을 지원하는 웹앱입니다.", React.createElement("br", null),
+                        "출발지와 도착지 중 적어도 하나는 전남광주로 입력해주세요.")) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" }, partialRouteNoticeText)) : specialTransportStatusText ? (React.createElement("span", { className: "status-message access" }, specialTransportStatusText)) : accessNoticeText ? (React.createElement("span", { className: "status-message access" }, accessNoticeText)) : showGradeGuide ? (React.createElement("span", { className: "status-message grade" }, "해당 구간은 일반/우등 요금이 존재합니다. 요금을 선택해 주세요.")) : !result && !nz(origin) && !nz(dest) ? (React.createElement("span", { className: "status-message intro" },
+                        "전남광주와 전국 지역 간 출장 여비 계산을 돕는 웹앱입니다.", React.createElement("br", null),
+                        "행정구역「시, 군」의 이름으로 검색해 주세요.")) : React.createElement("span", { className: "status-message default" }, "오류·누락은 메신저나 jbyhee@korea.kr로 제보해주세요."))),
             React.createElement("div", { className: "result-wrap" },
                 result && (React.createElement(React.Fragment, null,
                     result.experimentalNationwide && (React.createElement("div", { style: { marginBottom: 12, padding: "12px 14px", borderRadius: 18, background: "#FFF7ED", border: "1px solid #FDBA74", boxShadow: "0 6px 18px rgba(251,146,60,.12)" } },
