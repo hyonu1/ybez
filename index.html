@@ -12374,12 +12374,38 @@ const App = () => {
     const specialTransportStatusText = useMemo(() => {
         if (!result || result.partialRoute) return "";
         if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.";
-        const ferry = (result.islandLegs || []).find(x => x.kind === "ferry");
-        if (!ferry) return "";
-        const route = String(ferry.route || "여객선 구간").replace(/\s*→\s*/g, "→");
-        if (ferry.realCost || ferry.fare == null) return `${route} 여객선 운임은 별도 조례 기준이 없어, 실제 운임을 직접 확인하신 후 기타교통비에 실비로 입력해 주세요.`;
-        const one = Number(ferry.fare || 0);
-        return `${route} 여객선은 조례 기준으로 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 기타교통비에 자동 반영됩니다. 실제 운임과 다를 경우 직접 수정해 주세요.`;
+        const legs = result.islandLegs || [];
+        // R5-J5: 특수지역 출발 leg는 내부 route가 허브→세부지역으로 저장된 경우가 있으므로
+        // 상태표시줄에서만 실제 이동방향(세부지역→허브)으로 보정한다. 계산 데이터는 변경하지 않는다.
+        const statusLegRoute = (leg, fallback = "특수구간") => {
+            const raw = String((leg && leg.route) || fallback).replace(/\s*→\s*/g, "→");
+            const parts = raw.split("→").map(x => x.trim()).filter(Boolean);
+            if (leg && leg.role === "origin" && parts.length === 2) return `${parts[1]}→${parts[0]}`;
+            return raw;
+        };
+        // 기존 여객선 안내를 최우선으로 보존한다.
+        const ferry = legs.find(x => x.kind === "ferry");
+        if (ferry) {
+            const route = statusLegRoute(ferry, "여객선 구간");
+            if (ferry.realCost || ferry.fare == null) return `${route} 여객선 운임은 별도 조례 기준이 없어, 실제 운임을 직접 확인하신 후 기타교통비에 실비로 입력해 주세요.`;
+            const one = Number(ferry.fare || 0);
+            return `${route} 여객선은 조례 기준으로 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 기타교통비에 자동 반영됩니다. 실제 운임과 다를 경우 직접 수정해 주세요.`;
+        }
+        // 여객선이 없을 때 농어촌버스/관내 정책을 일반·우등 안내보다 우선한다.
+        const rural = legs.find(x => x.kind === "rural");
+        if (rural) {
+            const route = statusLegRoute(rural, "농어촌버스 구간");
+            const one = Number(rural.fare || 0);
+            const source = String(rural.source || "");
+            if (/완도군/.test(source) && one === 0) return `${route}는 완도군조례에 따라 무료로 책정합니다.`;
+            if (/신안군/.test(source) && one > 0) return `${route} 농어촌버스는 신안군 조례에 따라 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원을 교통비에 반영합니다.`;
+        }
+        const local = legs.find(x => x.kind === "local" && (/신안교육청/.test(String(x.route || "")) || /목포 관내/.test(String(x.note || ""))));
+        if (local) {
+            const route = statusLegRoute(local, "목포→신안교육청");
+            return `${route} 구간은 목포 관내로 처리합니다.`;
+        }
+        return "";
     }, [result]);
     /* 지도 폐기 후 표시 전용: 터미널명·구간요금 세로 경로표 */
     const formatSourceLabel = useCallback((src) => ybezRouteSourceDisplay(src), []);
