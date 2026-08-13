@@ -14023,7 +14023,7 @@ const App = () => {
                                     React.createElement("div", { className: "ded-toggle-copy" },
                                         React.createElement("div", { className: "ded-toggle-label" }, "관용·임차차량 이용")),
                                     React.createElement(Toggle, { on: vehicleDaysInput > 0, onChange: () => setDed(prev => {
-                                            const nextDays = vehicleDaysInput > 0 ? 0 : Math.max(1, Math.min(tripDays, 1));
+                                            const nextDays = vehicleDaysInput > 0 ? 0 : Math.max(1, tripDays);
                                             const fullUse = nextDays > 0 && nextDays === maxVehicleDays;
                                             return {
                                                 ...prev,
@@ -14162,7 +14162,7 @@ const App = () => {
                             : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * transportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(1, transportTripMultiplier)); }, "교통비")),
                     !transportDeducted && generalMultiCalcActive && !lodgingSelected && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${tripDays}회`),
                     !transportDeducted && trainingMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${transportTripMultiplier}회`),
-                    transportDeducted && React.createElement("div", { className: "expense-note-row right" }, ded.transport_institution_paid ? "기관 직접결제 · 미지급" : ded.transport_gov_vehicle ? "관용·임차차량 · 미지급" : ded.transport_proof ? "자가용 증빙 확인 필요 · 미지급" : "동승 · 미지급")),
+                    transportDeducted && React.createElement("div", { className: `expense-note-row right ${ded.transport_gov_vehicle ? "vehicle-link-note" : ""}` }, ded.transport_institution_paid ? "기관 직접결제 · 미지급" : ded.transport_gov_vehicle ? `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능` : ded.transport_proof ? "자가용 증빙 확인 필요 · 미지급" : "동승 · 미지급")),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
@@ -14172,7 +14172,7 @@ const App = () => {
                         React.createElement("div", null),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.daily), React.createElement("span", { className: "expense-result-unit" }, "원")))),
                     generalMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `25,000원 × ${tripDays}일`),
-                    vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" }, `관용·임차차량 ${vehicleDaysInput}일 적용됨 · 변경하려면 감액에서 수정`),
+                    vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" }, `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능`),
                     trainingCommuteNoStay && React.createElement("div", { className: "expense-note-row" },
                         React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
                         React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
