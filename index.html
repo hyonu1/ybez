@@ -2310,6 +2310,176 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .trip-days-control .trip-unit{font-size:14px !important;font-weight:800 !important;}
 }
 
+
+/* ── R5-K5B: 여비계산 화면 정돈 + 실무형 증빙 안내 ── */
+.trip-summary{font-size:17px!important;line-height:1.45!important;margin-bottom:10px!important;color:#674321!important;}
+.trip-help-text{font-weight:800;}
+.trip-help-example{font-size:10.5px;color:#6B7280;font-weight:700;}
+.trip-stay-option{align-items:stretch!important;}
+.trip-mini-nights{width:100%;justify-content:flex-end!important;}
+.trip-nights-input,.trip-days-input,.ded-count-input{line-height:1!important;padding-top:0!important;padding-bottom:0!important;}
+
+.expense-money-input{
+  background:#FCFBF7!important;border:1px solid #E2E4E8!important;border-radius:9px!important;
+  font-size:20px!important;font-weight:900!important;line-height:1!important;color:#1C1C1E!important;
+}
+.expense-result-amount{font-size:20px!important;font-weight:900!important;line-height:1.1!important;font-family:var(--gm);}
+.expense-result-label{font-size:18px!important;font-weight:700!important;color:#374151!important;}
+.expense-subnote{font-size:11px!important;line-height:1.45!important;font-weight:700!important;color:#6B7280!important;}
+.expense-deduction-note{font-size:11px!important;line-height:1.35!important;font-weight:900!important;color:#B45309!important;}
+.lodging-result-row{display:grid!important;grid-template-columns:90px minmax(150px,1fr) 118px;align-items:center;gap:10px;min-height:52px;}
+.lodging-entry-center{display:flex;align-items:center;justify-content:center;gap:5px;}
+.lodging-final{display:flex;align-items:center;justify-content:flex-end;white-space:nowrap;}
+.lodging-total-input.expense-money-input{width:116px!important;height:39px!important;text-align:center!important;}
+.expense-helper{margin-top:5px;font-size:11px;line-height:1.5;color:#5F6772;font-weight:700;word-break:keep-all;}
+.ded-meal-amount{margin-top:10px;text-align:center;font-family:var(--gm);font-size:22px;font-weight:900;color:#B45309;}
+.ded-evidence-principle{margin-top:8px;padding:9px 10px;border-radius:9px;background:#FFFDF9;border:1px solid #F0E3CC;font-size:11px;line-height:1.55;color:#5B6472;font-weight:700;word-break:keep-all;}
+
+@media(max-width:699px){
+  .trip-summary{font-size:12.5px!important;margin-bottom:7px!important;}
+  .expense-result-label{font-size:16px!important;}
+  .expense-result-amount{font-size:18px!important;}
+  .expense-money-input{font-size:17px!important;}
+  .lodging-result-row{grid-template-columns:70px minmax(110px,1fr) 92px;gap:5px;}
+  .lodging-total-input.expense-money-input{width:100px!important;}
+  .expense-helper{font-size:10px;}
+}
+
+@media(min-width:700px){
+  /* 출장일수 입력 시작축 = 일반출장 버튼 시작축 */
+  .trip-main-row{display:grid!important;grid-template-columns:145px auto!important;justify-content:start!important;align-items:center!important;}
+  .trip-main-label{font-size:20px!important;font-weight:900!important;}
+  .trip-days-control{margin:0!important;min-width:0!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;justify-content:flex-start!important;gap:6px!important;}
+  .trip-days-control .trip-days-input{width:58px!important;height:39px!important;border:1px solid #E2E4E8!important;border-radius:9px!important;background:#FCFBF7!important;text-align:center!important;font-size:20px!important;line-height:39px!important;padding:0!important;}
+  .trip-days-control .trip-unit{font-size:15px!important;font-weight:800!important;color:#4B5563!important;}
+  .trip-condition-grid{justify-content:start!important;margin-left:133px!important;}
+}
+
+
+
+/* ── R5-K5C: 여비계산 회계형 가상열 정렬 + 기타비용 접기 ── */
+.expense-ledger{padding-top:4px;}
+.expense-item{padding:7px 0 9px;border-bottom:1px solid rgba(229,229,234,.62);}
+.expense-item:last-of-type{border-bottom:0;}
+.expense-main-row{
+  display:grid;grid-template-columns:82px 48px minmax(106px,1fr) 110px;
+  align-items:center;column-gap:6px;min-height:42px;width:100%;
+}
+.expense-label-cell{display:flex;align-items:center;gap:3px;min-width:0;white-space:nowrap;}
+.expense-action-cell{display:flex;align-items:center;justify-content:center;min-width:0;}
+.expense-entry-cell{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;}
+.expense-value-cell{display:flex;align-items:center;justify-content:flex-end;min-width:0;text-align:right;white-space:nowrap;}
+.expense-main-row .deduct-btn{position:static!important;left:auto!important;top:auto!important;transform:none!important;margin:0!important;}
+.expense-main-row .deduct-btn.active{transform:none!important;}
+.expense-result-label{font-size:17px!important;font-weight:800!important;line-height:1.2!important;}
+.expense-result-amount,.expense-value-text{font-family:var(--gm);font-size:20px!important;font-weight:900!important;line-height:1.1!important;font-variant-numeric:tabular-nums;}
+.expense-money-input.ledger-money-input{
+  width:88px!important;height:39px!important;box-sizing:border-box!important;padding:0 9px!important;
+  text-align:right!important;font-size:19px!important;font-weight:900!important;line-height:39px!important;
+  font-variant-numeric:tabular-nums;background:#FBFAF6!important;
+}
+.expense-money-input.ledger-money-input:disabled{background:#F2F2F4!important;color:#B1B3B8!important;border-color:#E5E5EA!important;cursor:not-allowed;}
+.expense-money-unit{font-size:14px;font-weight:800;color:#4B5563;white-space:nowrap;}
+.expense-note-row{margin:2px 0 0 136px;padding-right:1px;font-size:10.5px;line-height:1.48;color:#68707C;font-weight:700;word-break:keep-all;}
+.expense-note-row.right{text-align:right;}
+.expense-note-row.deduction{font-family:var(--gm);font-size:12px;font-weight:900;color:#B45309;text-align:right;}
+.training-rule-note{margin-top:4px;padding:7px 9px;border-radius:9px;background:#FFFDF9;border:1px solid #F0E3CC;color:#5A5147;font-size:10.6px;line-height:1.55;font-weight:750;word-break:keep-all;}
+.training-rule-source{margin-top:3px;color:#8B8F96;font-size:9px;line-height:1.45;font-weight:700;word-break:keep-all;}
+.lodging-short-note{margin-top:3px;color:#6B7280;font-size:10.2px;line-height:1.45;font-weight:700;word-break:keep-all;}
+.expense-other-toggle-row{padding:8px 0 7px;border-bottom:1px solid rgba(229,229,234,.62);}
+.expense-other-toggle{
+  height:30px;padding:0 10px;border-radius:9px;border:1px solid #E5E7EB;background:#F8FAFC;color:#52606D;
+  font-family:var(--gm);font-size:10.5px;font-weight:900;cursor:pointer;
+}
+.expense-other-toggle:hover{border-color:#D9AE63;background:#FFF9ED;color:#8A5A1D;}
+.expense-other-group{padding:1px 0 2px;}
+.expense-other-group .expense-item:last-child{border-bottom:0;}
+.expense-total-row{padding-top:11px;border-top:2px solid #E5E5EA;display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+.expense-total-label{font-weight:900;font-size:20px;}
+.expense-total-amount{font-family:var(--gm);font-size:24px;font-weight:900;color:var(--blue);font-variant-numeric:tabular-nums;}
+.expense-tag-compact{font-size:8px!important;line-height:1.45!important;}
+.trip-mini-nights{justify-content:flex-end!important;}
+.trip-mini-nights .trip-nights-input{text-align:right!important;padding-right:7px!important;box-sizing:border-box!important;font-variant-numeric:tabular-nums;}
+
+@media(max-width:699px){
+  .expense-main-row{grid-template-columns:70px 42px minmax(82px,1fr) 92px;column-gap:4px;}
+  .expense-result-label{font-size:15px!important;}
+  .expense-result-amount,.expense-value-text{font-size:17px!important;}
+  .expense-money-input.ledger-money-input{width:78px!important;height:36px!important;font-size:16px!important;line-height:36px!important;padding:0 7px!important;}
+  .expense-note-row{margin-left:122px;font-size:9.5px;}
+  .training-rule-note{font-size:9.8px;}
+  .training-rule-source{font-size:8.5px;}
+}
+
+
+
+/* ── R5-K5D: 여비계산 마감 교정 ── */
+.expense-main-row{
+  grid-template-columns:94px 58px 66px minmax(86px,1fr) 124px!important;
+  column-gap:6px!important;min-height:42px!important;align-items:center!important;position:relative!important;
+}
+.expense-tag-cell{display:flex;align-items:center;justify-content:flex-start;min-width:0;white-space:nowrap;}
+.expense-action-cell{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;z-index:2!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.expense-result-label{font-size:19px!important;font-weight:900!important;letter-spacing:-.15px;}
+.expense-result-amount,.expense-value-text{font-size:21px!important;font-weight:900!important;font-variant-numeric:tabular-nums;}
+.expense-result-unit{font-size:10px!important;font-weight:800!important;margin-left:2px!important;color:inherit!important;vertical-align:baseline;}
+.expense-total-unit{font-size:10px!important;font-weight:800!important;margin-left:2px!important;color:inherit!important;}
+.expense-money-input.ledger-money-input{
+  width:108px!important;height:39px!important;line-height:39px!important;padding:0 8px!important;
+  font-size:18px!important;text-align:right!important;font-variant-numeric:tabular-nums!important;
+}
+.expense-money-unit{font-size:10px!important;font-weight:800!important;margin-left:0!important;min-width:8px!important;}
+.expense-entry-cell{gap:3px!important;justify-content:flex-end!important;}
+.expense-main-row>.expense-entry-cell:last-child{grid-column:5;}
+.expense-main-row>.expense-value-cell{grid-column:5;}
+.expense-main-row .deduct-btn{font-size:13px!important;padding:5px 12px!important;min-width:48px;}
+.expense-tag-compact{font-size:11px!important;line-height:1.35!important;padding:1px 5px!important;border-radius:4px!important;margin-left:0!important;}
+.expense-note-row{margin-left:164px!important;font-size:10.8px!important;line-height:1.5!important;}
+.expense-note-row.right{text-align:right!important;}
+.vehicle-link-note{color:#8A5A1D!important;font-weight:800!important;}
+.expense-note-row.deduction{font-size:12px!important;}
+.expense-lodging-entry{grid-column:3/5;display:flex;align-items:center;justify-content:flex-start;gap:7px;min-width:0;}
+.expense-lodging-entry .expense-entry-cell{justify-content:flex-start!important;flex:0 0 auto;}
+.lodging-arrow{font-size:19px;font-weight:900;color:#A0A4AA;line-height:1;}
+.lodging-short-note{text-align:right!important;margin-left:164px!important;padding-right:124px!important;font-size:10.8px!important;}
+.trip-choice-btn{font-size:14px!important;font-weight:900!important;}
+.trip-help-toggle{font-size:13px!important;font-weight:900!important;height:32px!important;padding:0 13px!important;}
+.trip-help-modal{max-width:650px!important;max-height:84dvh!important;}
+.trip-help-modal-body{padding:22px 24px!important;}
+.trip-help-modal .trip-help-title{font-size:16px!important;margin-bottom:5px!important;}
+.trip-help-modal .trip-help-text{font-size:14px!important;line-height:1.62!important;}
+.trip-help-modal .trip-help-example{font-size:12.5px!important;line-height:1.55!important;margin-top:3px!important;}
+.trip-help-modal .trip-help-example + .trip-help-title{margin-top:16px!important;}
+.modal-box.deduction-modal .ded-toggle-label{font-size:14px!important;}
+.transport-two-line{line-height:1.55!important;}
+.transport-proof-principle{font-size:13px!important;font-weight:900!important;color:#374151!important;}
+.transport-route-proof{font-size:12.5px!important;font-weight:900!important;margin-top:8px!important;}
+.transport-alt-proof{font-size:12px!important;line-height:1.6!important;}
+
+@media(max-width:699px){
+  .expense-main-row{grid-template-columns:70px 42px 54px minmax(34px,1fr) 96px!important;column-gap:3px!important;}
+  .expense-result-label{font-size:16px!important;}
+  .expense-result-amount,.expense-value-text{font-size:18px!important;}
+  .expense-money-input.ledger-money-input{width:82px!important;height:36px!important;line-height:36px!important;font-size:15px!important;padding:0 6px!important;}
+  .expense-money-unit,.expense-result-unit{font-size:9px!important;}
+  .expense-main-row .deduct-btn{font-size:11px!important;padding:4px 8px!important;min-width:42px;}
+  .expense-tag-compact{font-size:9px!important;padding:1px 3px!important;}
+  .expense-note-row{margin-left:118px!important;font-size:9.5px!important;}
+  .expense-lodging-entry{gap:4px!important;}
+  .lodging-arrow{font-size:16px!important;}
+  .lodging-short-note{margin-left:118px!important;padding-right:0!important;font-size:9.5px!important;}
+  .trip-choice-btn{font-size:12.5px!important;}
+  .trip-help-toggle{font-size:12px!important;}
+  .trip-help-modal{max-width:360px!important;}
+  .trip-help-modal-body{padding:16px!important;}
+  .trip-help-modal .trip-help-title{font-size:14px!important;}
+  .trip-help-modal .trip-help-text{font-size:12px!important;}
+  .trip-help-modal .trip-help-example{font-size:10.8px!important;}
+  .transport-proof-principle{font-size:11.2px!important;}
+  .transport-route-proof{font-size:10.8px!important;}
+  .transport-alt-proof{font-size:10.5px!important;}
+}
+
 </style>
 </head>
 <body>
@@ -3453,7 +3623,11 @@ const App = () => {
     const transportFocused = useRef(false);
     const accessExtraFocused = useRef(false);
     const shipFareFocused = useRef(false);
+    const otherLodgingFocused = useRef(false);
     const [shipFare, setShipFare] = useState(0);
+    const [otherLodgingFare, setOtherLodgingFare] = useState(0);
+    const [otherLodgingInput, setOtherLodgingInput] = useState("");
+    const [otherCostsOpen, setOtherCostsOpen] = useState(false);
     const [manualTransport, setManualTransport] = useState(null);
     const [accessExtraFare, setAccessExtraFare] = useState(0);
     const [manualTransportInput, setManualTransportInput] = useState("");
@@ -3469,6 +3643,13 @@ const App = () => {
     useEffect(() => { if (!shipFareFocused.current) {
         setShipFareInput(shipFare === 0 ? "" : String(shipFare));
     } }, [shipFare]); // 입력 UX 안정화
+    useEffect(() => { if (!otherLodgingFocused.current) {
+        setOtherLodgingInput(otherLodgingFare === 0 ? "" : String(otherLodgingFare));
+    } }, [otherLodgingFare]);
+    useEffect(() => {
+        setOtherLodgingFare(0);
+        if (!otherLodgingFocused.current) setOtherLodgingInput("");
+    }, [origin, dest]);
     const [showMap, setShowMap] = useState(true);
     const [history, setHistory] = useState(() => { try {
         return JSON.parse(localStorage.getItem('ybez_hist') || '[]');
@@ -3586,6 +3767,9 @@ const App = () => {
         setAltRoutes([]);
         setCalcSt("idle");
         setShipFare(0);
+        setOtherLodgingFare(0);
+        setOtherLodgingInput("");
+        setOtherCostsOpen(false);
         setManualTransport(null);
         setAccessExtraFare(0);
         setManualTransportInput("");
@@ -12105,11 +12289,7 @@ const App = () => {
         ? (trainingDailyNeedsReview ? 50000 : (trainingGroupFull ? 50000 : 50000 + 12500 * trainingMiddleDays))
         : 0;
     const trainingDailyExplain = trainingMultiCalcActive
-        ? (trainingDailyNeedsReview
-            ? "입교·수료 기본액만 반영 · 합숙 중간일 날짜 확인 필요"
-            : (trainingGroupFull
-                ? `입교·수료 2일 기준 · 중간 ${trainingMiddleDays}일 합숙`
-                : `입교·수료 2일 + 비합숙 중간 ${trainingMiddleDays}일`))
+        ? "출발·복귀일 100% · 중간 교육일 현지숙박 50% · 합숙제공 0%"
         : "";
     const detailCost = useMemo(() => {
         // 일반출장 분기는 K3B 계산을 그대로 유지한다.
@@ -12121,6 +12301,7 @@ const App = () => {
         const transportDeducted = ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger || ded.transport_institution_paid;
         const transport = transportDeducted ? 0 : transportGross;
         const etc = Number(shipFare) || 0;
+        const otherLodging = Number(otherLodgingFare) || 0;
         const lodging = recognizedLodging;
         const daily = trainingMultiCalcActive ? trainingDailyBase : generalDaily;
         const meal = mealNet;
@@ -12128,16 +12309,16 @@ const App = () => {
         const transportDeduction = transportDeducted ? transportGross : 0;
         const deductionTotal = dailyDeduction + mealDeduction + transportDeduction;
         return {
-            daily, meal, lodging, transport, etc,
+            daily, meal, lodging, transport, etc, otherLodging,
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
-            total: daily + meal + lodging + transport + etc
+            total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, selectedFare, shipFare, activeAccessOneWay, generalMultiCalcActive, trainingMultiCalcActive, tripDays, transportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingDailyBase, mealNet, mealGross, mealDeduction]);
+    }, [ded, manualTransport, selectedFare, shipFare, otherLodgingFare, activeAccessOneWay, generalMultiCalcActive, trainingMultiCalcActive, tripDays, transportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingDailyBase, mealNet, mealGross, mealDeduction]);
     const dailyDeductionLabel = vehicleDaysApplied > 0 ? `(-${fmt(12500 * vehicleDaysApplied)})` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
         if (key === "daily")
-            return { title: "일비", desc: `${dName} 출장 중 공용·임차차량 이용일 조정` };
+            return { title: "일비", desc: `${dName} 출장 중 관용차·임차차량 이용일 조정` };
         if (key === "meal")
             return { title: "식비", desc: "교육·연수·행사 등에서 제공받은 식사 확인" };
         if (key === "transport")
@@ -12291,6 +12472,17 @@ const App = () => {
         return "";
     }, [result, shipAutoSummary]);
     const hasRealCostFerry = useMemo(() => !!(result && (result.manualOtherTransportOnly || (result.islandLegs || []).some(x => x.kind === "ferry" && (x.realCost || x.fare == null)))), [result]);
+    const islandExpenseDestination = useMemo(() => {
+        const d = nz(dest);
+        if (!result || !d) return false;
+        if (ISLAND_DB[d] || MANUAL_REAL_COST_ENDPOINTS.has(d) || d === "서귀포") return true;
+        return (result.islandLegs || []).some(x => x.role === "dest" || String(x.route || "").includes(d));
+    }, [result, dest]);
+    const autoOpenOtherCosts = !!(result && (islandExpenseDestination || hasRealCostFerry || shipAutoSummary.total > 0));
+    useEffect(() => {
+        if (!result) { setOtherCostsOpen(false); return; }
+        setOtherCostsOpen(autoOpenOtherCosts);
+    }, [result, autoOpenOtherCosts]);
     useEffect(() => {
         if (!result || shipFareFocused.current)
             return;
@@ -13767,18 +13959,37 @@ const App = () => {
                                 React.createElement(MascotIcon, { mascotMap: mascotMap, name: name, size: 96, className: "mascot-choice-img" })),
                             React.createElement("span", { className: "mascot-choice-name" }, name)))))))));
         })(),
+        tripTypeHelpOpen && React.createElement("div", { className: "modal-bg", onClick: () => setTripTypeHelpOpen(false) },
+            React.createElement("div", { className: "modal-box trip-help-modal", onClick: e => e.stopPropagation() },
+                React.createElement("div", { className: "modal-hdr" },
+                    React.createElement("div", { style: { fontFamily: "var(--gm)", fontSize: 20, fontWeight: 900, color: "#fff" } }, "출장조건 설명"),
+                    React.createElement("button", { onClick: () => setTripTypeHelpOpen(false), style: { background: "none", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", fontSize: 21 } }, "✕")),
+                React.createElement("div", { className: "modal-body trip-help-modal-body" },
+                    React.createElement("div", { className: "trip-help-title" }, "일반출장"),
+                    React.createElement("div", { className: "trip-help-text" }, "회의·협의·현장방문·점검 등 일반적인 업무를 수행하기 위한 출장입니다."),
+                    React.createElement("div", { className: "trip-help-example" }, "예) 업무협의, 회의 참석, 현장점검, 자료 제출·업무처리 등"),
+                    React.createElement("div", { className: "trip-help-title" }, "연수출장"),
+                    React.createElement("div", { className: "trip-help-text" }, "교육훈련기관의 교육·연수 과정에 교육대상자로 참여하는 출장으로, 교육훈련여비 기준을 적용합니다."),
+                    React.createElement("div", { className: "trip-help-example" }, "예) 신규공무원교육, 승진자교육, 직무전문교육, 교육훈련기관 연수과정 등"),
+                    React.createElement("div", { className: "trip-help-title" }, "현지숙박"),
+                    React.createElement("div", { className: "trip-help-text" }, "교육기관 등에서 숙소를 제공받지 않고 출장자가 출장지에서 직접 숙박하는 경우입니다."),
+                    React.createElement("div", { className: "trip-help-example" }, "예) 출장지 호텔·모텔 등에서 본인이 숙박비를 지출하는 경우"),
+                    React.createElement("div", { className: "trip-help-title" }, "합숙제공"),
+                    React.createElement("div", { className: "trip-help-text" }, "교육훈련 과정에서 교육기관 등이 숙소를 제공하는 경우입니다."),
+                    React.createElement("div", { className: "trip-help-example" }, "예) 연수원 기숙사, 교육기관 제공 숙소, 교육과정에 포함된 합숙시설 이용 등")))),
         activeModal && (() => {
             const mc = modalContent(activeModal);
             if (!mc)
                 return null;
+            const originName = nz(origin) || "출발지";
             const destinationName = nz(dest) || "도착지";
             const maxVehicleDays = Math.max(1, tripDays);
             const maxMealCount = Math.max(3, tripDays * 3);
             const transportReasons = [
-                { id: "transport_institution_paid", label: "기관에서 교통비를 부담한 경우", sub: "법인카드·계약·기관 직접결제 등으로 본인이 운임을 별도 부담하지 않은 구간" },
-                { id: "transport_gov_vehicle", label: "공용·임차차량으로 주 이동한 경우", sub: "해당 이동구간의 운임을 본인이 별도 부담하지 않은 경우" },
-                { id: "transport_passenger", label: "다른 차량에 동승한 경우", sub: "동승자는 차량 운임·연료비·통행료 등을 별도로 지급하지 않습니다." },
-                { id: "transport_proof", label: "자가용 증빙자료가 부족한 경우", sub: "자가용으로 실제 출장을 이행한 사실을 확인할 수 있는 자료가 필요한 경우" }
+                { id: "transport_gov_vehicle", label: "관용·임차차량으로 이동한 경우", sub: "관용차량 또는 기관에서 임차한 차량을 이용한 경우입니다." },
+                { id: "transport_proof", label: "자가용 증빙자료가 부족한 경우", sub: "자가용으로 실제 출장을 이행한 사실을 확인할 수 있는 자료가 충분하지 않은 경우입니다." },
+                { id: "transport_passenger", label: "다른 차량에 동승한 경우", sub: "다른 출장자의 차량 등에 함께 타고 이동하여 본인이 별도 운임을 부담하지 않은 경우입니다." },
+                { id: "transport_institution_paid", label: "기관이 버스·철도·항공 운임을 직접 결제한 경우", sub: "기관에서 버스·철도·항공 등의 운임을 직접 결제하여 본인이 별도 부담하지 않은 경우입니다. 예) 기관 법인카드로 KTX·고속버스·항공권을 일괄 결제한 경우" }
             ];
             const toggleTransportReason = (id) => setDed(prev => {
                 const ids = ["transport_institution_paid", "transport_gov_vehicle", "transport_passenger", "transport_proof"];
@@ -13786,7 +13997,10 @@ const App = () => {
                 const turnOn = !prev[id];
                 ids.forEach(k => next[k] = false);
                 next[id] = turnOn;
-                // K3: 교통비 감액사유와 일비의 공용·임차차량 이용일수는 서로 강제 연동하지 않는다.
+                // K5D: 관용·임차차량은 교통비 ↔ 일비 상태를 양방향 연동한다.
+                // 전 일정 이용일 때만 교통비 전체를 0원 처리하고, 일부 날짜 이용은 일비 감액만 유지한다.
+                if (id === "transport_gov_vehicle") next.gov_vehicle_days = turnOn ? Math.max(1, tripDays) : 0;
+                else if (prev.transport_gov_vehicle) next.gov_vehicle_days = 0;
                 return next;
             });
             const renderTransportReason = (item) => React.createElement("div", { key: item.id },
@@ -13794,18 +14008,7 @@ const App = () => {
                     React.createElement("div", { className: "ded-toggle-copy" },
                         React.createElement("div", { className: "ded-toggle-label" }, item.label)),
                     React.createElement(Toggle, { on: !!ded[item.id], onChange: () => toggleTransportReason(item.id) })),
-                !!ded[item.id] && React.createElement("div", { className: "ded-inline-detail" }, item.sub),
-                item.id === "transport_proof" && !!ded.transport_proof && React.createElement("div", { className: "ded-evidence-stack" },
-                    React.createElement("div", { className: "ded-destination", style: { marginTop: 0 } }, `이번 도착지: ${destinationName}`),
-                    React.createElement("div", { className: "ded-evidence-item" },
-                        React.createElement("div", { className: "ded-evidence-name" }, "하이패스·고속도로 통행영수증"),
-                        React.createElement("div", { className: "ded-evidence-text" }, `출장일자 또는 출장기간과 이용일자가 부합하고, ${destinationName} 도착 톨게이트 또는 ${destinationName}로 향하는 정상 이동경로상의 톨게이트 이용내역을 확인할 수 있는 자료`)),
-                    React.createElement("div", { className: "ded-evidence-item" },
-                        React.createElement("div", { className: "ded-evidence-name" }, "주유영수증"),
-                        React.createElement("div", { className: "ded-evidence-text" }, `출장일자 또는 출장기간과 결제일자가 부합하고, ${destinationName} 또는 ${destinationName}로 향하는 정상 이동경로상의 주유소에서 주유한 사실을 확인할 수 있는 자료`)),
-                    React.createElement("div", { className: "ded-evidence-item" },
-                        React.createElement("div", { className: "ded-evidence-name" }, "주차영수증"),
-                        React.createElement("div", { className: "ded-evidence-text" }, `출장일자 또는 출장기간과 주차일자가 부합하고, ${destinationName} 소재 출장 수행장소 또는 그 주변 주차장 이용을 확인할 수 있는 자료`))));
+                !!ded[item.id] && React.createElement("div", { className: "ded-inline-detail" }, item.sub));
             return (React.createElement("div", { className: "modal-bg", onClick: closeDeductionModal },
                 React.createElement("div", { className: `modal-box deduction-modal ${activeModal === "transport" ? "transport-deduction-modal" : ""}`, onClick: e => e.stopPropagation() },
                     React.createElement("div", { className: "modal-hdr" },
@@ -13816,19 +14019,45 @@ const App = () => {
                     React.createElement("div", { className: "modal-body" },
                         activeModal === "daily" && React.createElement(React.Fragment, null,
                             React.createElement("div", { className: "ded-section" },
-                                React.createElement("div", { className: "ded-count-row", style: { marginTop: 0 } },
-                                    React.createElement("span", { className: "ded-count-label" }, "공용·임차차량 이용일수"),
+                                React.createElement("div", { className: "ded-toggle-row", style: { paddingTop: 0 } },
+                                    React.createElement("div", { className: "ded-toggle-copy" },
+                                        React.createElement("div", { className: "ded-toggle-label" }, "관용·임차차량 이용")),
+                                    React.createElement(Toggle, { on: vehicleDaysInput > 0, onChange: () => setDed(prev => {
+                                            const nextDays = vehicleDaysInput > 0 ? 0 : Math.max(1, Math.min(tripDays, 1));
+                                            const fullUse = nextDays > 0 && nextDays === maxVehicleDays;
+                                            return {
+                                                ...prev,
+                                                gov_vehicle_days: nextDays,
+                                                transport_gov_vehicle: fullUse,
+                                                ...(fullUse ? { transport_proof: false, transport_passenger: false, transport_institution_paid: false } : {})
+                                            };
+                                        }) })),
+                                vehicleDaysInput > 0 && React.createElement("div", { className: "ded-count-row" },
+                                    React.createElement("span", { className: "ded-count-label" }, "관용차 이용일수"),
                                     React.createElement("div", { className: "ded-count-control" },
                                         React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ded-count-input", value: vehicleDaysInput, onFocus: e => e.target.select(), onChange: e => {
                                                 const n = Number(onlyDigits(e.target.value) || 0);
-                                                setDed(prev => ({ ...prev, gov_vehicle_days: Math.min(Math.max(0, n), maxVehicleDays) }));
-                                            }, "aria-label": "공용·임차차량 이용일수" }),
+                                                const nextDays = Math.min(Math.max(0, n), maxVehicleDays);
+                                                setDed(prev => {
+                                                    const fullUse = nextDays > 0 && nextDays === maxVehicleDays;
+                                                    return {
+                                                        ...prev,
+                                                        gov_vehicle_days: nextDays,
+                                                        transport_gov_vehicle: fullUse,
+                                                        ...(fullUse ? { transport_proof: false, transport_passenger: false, transport_institution_paid: false } : {})
+                                                    };
+                                                });
+                                            }, "aria-label": "관용차 이용일수" }),
                                         React.createElement("span", { className: "trip-unit" }, "일"))),
-                                React.createElement("div", { className: "ded-explain", style: { marginTop: 8 } }, "공용·임차차량을 이용한 날은 해당 일의 일비를 50%만 지급합니다."),
-                                React.createElement("div", { className: "ded-compact-audit" }, "감사 유의 · 공용차량 또는 임차차량을 이용하고도 일비 감액을 누락한 사례가 감사에서 지적되고 있습니다."),
+                                React.createElement("div", { className: "ded-compact-audit" }, "감사 유의 · 관용차량 또는 임차차량을 이용하고도 일비 감액을 누락한 사례가 감사에서 지적되고 있습니다."),
                                 React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, daily: !prev.daily })) }, dedAccordionOpen.daily ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
                                 dedAccordionOpen.daily && React.createElement("div", { className: "ded-accordion-panel" },
-                                    React.createElement("div", { className: "ded-note-box", style: { marginTop: 0 } }, "확인자료 · 차량운행계획, 배차내역, 임차버스 운행계획 등 실제 이용 여부를 확인할 수 있는 자료"),
+                                    React.createElement("div", { className: "ded-evidence-item", style: { marginTop: 0 } },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "관용차량"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "출장·업무 계획서의 관용차 이용계획, 배차내역, 차량운행기록 등으로 실제 이용을 확인합니다.")),
+                                    React.createElement("div", { className: "ded-evidence-item" },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "임차차량"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "지출품의, 임차버스·차량 용역계약, 행사·연수계획서의 임차차량 이용계획, 차량운행계획 등으로 실제 이용을 확인합니다.")),
                                     React.createElement("div", { className: "ded-source" }, "근거: 「공무원 여비 규정」 제16조제3항 / 「공무원보수 등의 업무지침」 제9장 공무원여비업무 처리기준")))),
                         activeModal === "meal" && React.createElement(React.Fragment, null,
                             React.createElement("div", { className: "ded-section" },
@@ -13840,30 +14069,56 @@ const App = () => {
                                                 setDed(prev => ({ ...prev, meal_provided_count: Math.min(Math.max(0, n), maxMealCount) }));
                                             }, "aria-label": "제공받은 식사 횟수" }),
                                         React.createElement("span", { className: "trip-unit" }, "식"))),
-                                React.createElement("div", { className: "ded-why-panel", style: { marginTop: 8 } },
-                                    mealProvidedCount > 0
-                                        ? `기본 식비 ${fmt(mealGross)}원 · 제공식사 ${mealProvidedCount}식 감액 ${fmt(mealDeduction)}원 · 최종 ${fmt(mealNet)}원`
-                                        : `기본 식비 ${fmt(mealGross)}원 · 제공받은 식사가 있으면 식수를 입력해 주세요.`),
+                                mealProvidedCount > 0 && React.createElement("div", { className: "ded-meal-amount" }, `-${fmt(mealDeduction)}원`),
                                 React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, meal: !prev.meal })) }, dedAccordionOpen.meal ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
                                 dedAccordionOpen.meal && React.createElement("div", { className: "ded-accordion-panel" },
                                     React.createElement("div", { className: "ded-note-box", style: { marginTop: 0 } }, "확인자료 · 교육·연수·행사 계획서, 안내문, 공문 등 식사 제공 여부를 확인할 수 있는 자료"),
-                                    React.createElement("div", { className: "ded-audit-box" }, "감사 유의 · 교육비·연수비·행사비 등에 식사가 포함된 경우 동일 식비가 중복 지급되지 않도록 제공 여부를 확인해 주세요."),
+                                    React.createElement("div", { className: "ded-audit-box" }, "교육·연수·행사 등에 식사가 포함된 경우 중복 지급되지 않도록 확인하세요."),
                                     React.createElement("div", { className: "ded-source" }, "근거: 「공무원 여비 규정」 제16조제5항 · 「지방공무원 교육훈련 운영지침」 교육훈련여비 지급기준")))),
                         activeModal === "transport" && React.createElement(React.Fragment, null,
                             React.createElement("div", { className: "ded-section" },
                                 React.createElement("div", { className: "ded-section-title" }, "교통비를 지급하지 않는 사유"),
                                 React.createElement("div", null, transportReasons.map(renderTransportReason)),
-                                React.createElement("div", { className: "ded-compact-audit" }, "감사 유의 · 기관이 이미 부담한 운임을 개인에게 중복 지급하거나, 실제 출장 이행을 확인하기 어려운 자료만으로 운임을 지급하지 않도록 확인해 주세요."),
+                                React.createElement("div", { className: "ded-compact-audit transport-two-line" },
+                                    React.createElement("div", null, "기관이 이미 부담한 교통비를 출장자에게 중복 지급하거나,"),
+                                    React.createElement("div", null, "출장 이행을 확인하기 어려운 자료만으로 교통비를 지급하지 않도록 확인하세요.")),
                                 React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, transport: !prev.transport })) }, dedAccordionOpen.transport ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
                                 dedAccordionOpen.transport && React.createElement("div", { className: "ded-accordion-panel" },
-                                    React.createElement("div", { className: "ded-note-box", style: { marginTop: 0 } }, "자가용 증빙은 실제 출장 이행 사실을 확인할 수 있는 자료여야 합니다. 자료만으로 확인이 어려운 경우 다른 확인자료를 함께 준비하고, 증거서류 구비가 어려운 경우 출장자·출장차량·출장지가 함께 확인되는 현장사진 등으로 보완할 수 있습니다."),
+                                    React.createElement("div", { className: "ded-evidence-item", style: { marginTop: 0 } },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "관용차량"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "출장·업무 계획서의 관용차 이용계획, 배차내역, 차량운행기록 등으로 실제 이용을 확인합니다.")),
+                                    React.createElement("div", { className: "ded-evidence-item" },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "임차차량"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "지출품의, 임차버스·차량 용역계약, 행사·연수계획서의 임차차량 이용계획, 차량운행계획 등으로 실제 이용을 확인합니다.")),
+                                    React.createElement("div", { className: "ded-evidence-principle transport-proof-principle" }, "출장지까지 자가용으로 실제 이동했다는 사실을 제3자가 보더라도 객관적으로 확인할 수 있는 자료여야 합니다."),
+                                    React.createElement("div", { className: "ded-destination transport-route-proof" }, `${originName} → ${destinationName} 출장의 실제 이동과 출장일의 관련성을 확인할 수 있어야 합니다.`),
+                                    React.createElement("div", { className: "ded-evidence-item" },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "하이패스·고속도로 통행내역"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${originName} → ${destinationName} 이동 또는 ${destinationName} 방향 이동을 확인할 수 있는 통행내역`)),
+                                    React.createElement("div", { className: "ded-evidence-item" },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "주유영수증"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일과 ${destinationName} 출장의 관련성을 확인할 수 있는 주유자료. 출장지 소재 증빙이 가장 명확하며, 이동경로·결제시간 등으로 실제 출장 이동이 객관적으로 확인되는 자료는 다른 증빙과 함께 검토할 수 있습니다.`)),
+                                    React.createElement("div", { className: "ded-evidence-item" },
+                                        React.createElement("div", { className: "ded-evidence-name" }, "주차영수증"),
+                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${destinationName} 소재 출장 수행장소 또는 주변 주차장에서 결제한 영수증`)),
+                                    React.createElement("div", { className: "ded-note-box transport-alt-proof" },
+                                        React.createElement("strong", null, "통상적인 증빙 확보가 곤란한 경우"),
+                                        React.createElement("div", null, "출장일·이동시간·장소 등으로 출장지까지 실제 자가용으로 이동한 사실을 객관적으로 확인할 수 있는 다른 자료를 함께 검토할 수 있습니다."),
+                                        React.createElement("div", { style: { marginTop: 4 } }, "예) 출장자·출장차량·출장지가 함께 확인되는 현장사진 등"),
+                                        React.createElement("div", { style: { marginTop: 4 } }, "최종 인정 여부는 제출자료 전체를 토대로 소속기관에서 판단합니다.")),
                                     React.createElement("div", { className: "ded-source" }, "근거: 「공무원보수 등의 업무지침」 제9장 공무원여비업무 처리기준 - 국내자동차운임")))),
                         React.createElement("button", { onClick: closeDeductionModal, className: "confirm-btn" }, "확인")))));
         })()));
     /* DetailContent - 여비계산 패널 */
     function DetailContent() {
         const showLodging = lodgingCalcActive;
-        const lodgingOverCap = showLodging && lodgingTotal > lodgingCapTotal;
+        const transportDeducted = ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger || ded.transport_institution_paid;
+        const trainingCommuteNoStay = trainingMultiCalcActive && totalStayNights <= 0;
+        const trainingLodgingOnly = trainingMultiCalcActive && lodgingNights > 0 && groupNights === 0;
+        const trainingGroupOnly = trainingMultiCalcActive && groupNights > 0 && lodgingNights === 0;
+        const renderMoneyEntry = (value, onFocus, onBlur, onChange, ariaLabel, disabled = false, placeholder = "") => React.createElement("div", { className: "expense-entry-cell" },
+            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "expense-money-input ledger-money-input", value, onFocus, onBlur, onChange, disabled, placeholder, "aria-label": ariaLabel }),
+            React.createElement("span", { className: "expense-money-unit" }, "원"));
         return (React.createElement("div", { style: { padding: "12px 14px", display: "flex", flexDirection: "column", gap: 0 } },
             React.createElement("div", { className: "trip-setup" },
                 isMultiDayTrip && React.createElement("div", { className: "trip-summary" }, tripSummaryLabel),
@@ -13889,102 +14144,87 @@ const App = () => {
                                     React.createElement("span", { className: "trip-unit" }, "박")))),
                         React.createElement("div", { className: "trip-help-wrap" },
                             React.createElement("div", { className: "trip-help-toggle-row" },
-                                React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(v => !v) }, tripTypeHelpOpen ? "설명접기 ▲" : "설명보기 ▼")),
-                            tripTypeHelpOpen && React.createElement("div", { className: "trip-help-panel" },
-                                React.createElement("div", { className: "trip-help-title" }, "일반출장"),
-                                React.createElement("div", { className: "trip-help-text" }, "회의·협의·현장방문·점검 등 일반적인 업무를 수행하기 위한 출장입니다."),
-                                React.createElement("div", { className: "trip-help-example" }, "예) 업무협의, 회의 참석, 현장점검, 자료 제출·업무처리 등"),
-                                React.createElement("div", { className: "trip-help-title" }, "연수출장"),
-                                React.createElement("div", { className: "trip-help-text" }, "교육훈련기관의 교육·연수 과정에 교육대상자로 참여하는 출장입니다. 교육훈련 여비기준을 적용합니다."),
-                                React.createElement("div", { className: "trip-help-example" }, "예) 신규공무원교육, 승진자교육, 직무전문교육, 교육훈련기관 연수과정 등"),
-                                React.createElement("div", { className: "trip-help-title" }, "체재방식"),
-                                React.createElement("div", { className: "trip-help-text" }, "현지숙박: 교육기관에서 숙소를 제공하지 않아 본인이 현지에서 숙박하는 경우입니다."),
-                                React.createElement("div", { className: "trip-help-text", style: { marginTop: 4 } }, "합숙제공: 교육기관·교육과정에서 숙소를 제공하는 경우입니다. 연수출장에서는 현지숙박과 함께 선택할 수 있습니다."),
-                                React.createElement("div", { className: "trip-help-text", style: { marginTop: 4 } }, "숙박 또는 합숙으로 입력되지 않은 밤은 귀가 후 다음 교육일에 다시 이동하는 출퇴근으로 계산합니다."),
-                                React.createElement("div", { className: "trip-help-caution" }, "※ 행사명에 ‘연수·워크숍·세미나’가 포함되어 있다고 모두 연수출장인 것은 아닙니다. 명칭보다 실제 교육훈련과정에 교육대상자로 참여하는지 확인해 주세요."),
-                                React.createElement("div", { className: "trip-help-rule" }, "※ YBEZ의 ‘연수출장’은 규정상 교육훈련여비 적용대상을 쉽게 표현한 화면 용어입니다.")))),
+                                React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(true) }, "설명보기")))),
                     trainingDailyNeedsReview && React.createElement("div", { className: "training-review-note" }, "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. YBEZ는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
 
-            /* 실제 업무시스템 입력 순서: 교통비 → 일비 → 숙박비 → 식비 → 기타교통비 */
-            React.createElement("div", { style: { paddingTop: 4 } },
-                React.createElement("div", { style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44 } },
-                    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 2 } },
-                        React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 18 } }, "교통비"),
-                        React.createElement("span", { className: `tag-side ${tagStyle("왕복")}` }, "왕복")),
-                    React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger || ded.transport_institution_paid ? "active" : ""}` }, "감액"),
-                    React.createElement("div", { style: { textAlign: "right", flex: 1 } }, !(ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger || ded.transport_institution_paid) ? (React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 } },
-                        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4 } },
-                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ship-input", value: manualTransportInput, onFocus: e => { transportFocused.current = true; e.target.select(); }, onBlur: () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * transportTripMultiplier)); setManualTransportInput(shown); }, onChange: e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(1, transportTripMultiplier)); }, placeholder: (result && result.manualOtherTransportOnly) ? "" : "0" }),
-                            React.createElement("span", { style: { fontSize: 13, fontWeight: 700 } }, "원")),
-                        generalMultiCalcActive && !lodgingSelected && React.createElement("span", { style: { fontSize: 9, fontWeight: 700, color: "#6B7280" } }, `왕복 교통비 × ${tripDays}일`),
-                        trainingMultiCalcActive && React.createElement("span", { style: { fontSize: 9, fontWeight: 700, color: "#6B7280" } }, `왕복 교통비 × ${transportTripMultiplier}회`),
-                        (result === null || result === void 0 ? void 0 : result.surcharge) > 0 && React.createElement("span", { style: { fontSize: 9, fontWeight: 700, color: "#059669" } }, "추가 교통비 참고"))) : (React.createElement("div", { style: { textAlign: "right" } },
-                        React.createElement("span", { style: { fontSize: 20, fontWeight: 900, color: "#AEAEB2" } }, "0원"),
-                        ded.transport_institution_paid && React.createElement("div", { style: { fontSize: 9, color: "#0F766E", fontWeight: 700, marginTop: 2 } }, "기관 부담 · 미지급"),
-                        ded.transport_gov_vehicle && React.createElement("div", { style: { fontSize: 9, color: "#F59E0B", fontWeight: 700, marginTop: 2 } }, "공용·임차차량 · 미지급"),
-                        ded.transport_proof && React.createElement("div", { style: { fontSize: 9, color: "#EF4444", fontWeight: 700, marginTop: 2 } }, "자가용 증빙 확인 필요 · 미지급"),
-                        ded.transport_passenger && React.createElement("div", { style: { fontSize: 9, color: "#8B5CF6", fontWeight: 700, marginTop: 2 } }, "동승 · 미지급"))))),
+            React.createElement("div", { className: "expense-ledger" },
+                React.createElement("div", { className: "expense-item" },
+                    React.createElement("div", { className: "expense-main-row" },
+                        React.createElement("div", { className: "expense-label-cell" },
+                            React.createElement("span", { className: "expense-result-label" }, "교통비")),
+                        React.createElement("div", { className: "expense-tag-cell" },
+                            React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
+                        React.createElement("div", { className: "expense-action-cell" },
+                            React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${transportDeducted ? "active" : ""}` }, "감액")),
+                        React.createElement("div", null),
+                        transportDeducted
+                            ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text", style: { color: "#8B8F96" } }, "0", React.createElement("span", { className: "expense-result-unit" }, "원")))
+                            : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * transportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(1, transportTripMultiplier)); }, "교통비")),
+                    !transportDeducted && generalMultiCalcActive && !lodgingSelected && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${tripDays}회`),
+                    !transportDeducted && trainingMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${transportTripMultiplier}회`),
+                    transportDeducted && React.createElement("div", { className: "expense-note-row right" }, ded.transport_institution_paid ? "기관 직접결제 · 미지급" : ded.transport_gov_vehicle ? "관용·임차차량 · 미지급" : ded.transport_proof ? "자가용 증빙 확인 필요 · 미지급" : "동승 · 미지급")),
 
-            React.createElement("div", { style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", height: 52 } },
-                React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 18, width: 50 } }, "일비"),
-                React.createElement("button", { onClick: () => openDeductionModal("daily"), className: `deduct-btn ${vehicleDaysInput > 0 ? "active" : ""}` }, "감액"),
-                React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", flex: 1 } },
-                    React.createElement("span", { style: { fontSize: 20, fontWeight: 900 } }, fmt(detailCost.daily), "원"),
-                    generalMultiCalcActive && React.createElement("span", { style: { fontSize: 9, color: "#6B7280", fontWeight: 700 } }, `25,000원 × ${tripDays}일${vehicleDaysApplied > 0 ? ` · 차량 ${vehicleDaysApplied}일 50%` : ""}`),
-                    trainingMultiCalcActive && React.createElement("span", { className: "training-calc-note" }, trainingDailyExplain),
-                    trainingMultiCalcActive && vehicleDaysInput > 0 && React.createElement("span", { style: { fontSize: 9, color: "#9A5C16", fontWeight: 700 } }, `차량 ${vehicleDaysInput}일 입력 · 날짜별 일비가 달라 자동감액 보류`),
-                    dailyDeductionLabel && React.createElement("span", { style: { fontSize: 10, color: "var(--blue)", fontWeight: 700 } }, dailyDeductionLabel))),
+                React.createElement("div", { className: "expense-item" },
+                    React.createElement("div", { className: "expense-main-row" },
+                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "일비")),
+                        React.createElement("div", { className: "expense-tag-cell" }),
+                        React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", { onClick: () => openDeductionModal("daily"), className: `deduct-btn ${vehicleDaysInput > 0 ? "active" : ""}` }, "감액")),
+                        React.createElement("div", null),
+                        React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.daily), React.createElement("span", { className: "expense-result-unit" }, "원")))),
+                    generalMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `25,000원 × ${tripDays}일`),
+                    vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" }, `관용·임차차량 ${vehicleDaysInput}일 적용됨 · 변경하려면 감액에서 수정`),
+                    trainingCommuteNoStay && React.createElement("div", { className: "expense-note-row" },
+                        React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
+                        React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
+                        React.createElement("div", { className: "training-rule-source" }, "「공무원 인재개발 업무처리지침」 [별표 1] 교육훈련여비 지급기준")),
+                    trainingLodgingOnly && React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 기타 교육일 50%"),
+                    trainingGroupOnly && !trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 기타 교육일 0%"),
+                    trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, "현지숙박·합숙 혼합형 · 날짜별 체재순서 확인 필요"),
+                    dailyDeductionLabel && React.createElement("div", { className: "expense-note-row deduction" }, dailyDeductionLabel)),
 
-            showLodging && React.createElement("div", { style: { padding: "7px 0", borderTop: "1px dashed #E5E5EA" } },
-                React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 38, gap: 8 } },
-                    React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 17, whiteSpace: "nowrap" } }, "숙박비 총액"),
-                    React.createElement("div", { className: "lodging-total-wrap" },
-                        React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "lodging-total-input", value: lodgingTotalInput, onFocus: e => { lodgingFocused.current = true; e.target.select(); }, onBlur: () => { lodgingFocused.current = false; setLodgingTotalInput(lodgingTotal > 0 ? String(lodgingTotal) : ""); }, onChange: e => { const v = onlyDigits(e.target.value); setLodgingTotalInput(v); setLodgingTotal(v === "" ? 0 : Number(v)); }, placeholder: "0", "aria-label": "숙박비 총액" }),
-                        React.createElement("span", { style: { fontSize: 13, fontWeight: 700 } }, "원"),
-                        React.createElement("span", { style: { fontSize: 17, fontWeight: 900, color: "#0F766E", minWidth: 78, textAlign: "right" } }, `→ ${fmt(detailCost.lodging)}원`))),
-                React.createElement("div", { className: "lodging-cap-note" },
-                    `${lodgingCapInfo.target} · ${lodgingCapInfo.label} 상한 ${fmt(lodgingCapInfo.perNight)}원/박 × ${lodgingNights}박 = ${fmt(lodgingCapTotal)}원`,
-                    lodgingTotal > 0 && React.createElement("span", { className: "lodging-applied" }, lodgingOverCap ? ` · 상한 ${fmt(detailCost.lodging)}원 적용` : " · 입력액 인정")),
-                React.createElement("div", { className: "trip-helper", style: { marginTop: 3 } }, "실제 숙박비 총액을 입력하면 도착지역 상한 범위에서 자동 계산합니다."),
-                React.createElement("div", { className: "trip-helper", style: { marginTop: 2 } }, "친지 집 숙박·자가숙박 등은 자동 산정하지 않습니다. 해당되는 경우 지급기준을 확인해 금액을 직접 수정해 주세요.")),
+                React.createElement("div", { className: "expense-item" },
+                    React.createElement("div", { className: "expense-main-row lodging-main-row" },
+                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "숙박비")),
+                        React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "총액입력")),
+                        React.createElement("div", { className: "expense-lodging-entry" },
+                            renderMoneyEntry(showLodging && lodgingTotalInput !== "" ? fmt(Number(onlyDigits(lodgingTotalInput) || 0)) : "", e => { if (!showLodging) return; lodgingFocused.current = true; e.target.select(); }, () => { if (!showLodging) return; lodgingFocused.current = false; setLodgingTotalInput(lodgingTotal > 0 ? String(lodgingTotal) : ""); }, e => { if (!showLodging) return; const v = onlyDigits(e.target.value); setLodgingTotalInput(v); setLodgingTotal(v === "" ? 0 : Number(v)); }, "숙박비 총액", !showLodging, ""),
+                            React.createElement("span", { className: "lodging-arrow" }, "→")),
+                        React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount", style: { color: showLodging ? "#0F766E" : "#A0A4AA" } }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
+                    showLodging && React.createElement("div", { className: "expense-note-row lodging-short-note" }, "친지집 등 숙박은 정산신청 시 1박 당 20,000원까지 지급 가능 · 자가숙박은 0원")),
 
-            React.createElement("div", { style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", height: 52 } },
-                React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 18, width: 50 } }, "식비"),
-                React.createElement("button", { onClick: () => openDeductionModal("meal"), className: `deduct-btn ${mealProvidedCount > 0 ? "active" : ""}` }, "감액"),
-                React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", flex: 1 } },
-                    React.createElement("span", { style: { fontSize: 20, fontWeight: 900 } }, fmt(detailCost.meal), "원"),
-                    React.createElement("span", { style: { fontSize: 9, color: "#6B7280", fontWeight: 700 } }, `25,000원 × ${mealCalcDays}일`),
-                    mealProvidedCount > 0 && React.createElement("span", { style: { fontSize: 9, color: "#9A5C16", fontWeight: 700 } }, `제공식사 ${mealProvidedCount}식 · ${fmt(detailCost.mealDeduction)}원 감액`))),
+                React.createElement("div", { className: "expense-item" },
+                    React.createElement("div", { className: "expense-main-row" },
+                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "식비")),
+                        React.createElement("div", { className: "expense-tag-cell" }),
+                        React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", { onClick: () => openDeductionModal("meal"), className: `deduct-btn ${mealProvidedCount > 0 ? "active" : ""}` }, "감액")),
+                        React.createElement("div", null),
+                        React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.meal), React.createElement("span", { className: "expense-result-unit" }, "원")))),
+                    mealProvidedCount > 0 && React.createElement("div", { className: "expense-note-row deduction" }, `-${fmt(detailCost.mealDeduction)}원`)),
 
-            React.createElement("div", { style: { paddingTop: 8, borderTop: "1px dashed #E5E5EA" } },
-                showAccessExtraInput && (React.createElement("div", { style: { marginTop: 2, padding: "7px 9px", borderRadius: 10, background: "#F9FAFB", border: "1px solid #E5E7EB" } },
-                    React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 34 } },
-                        React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 15 } }, "추가교통비 ", React.createElement("span", { className: `tag-side ${tagStyle("왕복")}` }, "왕복")),
-                        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4 } },
-                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ship-input", value: accessExtraInput, onFocus: e => { accessExtraFocused.current = true; e.target.select(); }, onBlur: () => { accessExtraFocused.current = false; setAccessExtraInput(accessExtraFare === 0 ? "" : String(accessExtraFare)); }, onChange: e => { const v = onlyDigits(e.target.value); setAccessExtraInput(v); setAccessExtraFare(v === "" ? 0 : Number(v)); }, placeholder: "0" }),
-                            React.createElement("span", { style: { fontSize: 14, fontWeight: 700 } }, "원"))),
-                    accessExtraHint && React.createElement("div", { style: { fontSize: 9, color: "#6B7280", fontWeight: 700, marginTop: 2, lineHeight: 1.35 } }, accessExtraHint))),
-                result && (React.createElement("div", { style: { marginTop: 4, paddingTop: 2 } },
-                    React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 36 } },
-                        React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 16 } }, "기타교통비 ", React.createElement("span", { className: `tag-side ${tagStyle("왕복")}` }, "왕복")),
-                        React.createElement("div", { style: { marginLeft: "auto", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 4, minWidth: 118 } },
-                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ship-input", value: shipFareInput, onFocus: e => { shipFareFocused.current = true; e.target.select(); }, onBlur: () => { shipFareFocused.current = false; setShipFareInput(shipFare === 0 ? "" : String(shipFare)); }, onChange: e => { const v = onlyDigits(e.target.value); setShipFareInput(v); setShipFare(v === "" ? 0 : Number(v)); }, placeholder: hasRealCostFerry ? "" : "0" }),
-                            React.createElement("span", { style: { fontSize: 16, fontWeight: 700 } }, "원"))),
-                    shipFareHint && React.createElement("div", { style: { fontSize: 10, color: "#6B7280", fontWeight: 700, marginTop: 1, paddingLeft: 0, paddingRight: 2, paddingBottom: 4, lineHeight: 1.4, textAlign: "left" } }, shipFareHint)))),
-            React.createElement("div", { style: { marginTop: 5, paddingTop: 7, borderTop: "1px dashed #E5E5EA", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 40 } },
-                React.createElement("span", { style: { fontWeight: 700, color: "#374151", fontSize: 16 } }, "감액금액"),
-                React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4 } },
-                    React.createElement("input", {
-                        type: "text",
-                        readOnly: true,
-                        value: String(detailCost.deductionTotal || 0),
-                        "aria-label": "감액금액",
-                        style: { width: 88, height: 38, border: "1px solid #E5E7EB", borderRadius: 10, background: "#F9FAFB", textAlign: "center", fontSize: 16, fontWeight: 800, color: detailCost.deductionTotal > 0 ? "#B45309" : "#9CA3AF", outline: "none" }
-                    }),
-                    React.createElement("span", { style: { fontSize: 15, fontWeight: 700 } }, "원"))),
-            React.createElement("div", { style: { paddingTop: 10, borderTop: "2px solid #E5E5EA", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 } },
-                React.createElement("span", { style: { fontWeight: 900, fontSize: 20 } }, result && result.partialRoute ? "현재 확인액" : "합계"),
-                React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 24, fontWeight: 900, color: "var(--blue)" } }, fmt(detailCost.total), React.createElement("span", { style: { fontSize: 13, marginLeft: 2 } }, "원"))))));
+                React.createElement("div", { className: "expense-other-toggle-row" },
+                    React.createElement("button", { type: "button", className: "expense-other-toggle", onClick: () => setOtherCostsOpen(v => !v) }, otherCostsOpen ? "기타비용 접기 ▲" : "기타비용 펼치기 ▼")),
+                otherCostsOpen && React.createElement("div", { className: "expense-other-group" },
+                    React.createElement("div", { className: "expense-item" },
+                        React.createElement("div", { className: "expense-main-row" },
+                            React.createElement("div", { className: "expense-label-cell" },
+                                React.createElement("span", { className: "expense-result-label" }, "기타교통비")),
+                            React.createElement("div", { className: "expense-tag-cell" },
+                                React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
+                            React.createElement("div", null),
+                            React.createElement("div", null),
+                            renderMoneyEntry(shipFareInput === "" ? "" : fmt(Number(onlyDigits(shipFareInput) || 0)), e => { shipFareFocused.current = true; e.target.select(); }, () => { shipFareFocused.current = false; setShipFareInput(shipFare === 0 ? "" : String(shipFare)); }, e => { const v = onlyDigits(e.target.value); setShipFareInput(v); setShipFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, "")),
+                        shipFareHint && React.createElement("div", { className: "expense-note-row" }, shipFareHint)),
+                    React.createElement("div", { className: "expense-item" },
+                        React.createElement("div", { className: "expense-main-row" },
+                            React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "기타숙박비")),
+                            React.createElement("div", { className: "expense-tag-cell" }),
+                            React.createElement("div", null),
+                            React.createElement("div", null),
+                            renderMoneyEntry(otherLodgingInput === "" ? "" : fmt(Number(onlyDigits(otherLodgingInput) || 0)), e => { otherLodgingFocused.current = true; e.target.select(); }, () => { otherLodgingFocused.current = false; setOtherLodgingInput(otherLodgingFare === 0 ? "" : String(otherLodgingFare)); }, e => { const v = onlyDigits(e.target.value); setOtherLodgingInput(v); setOtherLodgingFare(v === "" ? 0 : Number(v)); }, "기타숙박비", false, "")))),
+
+                React.createElement("div", { className: "expense-total-row" },
+                    React.createElement("span", { className: "expense-total-label" }, result && result.partialRoute ? "현재 확인액" : "합계"),
+                    React.createElement("span", { className: "expense-total-amount" }, fmt(detailCost.total), React.createElement("span", { className: "expense-total-unit" }, "원"))))));
     }
 };
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
