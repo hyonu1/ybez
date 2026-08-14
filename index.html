@@ -2437,13 +2437,13 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .expense-note-row{margin-left:164px!important;font-size:10.8px!important;line-height:1.5!important;}
 .expense-note-row.right{text-align:right!important;}
 .vehicle-link-note{color:#8A5A1D!important;font-weight:800!important;}
-.expense-note-row.deduction{font-size:12px!important;}
+.expense-note-row.deduction{font-size:13px!important;}
 .training-mixed-daily-note{margin-top:5px!important;padding:7px 9px!important;border:1px solid #FED7AA;border-radius:9px;background:#FFF7ED;color:#8A5415!important;text-align:left!important;font-size:10.8px!important;line-height:1.5!important;}
 .training-mixed-daily-rule{margin-top:3px;font-weight:900;color:#7C4A0C;}
 .expense-lodging-entry{grid-column:3/5;display:flex;align-items:center;justify-content:flex-start;gap:7px;min-width:0;}
 .expense-lodging-entry .expense-entry-cell{justify-content:flex-start!important;flex:0 0 auto;}
 .lodging-arrow{font-size:19px;font-weight:900;color:#A0A4AA;line-height:1;}
-.lodging-short-note{text-align:right!important;margin-left:164px!important;padding-right:124px!important;font-size:10.8px!important;}
+.lodging-short-note{text-align:right!important;margin-left:164px!important;padding-right:0!important;font-size:10.8px!important;}
 .trip-choice-btn{font-size:14px!important;font-weight:900!important;}
 .trip-help-toggle{font-size:13px!important;font-weight:900!important;height:32px!important;padding:0 13px!important;}
 .trip-help-modal{max-width:650px!important;max-height:84dvh!important;}
@@ -2457,6 +2457,8 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 .transport-proof-principle{font-size:13px!important;font-weight:900!important;color:#374151!important;}
 .transport-route-proof{font-size:12.5px!important;font-weight:900!important;margin-top:8px!important;}
 .transport-alt-proof{font-size:12px!important;line-height:1.6!important;}
+.transport-vehicle-days-row{margin-top:8px!important;}
+.transport-vehicle-days-help{margin-top:5px!important;color:#8A5A1D!important;font-weight:800!important;}
 
 /* ── R5-K5I: K5G 로직 보호 + 혼합연수 일정표 UI 재패치 ── */
 .trip-help-toggle-row.k5g-actions{justify-content:space-between!important;align-items:center;gap:10px;}
@@ -2517,6 +2519,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .expense-main-row .deduct-btn{font-size:11px!important;padding:4px 8px!important;min-width:42px;}
   .expense-tag-compact{font-size:9px!important;padding:1px 3px!important;}
   .expense-note-row{margin-left:118px!important;font-size:9.5px!important;}
+  .expense-note-row.deduction{font-size:11.5px!important;}
   .expense-lodging-entry{gap:4px!important;}
   .lodging-arrow{font-size:16px!important;}
   .lodging-short-note{margin-left:118px!important;padding-right:0!important;font-size:9.5px!important;}
@@ -3535,6 +3538,8 @@ const App = () => {
     // R5-K4: 일반/연수는 단일선택, 현지숙박/합숙제공은 연수출장에서 복수선택 가능하게 분리한다.
     const [tripDays, setTripDays] = useState(1);
     const [tripType, setTripType] = useState("general"); // general | training
+    // R5-K5L: 출장 요약·교통비 배수도 관용차 일수를 즉시 반영하므로 감액 state를 출장 state와 함께 둔다.
+    const [ded, setDed] = useState({ gov_vehicle_days: 0, meal_provided_count: 0, transport_proof: false, transport_gov_vehicle: false, transport_passenger: false, transport_institution_paid: false });
     const [lodgingSelected, setLodgingSelected] = useState(false);
     const [groupSelected, setGroupSelected] = useState(false);
     const [lodgingNights, setLodgingNights] = useState(0);
@@ -3643,14 +3648,25 @@ const App = () => {
     }, [tripDays, tripType, lodgingSelected, groupSelected, lodgingNights, groupNights]);
     const totalStayNights = Math.min(maxLodgingNights, Math.max(0, lodgingNights) + Math.max(0, groupNights));
     const commuteNights = Math.max(0, maxLodgingNights - totalStayNights);
+    const vehicleDaysInput = Math.min(Math.max(0, Number(ded.gov_vehicle_days) || 0), Math.max(1, tripDays));
     const tripSummaryLabel = useMemo(() => {
         if (!isMultiDayTrip) return "1일 출장";
         if (tripType === "general") {
-            if (!lodgingSelected || lodgingNights <= 0) return `${tripDays}일 일반출장 · 매일 출퇴근`;
+            if (!lodgingSelected || lodgingNights <= 0) {
+                if (vehicleDaysInput <= 0) return `${tripDays}일 일반출장 · 매일 출퇴근`;
+                const paidCommutes = Math.max(0, tripDays - vehicleDaysInput);
+                if (paidCommutes <= 0) return `${tripDays}일 일반출장 · 관용차 ${vehicleDaysInput}일 이용`;
+                return `${tripDays}일 일반출장 · 관용차 ${vehicleDaysInput}일 이용 · 출퇴근 ${paidCommutes}회`;
+            }
             const prefix = lodgingNights === maxLodgingNights ? `${lodgingNights}박${tripDays}일` : `${tripDays}일`;
             return `${prefix} 일반출장 · 현지숙박 ${lodgingNights}박`;
         }
-        if (totalStayNights <= 0) return `${tripDays}일 연수출장 · 매일 출퇴근`;
+        if (totalStayNights <= 0) {
+            if (vehicleDaysInput <= 0) return `${tripDays}일 연수출장 · 매일 출퇴근`;
+            const paidTrainingCommutes = Math.max(0, tripDays - vehicleDaysInput);
+            if (paidTrainingCommutes <= 0) return `${tripDays}일 연수출장 · 관용차 ${vehicleDaysInput}일 이용`;
+            return `${tripDays}일 연수출장 · 관용차 ${vehicleDaysInput}일 이용 · 출퇴근 ${paidTrainingCommutes}회`;
+        }
         const fullStay = totalStayNights === maxLodgingNights;
         const prefix = fullStay ? `${totalStayNights}박${tripDays}일 연수출장` : `${tripDays}일 연수출장`;
         const parts = [];
@@ -3658,14 +3674,27 @@ const App = () => {
         if (groupNights > 0) parts.push(`합숙 ${groupNights}박`);
         if (commuteNights > 0) parts.push(`출퇴근 ${commuteNights}회`);
         return `${prefix} · ${parts.join(" · ")}`;
-    }, [isMultiDayTrip, tripDays, tripType, lodgingSelected, lodgingNights, groupNights, totalStayNights, commuteNights, maxLodgingNights]);
+    }, [isMultiDayTrip, tripDays, tripType, lodgingSelected, lodgingNights, groupNights, totalStayNights, commuteNights, maxLodgingNights, vehicleDaysInput]);
     const generalMultiCalcActive = isMultiDayTrip && tripType === "general";
     const trainingMultiCalcActive = isMultiDayTrip && tripType === "training";
-    // 일반출장은 K3B의 기존 원칙(숙박 없음=매일 왕복, 숙박 있음=왕복 1회)을 보호한다.
-    // 연수출장은 숙박하지 않은 밤마다 귀가·재이동이 발생하므로 기본 왕복 1회 + 출퇴근 횟수로 계산한다.
+    // R5-K5M: 일반출장 로직은 K5L 그대로 보호한다.
+    // 연수출장 교통비는 원래 원칙인 '기본 왕복 1회 + 숙박하지 않은 밤의 재출퇴근 횟수'를 복원한다.
+    // 예: 3일 연수 기준 0박=왕복 3회, 1박=왕복 2회, 2박=왕복 1회.
     const transportTripMultiplier = generalMultiCalcActive
         ? (lodgingSelected && lodgingNights > 0 ? 1 : tripDays)
         : (trainingMultiCalcActive ? 1 + commuteNights : 1);
+    // 일반출장·매일 출퇴근형은 K5L과 동일하게 관용차 이용일만큼 유상 왕복 횟수를 줄인다.
+    const generalPaidCommuteTrips = generalMultiCalcActive && (!lodgingSelected || lodgingNights <= 0)
+        ? Math.max(0, tripDays - vehicleDaysInput)
+        : transportTripMultiplier;
+    // 연수출장도 관용차 이용일수만큼 실제 유상 왕복 횟수만 줄인다.
+    // 숙박 여부는 transportTripMultiplier(1 + commuteNights)가 이미 반영한다.
+    const trainingPaidCommuteTrips = trainingMultiCalcActive
+        ? Math.max(0, transportTripMultiplier - vehicleDaysInput)
+        : transportTripMultiplier;
+    const effectiveTransportTripMultiplier = generalMultiCalcActive && (!lodgingSelected || lodgingNights <= 0)
+        ? generalPaidCommuteTrips
+        : (trainingMultiCalcActive ? trainingPaidCommuteTrips : transportTripMultiplier);
     const lodgingCalcActive = isMultiDayTrip && lodgingSelected && lodgingNights > 0;
     const lodgingCapInfo = useMemo(() => {
         const target = normalizeCity(dest);
@@ -3704,9 +3733,9 @@ const App = () => {
     const [accessExtraInput, setAccessExtraInput] = useState("");
     const [shipFareInput, setShipFareInput] = useState("");
     useEffect(() => { if (!transportFocused.current) {
-        const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * transportTripMultiplier));
+        const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * effectiveTransportTripMultiplier));
         setManualTransportInput(shown);
-    } }, [manualTransport, transportTripMultiplier]); // K2: 다일 매일출퇴근이면 왕복 교통비를 출장일수만큼 표시
+    } }, [manualTransport, effectiveTransportTripMultiplier]); // R5-K5L: 실제 지급 대상 왕복/편도 횟수를 즉시 반영
     useEffect(() => { if (!accessExtraFocused.current) {
         setAccessExtraInput(accessExtraFare === 0 ? "" : String(accessExtraFare));
     } }, [accessExtraFare]); // 입력 UX 안정화
@@ -3806,7 +3835,6 @@ const App = () => {
     const [gradeGuideShown, setGradeGuideShown] = useState(false);
     const gradeGuideRouteRef = useRef("");
     /* 감액 */
-    const [ded, setDed] = useState({ gov_vehicle_days: 0, meal_provided_count: 0, transport_proof: false, transport_gov_vehicle: false, transport_passenger: false, transport_institution_paid: false });
     const [intraDed, setIntraDed] = useState({ shortTime: false, govVehicle: false });
     const resetDed = () => setDed({ gov_vehicle_days: 0, meal_provided_count: 0, transport_proof: false, transport_gov_vehicle: false, transport_passenger: false, transport_institution_paid: false });
     const handleSwap = useCallback(() => {
@@ -12335,9 +12363,12 @@ const App = () => {
     }, [activeJneGradePair]);
     /* 여비 상세 계산 */
     const generalCalcDays = generalMultiCalcActive ? tripDays : 1;
-    const vehicleDaysInput = Math.min(Math.max(0, Number(ded.gov_vehicle_days) || 0), Math.max(1, tripDays));
-    // 일반출장 차량감액은 K3B 로직을 그대로 보호한다. 연수출장은 날짜별 기본 일비가 달라 이용일수만으로 안전하게 배분할 수 없어 자동 감액하지 않는다.
+    // 일반출장은 기존 1일당 12,500원 감액을 유지한다.
     const vehicleDaysApplied = generalMultiCalcActive || !isMultiDayTrip ? Math.min(vehicleDaysInput, generalCalcDays) : 0;
+    // 연수출장은 입교·수료일(100% 일비)부터 최대 2일만 50% 감액한다.
+    // 이미 50%인 중간 비합숙 교육일에는 관용차 50%를 다시 중복 적용하지 않는다.
+    const trainingVehicleDaysApplied = trainingMultiCalcActive ? Math.min(vehicleDaysInput, 2) : 0;
+    const trainingVehicleDailyDeduction = 12500 * trainingVehicleDaysApplied;
     const mealProvidedCount = Math.min(Math.max(0, Number(ded.meal_provided_count) || 0), Math.max(3, tripDays * 3));
     // K4B: 1일 식비 25,000원을 기준으로 제공받은 총 식수만큼 누적 감액한다.
     // 실무 적용값: 1식 8,330원 / 2식 16,670원 / 3식 25,000원.
@@ -12386,25 +12417,29 @@ const App = () => {
         const calculatedTransport = (selectedFare + activeAccessOneWay) * 2;
         const baseTransport = manualTransport != null ? Number(manualTransport) : calculatedTransport;
         const transportGross = Math.round(baseTransport * transportTripMultiplier);
+        const vehicleAdjustedTransport = Math.round(baseTransport * effectiveTransportTripMultiplier);
         const transportDeducted = ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger || ded.transport_institution_paid;
-        const transport = transportDeducted ? 0 : transportGross;
+        const transport = transportDeducted ? 0 : vehicleAdjustedTransport;
         const etc = Number(shipFare) || 0;
         const otherLodging = Number(otherLodgingFare) || 0;
         const lodging = recognizedLodging;
+        const trainingDailyBeforeVehicle = trainingDailyMixedNeedsManual
+            ? Math.max(0, Number(trainingDailyManual == null ? trainingDailyBase : trainingDailyManual) || 0)
+            : trainingDailyBase;
         const daily = trainingMultiCalcActive
-            ? (trainingDailyMixedNeedsManual ? Math.max(0, Number(trainingDailyManual == null ? trainingDailyBase : trainingDailyManual) || 0) : trainingDailyBase)
+            ? Math.max(0, trainingDailyBeforeVehicle - Math.min(trainingDailyBeforeVehicle, trainingVehicleDailyDeduction))
             : generalDaily;
         const meal = mealNet;
-        const dailyDeduction = 12500 * vehicleDaysApplied;
-        const transportDeduction = transportDeducted ? transportGross : 0;
+        const dailyDeduction = trainingMultiCalcActive ? Math.min(trainingDailyBeforeVehicle, trainingVehicleDailyDeduction) : 12500 * vehicleDaysApplied;
+        const transportDeduction = Math.max(0, transportGross - transport);
         const deductionTotal = dailyDeduction + mealDeduction + transportDeduction;
         return {
             daily, meal, lodging, transport, etc, otherLodging,
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
             total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, selectedFare, shipFare, otherLodgingFare, activeAccessOneWay, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingDailyBase, mealNet, mealGross, mealDeduction]);
-    const dailyDeductionLabel = vehicleDaysApplied > 0 ? `(-${fmt(12500 * vehicleDaysApplied)})` : "";
+    }, [ded, manualTransport, selectedFare, shipFare, otherLodgingFare, activeAccessOneWay, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction]);
+    const dailyDeductionLabel = detailCost.dailyDeduction > 0 ? `-${fmt(detailCost.dailyDeduction)}원` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
         if (key === "daily")
@@ -14131,21 +14166,60 @@ const App = () => {
             const toggleTransportReason = (id) => setDed(prev => {
                 const ids = ["transport_institution_paid", "transport_gov_vehicle", "transport_passenger", "transport_proof"];
                 const next = { ...prev };
-                const turnOn = !prev[id];
+                const vehicleUseOn = Math.max(0, Number(prev.gov_vehicle_days) || 0) > 0;
+                const turnOn = id === "transport_gov_vehicle" ? !vehicleUseOn : !prev[id];
                 ids.forEach(k => next[k] = false);
-                next[id] = turnOn;
-                // K5D: 관용·임차차량은 교통비 ↔ 일비 상태를 양방향 연동한다.
-                // 전 일정 이용일 때만 교통비 전체를 0원 처리하고, 일부 날짜 이용은 일비 감액만 유지한다.
-                if (id === "transport_gov_vehicle") next.gov_vehicle_days = turnOn ? Math.max(1, tripDays) : 0;
-                else if (prev.transport_gov_vehicle) next.gov_vehicle_days = 0;
+                if (id === "transport_gov_vehicle") {
+                    // K5K-A: 교통비·일비 팝업이 동일한 gov_vehicle_days를 편집한다.
+                    // 교통비 자동 전액감액은 전체 출장일을 관용·임차차량으로 이용한 때만 유지한다.
+                    next.gov_vehicle_days = turnOn ? maxVehicleDays : 0;
+                    next.transport_gov_vehicle = turnOn;
+                }
+                else {
+                    next[id] = turnOn;
+                    if (Math.max(0, Number(prev.gov_vehicle_days) || 0) > 0) next.gov_vehicle_days = 0;
+                }
                 return next;
             });
-            const renderTransportReason = (item) => React.createElement("div", { key: item.id },
-                React.createElement("div", { className: "ded-toggle-row" },
-                    React.createElement("div", { className: "ded-toggle-copy" },
-                        React.createElement("div", { className: "ded-toggle-label" }, item.label)),
-                    React.createElement(Toggle, { on: !!ded[item.id], onChange: () => toggleTransportReason(item.id) })),
-                !!ded[item.id] && React.createElement("div", { className: "ded-inline-detail" }, item.sub));
+            const renderTransportReason = (item) => {
+                const isGovVehicle = item.id === "transport_gov_vehicle";
+                const reasonOn = isGovVehicle ? vehicleDaysInput > 0 : !!ded[item.id];
+                return React.createElement("div", { key: item.id },
+                    React.createElement("div", { className: "ded-toggle-row" },
+                        React.createElement("div", { className: "ded-toggle-copy" },
+                            React.createElement("div", { className: "ded-toggle-label" }, item.label)),
+                        React.createElement(Toggle, { on: reasonOn, onChange: () => toggleTransportReason(item.id) })),
+                    reasonOn && React.createElement("div", { className: "ded-inline-detail" }, item.sub),
+                    isGovVehicle && vehicleDaysInput > 0 && React.createElement("div", { className: "ded-count-row transport-vehicle-days-row" },
+                        React.createElement("span", { className: "ded-count-label" }, "관용차 이용일수"),
+                        React.createElement("div", { className: "ded-count-control" },
+                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ded-count-input", value: vehicleDaysInput, onFocus: e => e.target.select(), onChange: e => {
+                                    const n = Number(onlyDigits(e.target.value) || 0);
+                                    const nextDays = Math.min(Math.max(0, n), maxVehicleDays);
+                                    setDed(prev => {
+                                        const fullUse = nextDays > 0 && nextDays === maxVehicleDays;
+                                        return {
+                                            ...prev,
+                                            gov_vehicle_days: nextDays,
+                                            transport_gov_vehicle: fullUse,
+                                            ...(nextDays > 0 ? { transport_proof: false, transport_passenger: false, transport_institution_paid: false } : {})
+                                        };
+                                    });
+                                }, "aria-label": "교통비 감액 관용차 이용일수" }),
+                            React.createElement("span", { className: "trip-unit" }, "일"))),
+                    isGovVehicle && vehicleDaysInput > 0 && React.createElement("div", { className: "ded-inline-detail transport-vehicle-days-help" },
+                        generalMultiCalcActive && (!lodgingSelected || lodgingNights <= 0)
+                            ? (generalPaidCommuteTrips > 0
+                                ? `관용차 이용일을 제외한 유상 출퇴근 ${generalPaidCommuteTrips}회를 교통비에 반영합니다.`
+                                : "전체 출장일을 관용차로 이용하여 교통비는 지급하지 않습니다.")
+                            : trainingMultiCalcActive
+                                ? (trainingPaidCommuteTrips > 0
+                                    ? `연수 이동은 왕복 ${transportTripMultiplier}회 기준이며, 관용차 이용일을 제외한 유상 출퇴근 ${trainingPaidCommuteTrips}회를 교통비에 반영합니다.`
+                                    : `연수 이동 왕복 ${transportTripMultiplier}회를 모두 관용차로 이용하여 교통비는 지급하지 않습니다.`)
+                                : (vehicleDaysInput === maxVehicleDays
+                                    ? "전체 출장일 이용으로 교통비 전액 감액이 적용됩니다."
+                                    : "숙박출장의 일부 관용차 이용일은 교통비를 자동 비례감액하지 않습니다.")));
+            };
             return (React.createElement("div", { className: "modal-bg", onClick: closeDeductionModal },
                 React.createElement("div", { className: `modal-box deduction-modal ${activeModal === "transport" ? "transport-deduction-modal" : ""}`, onClick: e => e.stopPropagation() },
                     React.createElement("div", { className: "modal-hdr" },
@@ -14251,6 +14325,8 @@ const App = () => {
     function DetailContent() {
         const showLodging = lodgingCalcActive;
         const transportDeducted = ded.transport_proof || ded.transport_gov_vehicle || ded.transport_passenger || ded.transport_institution_paid;
+        const transportVehicleFullyCovers = vehicleDaysInput > 0 && effectiveTransportTripMultiplier <= 0;
+        const transportDisplayZero = transportDeducted || transportVehicleFullyCovers;
         const trainingCommuteNoStay = trainingMultiCalcActive && totalStayNights <= 0;
         const trainingLodgingOnly = trainingMultiCalcActive && lodgingNights > 0 && groupNights === 0;
         const trainingGroupOnly = trainingMultiCalcActive && groupNights > 0 && lodgingNights === 0;
@@ -14302,14 +14378,22 @@ const App = () => {
                         React.createElement("div", { className: "expense-tag-cell" },
                             React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
                         React.createElement("div", { className: "expense-action-cell" },
-                            React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${transportDeducted ? "active" : ""}` }, "감액")),
+                            React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${(transportDeducted || vehicleDaysInput > 0) ? "active" : ""}` }, "감액")),
                         React.createElement("div", null),
-                        transportDeducted
+                        transportDisplayZero
                             ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text", style: { color: "#8B8F96" } }, "0", React.createElement("span", { className: "expense-result-unit" }, "원")))
-                            : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * transportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(1, transportTripMultiplier)); }, "교통비")),
-                    !transportDeducted && generalMultiCalcActive && !lodgingSelected && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${tripDays}회`),
-                    !transportDeducted && trainingMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${transportTripMultiplier}회`),
-                    transportDeducted && React.createElement("div", { className: `expense-note-row right ${ded.transport_gov_vehicle ? "vehicle-link-note" : ""}` }, ded.transport_institution_paid ? "기관 직접결제 · 미지급" : ded.transport_gov_vehicle ? `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능` : ded.transport_proof ? "자가용 증빙 확인 필요 · 미지급" : "동승 · 미지급")),
+                            : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * effectiveTransportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(0.5, effectiveTransportTripMultiplier)); }, "교통비")),
+                    !transportDeducted && generalMultiCalcActive && !lodgingSelected && generalPaidCommuteTrips > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${generalPaidCommuteTrips}회`),
+                    !transportDeducted && trainingMultiCalcActive && effectiveTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${effectiveTransportTripMultiplier}회`),
+                    vehicleDaysInput > 0 && !ded.transport_institution_paid && !ded.transport_proof && !ded.transport_passenger && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
+                        generalMultiCalcActive && !lodgingSelected
+                            ? (generalPaidCommuteTrips > 0 ? `관용차량 ${vehicleDaysInput}일 이용 · 유상 출퇴근 ${generalPaidCommuteTrips}회` : `관용차량 ${vehicleDaysInput}일 이용 · 교통비 미지급`)
+                            : trainingMultiCalcActive
+                                ? (trainingPaidCommuteTrips > 0
+                                    ? `관용차량 ${vehicleDaysInput}일 이용 · 유상 출퇴근 ${trainingPaidCommuteTrips}회`
+                                    : `관용차량 ${vehicleDaysInput}일 이용 · 교통비 미지급`)
+                                : `관용차량 ${vehicleDaysInput}일 이용`),
+                    transportDeducted && vehicleDaysInput <= 0 && React.createElement("div", { className: "expense-note-row right" }, ded.transport_institution_paid ? "기관 직접결제 · 미지급" : ded.transport_proof ? "자가용 증빙 확인 필요 · 미지급" : "동승 · 미지급")),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
@@ -14336,7 +14420,10 @@ const App = () => {
                                 "혼합숙박 연수출장 일비")
                             : React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.daily), React.createElement("span", { className: "expense-result-unit" }, "원")))),
                     generalMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `25,000원 × ${tripDays}일`),
-                    vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" }, `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능`),
+                    vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
+                        trainingMultiCalcActive
+                            ? `관용차량 ${vehicleDaysInput}일 이용 · 연수 일비는 날짜별 최대 50%까지만 감액`
+                            : `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능`),
                     trainingCommuteNoStay && React.createElement("div", { className: "expense-note-row" },
                         React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
                         React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
@@ -14358,7 +14445,9 @@ const App = () => {
                             renderMoneyEntry(showLodging && lodgingTotalInput !== "" ? fmt(Number(onlyDigits(lodgingTotalInput) || 0)) : "", e => { if (!showLodging) return; lodgingFocused.current = true; e.target.select(); }, () => { if (!showLodging) return; lodgingFocused.current = false; setLodgingTotalInput(lodgingTotal > 0 ? String(lodgingTotal) : ""); }, e => { if (!showLodging) return; const v = onlyDigits(e.target.value); setLodgingTotalInput(v); setLodgingTotal(v === "" ? 0 : Number(v)); }, "숙박비 총액", !showLodging, ""),
                             React.createElement("span", { className: "lodging-arrow" }, "→")),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount", style: { color: showLodging ? "#0F766E" : "#A0A4AA" } }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
-                    showLodging && React.createElement("div", { className: "expense-note-row lodging-short-note" }, "친지집 등 숙박은 정산신청 시 1박 당 20,000원까지 지급 가능 · 자가숙박은 0원")),
+                    showLodging && React.createElement("div", { className: "expense-note-row lodging-short-note" },
+                        React.createElement("div", null, "친지집 숙박은 정산신청 시 1박당 20,000원까지 가능"),
+                        React.createElement("div", null, "자기집 숙박은 0원"))),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
