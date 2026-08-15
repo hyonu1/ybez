@@ -5838,6 +5838,22 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
 }
 
+
+/* M5.9 · 모바일 최종 보정
+   1) 리셋 외부 이미지 제거 → inline SVG
+   2) Pager 실제 손가락 좌우 스와이프 연결
+   데스크톱/태블릿, 계산·접근비용·증빙 로직은 변경하지 않음 */
+@media(max-width:699px){
+  .m59-reset-icon{
+    display:block !important;
+    width:var(--m52-nav-glyph) !important;
+    height:var(--m52-nav-glyph) !important;
+    color:currentColor !important;
+    stroke-width:1.9 !important;
+    flex:0 0 auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -6850,6 +6866,8 @@ const App = () => {
     const [mobileExpenseMotion, setMobileExpenseMotion] = useState("");
     const mobileNavTransitioningRef = useRef(false);
     const mobileNavTimerRef = useRef(null);
+    // M5.9: 실제 손가락 가로 스와이프 시작점과 현재 페이지를 보존한다.
+    const mobileSwipeRef = useRef({ active: false, startX: 0, startY: 0, mode: "", startedAt: 0 });
     const mobileAutoOpenedKeyRef = useRef("");
     const [intraCityOpen, setIntraCityOpen] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
@@ -7330,6 +7348,65 @@ const App = () => {
             setShowDetail(false);
             clearMobilePagerMotion();
         });
+    };
+    // M5.9: 버튼 Pager와 같은 순환 방향을 실제 터치 스와이프에도 연결한다.
+    // 오른쪽 스와이프: 홈→경로, 경로→여비, 여비→홈
+    // 왼쪽 스와이프: 홈→여비, 경로→홈, 여비→경로
+    const mobileSwipeTargetBlocked = (target) => {
+        if (!target || typeof target.closest !== "function") return false;
+        return !!target.closest(
+            'input, textarea, select, button, a, label, summary, details, [contenteditable="true"], ' +
+            '.leaflet-container, #leaflet-map, .mobile-quick-sheet, .m5-proof-sheet, ' +
+            '.modal-box, .mascot-choice-modal'
+        );
+    };
+    const mobileSwipeStart = (e, mode) => {
+        const touches = e && e.touches;
+        if (typeof window === "undefined" || window.innerWidth > 699 ||
+            !touches || touches.length !== 1 ||
+            mobileNavTransitioningRef.current ||
+            mobileSwipeTargetBlocked(e.target)) {
+            mobileSwipeRef.current.active = false;
+            return;
+        }
+        const t = touches[0];
+        mobileSwipeRef.current = {
+            active: true,
+            startX: t.clientX,
+            startY: t.clientY,
+            mode,
+            startedAt: Date.now()
+        };
+    };
+    const mobileSwipeCancel = () => {
+        mobileSwipeRef.current.active = false;
+    };
+    const mobileSwipeEnd = (e) => {
+        const swipe = mobileSwipeRef.current;
+        mobileSwipeRef.current.active = false;
+        if (!swipe.active || mobileNavTransitioningRef.current) return;
+
+        const changed = e && e.changedTouches;
+        if (!changed || changed.length !== 1) return;
+        const t = changed[0];
+        const dx = t.clientX - swipe.startX;
+        const dy = t.clientY - swipe.startY;
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+
+        // 세로 스크롤과 짧은 탭은 건드리지 않는다.
+        if (ax < 52 || ax < ay * 1.25 || Date.now() - swipe.startedAt > 1200) return;
+        if (!result) return;
+
+        if (dx > 0) {
+            if (swipe.mode === "home") mobileHomeToRoute();
+            else if (swipe.mode === "route") mobileRouteToExpense();
+            else if (swipe.mode === "expense") mobileExpenseToHome();
+        } else {
+            if (swipe.mode === "home") mobileHomeToExpense();
+            else if (swipe.mode === "route") mobileRouteToHome();
+            else if (swipe.mode === "expense") mobileExpenseToRoute();
+        }
     };
     // 입력값이 실제로 바뀐 경우에만 해당 칸의 팝업 처리 완료 상태를 초기화한다.
     // 출발지만 바꿀 때 목적지 완도/신안 팝업이 다시 뜨는 문제를 막기 위해 양쪽을 독립 관리한다.
@@ -17441,7 +17518,10 @@ const App = () => {
             return null;
         return React.createElement("div", {
                 className: `mobile-side-panel route-panel ${mobileRouteMotion}`.trim(),
-                onClick: e => e.stopPropagation()
+                onClick: e => e.stopPropagation(),
+                onTouchStart: e => mobileSwipeStart(e, "route"),
+                onTouchEnd: mobileSwipeEnd,
+                onTouchCancel: mobileSwipeCancel
             },
             React.createElement("div", { className: "mobile-side-panel-header route-header m51-clean-header" },
                 React.createElement("div", { className: "mobile-side-panel-title" }, "경로정보")),
@@ -17684,7 +17764,12 @@ const App = () => {
             React.createElement("div", { className: "sec-hdr" },
                 React.createElement("span", null, "경로 정보")),
             React.createElement(VerticalRouteTable, null)),
-        React.createElement("div", { className: `col-center ${mobileHomeMotion}`.trim() },
+        React.createElement("div", {
+            className: `col-center ${mobileHomeMotion}`.trim(),
+            onTouchStart: e => mobileSwipeStart(e, "home"),
+            onTouchEnd: mobileSwipeEnd,
+            onTouchCancel: mobileSwipeCancel
+        },
             React.createElement("div", { style: { padding: "14px 16px 10px", borderBottom: "1px solid var(--sep)", background: "rgba(255,255,255,0.95)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 } },
                 React.createElement("div", null,
                     React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 6 } },
@@ -17878,13 +17963,18 @@ const App = () => {
                     title: "출발지 유지 리셋"
                 },
                     React.createElement("span", { className: "m34-nav-circle m34-reset-circle" },
-                        React.createElement("img", {
-                            className: "m34-nav-glyph m34-reset-icon",
-                            src: "./reset.png?v=m34",
-                            alt: "",
-                            "aria-hidden": "true",
-                            draggable: false
-                        })),
+                        React.createElement("svg", {
+                            className: "m34-nav-glyph m59-reset-icon",
+                            viewBox: "0 0 24 24",
+                            fill: "none",
+                            stroke: "currentColor",
+                            strokeWidth: "1.9",
+                            strokeLinecap: "round",
+                            strokeLinejoin: "round",
+                            "aria-hidden": "true"
+                        },
+                            React.createElement("path", { d: "M20 4v6h-6" }),
+                            React.createElement("path", { d: "M20 10a8 8 0 1 0-2.34 5.66" }))),
                     React.createElement("span", { className: "m3-nav-label" }, "리셋")),
                 React.createElement("button", {
                     type: "button",
@@ -17967,7 +18057,14 @@ const App = () => {
         MobileProofSheet(),
         MobileQuickSheets(),
         showDetail && (React.createElement("div", { className: `travel-calc-overlay ${mobileExpenseMotion}`.trim(), style: { position: "fixed", inset: 0, zIndex: 260, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end" }, onClick: closeTravelCalcOnMobile },
-            React.createElement("div", { className: "travel-calc-sheet", style: { width: "100%", background: "linear-gradient(180deg,#fff,#FAFAFA)", borderRadius: "24px 24px 0 0", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 -8px 32px rgba(0,0,0,0.15)" }, onClick: e => e.stopPropagation() },
+            React.createElement("div", {
+                className: "travel-calc-sheet",
+                style: { width: "100%", background: "linear-gradient(180deg,#fff,#FAFAFA)", borderRadius: "24px 24px 0 0", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 -8px 32px rgba(0,0,0,0.15)" },
+                onClick: e => e.stopPropagation(),
+                onTouchStart: e => mobileSwipeStart(e, "expense"),
+                onTouchEnd: mobileSwipeEnd,
+                onTouchCancel: mobileSwipeCancel
+            },
                 React.createElement("div", { className: "travel-calc-header", style: { padding: "14px 20px 10px", borderBottom: "1px solid #F2F2F7", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                     React.createElement("span", { className: "travel-calc-title", style: { fontFamily: "var(--gm)", fontSize: 18, fontWeight: 900, color: "#1C1C1E" } }, "\uD83D\uDCCB \uC5EC\uBE44\uACC4\uC0B0"),
                     React.createElement("button", { className: "desktop-travel-close", onClick: closeTravelCalcOnMobile, style: { background: "none", border: "none", fontSize: 22, color: "#AEAEB2", cursor: "pointer" } }, "\u2715")),
