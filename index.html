@@ -5854,6 +5854,157 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   M5.10 · Mobile last-mile UX correction
+   - touchmove 기반 순환 Pager
+   - 표준 refresh 아이콘 / 감액 red semantic
+   - 숫자입력 키보드 종료 / 출장일수 stepper
+   - 특수교통 2~3줄 compact 안내박스
+   - 신안 유료 농어촌버스는 총액을 중복시키지 않고 기타교통비 항목으로 재분류
+   경로탐색·일비·식비·숙박·접근비용 산식은 변경하지 않음
+   ═══════════════════════════════════════════════════════════════════ */
+.m510-step-btn,.m510-special-transport-wrap{display:none;}
+@media(max-width:699px){
+  /* 브라우저는 세로 스크롤만 맡고, 가로 제스처는 YBEZ Pager가 판별 */
+  .m510-swipe-surface{
+    touch-action:pan-y !important;
+    overscroll-behavior-x:contain !important;
+  }
+
+  /* 리셋: 두 화살표 refresh 표준형을 조금 가볍게 */
+  .m59-reset-icon{
+    width:21px !important;
+    height:21px !important;
+    stroke-width:1.8 !important;
+  }
+
+  /* 감액은 네이비 결과값과 분리되는 muted red 의미색 */
+  .travel-calc-body .deduct-btn{
+    background:#FFFFFF !important;
+    border-color:#E7BCC2 !important;
+    color:#B34D58 !important;
+    box-shadow:none !important;
+  }
+  .travel-calc-body .deduct-btn.active{
+    background:#FFF0F2 !important;
+    border-color:#CF707A !important;
+    color:#A63D49 !important;
+    box-shadow:0 0 0 1px rgba(166,61,73,.04) !important;
+  }
+  .travel-calc-body .expense-note-row.deduction,
+  .travel-calc-body .expense-deduction-note,
+  .modal-box.deduction-modal .ded-meal-amount{
+    color:#B34D58 !important;
+  }
+
+  /* 출장일수: 오른쪽 위치 유지 + 손가락용 − / + stepper */
+  .travel-calc-body .trip-main-row{
+    align-items:center !important;
+  }
+  .travel-calc-body .m510-trip-stepper{
+    margin-left:auto !important;
+    min-width:148px !important;
+    height:40px !important;
+    padding:2px 4px !important;
+    gap:2px !important;
+    border:1px solid #CBD7E2 !important;
+    border-radius:11px !important;
+    background:#FFFFFF !important;
+    box-shadow:0 2px 7px rgba(23,58,99,.045) !important;
+    justify-content:flex-end !important;
+  }
+  .travel-calc-body .m510-trip-stepper .trip-days-input{
+    width:38px !important;
+    height:34px !important;
+    padding:0 !important;
+    text-align:center !important;
+    font-size:18px !important;
+    font-weight:950 !important;
+    color:#173A63 !important;
+    background:transparent !important;
+  }
+  .travel-calc-body .m510-trip-stepper .trip-unit{
+    margin:0 2px 0 -2px !important;
+    font-size:13px !important;
+    font-weight:850 !important;
+    color:#52677C !important;
+  }
+  .m510-step-btn{
+    width:34px !important;
+    height:34px !important;
+    flex:0 0 34px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:0 !important;
+    border:0 !important;
+    border-radius:9px !important;
+    background:#EEF3F8 !important;
+    color:#173A63 !important;
+    font-size:21px !important;
+    font-weight:700 !important;
+    line-height:1 !important;
+    touch-action:manipulation !important;
+  }
+  .m510-step-btn:active{background:#E1EAF2 !important;}
+  .m510-step-btn:disabled{opacity:.35 !important;}
+
+  /* 교통비 왼쪽 아래의 좁은 특수교통 안내 박스 */
+  .m510-special-transport-wrap{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    gap:4px !important;
+    margin:4px 0 1px !important;
+    max-width:100% !important;
+  }
+  .m510-special-transport-note{
+    width:fit-content !important;
+    max-width:76% !important;
+    box-sizing:border-box !important;
+    padding:5px 7px 5px !important;
+    border:1px solid #B9C9D9 !important;
+    border-radius:8px !important;
+    background:#F2F6FA !important;
+    color:#304D69 !important;
+    line-height:1.22 !important;
+    box-shadow:none !important;
+  }
+  .m510-special-route{
+    display:flex !important;
+    align-items:center !important;
+    gap:4px !important;
+    margin-bottom:2px !important;
+    font-family:var(--gm) !important;
+    font-size:10.3px !important;
+    font-weight:900 !important;
+    color:#315675 !important;
+    white-space:nowrap !important;
+  }
+  .m510-ship-icon{
+    width:14px !important;
+    height:14px !important;
+    flex:0 0 14px !important;
+  }
+  .m510-special-main{
+    font-family:var(--gm) !important;
+    font-size:10.7px !important;
+    font-weight:900 !important;
+    color:#173A63 !important;
+    white-space:nowrap !important;
+  }
+  .m510-special-sub{
+    margin-top:1px !important;
+    font-family:var(--pr) !important;
+    font-size:9.6px !important;
+    font-weight:700 !important;
+    color:#667789 !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -6866,8 +7017,11 @@ const App = () => {
     const [mobileExpenseMotion, setMobileExpenseMotion] = useState("");
     const mobileNavTransitioningRef = useRef(false);
     const mobileNavTimerRef = useRef(null);
-    // M5.9: 실제 손가락 가로 스와이프 시작점과 현재 페이지를 보존한다.
-    const mobileSwipeRef = useRef({ active: false, startX: 0, startY: 0, mode: "", startedAt: 0 });
+    // M5.10: 실제 손가락 이동축까지 추적해 iOS/Android의 touchcancel에도 견딘다.
+    const mobileSwipeRef = useRef({
+        active: false, startX: 0, startY: 0, currentX: 0, currentY: 0,
+        mode: "", axis: "", startedAt: 0
+    });
     const mobileAutoOpenedKeyRef = useRef("");
     const [intraCityOpen, setIntraCityOpen] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
@@ -6933,6 +7087,42 @@ const App = () => {
         setLodgingNights(prev => Math.min(Math.max(0, Number(prev) || 0), nextMaxNights));
         setGroupNights(prev => Math.min(Math.max(0, Number(prev) || 0), nextMaxNights));
     }, [normalizeTripDays]);
+    // M5.10: 모바일 숫자입력은 완료/Enter 또는 입력칸 밖 터치에서 포커스를 해제한다.
+    const mobileNumericDoneKey = useCallback((e) => {
+        if (typeof window === "undefined" || window.innerWidth > 699) return;
+        if (e && (e.key === "Enter" || e.key === "Done")) {
+            e.preventDefault();
+            if (e.currentTarget && typeof e.currentTarget.blur === "function") e.currentTarget.blur();
+        }
+    }, []);
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        const selector = 'input[type="tel"], input[inputmode="numeric"]';
+        const blurOutside = (e) => {
+            if (typeof window !== "undefined" && window.innerWidth > 699) return;
+            const active = document.activeElement;
+            if (!active || typeof active.matches !== "function" || !active.matches(selector)) return;
+            if (e && e.target === active) return;
+            if (typeof active.blur === "function") active.blur();
+        };
+        const doneKey = (e) => {
+            if (typeof window !== "undefined" && window.innerWidth > 699) return;
+            const active = document.activeElement;
+            if (!active || typeof active.matches !== "function" || !active.matches(selector)) return;
+            if (e.key === "Enter") {
+                e.preventDefault();
+                active.blur();
+            }
+        };
+        document.addEventListener("touchstart", blurOutside, true);
+        document.addEventListener("pointerdown", blurOutside, true);
+        document.addEventListener("keydown", doneKey, true);
+        return () => {
+            document.removeEventListener("touchstart", blurOutside, true);
+            document.removeEventListener("pointerdown", blurOutside, true);
+            document.removeEventListener("keydown", doneKey, true);
+        };
+    }, []);
     const handleTripTypeChange = useCallback((nextType) => {
         const type = nextType === "training" ? "training" : "general";
         setTripType(type);
@@ -7349,9 +7539,8 @@ const App = () => {
             clearMobilePagerMotion();
         });
     };
-    // M5.9: 버튼 Pager와 같은 순환 방향을 실제 터치 스와이프에도 연결한다.
-    // 오른쪽 스와이프: 홈→경로, 경로→여비, 여비→홈
-    // 왼쪽 스와이프: 홈→여비, 경로→홈, 여비→경로
+    // M5.10: 버튼 Pager의 순환 방향을 실제 터치 스와이프에도 그대로 사용한다.
+    // touchmove에서 가로/세로 축을 먼저 판별하고, 가로 제스처만 앱이 받는다.
     const mobileSwipeTargetBlocked = (target) => {
         if (!target || typeof target.closest !== "function") return false;
         return !!target.closest(
@@ -7374,30 +7563,42 @@ const App = () => {
             active: true,
             startX: t.clientX,
             startY: t.clientY,
+            currentX: t.clientX,
+            currentY: t.clientY,
             mode,
+            axis: "",
             startedAt: Date.now()
         };
     };
-    const mobileSwipeCancel = () => {
-        mobileSwipeRef.current.active = false;
-    };
-    const mobileSwipeEnd = (e) => {
+    const mobileSwipeMove = (e) => {
         const swipe = mobileSwipeRef.current;
-        mobileSwipeRef.current.active = false;
-        if (!swipe.active || mobileNavTransitioningRef.current) return;
-
-        const changed = e && e.changedTouches;
-        if (!changed || changed.length !== 1) return;
-        const t = changed[0];
-        const dx = t.clientX - swipe.startX;
-        const dy = t.clientY - swipe.startY;
+        const touches = e && e.touches;
+        if (!swipe.active || !touches || touches.length !== 1 || mobileNavTransitioningRef.current) return;
+        const t = touches[0];
+        swipe.currentX = t.clientX;
+        swipe.currentY = t.clientY;
+        const dx = swipe.currentX - swipe.startX;
+        const dy = swipe.currentY - swipe.startY;
         const ax = Math.abs(dx);
         const ay = Math.abs(dy);
-
-        // 세로 스크롤과 짧은 탭은 건드리지 않는다.
-        if (ax < 52 || ax < ay * 1.25 || Date.now() - swipe.startedAt > 1200) return;
-        if (!result) return;
-
+        if (!swipe.axis && Math.max(ax, ay) >= 10) {
+            if (ay > ax * 1.08) {
+                // 세로 의도가 먼저 잡히면 끝까지 페이지 스와이프로 바꾸지 않는다.
+                swipe.axis = "vertical";
+                swipe.active = false;
+                return;
+            }
+            if (ax > ay * 1.12) swipe.axis = "horizontal";
+        }
+        if (swipe.axis === "horizontal" && e.cancelable) e.preventDefault();
+    };
+    const finishMobileSwipe = (swipe) => {
+        if (!swipe || !swipe.active || swipe.axis === "vertical" || mobileNavTransitioningRef.current) return;
+        const dx = Number(swipe.currentX || swipe.startX) - swipe.startX;
+        const dy = Number(swipe.currentY || swipe.startY) - swipe.startY;
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+        if (ax < 44 || ax < ay * 1.15 || Date.now() - swipe.startedAt > 1400 || !result) return;
         if (dx > 0) {
             if (swipe.mode === "home") mobileHomeToRoute();
             else if (swipe.mode === "route") mobileRouteToExpense();
@@ -7407,6 +7608,22 @@ const App = () => {
             else if (swipe.mode === "route") mobileRouteToHome();
             else if (swipe.mode === "expense") mobileExpenseToRoute();
         }
+    };
+    const mobileSwipeEnd = (e) => {
+        const swipe = { ...mobileSwipeRef.current };
+        const changed = e && e.changedTouches;
+        if (changed && changed.length === 1) {
+            swipe.currentX = changed[0].clientX;
+            swipe.currentY = changed[0].clientY;
+        }
+        mobileSwipeRef.current.active = false;
+        finishMobileSwipe(swipe);
+    };
+    const mobileSwipeCancel = () => {
+        // Safari가 가로 제스처 중 touchcancel을 보내더라도 마지막 좌표로 한 번 판정한다.
+        const swipe = { ...mobileSwipeRef.current };
+        mobileSwipeRef.current.active = false;
+        finishMobileSwipe(swipe);
     };
     // 입력값이 실제로 바뀐 경우에만 해당 칸의 팝업 처리 완료 상태를 초기화한다.
     // 출발지만 바꿀 때 목적지 완도/신안 팝업이 다시 뜨는 문제를 막기 위해 양쪽을 독립 관리한다.
@@ -15863,15 +16080,34 @@ const App = () => {
     }, 0), [activeAccessPlans, accessChoiceForPlan]);
     const displayOneWayFare = useMemo(() => Number(selectedFare || 0) + Number(activeAccessOneWay || 0), [selectedFare, activeAccessOneWay]);
     const displayRoundTripFare = useMemo(() => displayOneWayFare * 2, [displayOneWayFare]);
+    // M5.10: 신안 유료 농어촌버스(1,000원)는 정산 화면에서 기타교통비로 분리한다.
+    // 경로카드 총액은 그대로 두고, 여비계산의 교통비↔기타교통비 항목만 재분류하여 총액 중복을 막는다.
+    const sinanRuralOtherOneWay = useMemo(() => {
+        if (!result) return 0;
+        return (result.islandLegs || [])
+            .filter(x => x && x.kind === "rural" && Number(x.fare || 0) > 0 && /신안/.test(String(x.source || "")))
+            .reduce((sum, x) => sum + Number(x.fare || 0), 0);
+    }, [result]);
+    const sinanRuralIncludedInSelectedFare = useMemo(() => {
+        if (!result || sinanRuralOtherOneWay <= 0) return false;
+        if (result.islandHubBase) return true;
+        // surcharge에 남아 있는 경로는 candidateFare(gen)에 아직 포함되지 않은 구조다.
+        return Number(result.surcharge || 0) < sinanRuralOtherOneWay;
+    }, [result, sinanRuralOtherOneWay]);
+    const expenseTransportOneWay = useMemo(() => Math.max(
+        0,
+        Number(selectedFare || 0) + Number(activeAccessOneWay || 0)
+        - (sinanRuralIncludedInSelectedFare ? Number(sinanRuralOtherOneWay || 0) : 0)
+    ), [selectedFare, activeAccessOneWay, sinanRuralIncludedInSelectedFare, sinanRuralOtherOneWay]);
     // 2R6B6: UI 1D 일반/우등 버튼 선택을 오른쪽 여비계산 교통비와 즉시 동기화한다.
     useEffect(() => {
         if (!result || !activeJneGradePair)
             return;
         if (transportFocused.current)
             return;
-        const next = (Number(selectedFare || 0) + Number(activeAccessOneWay || 0)) * 2;
+        const next = Number(expenseTransportOneWay || 0) * 2;
         setManualTransport(next);
-    }, [result, activeJneGradePair, selectedFare, activeAccessOneWay]);
+    }, [result, activeJneGradePair, expenseTransportOneWay]);
     const FarePair = ({ oneway, realCost = false } = {}) => {
         if (realCost) {
             return React.createElement("div", { className: "final-fare-pair" },
@@ -16032,7 +16268,7 @@ const App = () => {
         // 일반출장 분기는 K3B 계산을 그대로 유지한다.
         const generalDayMultiplier = generalMultiCalcActive ? tripDays : 1;
         const generalDaily = Math.max(0, 25000 * generalDayMultiplier - 12500 * vehicleDaysApplied);
-        const calculatedTransport = (selectedFare + activeAccessOneWay) * 2;
+        const calculatedTransport = Number(expenseTransportOneWay || 0) * 2;
         const baseTransport = manualTransport != null ? Number(manualTransport) : calculatedTransport;
         const transportGross = Math.round(baseTransport * transportTripMultiplier);
         const vehicleAdjustedTransport = Math.round(baseTransport * effectiveTransportTripMultiplier);
@@ -16056,7 +16292,7 @@ const App = () => {
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
             total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, selectedFare, shipFare, otherLodgingFare, activeAccessOneWay, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction]);
+    }, [ded, manualTransport, expenseTransportOneWay, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction]);
     const dailyDeductionLabel = detailCost.dailyDeduction > 0 ? `-${fmt(detailCost.dailyDeduction)}원` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
@@ -16192,12 +16428,11 @@ const App = () => {
                 setManualTransportInput("");
             return;
         }
-        const fare = Number(selectedFare || 0);
-        const next = (fare + activeAccessOneWay) * 2;
+        const next = Number(expenseTransportOneWay || 0) * 2;
         setManualTransport(next);
         if (!transportFocused.current)
             setManualTransportInput(next === 0 ? "" : String(next)); // 입력 UX 안정화
-    }, [selectedFare, result, activeAccessOneWay]);
+    }, [expenseTransportOneWay, result]);
     // 패치 2R.3: 추가교통비 항목은 폐지한다.
     // 시스템이 아는 육상 접근요금은 교통비에 포함하고, 선박·도선만 기타교통비로 유지한다.
     const showAccessExtraInput = false;
@@ -16205,18 +16440,31 @@ const App = () => {
         if (!result)
             return { total: 0, parts: [] };
         const parts = [];
-        (result.islandLegs || []).filter(x => x.kind === "ferry" && Number(x.fare || 0) > 0).forEach(x => {
+        (result.islandLegs || []).filter(x => {
+            if (!x || Number(x.fare || 0) <= 0) return false;
+            if (x.kind === "ferry") return true;
+            return x.kind === "rural" && /신안/.test(String(x.source || ""));
+        }).forEach(x => {
             const one = Number(x.fare || 0);
             const round = one * 2;
-            const route = String(x.route || "여객선·도선 구간").replace("→", "↔");
-            parts.push({ route, one, round, text: `${route} 여객선·도선 편도 ${fmt(one)}원 / 왕복 ${fmt(round)}원` });
+            const route = String(x.route || (x.kind === "rural" ? "신안 농어촌버스 구간" : "여객선·도선 구간")).replace("→", "↔");
+            parts.push({
+                kind: x.kind, route, one, round,
+                text: x.kind === "rural"
+                    ? `${route} 농어촌버스 편도 ${fmt(one)}원 / 왕복 ${fmt(round)}원`
+                    : `${route} 여객선·도선 편도 ${fmt(one)}원 / 왕복 ${fmt(round)}원`
+            });
         });
         return { total: parts.reduce((s, p) => s + p.round, 0), parts };
     }, [result]);
     const shipFareHint = useMemo(() => {
         if (!result) return "";
         if (result.manualOtherTransportOnly) return "";
-        if (shipAutoSummary.parts.length) return shipAutoSummary.parts.map(p => `${p.route} 여객선 조례 · 편도 ${fmt(p.one)}원 / 왕복 ${fmt(p.round)}원`).join(" / ");
+        if (shipAutoSummary.parts.length) return shipAutoSummary.parts.map(p =>
+            p.kind === "rural"
+                ? `${p.route} 신안 농어촌버스 · 편도 ${fmt(p.one)}원 / 왕복 ${fmt(p.round)}원`
+                : `${p.route} 여객선 조례 · 편도 ${fmt(p.one)}원 / 왕복 ${fmt(p.round)}원`
+        ).join(" / ");
         const realCostLegs = (result.islandLegs || []).filter(x => x.kind === "ferry" && (x.realCost || x.fare == null));
         if (realCostLegs.length) return `${realCostLegs.map(x => String(x.route || "여객선 구간").replace("→", " ↔ ")).join(" / ")} 여객선 운임 · 실비 입력`;
         return "";
@@ -16254,6 +16502,45 @@ const App = () => {
         if (n === "점촌(문경)") return "문경";
         return compactPlaceName(JEONNAM_SUB_TO_MAIN[n] || METRO_DISTRICT_TO_MAIN[n] || n);
     }, [compactPlaceName]);
+    // M5.10: 모바일 교통비 행 왼쪽 아래에 특수교통 입력방법을 짧고 명확하게 표시한다.
+    const mobileSpecialTransportNotices = useMemo(() => {
+        if (!result) return [];
+        const legs = Array.isArray(result.islandLegs) ? result.islandLegs : [];
+        const routeForLeg = (leg) => {
+            const raw = String((leg && leg.route) || "").replace(/\s+/g, "");
+            let route = raw;
+            const o = nz(origin), d = nz(dest);
+            if (leg && leg.role === "origin" && o && ISLAND_DB[o]) route = `${o}→${ISLAND_DB[o].hub}`;
+            else if (leg && leg.role === "dest" && d && ISLAND_DB[d]) route = `${ISLAND_DB[d].hub}→${d}`;
+            const parts = route.split("→").filter(Boolean);
+            if (parts.length >= 2) return `${displayEndpointName(parts[0])} → ${displayEndpointName(parts[parts.length - 1])}`;
+            return route ? route.replace("→", " → ") : "특수교통 구간";
+        };
+        const out = [];
+        const seen = new Set();
+        legs.forEach((leg) => {
+            if (!leg || !["rural", "ferry"].includes(leg.kind)) return;
+            const realCost = leg.kind === "ferry" && (leg.realCost || leg.fare == null);
+            const one = Number(leg.fare || 0);
+            if (!realCost && !(one > 0)) return;
+            const route = routeForLeg(leg);
+            const key = `${route}|${realCost ? "real" : one}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+            out.push(realCost
+                ? { type: "real", route, line1: "기타교통비에 실비 입력", line2: "선박승선권 확인" }
+                : { type: "fixed", route, line1: `편도 ${fmt(one)}원 · 왕복 ${fmt(one * 2)}원`, line2: "기타교통비 가산 처리 · 승선권 확인 필요" });
+        });
+        return out;
+    }, [result, origin, dest, displayEndpointName]);
+    const M510ShipIcon = () => React.createElement("svg", {
+        className: "m510-ship-icon", viewBox: "0 0 24 24", fill: "none",
+        stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round",
+        "aria-hidden": "true"
+    },
+        React.createElement("path", { d: "M4 13h16l-2 5H6l-2-5Z" }),
+        React.createElement("path", { d: "M7 13V8h10v5M10 8V5h4v3" }),
+        React.createElement("path", { d: "M3.5 20c1.2.8 2.4.8 3.6 0 1.2.8 2.4.8 3.6 0 1.2.8 2.4.8 3.6 0 1.2.8 2.4.8 3.6 0" }));
     // F5-P: YBEZ는 전남광주↔전국 전용이다. 한쪽이 외부지역으로 확정되면 반대쪽 자동완성은 전남광주만 노출한다.
     const isJeonnamGwangjuSearchName = useCallback((name) => {
         const raw = nz(name);
@@ -17517,9 +17804,10 @@ const App = () => {
         if (!mobileDetailOpen || !result || modalSt.type)
             return null;
         return React.createElement("div", {
-                className: `mobile-side-panel route-panel ${mobileRouteMotion}`.trim(),
+                className: `mobile-side-panel route-panel m510-swipe-surface ${mobileRouteMotion}`.trim(),
                 onClick: e => e.stopPropagation(),
                 onTouchStart: e => mobileSwipeStart(e, "route"),
+                onTouchMove: mobileSwipeMove,
                 onTouchEnd: mobileSwipeEnd,
                 onTouchCancel: mobileSwipeCancel
             },
@@ -17765,8 +18053,9 @@ const App = () => {
                 React.createElement("span", null, "경로 정보")),
             React.createElement(VerticalRouteTable, null)),
         React.createElement("div", {
-            className: `col-center ${mobileHomeMotion}`.trim(),
+            className: `col-center m510-swipe-surface ${mobileHomeMotion}`.trim(),
             onTouchStart: e => mobileSwipeStart(e, "home"),
+            onTouchMove: mobileSwipeMove,
             onTouchEnd: mobileSwipeEnd,
             onTouchCancel: mobileSwipeCancel
         },
@@ -17973,8 +18262,10 @@ const App = () => {
                             strokeLinejoin: "round",
                             "aria-hidden": "true"
                         },
-                            React.createElement("path", { d: "M20 4v6h-6" }),
-                            React.createElement("path", { d: "M20 10a8 8 0 1 0-2.34 5.66" }))),
+                            React.createElement("path", { d: "M21 12a9 9 0 0 1-15.22 6.48L3 16" }),
+                            React.createElement("path", { d: "M3 21v-5h5" }),
+                            React.createElement("path", { d: "M3 12A9 9 0 0 1 18.22 5.52L21 8" }),
+                            React.createElement("path", { d: "M21 3v5h-5" }))),
                     React.createElement("span", { className: "m3-nav-label" }, "리셋")),
                 React.createElement("button", {
                     type: "button",
@@ -18058,10 +18349,11 @@ const App = () => {
         MobileQuickSheets(),
         showDetail && (React.createElement("div", { className: `travel-calc-overlay ${mobileExpenseMotion}`.trim(), style: { position: "fixed", inset: 0, zIndex: 260, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end" }, onClick: closeTravelCalcOnMobile },
             React.createElement("div", {
-                className: "travel-calc-sheet",
+                className: "travel-calc-sheet m510-swipe-surface",
                 style: { width: "100%", background: "linear-gradient(180deg,#fff,#FAFAFA)", borderRadius: "24px 24px 0 0", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 -8px 32px rgba(0,0,0,0.15)" },
                 onClick: e => e.stopPropagation(),
                 onTouchStart: e => mobileSwipeStart(e, "expense"),
+                onTouchMove: mobileSwipeMove,
                 onTouchEnd: mobileSwipeEnd,
                 onTouchCancel: mobileSwipeCancel
             },
@@ -18270,7 +18562,7 @@ const App = () => {
                     isGovVehicle && vehicleDaysInput > 0 && React.createElement("div", { className: "ded-count-row transport-vehicle-days-row" },
                         React.createElement("span", { className: "ded-count-label" }, "관용차 이용일수"),
                         React.createElement("div", { className: "ded-count-control" },
-                            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ded-count-input", value: vehicleDaysInput, onFocus: e => e.target.select(), onChange: e => {
+                            React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "ded-count-input", value: vehicleDaysInput, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => {
                                     const n = Number(onlyDigits(e.target.value) || 0);
                                     const nextDays = Math.min(Math.max(0, n), maxVehicleDays);
                                     setDed(prev => {
@@ -18325,7 +18617,7 @@ const App = () => {
                                 vehicleDaysInput > 0 && React.createElement("div", { className: "ded-count-row" },
                                     React.createElement("span", { className: "ded-count-label" }, "관용차 이용일수"),
                                     React.createElement("div", { className: "ded-count-control" },
-                                        React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ded-count-input", value: vehicleDaysInput, onFocus: e => e.target.select(), onChange: e => {
+                                        React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "ded-count-input", value: vehicleDaysInput, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => {
                                                 const n = Number(onlyDigits(e.target.value) || 0);
                                                 const nextDays = Math.min(Math.max(0, n), maxVehicleDays);
                                                 setDed(prev => {
@@ -18366,7 +18658,7 @@ const App = () => {
                                         DedInfoIcon("meal"),
                                         React.createElement("span", null, "제공받은 식사")),
                                     React.createElement("div", { className: "ded-count-control" },
-                                        React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "ded-count-input", value: mealProvidedCount, onFocus: e => e.target.select(), onChange: e => {
+                                        React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "ded-count-input", value: mealProvidedCount, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => {
                                                 const n = Number(onlyDigits(e.target.value) || 0);
                                                 setDed(prev => ({ ...prev, meal_provided_count: Math.min(Math.max(0, n), maxMealCount) }));
                                             }, "aria-label": "제공받은 식사 횟수" }),
@@ -18444,16 +18736,29 @@ const App = () => {
         const trainingLodgingOnly = trainingMultiCalcActive && lodgingNights > 0 && groupNights === 0;
         const trainingGroupOnly = trainingMultiCalcActive && groupNights > 0 && lodgingNights === 0;
         const renderMoneyEntry = (value, onFocus, onBlur, onChange, ariaLabel, disabled = false, placeholder = "") => React.createElement("div", { className: "expense-entry-cell" },
-            React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "expense-money-input ledger-money-input", value, onFocus, onBlur, onChange, disabled, placeholder, "aria-label": ariaLabel }),
+            React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "expense-money-input ledger-money-input", value, onFocus, onBlur, onChange, onKeyDown: mobileNumericDoneKey, disabled, placeholder, "aria-label": ariaLabel }),
             React.createElement("span", { className: "expense-money-unit" }, "원"));
         return (React.createElement("div", { className: "m5-expense-content", style: { padding: "12px 14px", display: "flex", flexDirection: "column", gap: 0 } },
             React.createElement("div", { className: "trip-setup" },
                 isMultiDayTrip && React.createElement("div", { className: "trip-summary" }, tripSummaryLabel),
                 React.createElement("div", { className: "trip-main-row" },
                     React.createElement("span", { className: "trip-main-label" }, "출장일수"),
-                    React.createElement("div", { className: "trip-days-control" },
-                        React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "trip-days-input", value: tripDays, onFocus: e => e.target.select(), onChange: e => handleTripDaysChange(e.target.value), "aria-label": "출장일수" }),
-                        React.createElement("span", { className: "trip-unit" }, "일"))),
+                    React.createElement("div", { className: "trip-days-control m510-trip-stepper" },
+                        React.createElement("button", {
+                            type: "button", className: "m510-step-btn", "aria-label": "출장일수 1일 줄이기",
+                            disabled: tripDays <= 1, onClick: () => handleTripDaysChange(Math.max(1, tripDays - 1))
+                        }, "−"),
+                        React.createElement("input", {
+                            type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
+                            className: "trip-days-input", value: tripDays,
+                            onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey,
+                            onChange: e => handleTripDaysChange(e.target.value), "aria-label": "출장일수"
+                        }),
+                        React.createElement("span", { className: "trip-unit" }, "일"),
+                        React.createElement("button", {
+                            type: "button", className: "m510-step-btn", "aria-label": "출장일수 1일 늘리기",
+                            disabled: tripDays >= 365, onClick: () => handleTripDaysChange(Math.min(365, tripDays + 1))
+                        }, "+"))),
                 isMultiDayTrip && React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "trip-condition-box" },
                         React.createElement("div", { className: "trip-condition-grid" },
@@ -18462,12 +18767,12 @@ const App = () => {
                             React.createElement("div", { className: "trip-stay-option" },
                                 React.createElement("button", { type: "button", className: `trip-choice-btn ${lodgingSelected ? "check-sel" : ""}`, onClick: () => handleStayOptionToggle("lodging") }, `${lodgingSelected ? "☑" : "☐"} 현지숙박`),
                                 lodgingSelected && React.createElement("div", { className: "trip-mini-nights" },
-                                    React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "trip-nights-input", value: lodgingNights, onFocus: e => e.target.select(), onChange: e => handleLodgingNightsChange(e.target.value), "aria-label": "현지숙박 박수" }),
+                                    React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: lodgingNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleLodgingNightsChange(e.target.value), "aria-label": "현지숙박 박수" }),
                                     React.createElement("span", { className: "trip-unit" }, "박"))),
                             React.createElement("div", { className: "trip-stay-option" },
                                 React.createElement("button", { type: "button", disabled: tripType !== "training", className: `trip-choice-btn ${tripType !== "training" ? "disabled" : ""} ${groupSelected ? "check-sel" : ""}`, onClick: () => handleStayOptionToggle("group") }, `${groupSelected ? "☑" : "☐"} 합숙제공`),
                                 groupSelected && tripType === "training" && React.createElement("div", { className: "trip-mini-nights" },
-                                    React.createElement("input", { type: "tel", inputMode: "numeric", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
+                                    React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
                                     React.createElement("span", { className: "trip-unit" }, "박")))),
                         React.createElement("div", { className: "trip-help-wrap" },
                             React.createElement("div", { className: `trip-help-toggle-row ${trainingMixedScheduleRequired ? "k5g-actions" : ""}` },
@@ -18496,6 +18801,11 @@ const App = () => {
                         transportDisplayZero
                             ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text", style: { color: "#8B8F96" } }, "0", React.createElement("span", { className: "expense-result-unit" }, "원")))
                             : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * effectiveTransportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(0.5, effectiveTransportTripMultiplier)); }, "교통비")),
+                    mobileSpecialTransportNotices.length > 0 && React.createElement("div", { className: "m510-special-transport-wrap" },
+                        mobileSpecialTransportNotices.map((n, i) => React.createElement("div", { className: `m510-special-transport-note ${n.type}`, key: `${n.route}-${i}` },
+                            React.createElement("div", { className: "m510-special-route" }, React.createElement(M510ShipIcon, null), React.createElement("span", null, n.route)),
+                            React.createElement("div", { className: "m510-special-main" }, n.line1),
+                            React.createElement("div", { className: "m510-special-sub" }, n.line2)))),
                     !transportDeducted && generalMultiCalcActive && !lodgingSelected && generalPaidCommuteTrips > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${generalPaidCommuteTrips}회`),
                     !transportDeducted && trainingMultiCalcActive && effectiveTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${effectiveTransportTripMultiplier}회`),
                     vehicleDaysInput > 0 && !ded.transport_institution_paid && !ded.transport_proof && !ded.transport_passenger && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
