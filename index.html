@@ -6006,62 +6006,67 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 }
 
 
+
+
 /* ═══════════════════════════════════════════════════════════════════
-   M5.11 · Mobile numeric stepper width/alignment only
-   - 행 높이 변경 없음
-   - 출장일수 / 숙박·합숙 박수 / 관용차 이용일수의 너비·정렬만 보정
-   - M5.10 스와이프·리셋·감액·특수교통 로직 보호
+   M5.12 · Mobile stepper right-anchor correction
+   - 부모 행/grid 구조는 변경하지 않음
+   - 오른쪽 끝선은 기존 입력축에 고정, −/숫자/+는 왼쪽으로만 확장
+   - 특수교통 안내는 메인 교통비 결과카드 내부 정상 흐름에 고정
    ═══════════════════════════════════════════════════════════════════ */
-.m511-mini-step-btn,.m511-gov-step-btn{display:none;}
+.m512-inline-step-btn{display:none;}
 @media(max-width:699px){
-  .travel-calc-body .trip-main-row{
-    display:grid !important;
-    grid-template-columns:70px 42px 54px minmax(34px,1fr) 96px !important;
-    column-gap:3px !important;
-    align-items:center !important;
-  }
-  .travel-calc-body .trip-main-label{grid-column:1 !important;}
+
+  /* 출장일수: 오른쪽 끝 고정 + 전체 폭만 왼쪽으로 확장 */
   .travel-calc-body .m510-trip-stepper{
-    grid-column:3 / 5 !important;
-    width:100% !important;
-    min-width:0 !important;
-    max-width:none !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
+    margin-left:auto !important;
+    width:176px !important;
+    min-width:176px !important;
+    max-width:176px !important;
+    box-sizing:border-box !important;
     justify-content:space-between !important;
   }
   .travel-calc-body .m510-trip-stepper .m510-step-btn{
-    width:28px !important;
-    flex-basis:28px !important;
+    width:34px !important;
+    flex:0 0 34px !important;
   }
-  .travel-calc-body .m510-trip-stepper .trip-days-input{width:34px !important;}
+  .travel-calc-body .m510-trip-stepper .trip-days-input{
+    width:42px !important;
+    flex:0 0 42px !important;
+  }
 
+  /* 현지숙박/합숙: 각 자기 칸 내부 100%만 사용 */
   .travel-calc-body .m511-night-stepper{
     width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
     box-sizing:border-box !important;
+    display:flex !important;
+    align-items:center !important;
     justify-content:space-between !important;
     gap:2px !important;
-    padding-left:3px !important;
-    padding-right:3px !important;
-    border:1px solid #D9E1E9 !important;
-    border-radius:9px !important;
+    padding:2px 4px !important;
+    border:1px solid #CBD7E2 !important;
+    border-radius:10px !important;
     background:#FFFFFF !important;
+    overflow:hidden !important;
   }
   .travel-calc-body .m511-night-stepper .trip-nights-input{
     width:34px !important;
-    padding-left:0 !important;
-    padding-right:0 !important;
+    min-width:0 !important;
+    flex:0 0 34px !important;
+    padding:0 !important;
     border:0 !important;
     box-shadow:none !important;
     background:transparent !important;
     text-align:center !important;
   }
-  .m511-mini-step-btn{
+  .travel-calc-body .m511-mini-step-btn{
     display:inline-flex !important;
     align-items:center !important;
     justify-content:center !important;
-    width:26px !important;
-    flex:0 0 26px !important;
+    width:28px !important;
+    flex:0 0 28px !important;
     padding:0 !important;
     border:0 !important;
     border-radius:7px !important;
@@ -6070,41 +6075,377 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     font-size:18px !important;
     font-weight:800 !important;
     line-height:1 !important;
-    touch-action:manipulation !important;
   }
-  .m511-mini-step-btn:active{background:#E1EAF2 !important;}
-  .m511-mini-step-btn:disabled{opacity:.32 !important;}
 
-  .modal-box.deduction-modal .m511-gov-row{padding-right:0 !important;}
-  .modal-box.deduction-modal .m511-gov-stepper{
-    width:132px !important;
+  /* 관용차/식사: 오른쪽 끝은 현재 입력란 위치에 고정, −가 왼쪽으로 이동 */
+  .modal-box.deduction-modal .m511-gov-stepper,
+  .modal-box.deduction-modal .m512-meal-stepper{
+    width:156px !important;
+    max-width:156px !important;
+    min-width:0 !important;
     margin-left:auto !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    align-items:center !important;
     justify-content:space-between !important;
-    gap:2px !important;
+    gap:3px !important;
   }
-  .modal-box.deduction-modal .m511-gov-stepper .ded-count-input{
-    width:46px !important;
+  .modal-box.deduction-modal .m511-gov-stepper .ded-count-input,
+  .modal-box.deduction-modal .m512-meal-stepper .ded-count-input{
+    width:48px !important;
+    flex:0 0 48px !important;
+    min-width:0 !important;
     padding-left:0 !important;
     padding-right:0 !important;
+    text-align:center !important;
   }
-  .m511-gov-step-btn{
+  .modal-box.deduction-modal .m511-gov-step-btn,
+  .modal-box.deduction-modal .m512-inline-step-btn{
     display:inline-flex !important;
     align-items:center !important;
     justify-content:center !important;
-    width:30px !important;
-    flex:0 0 30px !important;
+    width:32px !important;
+    flex:0 0 32px !important;
     padding:0 !important;
     border:1px solid #D8E1E9 !important;
     border-radius:8px !important;
     background:#F3F6F9 !important;
     color:#173A63 !important;
-    font-size:19px !important;
+    font-size:18px !important;
     font-weight:800 !important;
     line-height:1 !important;
-    touch-action:manipulation !important;
   }
-  .m511-gov-step-btn:active{background:#E7EDF3 !important;}
-  .m511-gov-step-btn:disabled{opacity:.32 !important;}
+  .modal-box.deduction-modal .m511-gov-step-btn:disabled,
+  .modal-box.deduction-modal .m512-inline-step-btn:disabled,
+  .travel-calc-body .m511-mini-step-btn:disabled{
+    opacity:.30 !important;
+  }
+
+  /* 특수교통 안내: 메인 교통비 카드 안에서만, 절대 floating 금지 */
+  .m34-result-card .m512-main-special-transport{
+    display:flex !important;
+    position:static !important;
+    inset:auto !important;
+    transform:none !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:9px 0 0 !important;
+    gap:4px !important;
+  }
+  .m34-result-card .m512-main-special-transport .m510-special-transport-note{
+    position:static !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    padding:6px 8px !important;
+    border-radius:8px !important;
+    box-shadow:none !important;
+  }
+  .m34-result-card .m512-main-special-transport .m510-special-route{
+    font-size:10px !important;
+  }
+  .m34-result-card .m512-main-special-transport .m510-special-main{
+    font-size:10.5px !important;
+  }
+  .m34-result-card .m512-main-special-transport .m510-special-sub{
+    font-size:9.5px !important;
+  }
+
+  /* 과거 위치 보호: 여비계산 ledger에는 특수교통 안내를 절대 표시하지 않음 */
+  .travel-calc-body .m510-special-transport-wrap{
+    display:none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   M5.13 · Mobile trip-help navy + compact lodging/group stepper
+   - 출장조건 설명: 모바일에서만 Calm Navy
+   - 현지숙박/합숙제공: 각 100px 칸 내부의 − | 0박 | + 초소형 스테퍼
+   - 부모 grid/행 높이/계산 로직은 변경하지 않음
+   ═══════════════════════════════════════════════════════════════════ */
+@media(max-width:699px){
+  .trip-help-modal .modal-hdr{
+    background:#173A63 !important;
+    color:#FFFFFF !important;
+  }
+  .trip-help-modal{
+    background:#FFFFFF !important;
+    border:1px solid #D8E2EC !important;
+    box-shadow:0 18px 44px rgba(17,38,62,.24) !important;
+  }
+  .trip-help-modal .trip-help-title{color:#243C57 !important;}
+  .trip-help-modal .trip-help-text{color:#334A62 !important;}
+  .trip-help-modal .trip-help-example{color:#758496 !important;}
+  .trip-help-modal .trip-help-daily{
+    background:#F3F6F9 !important;
+    border-color:#DCE5ED !important;
+    color:#526A82 !important;
+  }
+
+  .travel-calc-body .m513-night-stepper{
+    width:92px !important;
+    max-width:92px !important;
+    min-width:0 !important;
+    align-self:center !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    padding:1px 3px !important;
+    gap:1px !important;
+    box-sizing:border-box !important;
+    justify-content:space-between !important;
+    overflow:hidden !important;
+  }
+  .travel-calc-body .m513-night-stepper .m511-mini-step-btn{
+    width:22px !important;
+    min-width:22px !important;
+    flex:0 0 22px !important;
+    padding:0 !important;
+    font-size:15px !important;
+    border-radius:6px !important;
+  }
+  .travel-calc-body .m513-night-value{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:38px !important;
+    min-width:38px !important;
+    flex:0 0 38px !important;
+    gap:0 !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+  }
+  .travel-calc-body .m513-night-value .trip-nights-input{
+    width:20px !important;
+    min-width:20px !important;
+    flex:0 0 20px !important;
+    padding:0 !important;
+    margin:0 !important;
+    text-align:right !important;
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    font-size:13px !important;
+    font-weight:900 !important;
+  }
+  .travel-calc-body .m513-night-value .trip-unit{
+    margin:0 !important;
+    padding:0 !important;
+    font-size:11px !important;
+    line-height:1 !important;
+    flex:0 0 auto !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   M5.14 · Mobile pager cue + Desktop mini edge arrows
+   - 모바일: 스와이프/전환 때만 ● ○ ○ 를 잠깐 표시
+   - Desktop mini: 현재 모바일 콘텐츠 폭을 보존할 수 있도록 좌우 28px rail 예약
+   - 실제 Windows mini 창 폭 확장은 Desktop wrapper 단계에서 연결
+   ═══════════════════════════════════════════════════════════════════ */
+.m514-mobile-pager-dots,
+.m514-desktop-mini-arrows{display:none;}
+
+@media(max-width:699px){
+  /* 실제 모바일: 하단 기능바 바로 위, 표시 전용 */
+  html:not(.ybez-desktop-mini) .m514-mobile-pager-dots{
+    position:fixed !important;
+    left:50% !important;
+    bottom:calc(var(--m3-nav-content-h) + var(--m3-safe-bottom) + 6px) !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:6px !important;
+    padding:4px 8px !important;
+    border-radius:999px !important;
+    background:rgba(255,255,255,.72) !important;
+    box-shadow:0 1px 6px rgba(23,58,99,.08) !important;
+    backdrop-filter:blur(6px) !important;
+    opacity:0 !important;
+    transform:translateX(-50%) translateY(3px) !important;
+    transition:opacity .28s ease, transform .28s ease !important;
+    pointer-events:none !important;
+    z-index:332 !important;
+  }
+  html:not(.ybez-desktop-mini) .m514-mobile-pager-dots.visible{
+    opacity:1 !important;
+    transform:translateX(-50%) translateY(0) !important;
+  }
+  .m514-mobile-pager-dot{
+    display:block !important;
+    width:5px !important;
+    height:5px !important;
+    border-radius:50% !important;
+    background:#C7D0DA !important;
+    transition:background .2s ease, transform .2s ease !important;
+  }
+  .m514-mobile-pager-dot.active{
+    background:#173A63 !important;
+    transform:scale(1.2) !important;
+  }
+
+  /* Desktop mini에만 28px씩 edge rail 예약.
+     wrapper가 기존 모바일 기준폭 + 56px로 창을 만들면 내부 콘텐츠 폭은 그대로 유지된다. */
+  html.ybez-desktop-mini .dashboard{
+    padding-left:28px !important;
+    padding-right:28px !important;
+    box-sizing:border-box !important;
+  }
+  html.ybez-desktop-mini .mobile-bottom-nav.m3-bottom-nav{
+    left:28px !important;
+    right:28px !important;
+    width:auto !important;
+  }
+  html.ybez-desktop-mini .mobile-side-panel.route-panel{
+    inset:0 28px !important;
+    width:auto !important;
+  }
+  html.ybez-desktop-mini .travel-calc-overlay{
+    padding-left:28px !important;
+    padding-right:28px !important;
+    box-sizing:border-box !important;
+  }
+  html.ybez-desktop-mini .travel-calc-sheet{
+    width:100% !important;
+  }
+
+  html.ybez-desktop-mini .m514-desktop-mini-arrows{
+    display:block !important;
+    position:fixed !important;
+    inset:0 !important;
+    pointer-events:none !important;
+    z-index:326 !important;
+  }
+  html.ybez-desktop-mini .m514-mini-edge-arrow{
+    position:fixed !important;
+    top:50% !important;
+    width:22px !important;
+    height:82px !important;
+    transform:translateY(-50%) !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:0 !important;
+    border:1px solid rgba(23,58,99,.15) !important;
+    border-radius:11px !important;
+    background:rgba(248,250,252,.88) !important;
+    color:#173A63 !important;
+    box-shadow:0 2px 10px rgba(23,58,99,.10) !important;
+    font-family:Arial,sans-serif !important;
+    font-size:25px !important;
+    font-weight:500 !important;
+    line-height:1 !important;
+    cursor:pointer !important;
+    pointer-events:auto !important;
+    opacity:.70 !important;
+    transition:opacity .18s ease, background .18s ease, border-color .18s ease !important;
+  }
+  html.ybez-desktop-mini .m514-mini-edge-arrow:hover{
+    opacity:1 !important;
+    background:#FFFFFF !important;
+    border-color:rgba(23,58,99,.32) !important;
+  }
+  html.ybez-desktop-mini .m514-mini-edge-arrow.left{left:3px !important;}
+  html.ybez-desktop-mini .m514-mini-edge-arrow.right{right:3px !important;}
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   M5.15 · Mobile special-transport inline lower-left placement
+   - 특수교통 안내를 결과카드 아래 새 행으로 만들지 않음
+   - 기존 편도/왕복 금액의 왼쪽 빈 공간에 나란히 배치
+   - 일반 경로 결과카드는 기존 구조 그대로
+   ═══════════════════════════════════════════════════════════════════ */
+@media(max-width:699px){
+  .m34-result-main.m515-has-special{
+    justify-content:center !important;
+  }
+
+  .m515-result-lower{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    align-items:end !important;
+    column-gap:8px !important;
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  .m34-result-card .m515-inline-special{
+    position:static !important;
+    display:flex !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    align-self:end !important;
+    transform:none !important;
+    inset:auto !important;
+  }
+  .m34-result-card .m515-inline-special .m510-special-transport-note{
+    position:static !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:5px 6px !important;
+    box-sizing:border-box !important;
+    border-radius:7px !important;
+    box-shadow:none !important;
+    overflow:hidden !important;
+  }
+  .m34-result-card .m515-inline-special .m510-special-route{
+    font-size:9.6px !important;
+    line-height:1.15 !important;
+    margin-bottom:2px !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  .m34-result-card .m515-inline-special .m510-ship-icon{
+    width:12px !important;
+    height:12px !important;
+    flex:0 0 12px !important;
+  }
+  .m34-result-card .m515-inline-special .m510-special-main{
+    font-size:9.5px !important;
+    line-height:1.18 !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+  }
+  .m34-result-card .m515-inline-special .m510-special-sub{
+    margin-top:2px !important;
+    font-size:8.8px !important;
+    line-height:1.18 !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+  }
+
+  .m515-result-lower > .m34-result-fares{
+    width:auto !important;
+    min-width:142px !important;
+    margin:0 !important;
+    align-self:end !important;
+  }
+  .m515-result-lower .m34-fare-row{
+    width:auto !important;
+    min-width:142px !important;
+  }
+}
+
+@media(max-width:380px){
+  .m515-result-lower{
+    column-gap:6px !important;
+  }
+  .m515-result-lower > .m34-result-fares,
+  .m515-result-lower .m34-fare-row{
+    min-width:136px !important;
+  }
+  .m34-result-card .m515-inline-special .m510-special-route{font-size:9.2px !important;}
+  .m34-result-card .m515-inline-special .m510-special-main{font-size:9px !important;}
+  .m34-result-card .m515-inline-special .m510-special-sub{font-size:8.4px !important;}
 }
 
 </style>
@@ -7124,6 +7465,11 @@ const App = () => {
         active: false, startX: 0, startY: 0, currentX: 0, currentY: 0,
         mode: "", axis: "", startedAt: 0
     });
+    // M5.14: 모바일은 잠깐 보이는 3-page indicator,
+    // Desktop 미니모드는 별도 좌/우 edge arrow를 사용한다.
+    const [mobilePagerHintVisible, setMobilePagerHintVisible] = useState(false);
+    const mobilePagerHintTimerRef = useRef(null);
+    const [isDesktopMini, setIsDesktopMini] = useState(false);
     const mobileAutoOpenedKeyRef = useRef("");
     const [intraCityOpen, setIntraCityOpen] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
@@ -7544,6 +7890,15 @@ const App = () => {
         setShowProof(false);
         setShowProofInfo(false);
     };
+    const revealMobilePagerHint = (duration = 1500) => {
+        if (typeof window === "undefined" || window.innerWidth > 699 || isDesktopMini) return;
+        if (mobilePagerHintTimerRef.current) clearTimeout(mobilePagerHintTimerRef.current);
+        setMobilePagerHintVisible(true);
+        mobilePagerHintTimerRef.current = setTimeout(() => {
+            setMobilePagerHintVisible(false);
+            mobilePagerHintTimerRef.current = null;
+        }, duration);
+    };
     const beginMobileNavTransition = () => {
         if (mobileNavTransitioningRef.current) return false;
         if (mobileNavTimerRef.current) {
@@ -7551,6 +7906,7 @@ const App = () => {
             mobileNavTimerRef.current = null;
         }
         mobileNavTransitioningRef.current = true;
+        revealMobilePagerHint(1500);
         return true;
     };
     const finishMobileNavTransition = (fn) => {
@@ -7690,7 +8046,10 @@ const App = () => {
                 swipe.active = false;
                 return;
             }
-            if (ax > ay * 1.12) swipe.axis = "horizontal";
+            if (ax > ay * 1.12) {
+                swipe.axis = "horizontal";
+                revealMobilePagerHint(1500);
+            }
         }
         if (swipe.axis === "horizontal" && e.cancelable) e.preventDefault();
     };
@@ -7741,6 +8100,45 @@ const App = () => {
             popupResolvedRef.current.destination = "";
         }
     }, [origin, dest]);
+    // M5.14: 실제 Desktop wrapper(pywebview)에서 폭이 699px 이하일 때만
+    // PC 미니 전용 class를 켠다. 일반 모바일 웹에는 절대 적용되지 않는다.
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const syncDesktopMini = () => {
+            const desktopApp = window.__YBEZ_DESKTOP_APP__ === true ||
+                !!window.pywebview ||
+                document.documentElement.getAttribute("data-ybez-desktop") === "1";
+            const mini = !!desktopApp && window.innerWidth <= 699;
+            setIsDesktopMini(mini);
+            document.documentElement.classList.toggle("ybez-desktop-mini", mini);
+        };
+        syncDesktopMini();
+        window.addEventListener("resize", syncDesktopMini);
+        window.addEventListener("pywebviewready", syncDesktopMini);
+        return () => {
+            window.removeEventListener("resize", syncDesktopMini);
+            window.removeEventListener("pywebviewready", syncDesktopMini);
+            document.documentElement.classList.remove("ybez-desktop-mini");
+        };
+    }, []);
+
+    // 모바일 웹에서는 최초 진입 때 위치 힌트를 잠깐 보여준다.
+    useEffect(() => {
+        if (typeof window === "undefined" || window.innerWidth > 699 || isDesktopMini) return;
+        if (mobilePagerHintTimerRef.current) clearTimeout(mobilePagerHintTimerRef.current);
+        setMobilePagerHintVisible(true);
+        mobilePagerHintTimerRef.current = setTimeout(() => {
+            setMobilePagerHintVisible(false);
+            mobilePagerHintTimerRef.current = null;
+        }, 2000);
+        return () => {
+            if (mobilePagerHintTimerRef.current) {
+                clearTimeout(mobilePagerHintTimerRef.current);
+                mobilePagerHintTimerRef.current = null;
+            }
+        };
+    }, [isDesktopMini]);
+
     /* R5-K5A: PC 즐겨찾기/히스토리 외부 클릭 닫기 */
     useEffect(() => {
         if (!showHist && !showFav) return;
@@ -14552,9 +14950,9 @@ const App = () => {
                 dr: routeLabel.replace(/\s*→\s*/g, "→"), routeLabel, mainRouteLabel: routeLabel, displayRouteLabel: routeLabel,
                 origin: rawFrom, dest: rawTo, userOrigin: rawFrom, userDest: rawTo, via: null,
                 areaRoute: true, areaSpecial: true, areaScore: 5, areaMethod: "제주 교통비 실비 입력",
-                areaDetail: "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.",
+                areaDetail: "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.",
                 needsManualFare: true, manualFareLabel: "실비 입력", manualOtherTransportOnly: true,
-                specialTransportNotice: "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.",
+                specialTransportNotice: "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.",
                 areaSegments: null, multiHop: null, islandLegs: [], islandRouteLabel: "", isShipOnlyRoute: false
             };
             applyCalcResult(manualRes);
@@ -17163,7 +17561,7 @@ const App = () => {
     }, [result]);
     const specialTransportStatusText = useMemo(() => {
         if (!result || result.partialRoute) return "";
-        if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 이동은 아직 자동 산정을 지원하지 않습니다. 실제 이용 운임을 확인하신 후 실비로 입력해 주세요.";
+        if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.";
         const legs = result.islandLegs || [];
         // R5-J5: 특수지역 출발 leg는 내부 route가 허브→세부지역으로 저장된 경우가 있으므로
         // 상태표시줄에서만 실제 이동방향(세부지역→허브)으로 보정한다. 계산 데이터는 변경하지 않는다.
@@ -17187,13 +17585,13 @@ const App = () => {
             const route = statusLegRoute(rural, "농어촌버스 구간");
             const one = Number(rural.fare || 0);
             const source = String(rural.source || "");
-            if (/완도군/.test(source) && one === 0) return `${route}는 완도군조례에 따라 무료로 책정합니다.`;
-            if (/신안군/.test(source) && one > 0) return `${route} 농어촌버스는 신안군 조례에 따라 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원을 교통비에 반영합니다.`;
+            if (/완도군/.test(source) && one === 0) return `${route}는 완도군 조례에 따라 농어촌·마을버스 요금이 전액 무료입니다.`;
+            if (/신안군/.test(source) && one > 0) return `${route} 신안군 조례에 따라 농어촌버스 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 교통비에 반영됩니다.`;
         }
         const local = legs.find(x => x.kind === "local" && (/신안교육청/.test(String(x.route || "")) || /목포 관내/.test(String(x.note || ""))));
         if (local) {
             const route = statusLegRoute(local, "목포→신안교육청");
-            return `${route} 구간은 목포 관내로 처리합니다.`;
+            return `${route} 구간은 목포 관내출장으로 처리합니다.`;
         }
         return "";
     }, [result]);
@@ -17629,6 +18027,26 @@ const App = () => {
         const summaryTitle = result
             ? (displayRouteLabel || `${displayCityName(nz(origin)) || nz(origin)} → ${displayCityName(nz(dest)) || nz(dest)}`)
             : "";
+        const hasSpecialTransportNotice = !!(result && mobileSpecialTransportNotices.length > 0);
+        const specialNoticeNode = hasSpecialTransportNotice
+            ? React.createElement("div", { className: "m510-special-transport-wrap m512-main-special-transport m515-inline-special" },
+                mobileSpecialTransportNotices.map((n, i) =>
+                    React.createElement("div", { className: `m510-special-transport-note ${n.type}`, key: `${n.route}-${i}` },
+                        React.createElement("div", { className: "m510-special-route" },
+                            React.createElement(M510ShipIcon, null),
+                            React.createElement("span", null, n.route)),
+                        React.createElement("div", { className: "m510-special-main" }, n.line1),
+                        React.createElement("div", { className: "m510-special-sub" }, n.line2))))
+            : null;
+
+        const fareNode = React.createElement("div", { className: "m34-result-fares" },
+            React.createElement("div", { className: "m34-fare-row primary" },
+                React.createElement("span", { className: "m34-fare-value" }, fare == null ? "수기확인" : `${fmt(fare)}원`),
+                React.createElement("span", { className: "m34-fare-pill" }, "편도")),
+            fare != null && React.createElement("div", { className: "m34-fare-row secondary" },
+                React.createElement("span", { className: "m34-fare-value" }, `${fmt(fare * 2)}원`),
+                React.createElement("span", { className: "m34-fare-pill muted" }, "왕복")));
+
         return React.createElement("div", { className: "mobile-result-card m34-mobile-result" },
             React.createElement("div", { className: "mobile-rc-card m34-result-card" },
                 !result
@@ -17636,15 +18054,15 @@ const App = () => {
                         "출발지와 도착지를",
                         React.createElement("br", null),
                         "입력하세요")
-                    : React.createElement("div", { className: "m34-result-main" },
+                    : React.createElement("div", {
+                            className: `m34-result-main ${hasSpecialTransportNotice ? "m515-has-special" : ""}`.trim()
+                        },
                         React.createElement("div", { className: "m34-result-route" }, summaryTitle),
-                        React.createElement("div", { className: "m34-result-fares" },
-                            React.createElement("div", { className: "m34-fare-row primary" },
-                                React.createElement("span", { className: "m34-fare-value" }, fare == null ? "수기확인" : `${fmt(fare)}원`),
-                                React.createElement("span", { className: "m34-fare-pill" }, "편도")),
-                            fare != null && React.createElement("div", { className: "m34-fare-row secondary" },
-                                React.createElement("span", { className: "m34-fare-value" }, `${fmt(fare * 2)}원`),
-                                React.createElement("span", { className: "m34-fare-pill muted" }, "왕복"))))),
+                        hasSpecialTransportNotice
+                            ? React.createElement("div", { className: "m515-result-lower" },
+                                specialNoticeNode,
+                                fareNode)
+                            : fareNode)),
             result && React.createElement("div", { className: "m51-main-proof-row" },
                 React.createElement("button", {
                     type: "button",
@@ -17659,6 +18077,7 @@ const App = () => {
                     React.createElement("span", null, "증빙"))),
             React.createElement(MobileReferenceTerminalChoices, null));
     });
+
     const CenterMascotCard = (() => {
         const activeName = nz(dest) || nz(origin);
         const dmn = activeName || (storyKeys.length ? storyKeys[storyIdx % storyKeys.length] : initialMascot);
@@ -17861,6 +18280,63 @@ const App = () => {
             React.createElement("rect", { x: "7.6", y: "5.4", width: "8.8", height: "3.2", rx: ".7" }),
             React.createElement("path", { d: "M8 12h.01M12 12h.01M16 12h.01M8 15.6h.01M12 15.6h.01M16 15.6h.01M8 19h4M16 19h.01" }));
     };
+    // M5.14: transition 중에는 incoming 화면을 현재 page로 표시한다.
+    const mobilePagerMode = mobileRouteMotion.includes("enter")
+        ? "route"
+        : mobileExpenseMotion.includes("enter")
+            ? "expense"
+            : mobileHomeMotion.includes("enter")
+                ? "home"
+                : mobileDetailOpen
+                    ? "route"
+                    : showDetail
+                        ? "expense"
+                        : "home";
+
+    const MobilePagerIndicator = () => {
+        if (isDesktopMini) return null;
+        const order = ["route", "home", "expense"];
+        return React.createElement("div", {
+                className: `m514-mobile-pager-dots ${mobilePagerHintVisible ? "visible" : ""}`,
+                "aria-hidden": "true"
+            },
+            order.map(mode => React.createElement("span", {
+                key: mode,
+                className: `m514-mobile-pager-dot ${mobilePagerMode === mode ? "active" : ""}`
+            })));
+    };
+
+    const DesktopMiniPagerArrows = () => {
+        if (!isDesktopMini || !result || modalSt.type || activeModal ||
+            showFav || showHist || showProof || showProofInfo || tripTypeHelpOpen) return null;
+
+        const goLeft = () => {
+            if (mobilePagerMode === "home") mobileHomeToRoute();
+            else if (mobilePagerMode === "route") mobileRouteToExpense();
+            else mobileExpenseToHome();
+        };
+        const goRight = () => {
+            if (mobilePagerMode === "home") mobileHomeToExpense();
+            else if (mobilePagerMode === "route") mobileRouteToHome();
+            else mobileExpenseToRoute();
+        };
+        return React.createElement("div", { className: "m514-desktop-mini-arrows" },
+            React.createElement("button", {
+                type: "button",
+                className: "m514-mini-edge-arrow left",
+                onClick: goLeft,
+                title: "왼쪽 화면",
+                "aria-label": "왼쪽 화면"
+            }, "‹"),
+            React.createElement("button", {
+                type: "button",
+                className: "m514-mini-edge-arrow right",
+                onClick: goRight,
+                title: "오른쪽 화면",
+                "aria-label": "오른쪽 화면"
+            }, "›"));
+    };
+
     const MobileContextNav = ({ mode }) => {
         const closePopups = () => {
             setShowFav(false);
@@ -18021,13 +18497,13 @@ const App = () => {
             ["선박승선권", "실비"]
         ];
         const proofDetails = [
-            ["주유영수증", `출장일에 ${proofDest} 소재 주유소에서 결제한 영수증을 확인합니다.`],
-            ["하이패스영수증", "출장일의 고속도로 통행영수증 또는 통행내역을 확인합니다."],
-            ["주차영수증", "출장일의 주차영수증을 확인합니다."],
-            ["버스승차권", "고속버스 또는 시외버스를 이용한 경우 승차권을 확인합니다."],
-            ["기차승차권", "철도를 이용한 경우 승차권을 확인합니다."],
-            ["항공권", "비행기를 이용한 경우 항공 이용을 확인할 수 있는 승차권을 확인합니다."],
-            ["선박승선권", "선박을 이용한 경우 승선권을 확인합니다."]
+            ["주유영수증", `출장 기간(전·후 이동일 포함) 내에 ${proofDest} 소재 주유소에서 결제하였는지 확인합니다.`],
+            ["하이패스영수증", `출장 기간(전·후 이동일 포함) 내에 ${proofDest}의 고속도로 통행영수증을 확인합니다.`],
+            ["주차영수증", `출장 기간(전·후 이동일 포함) 내에 ${proofDest}의 주차영수증을 확인합니다.`],
+            ["버스승차권", `출장 여정(이동일 포함) 중 ${proofDest}로 향하는 고속·시외버스 승차권을 확인합니다.`],
+            ["기차승차권", `출장 여정(이동일 포함) 중 ${proofDest} 노선의 철도 승차권을 확인합니다.`],
+            ["항공권", `출장 여정(이동일 포함) 중 ${proofDest} 노선의 비행기 항공권(탑승권 및 결제 영수증)을 확인합니다.`],
+            ["선박승선권", `출장 여정(이동일 포함) 중 ${proofDest} 노선의 선박 승선권을 확인합니다.`]
         ];
 
         /* 숙박이 실제 발생한 '밤'을 day number로 정리한다.
@@ -18139,7 +18615,7 @@ const App = () => {
 
     if (!loaded && !dataErr)
         return (React.createElement("div", { style: { minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 } },
-            React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 36, fontWeight: 900, color: "var(--blue)" } }, "YBEZ"),
+            React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 36, fontWeight: 900, color: "var(--blue)" } }, "여비이지"),
             React.createElement("div", { className: "dot-pulse flex gap-1.5" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
             React.createElement("p", { style: { fontSize: 12, color: "#AEAEB2", fontWeight: 700 } }, "\uB178\uC120 DB \uB85C\uB529 \uC911...")));
     if (dataErr)
@@ -18165,7 +18641,7 @@ const App = () => {
                 React.createElement("div", null,
                     React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 6 } },
                         React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 23, fontWeight: 900, color: "var(--blue)" } }, "여비이지 2nd")),
-                    React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@해남우수영초등학교")),
+                    React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
                 React.createElement("div", { className: "mode-wrap", onClick: () => { const next = !intraCityOpen; setIntraCityOpen(next); if (next)
                         setShowMap(false); } },
                     React.createElement("div", { className: `mode-knob ${intraCityOpen ? "intra" : "extra"}` }),
@@ -18210,13 +18686,10 @@ const App = () => {
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
                         "여비이지는 전남광주↔전국 구간을 지원하는 웹앱입니다.", React.createElement("br", null),
-                        "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요.")) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" }, partialRouteNoticeText)) : specialTransportStatusText ? (React.createElement("span", { className: "status-message access" }, specialTransportStatusText)) : accessNoticeText ? (React.createElement("span", { className: "status-message access" }, accessNoticeText)) : showGradeGuide ? (React.createElement("span", { className: "status-message grade" }, `${activeGradeSegmentLabel}은 시외일반·시외우등 요금이 각각 있습니다. 이용하실 등급을 선택해 주세요.`)) : !result && !nz(origin) && !nz(dest) ? (React.createElement("span", { className: "status-message intro" },
-                        "여비이지는 전남광주↔전국 구간을 지원하는 웹앱입니다. 출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요. 「전현우@해남우수영초」")) : React.createElement("span", { className: "status-message default" }, "피드백은 JNE메신저 또는 업무메일로 부탁드립니다. 「전현우@해남우수영초」"))),
+                        "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요.")) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" }, partialRouteNoticeText)) : specialTransportStatusText ? (React.createElement("span", { className: "status-message access" }, specialTransportStatusText)) : accessNoticeText ? (React.createElement("span", { className: "status-message access" }, accessNoticeText)) : showGradeGuide ? (React.createElement("span", { className: "status-message grade" }, `${activeGradeSegmentLabel} 시외일반·시외우등 중 이용하실 등급을 선택해 주세요.`)) : !result && !nz(origin) && !nz(dest) ? (React.createElement("span", { className: "status-message intro" },
+                        "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요.")) : React.createElement("span", { className: "status-message default" }, "피드백은 전남메신저 또는 업무메일로 부탁드립니다. 「전현우@우수영초등학교」"))),
             React.createElement("div", { className: "result-wrap" },
                 result && (React.createElement(React.Fragment, null,
-                    result.experimentalNationwide && (React.createElement("div", { style: { marginBottom: 12, padding: "12px 14px", borderRadius: 18, background: "#FFF7ED", border: "1px solid #FDBA74", boxShadow: "0 6px 18px rgba(251,146,60,.12)" } },
-                        React.createElement("div", { style: { fontWeight: 950, color: "#C2410C", fontSize: 13, marginBottom: 4 } }, "\u26A0\uFE0F \uC804\uAD6D-\uC804\uAD6D \uCC38\uACE0\uC6A9 \uACBD\uB85C\uC785\uB2C8\uB2E4."),
-                        React.createElement("div", { style: { fontWeight: 750, color: "#7C2D12", fontSize: 11, lineHeight: 1.45, wordBreak: "keep-all" } }, "여비이지는 전남광주 ↔ 전국 여비 산정에 최적화된 웹앱입니다. 이 결과는 검증되지 않은 참고용이며, 피드백 수집용입니다."))),
                     (() => {
                         const { depSubs = [], arrSubs = [], specialSubs = [] } = subResults || {};
                         // 경유지 검색 시에는 후보 선택을 단순화한다.
@@ -18275,7 +18748,7 @@ const App = () => {
                     React.createElement("span", { style: { fontSize: 12, color: "#6E6E73", textAlign: "center", marginTop: 4, lineHeight: 1.5 } },
                         "\uD574\uB2F9 \uAD6C\uAC04\uC758 \uC694\uAE08 \uB370\uC774\uD130\uAC00 \uC5C6\uAC70\uB098,",
                         React.createElement("br", null),
-                        "\uD130\uBBF8\uB110 \uC138\uBD84\uD654\uB85C \uC778\uD574 \uB178\uC120 \uC5F0\uACB0\uC774 \uB2E8\uC808\uB41C \uC0C1\uD0DC\uC785\uB2C8\uB2E4."))),
+                        "노선 연결이 단절된 상태입니다."))),
                 React.createElement("div", { className: "bottom-action-bar desktop-only" },
                     React.createElement("div", { className: "action-item", style: { position: "relative" }, onPointerDown: e => e.stopPropagation() },
                         React.createElement("button", { className: `action-btn fav-btn ${showFav ? "active" : ""}`, onClick: (e) => { e.stopPropagation(); setShowHist(false); setShowFav(v => !v); }, title: "즐겨찾기" },
@@ -18449,6 +18922,8 @@ const App = () => {
         MobileDetailSheet(),
         MobileProofSheet(),
         MobileQuickSheets(),
+        MobilePagerIndicator(),
+        DesktopMiniPagerArrows(),
         showDetail && (React.createElement("div", { className: `travel-calc-overlay ${mobileExpenseMotion}`.trim(), style: { position: "fixed", inset: 0, zIndex: 260, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end" }, onClick: closeTravelCalcOnMobile },
             React.createElement("div", {
                 className: "travel-calc-sheet m510-swipe-surface",
@@ -18518,19 +18993,19 @@ const App = () => {
                     React.createElement("button", { onClick: () => setTripTypeHelpOpen(false), style: { background: "none", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", fontSize: 21 } }, "✕")),
                 React.createElement("div", { className: "modal-body trip-help-modal-body" },
                     React.createElement("div", { className: "trip-help-title" }, "일반출장"),
-                    React.createElement("div", { className: "trip-help-text" }, "회의·협의·현장방문·점검 등 일반적인 업무를 수행하기 위한 출장입니다."),
+                    React.createElement("div", { className: "trip-help-text" }, "회의·협의·현장방문·점검 등 일반적인 업무를 수행하기 위한 출장, 별도의 조정 사유가 없는 한 여비(운임·일비·식비·숙박비)가 감액 없이 정상 지급됩니다."),
                     React.createElement("div", { className: "trip-help-example" }, "예) 업무협의, 회의 참석, 현장점검, 자료 제출·업무처리 등"),
                     React.createElement("div", { className: "trip-help-title" }, "연수출장"),
-                    React.createElement("div", { className: "trip-help-text" }, "교육훈련기관의 교육·연수 과정에 교육대상자로 참여하는 출장으로, 교육훈련여비 기준을 적용합니다."),
+                    React.createElement("div", { className: "trip-help-text" }, "교육훈련기관 입교를 목적으로 하는 출장으로, 실제 교육이 진행되는 중간 날짜(기타일)의 일비가 합숙 여부에 따라 차등 감액(합숙 시 지급 제외, 비합숙 시 5할 지급) 적용됩니다."),
                     React.createElement("div", { className: "trip-help-example" }, "예) 신규공무원교육, 승진자교육, 직무전문교육, 교육훈련기관 연수과정 등"),
                     React.createElement("div", { className: "trip-help-title" }, "현지숙박"),
-                    React.createElement("div", { className: "trip-help-text" }, "교육기관 등에서 숙소를 제공받지 않고 출장자가 출장지에서 직접 숙박하는 경우입니다."),
-                    React.createElement("div", { className: "trip-help-daily" }, "일비: 입교·수료일 100% · 중간 교육일 50%"),
+                    React.createElement("div", { className: "trip-help-text" }, "기관 등에서 숙소를 제공받지 않고 출장자가 출장지에서 직접 숙박하는 경우입니다."),
+                    React.createElement("div", { className: "trip-help-daily" }, "연수출장의 경우, 첫날 입교(등록) 절차와 마지막 날 수료 후 복귀 시에는 실제 이동 시간과 개별 행정 소요가 발생하므로 일비를 전액 인정합니다. 반면, 실제 교육만 이뤄지는 중간 교육일(기타일)에는 정액 일비의 5할(50%)만 지급하도록 규정되어 있습니다. "),
                     React.createElement("div", { className: "trip-help-example" }, "예) 출장지 호텔·모텔 등에서 본인이 숙박비를 지출하는 경우"),
                     React.createElement("div", { className: "trip-help-title" }, "합숙제공"),
-                    React.createElement("div", { className: "trip-help-text" }, "교육훈련 과정에서 교육기관 등이 숙소를 제공하는 경우입니다."),
+                    React.createElement("div", { className: "trip-help-text" }, "교육훈련 등 과정에서 기관 등이 숙소를 제공하는 경우입니다."),
                     React.createElement("div", { className: "trip-help-daily" }, "일비: 입교·수료일 100% · 중간 교육일 0%"),
-                    React.createElement("div", { className: "trip-help-example" }, "예) 연수원 기숙사, 교육기관 제공 숙소, 교육과정에 포함된 합숙시설 이용 등")))),
+                    React.createElement("div", { className: "trip-help-example" }, "연수출장의 경우, 입교일과 수료일은 교육기관으로 가고 오는 이동일이므로 일비를 전액 지급합니다. 그러나 중간 교육일(기타일)에는 원내에서 숙식이 모두 무상으로 제공되므로, 개인의 추가적인 일비(교통비성 정액 지출) 소요가 발생하지 않는다고 판단하여 일비를 전혀 지급하지 않습니다.")))),
         trainingGroupScheduleOpen && React.createElement("div", { className: "modal-bg", onClick: () => setTrainingGroupScheduleOpen(false) },
             React.createElement("div", { className: "modal-box training-schedule-modal", onClick: e => e.stopPropagation() },
                 React.createElement("div", { className: "modal-hdr" },
@@ -18538,7 +19013,7 @@ const App = () => {
                     React.createElement("button", { onClick: () => setTrainingGroupScheduleOpen(false), style: { background: "none", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", fontSize: 21 } }, "✕")),
                 React.createElement("div", { className: "modal-body training-schedule-body" },
                     React.createElement("div", { className: "training-schedule-lead" }, "교육·연수계획상 합숙이 적용된 교육일에 체크해 주세요."),
-                    React.createElement("div", { className: "training-schedule-sub" }, "입교/등록일과 수료일은 일비 100%로 고정됩니다. 교육일은 체크 시 합숙 기준(일비 0%), 미체크 시 비합숙 기준(일비 50%)으로 계산합니다. 교육·연수계획을 확인해 실제 합숙 적용일만 체크해 주세요."),
+                    React.createElement("div", { className: "training-schedule-sub" }, "연수출장 일비는 첫날(입교일)과 마지막 날(수료일)에는 100% 전액이 자동 지급되며, 중간 교육일은 실제 숙소를 이용하신 합숙일만 선택(체크)해 주시면 됩니다. 합숙일을 체크하면 일비가 지급 제외(0%) 처리되고, 미체크 시에는 비합숙(출퇴근 등) 기준이 적용되어 일비의 50%가 자동 계산되니 실제 연수 계획서 상의 합숙 일수만 정확히 확인하여 체크해 주시기 바랍니다."),
                     React.createElement("div", { className: "training-schedule-counter" }, `합숙제공 ${groupNights}박 · 교육일 합숙 적용 ${trainingGroupDraftDays.length}일`),
                     React.createElement("div", { className: "training-schedule-days" },
                         React.createElement("div", { className: "training-schedule-day training-day-locked" },
@@ -18586,7 +19061,7 @@ const App = () => {
             const maxMealCount = Math.max(3, tripDays * 3);
             const transportReasons = [
                 { id: "transport_gov_vehicle", label: "관용·임차차량으로 이동한 경우", sub: "관용차량 또는 기관에서 임차한 차량을 이용한 경우입니다." },
-                { id: "transport_proof", label: "자가용 증빙자료가 부족한 경우", sub: "자가용으로 실제 출장을 이행한 사실을 확인할 수 있는 자료가 충분하지 않은 경우입니다." },
+                { id: "transport_proof", label: "자가용 증빙자료가 부족한 경우", sub: "실제 출장을 이행한 사실을 확인할 수 있는 자료가 충분하지 않은 경우입니다." },
                 { id: "transport_passenger", label: "다른 차량에 동승한 경우", sub: "다른 출장자의 차량 등에 함께 타고 이동하여 본인이 별도 운임을 부담하지 않은 경우입니다." },
                 { id: "transport_institution_paid", label: "기관이 버스·철도·항공 운임을 직접 결제한 경우", sub: "기관에서 버스·철도·항공 등의 운임을 직접 결제하여 본인이 별도 부담하지 않은 경우입니다. 예) 기관 법인카드로 KTX·고속버스·항공권을 일괄 결제한 경우" }
             ];
@@ -18809,10 +19284,10 @@ const App = () => {
                                         React.createElement("span", null, "확인 자료")),
                                     React.createElement("div", { className: "ded-evidence-item", style: { marginTop: 0 } },
                                         React.createElement("div", { className: "ded-evidence-name" }, "관용차량"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, "출장·업무 계획서의 관용차 이용계획, 배차내역, 차량운행기록 등으로 실제 이용을 확인합니다.")),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "출장 기안문, 여비정산신청서, 공용차량배차신청내역, 차량운행일지 등으로 실제 이용을 확인하세요.")),
                                     React.createElement("div", { className: "ded-evidence-item" },
                                         React.createElement("div", { className: "ded-evidence-name" }, "임차차량"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, "지출품의, 임차버스·차량 용역계약, 행사·연수계획서의 임차차량 이용계획, 차량운행계획 등으로 실제 이용을 확인합니다.")),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "해당 출장의 지출품의, 전세버스임차용역 계약서(원인행위목록), 세금계산서 등으로 확인할수있습니다.")),
                                     React.createElement("div", { className: "ded-panel-heading legal" },
                                         DedInfoIcon("legal"),
                                         React.createElement("span", null, "법적 근거")),
@@ -18823,19 +19298,39 @@ const App = () => {
                                     React.createElement("span", { className: "ded-count-label ded-label-with-icon" },
                                         DedInfoIcon("meal"),
                                         React.createElement("span", null, "제공받은 식사")),
-                                    React.createElement("div", { className: "ded-count-control" },
+                                    React.createElement("div", { className: "ded-count-control m512-meal-stepper" },
+                                        React.createElement("button", {
+                                            type: "button",
+                                            className: "m512-inline-step-btn",
+                                            "aria-label": "제공받은 식사 1식 줄이기",
+                                            disabled: mealProvidedCount <= 0,
+                                            onClick: () => setDed(prev => ({
+                                                ...prev,
+                                                meal_provided_count: Math.max(0, Number(prev.meal_provided_count || 0) - 1)
+                                            }))
+                                        }, "−"),
                                         React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "ded-count-input", value: mealProvidedCount, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => {
                                                 const n = Number(onlyDigits(e.target.value) || 0);
                                                 setDed(prev => ({ ...prev, meal_provided_count: Math.min(Math.max(0, n), maxMealCount) }));
                                             }, "aria-label": "제공받은 식사 횟수" }),
-                                        React.createElement("span", { className: "trip-unit" }, "식"))),
+                                        React.createElement("span", { className: "trip-unit" }, "식"),
+                                        React.createElement("button", {
+                                            type: "button",
+                                            className: "m512-inline-step-btn",
+                                            "aria-label": "제공받은 식사 1식 늘리기",
+                                            disabled: mealProvidedCount >= maxMealCount,
+                                            onClick: () => setDed(prev => ({
+                                                ...prev,
+                                                meal_provided_count: Math.min(maxMealCount, Number(prev.meal_provided_count || 0) + 1)
+                                            }))
+                                        }, "+"))),
                                 mealProvidedCount > 0 && React.createElement("div", { className: "ded-meal-amount" }, `-${fmt(mealDeduction)}원`),
                                 React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, meal: !prev.meal })) }, dedAccordionOpen.meal ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
                                 dedAccordionOpen.meal && React.createElement("div", { className: "ded-accordion-panel" },
                                     React.createElement("div", { className: "ded-panel-heading evidence" },
                                         DedInfoIcon("evidence"),
                                         React.createElement("span", null, "확인 자료")),
-                                    React.createElement("div", { className: "ded-note-box", style: { marginTop: 0 } }, "교육·연수·행사 계획서, 안내문, 공문 등 식사 제공 여부를 확인할 수 있는 자료"),
+                                    React.createElement("div", { className: "ded-note-box", style: { marginTop: 0 } }, "외부 시행 공문과 내부 기안문에 식사 제공 내용이 있는지, 출장 관련 품의의 내역에 인솔교직원 식비가 일괄 품의 되었는지, 법인카드 사용내역 등을 대조하여 확인합니다."),
                                     React.createElement("div", { className: "ded-audit-box" },
                                         React.createElement("div", { className: "ded-info-heading" },
                                             DedInfoIcon("audit"),
@@ -18857,7 +19352,7 @@ const App = () => {
                                         React.createElement("span", null, "감사 유의")),
                                     React.createElement("div", { className: "ded-info-copy" },
                                         React.createElement("div", null, "기관이 이미 부담한 교통비를 출장자에게 중복 지급하거나,"),
-                                        React.createElement("div", null, "출장 이행을 확인하기 어려운 자료만으로 교통비를 지급하지 않도록 확인하세요."))),
+                                        React.createElement("div", null, "출장일, 출장지와 관련된 기록이 없어 출장의 이행을 확인할 수 없는 자료로는 교통비가 지급이 안됩니다."))),
                                 React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, transport: !prev.transport })) }, dedAccordionOpen.transport ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
                                 dedAccordionOpen.transport && React.createElement("div", { className: "ded-accordion-panel" },
                                     React.createElement("div", { className: "ded-panel-heading evidence" },
@@ -18865,11 +19360,11 @@ const App = () => {
                                         React.createElement("span", null, "확인 자료")),
                                     React.createElement("div", { className: "ded-evidence-item", style: { marginTop: 0 } },
                                         React.createElement("div", { className: "ded-evidence-name" }, "관용차량"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, "출장·업무 계획서의 관용차 이용계획, 배차내역, 차량운행기록 등으로 실제 이용을 확인합니다.")),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "출장 기안문, 여비정산신청서, 공용차량배차신청내역, 차량운행일지 등으로 실제 이용을 확인하세요.")),
                                     React.createElement("div", { className: "ded-evidence-item" },
                                         React.createElement("div", { className: "ded-evidence-name" }, "임차차량"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, "지출품의, 임차버스·차량 용역계약, 행사·연수계획서의 임차차량 이용계획, 차량운행계획 등으로 실제 이용을 확인합니다.")),
-                                    React.createElement("div", { className: "ded-evidence-principle transport-proof-principle" }, "출장지까지 자가용으로 실제 이동했다는 사실을 제3자가 보더라도 객관적으로 확인할 수 있는 자료여야 합니다."),
+                                        React.createElement("div", { className: "ded-evidence-text" }, "해당 출장의 지출품의, 전세버스임차용역 계약서(원인행위목록), 세금계산서 등으로 확인할수있습니다.")),
+                                    React.createElement("div", { className: "ded-evidence-principle transport-proof-principle" }, "출장일에 출장지까지 실제로 이동했다는 사실을 누가 보더라도 확인할 수 있는 객관적인 자료여야 합니다."),
                                     React.createElement("div", { className: "ded-destination transport-route-proof" }, `${originName} → ${destinationName} 출장의 실제 이동과 출장일의 관련성을 확인할 수 있어야 합니다.`),
                                     React.createElement("div", { className: "ded-evidence-item" },
                                         React.createElement("div", { className: "ded-evidence-name" }, "하이패스·고속도로 통행내역"),
@@ -18877,10 +19372,10 @@ const App = () => {
                                     React.createElement("div", { className: "ded-evidence-item" },
                                         React.createElement("div", { className: "ded-evidence-name" }, "주유영수증"),
                                         React.createElement("div", { className: "ded-evidence-text" }, `원칙적으로 출장일에 출장지인 ${destinationName} 소재 주유소에서 결제한 영수증을 확인합니다.`),
-                                        React.createElement("div", { className: "ded-evidence-text", style: { marginTop: 4 } }, "출장지 소재 증빙 확보가 곤란한 경우에는 이동경로·결제시간·주유소 위치 등으로 실제 출장 이동이 객관적으로 확인되는 자료를 다른 증빙과 함께 검토할 수 있습니다.")),
+                                        React.createElement("div", { className: "ded-evidence-text", style: { marginTop: 4 } }, "출장지 소재 증빙 확보가 곤란한 경우에는 이동경로·결제시간·주유소 위치 등으로 실제 출장 이동이 객관적으로 확인되는 자료와 다른 추가 증빙과 함께 검토합니다.")),
                                     React.createElement("div", { className: "ded-evidence-item" },
                                         React.createElement("div", { className: "ded-evidence-name" }, "주차영수증"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${destinationName} 소재 출장 수행장소 또는 주변 주차장에서 결제한 영수증`)),
+                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${destinationName} 출장 기관 또는 ${destinationName} 주차장에서 결제한 영수증`)),
                                     React.createElement("div", { className: "ded-note-box transport-alt-proof" },
                                         React.createElement("strong", null, "통상적인 증빙 확보가 곤란한 경우"),
                                         React.createElement("div", null, "출장일·이동시간·장소 등으로 출장지까지 실제 자가용으로 이동한 사실을 객관적으로 확인할 수 있는 다른 자료를 함께 검토할 수 있습니다."),
@@ -18932,14 +19427,15 @@ const App = () => {
                             React.createElement("button", { type: "button", className: `trip-choice-btn ${tripType === "training" ? "sel" : ""}`, onClick: () => handleTripTypeChange("training") }, "연수출장"),
                             React.createElement("div", { className: "trip-stay-option" },
                                 React.createElement("button", { type: "button", className: `trip-choice-btn ${lodgingSelected ? "check-sel" : ""}`, onClick: () => handleStayOptionToggle("lodging") }, `${lodgingSelected ? "☑" : "☐"} 현지숙박`),
-                                lodgingSelected && React.createElement("div", { className: "trip-mini-nights m511-night-stepper" },
+                                lodgingSelected && React.createElement("div", { className: "trip-mini-nights m511-night-stepper m513-night-stepper" },
                                     React.createElement("button", {
                                         type: "button", className: "m511-mini-step-btn", "aria-label": "현지숙박 1박 줄이기",
                                         disabled: lodgingNights <= 0,
                                         onClick: () => handleLodgingNightsChange(Math.max(0, lodgingNights - 1))
                                     }, "−"),
-                                    React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: lodgingNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleLodgingNightsChange(e.target.value), "aria-label": "현지숙박 박수" }),
-                                    React.createElement("span", { className: "trip-unit" }, "박"),
+                                    React.createElement("span", { className: "m513-night-value" },
+                                        React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: lodgingNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleLodgingNightsChange(e.target.value), "aria-label": "현지숙박 박수" }),
+                                        React.createElement("span", { className: "trip-unit" }, "박")),
                                     React.createElement("button", {
                                         type: "button", className: "m511-mini-step-btn", "aria-label": "현지숙박 1박 늘리기",
                                         disabled: lodgingNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0)),
@@ -18947,14 +19443,15 @@ const App = () => {
                                     }, "+"))),
                             React.createElement("div", { className: "trip-stay-option" },
                                 React.createElement("button", { type: "button", disabled: tripType !== "training", className: `trip-choice-btn ${tripType !== "training" ? "disabled" : ""} ${groupSelected ? "check-sel" : ""}`, onClick: () => handleStayOptionToggle("group") }, `${groupSelected ? "☑" : "☐"} 합숙제공`),
-                                groupSelected && tripType === "training" && React.createElement("div", { className: "trip-mini-nights m511-night-stepper" },
+                                groupSelected && tripType === "training" && React.createElement("div", { className: "trip-mini-nights m511-night-stepper m513-night-stepper" },
                                     React.createElement("button", {
                                         type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 줄이기",
                                         disabled: groupNights <= 0,
                                         onClick: () => handleGroupNightsChange(Math.max(0, groupNights - 1))
                                     }, "−"),
-                                    React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
-                                    React.createElement("span", { className: "trip-unit" }, "박"),
+                                    React.createElement("span", { className: "m513-night-value" },
+                                        React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
+                                        React.createElement("span", { className: "trip-unit" }, "박")),
                                     React.createElement("button", {
                                         type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 늘리기",
                                         disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)),
@@ -18972,7 +19469,7 @@ const App = () => {
                                         setTrainingGroupScheduleOpen(true);
                                     }
                                 }, trainingGroupScheduleComplete ? "✓ 합숙 적용일 지정 완료" : "필수 · 합숙 적용일 지정")))),
-                    trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "training-review-note" }, "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. YBEZ는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
+                    trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "training-review-note" }, "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. 여비이지는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
 
             React.createElement("div", { className: "expense-ledger" },
                 React.createElement("div", { className: "expense-item" },
@@ -18987,11 +19484,6 @@ const App = () => {
                         transportDisplayZero
                             ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text", style: { color: "#8B8F96" } }, "0", React.createElement("span", { className: "expense-result-unit" }, "원")))
                             : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * effectiveTransportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(0.5, effectiveTransportTripMultiplier)); }, "교통비")),
-                    mobileSpecialTransportNotices.length > 0 && React.createElement("div", { className: "m510-special-transport-wrap" },
-                        mobileSpecialTransportNotices.map((n, i) => React.createElement("div", { className: `m510-special-transport-note ${n.type}`, key: `${n.route}-${i}` },
-                            React.createElement("div", { className: "m510-special-route" }, React.createElement(M510ShipIcon, null), React.createElement("span", null, n.route)),
-                            React.createElement("div", { className: "m510-special-main" }, n.line1),
-                            React.createElement("div", { className: "m510-special-sub" }, n.line2)))),
                     !transportDeducted && generalMultiCalcActive && !lodgingSelected && generalPaidCommuteTrips > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${generalPaidCommuteTrips}회`),
                     !transportDeducted && trainingMultiCalcActive && effectiveTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${effectiveTransportTripMultiplier}회`),
                     vehicleDaysInput > 0 && !ded.transport_institution_paid && !ded.transport_proof && !ded.transport_passenger && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
@@ -19031,7 +19523,7 @@ const App = () => {
                     generalMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `25,000원 × ${tripDays}일`),
                     vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
                         trainingMultiCalcActive
-                            ? `관용차량 ${vehicleDaysInput}일 이용 · 연수 일비는 날짜별 최대 50%까지만 감액`
+                            ? `관용차량 ${vehicleDaysInput}일 이용, 연수출장의 일비는 날짜별 최대 50%까지만 감액`
                             : `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능`),
                     trainingCommuteNoStay && React.createElement("div", { className: "expense-note-row" },
                         React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
@@ -19041,8 +19533,8 @@ const App = () => {
                     trainingGroupOnly && !trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 기타 교육일 0%"),
                     trainingDailyMixedNeedsManual && React.createElement("div", { className: "expense-note-row training-mixed-daily-note" },
                         React.createElement("div", null, "입교·등록일과 수료일의 일비만 우선 반영되었습니다. 위의 ‘합숙 적용일 지정’을 완료하면 중간 교육일의 일비를 자동 계산합니다."),
-                        React.createElement("div", { className: "training-mixed-daily-rule" }, "입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0%")),
-                    trainingMixedScheduleRequired && trainingGroupScheduleComplete && React.createElement("div", { className: "expense-note-row right training-schedule-complete-note" }, `입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0% · 합숙 적용 ${trainingGroupAppliedDays.map(d => `${d}일차`).join(", ")}`),
+                        React.createElement("div", { className: "training-mixed-daily-rule" }, "연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0%")),
+                    trainingMixedScheduleRequired && trainingGroupScheduleComplete && React.createElement("div", { className: "expense-note-row right training-schedule-complete-note" }, `연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0% · 합숙 적용 ${trainingGroupAppliedDays.map(d => `${d}일차`).join(", ")}`),
                     trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "expense-note-row right" }, "합숙이 일부 날짜에 포함되어 날짜별 체재순서 확인 필요"),
                     dailyDeductionLabel && React.createElement("div", { className: "expense-note-row deduction" }, dailyDeductionLabel)),
 
@@ -19055,8 +19547,8 @@ const App = () => {
                             React.createElement("span", { className: "lodging-arrow" }, "→")),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount", style: { color: showLodging ? "#0F766E" : "#A0A4AA" } }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
                     showLodging && React.createElement("div", { className: "expense-note-row lodging-short-note" },
-                        React.createElement("div", null, "친지집 숙박은 정산신청 시 1박당 20,000원까지 가능"),
-                        React.createElement("div", null, "자기집 숙박은 0원"))),
+                        React.createElement("div", null, "친지집 숙박: 1박당 20,000원까지 지급 가능"),
+                        React.createElement("div", null, "자기집 숙박: 숙박비가 지급되지 않음"))),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
