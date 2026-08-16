@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>
+(function () {
+  try {
+    document.documentElement.classList.toggle(
+      "ybez-document-pip-supported",
+      "documentPictureInPicture" in window
+    );
+  } catch (_) {}
+})();
+</script>
 <!-- YBEZ PATCH 2R6B6: UI 1D preserved; post-route fare override only -->
 <title>여비이지</title>
 <link rel="icon" type="image/x-icon" href="./jonpro_icon.ico?v=m32">
@@ -13780,6 +13790,691 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   }
 }
 
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   D6-W1 · GitHub Document Picture-in-Picture MiniMode
+   W1 scope: open 520×900 PiP + move current React root + Compact render.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Document PiP 미지원 브라우저에서는 Dashboard의 미니모드 진입 버튼을 노출하지 않는다. */
+html:not(.ybez-document-pip-supported) .d22-mode-item{
+  display:none !important;
+}
+
+/* 원본 GitHub 탭의 비활성 대기 화면 */
+#ybez-pip-w1-standby{
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:#F5F7FA;
+  color:#173A63;
+  font-family:var(--pr);
+}
+#ybez-pip-w1-standby .ybez-pip-w1-standby-card{
+  width:min(360px,calc(100vw - 48px));
+  padding:28px 24px;
+  border:1px solid #D8E0E8;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 46px rgba(23,58,99,.10);
+  text-align:center;
+}
+#ybez-pip-w1-standby .ybez-pip-w1-standby-title{
+  font-family:var(--gm);
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+#ybez-pip-w1-standby .ybez-pip-w1-standby-text{
+  font-size:14px;
+  font-weight:850;
+}
+#ybez-pip-w1-standby .ybez-pip-w1-standby-sub{
+  margin-top:10px;
+  color:#7B8794;
+  font-size:10.5px;
+  font-weight:700;
+  line-height:1.5;
+}
+
+/* PiP document에서는 Compact가 viewport 전체를 정확히 사용하도록 보강 */
+html.ybez-desktop-mini.ybez-desktop-compact,
+html.ybez-desktop-mini.ybez-desktop-compact body,
+html.ybez-desktop-mini.ybez-desktop-compact #root{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  min-height:100dvh !important;
+  margin:0 !important;
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   D6-W2 · Mini width + PiP keyboard/return/exit
+   - Route panel 폭은 D5.3의 22px rail 기준 그대로 보호
+   - Main / Expense에 남아 있던 M5.14 28px 이중 padding만 제거
+   ═══════════════════════════════════════════════════════════════════ */
+@media(max-width:1499px){
+  html.ybez-desktop-mini.ybez-desktop-compact .dashboard.d51-mobile-shell{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+
+  html.ybez-desktop-mini.ybez-desktop-compact .travel-calc-overlay{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  html.ybez-desktop-mini.ybez-desktop-compact .travel-calc-sheet{
+    width:100% !important;
+    max-width:none !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+}
+
+#ybez-pip-w1-standby.d6-w2-exiting .ybez-pip-w1-standby-card{
+  border-color:#CBD6E1;
+}
+#ybez-pip-w1-standby.d6-w2-exiting .ybez-pip-w1-standby-text{
+  color:#173A63;
+  font-size:15px;
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   D6-W3 · Tablet PiP + unified mode menus
+   Tablet = Desktop 3-column Dashboard, slightly denser.
+   Mini/Tablet are Document PiP (always-on-top by browser).
+   Reset is intentionally absent until its new location is decided.
+   ═══════════════════════════════════════════════════════════════════ */
+
+html:not(.ybez-document-pip-supported) .d22-tablet-switch-item{
+  display:none !important;
+}
+
+/* DOM = Mini, Favorite, Tablet/Desktop, History, Proof */
+.d22-action-bar > .action-item:nth-child(1){order:1;}
+.d22-action-bar > .action-item:nth-child(2){order:3;}
+.d22-action-bar > .action-item:nth-child(3){order:2;}
+.d22-action-bar > .action-item:nth-child(4){order:4;}
+.d22-action-bar > .action-item:nth-child(5){order:5;}
+
+.m3-nav-item .m5-context-glyph{
+  width:20px !important;
+  height:20px !important;
+}
+.m3-nav-item .m5-context-glyph.m52-korea-icon{
+  object-fit:contain !important;
+}
+
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell{
+  display:grid !important;
+  grid-template-columns:3.1fr 4.4fr 2.5fr !important;
+  grid-template-rows:100dvh !important;
+  width:100% !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  overflow:hidden !important;
+  background:#F5F7FA !important;
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-left,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right{
+  display:flex !important;
+  min-width:0 !important;
+  height:100dvh !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-left{
+  border-right:1px solid #DCE3EB !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right{
+  border-left:1px solid #DCE3EB !important;
+}
+
+html.ybez-desktop-tablet .m514-desktop-mini-arrows,
+html.ybez-desktop-tablet .mobile-bottom-nav,
+html.ybez-desktop-tablet .mobile-side-panel.route-panel,
+html.ybez-desktop-tablet .travel-calc-overlay,
+html.ybez-desktop-tablet .m514-mobile-pager-dots{
+  display:none !important;
+}
+
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .sec-hdr{
+  padding:10px 13px 8px !important;
+  font-size:12px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .search-wrap{
+  padding:10px 12px 6px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center > div:first-child{
+  padding:10px 12px 8px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .pc-choice-mascot-grid{
+  margin:8px 12px 0 !important;
+  column-gap:10px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .bottom-action-bar.d22-action-bar{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:4px !important;
+  min-height:68px !important;
+  padding:6px 8px 7px !important;
+  margin-top:auto !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .d22-action-bar .d22-pc-only,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .d22-action-bar .d22-tablet-switch-item{
+  display:flex !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .d22-action-bar .action-btn{
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .d22-action-bar .menu-icon{
+  width:16px !important;
+  height:16px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell .d22-action-bar .action-label{
+  font-size:9px !important;
+}
+
+#ybez-pip-w1-standby.d6-w2-exiting .ybez-pip-w1-standby-sub{
+  display:none !important;
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   D6-W3.2 · Tablet virtual canvas
+   1305×900 = 1.45:1 / route 260 / main 650 / expense 395
+   Entire UI scales together to the actual PiP inner size.
+   ═══════════════════════════════════════════════════════════════════ */
+
+html.ybez-desktop-tablet,
+html.ybez-desktop-tablet body{
+  width:100% !important;height:100% !important;margin:0 !important;
+  overflow:hidden !important;background:#E9EEF4 !important;
+}
+html.ybez-desktop-tablet #root{
+  position:relative !important;width:100vw !important;height:100vh !important;
+  min-width:0 !important;min-height:0 !important;overflow:hidden !important;
+  background:#E9EEF4 !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell{
+  position:absolute !important;left:50% !important;top:50% !important;
+  width:1305px !important;height:900px !important;
+  min-width:1305px !important;min-height:900px !important;
+  max-width:none !important;max-height:none !important;
+  transform:translate(-50%,-50%) scale(var(--d6-w32-tablet-scale,.8)) !important;
+  transform-origin:center center !important;
+  display:grid !important;grid-template-columns:260px 650px 395px !important;
+  grid-template-rows:900px !important;overflow:hidden !important;
+  padding:0 !important;margin:0 !important;background:#F5F7FA !important;
+  border-radius:14px !important;box-shadow:0 16px 44px rgba(23,58,99,.14) !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-left,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right{
+  display:flex !important;min-width:0 !important;width:auto !important;
+  height:900px !important;min-height:900px !important;max-height:900px !important;
+  box-sizing:border-box !important;position:relative !important;
+  overflow:hidden !important;padding-bottom:68px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-left{
+  background:#EEF3F8 !important;border-right:1px solid #DCE3EB !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center{
+  background:#FFF !important;overflow-y:auto !important;overflow-x:hidden !important;
+  scrollbar-width:thin !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right{
+  background:#FFF !important;border-left:1px solid #DCE3EB !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .d6-w32-key-active{
+  box-shadow:inset 0 0 0 2px rgba(23,58,99,.13) !important;
+}
+
+/* Side panels reuse mobile-density grammar. */
+html.ybez-desktop-tablet .d6-w32-route-shell,
+html.ybez-desktop-tablet .d6-w32-expense-shell{
+  width:100% !important;height:100% !important;min-height:0 !important;
+  display:flex !important;flex-direction:column !important;overflow:hidden !important;
+}
+html.ybez-desktop-tablet .d6-w32-side-head{
+  flex:0 0 44px !important;height:44px !important;display:flex !important;
+  align-items:center !important;padding:0 14px !important;
+  border-bottom:1px solid #DCE3EB !important;background:rgba(255,255,255,.97) !important;
+  color:#173A63 !important;font-family:var(--gm) !important;font-size:15px !important;font-weight:900 !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body{
+  flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;overflow-x:hidden !important;
+  padding:8px !important;scrollbar-width:thin !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body .vertical-route-card{
+  margin:0 !important;width:100% !important;max-width:none !important;border-radius:13px !important;box-shadow:none !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-title{display:none !important;}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-main{padding:10px 9px !important;}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-node-name{font-size:12px !important;}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-node-sub,
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-meta,
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-detail-body{
+  font-size:9.3px !important;line-height:1.35 !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-edge{min-height:34px !important;}
+
+html.ybez-desktop-tablet .d6-w32-expense-body{
+  flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;overflow-x:hidden !important;
+  padding:8px 10px !important;scrollbar-width:thin !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-mobile-body{padding:0 !important;width:100% !important;}
+html.ybez-desktop-tablet .d6-w32-expense-mobile-body > .expense-total-row{display:none !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .detail-content,
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-ledger{padding-left:0 !important;padding-right:0 !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-condition-box{
+  margin:0 0 8px !important;padding:8px !important;border-radius:12px !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-item{padding:7px 3px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-result-label{font-size:11px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-result-amount,
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-value-text{font-size:16px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-note-row{font-size:8.8px !important;line-height:1.3 !important;}
+
+/* True fixed total: outside the scrolling body. */
+html.ybez-desktop-tablet .d6-w32-expense-total{
+  flex:0 0 58px !important;height:58px !important;display:flex !important;align-items:center !important;
+  justify-content:space-between !important;padding:0 15px !important;
+  border-top:1px solid #DCE3EB !important;background:#F8FAFC !important;
+  box-shadow:0 -4px 14px rgba(23,58,99,.08) !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-total-label{font-size:12px !important;font-weight:900 !important;color:#475569 !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-value{font-family:var(--gm) !important;font-size:22px !important;font-weight:900 !important;color:#173A63 !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-unit{font-size:10px !important;margin-left:3px !important;color:#64748B !important;}
+
+/* Center: narrower main + MobileSelectionPanel instead of the wide 12-slot board. */
+html.ybez-desktop-tablet .col-center > div:first-child{
+  position:sticky !important;top:0 !important;z-index:50 !important;padding:9px 12px 7px !important;
+}
+html.ybez-desktop-tablet .col-center > div:first-child span[style*="font-size: 23"]{font-size:19px !important;}
+html.ybez-desktop-tablet .search-wrap{padding:8px 12px 4px !important;gap:6px !important;}
+html.ybez-desktop-tablet .d2-route-input .input-box{height:40px !important;min-height:40px !important;}
+html.ybez-desktop-tablet .d2-route-marker-cell{min-height:42px !important;}
+
+html.ybez-desktop-tablet .d6-w32-tablet-choice-row{
+  display:grid !important;grid-template-columns:minmax(0,1fr) 112px !important;
+  gap:9px !important;align-items:stretch !important;min-height:112px !important;
+}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice{
+  min-width:0 !important;min-height:112px !important;display:flex !important;
+}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-selection-panel{
+  display:flex !important;width:100% !important;margin:0 !important;padding:0 !important;
+  gap:6px !important;flex-direction:column !important;
+}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-grade-choice,
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-wrap{margin:0 !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-choice-head{font-size:9px !important;min-height:18px !important;margin-bottom:3px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-grade-btn{min-height:36px !important;padding:5px 7px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-grade-name{font-size:10px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-grade-fare{font-size:12px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-grid{gap:5px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-card{min-height:36px !important;padding:5px 6px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-label{font-size:9px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-amount{font-size:12px !important;}
+
+/* Tablet-only mascot reduction. */
+html.ybez-desktop-tablet .d6-w32-tablet-choice-row > .pc-center-mascot-card{
+  width:112px !important;height:112px !important;min-width:112px !important;min-height:112px !important;
+  max-width:112px !important;max-height:112px !important;padding:3px !important;
+}
+html.ybez-desktop-tablet .d6-w32-tablet-choice-row .pc-center-mascot-stage,
+html.ybez-desktop-tablet .d6-w32-tablet-choice-row .mobile-rc-mascot-stage,
+html.ybez-desktop-tablet .d6-w32-tablet-choice-row .mobile-rc-mascot-img{
+  width:104px !important;height:104px !important;min-width:104px !important;min-height:104px !important;
+  max-width:104px !important;max-height:104px !important;
+}
+
+html.ybez-desktop-tablet .status-bar{margin:6px 12px 0 !important;min-height:32px !important;padding:6px 8px !important;}
+html.ybez-desktop-tablet .status-message-line{font-size:9.2px !important;}
+html.ybez-desktop-tablet .result-wrap{padding:7px 12px 10px !important;}
+html.ybez-desktop-tablet .fare-option-card.final-result-card{min-height:50px !important;padding:7px 9px !important;}
+
+/* Tablet's own footer is outside all three scroll areas. */
+html.ybez-desktop-tablet .d6-w32-tablet-footer{
+  position:absolute !important;left:0 !important;right:0 !important;bottom:0 !important;height:68px !important;
+  z-index:180 !important;display:grid !important;grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  align-items:center !important;gap:4px !important;padding:5px 16px 6px !important;box-sizing:border-box !important;
+  background:rgba(255,255,255,.985) !important;border-top:1px solid #DCE3EB !important;
+  box-shadow:0 -6px 18px rgba(23,58,99,.09) !important;
+}
+html.ybez-desktop-tablet .d6-w32-footer-btn{
+  height:55px !important;min-width:0 !important;border:0 !important;background:transparent !important;
+  border-radius:10px !important;display:flex !important;flex-direction:column !important;align-items:center !important;
+  justify-content:center !important;gap:3px !important;color:#64748B !important;cursor:pointer !important;
+}
+html.ybez-desktop-tablet .d6-w32-footer-btn:hover,
+html.ybez-desktop-tablet .d6-w32-footer-btn.active{background:#EEF3F8 !important;color:#173A63 !important;}
+html.ybez-desktop-tablet .d6-w32-footer-icon{
+  width:26px !important;height:26px !important;border:1px solid #CBD5E1 !important;border-radius:8px !important;
+  display:flex !important;align-items:center !important;justify-content:center !important;
+}
+html.ybez-desktop-tablet .d6-w32-footer-icon .m5-context-glyph{width:16px !important;height:16px !important;}
+html.ybez-desktop-tablet .d6-w32-footer-label{font-size:9px !important;font-weight:850 !important;white-space:nowrap !important;}
+
+/* Hide old Tablet/Desktop footer and Pager surfaces in Tablet only. */
+html.ybez-desktop-tablet .bottom-action-bar.d22-action-bar,
+html.ybez-desktop-tablet .m514-desktop-mini-arrows,
+html.ybez-desktop-tablet .mobile-bottom-nav,
+html.ybez-desktop-tablet .mobile-side-panel.route-panel,
+html.ybez-desktop-tablet .travel-calc-overlay,
+html.ybez-desktop-tablet .m514-mobile-pager-dots{display:none !important;}
+
+html.ybez-desktop-tablet .d6-w32-route-body::-webkit-scrollbar,
+html.ybez-desktop-tablet .d6-w32-expense-body::-webkit-scrollbar,
+html.ybez-desktop-tablet .col-center::-webkit-scrollbar{width:7px !important;}
+html.ybez-desktop-tablet .d6-w32-route-body::-webkit-scrollbar-thumb,
+html.ybez-desktop-tablet .d6-w32-expense-body::-webkit-scrollbar-thumb,
+html.ybez-desktop-tablet .col-center::-webkit-scrollbar-thumb{background:#CBD5E1 !important;border-radius:99px !important;}
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   D6-W3.3 · Tablet/Mini usability finish
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Tablet stays 1.45:1, but gives more room to expense and less to route. */
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell{grid-template-columns:235px 645px 425px !important;}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-left,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center,
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right{padding-bottom:0 !important;}
+
+/* Tablet menu follows Desktop: center-column action bar only. */
+html.ybez-desktop-tablet .col-center .bottom-action-bar.d22-action-bar{
+  display:grid !important;position:sticky !important;bottom:0 !important;z-index:150 !important;
+  width:100% !important;min-width:100% !important;max-width:100% !important;
+  margin:8px 0 0 !important;padding:6px 10px 7px !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:4px !important;
+  background:rgba(255,255,255,.985) !important;border-top:1px solid #DCE3EB !important;
+  border-radius:0 !important;box-shadow:0 -5px 16px rgba(23,58,99,.08) !important;
+}
+html.ybez-desktop-tablet .col-center .d22-action-bar .action-item,
+html.ybez-desktop-tablet .col-center .d22-action-bar .d22-pc-only,
+html.ybez-desktop-tablet .col-center .d22-action-bar .d22-tablet-switch-item{display:flex !important;}
+html.ybez-desktop-tablet .col-center .d22-action-bar .action-btn{width:38px !important;height:38px !important;min-width:38px !important;}
+html.ybez-desktop-tablet .col-center .d22-action-bar .menu-icon{width:18px !important;height:18px !important;}
+html.ybez-desktop-tablet .col-center .d22-action-bar .action-label{font-size:10.5px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-footer{display:none !important;}
+
+/* Tablet typography is deliberately larger now that the default PiP is bigger. */
+html.ybez-desktop-tablet .d6-w32-side-head{font-size:17px !important;height:48px !important;flex-basis:48px !important;}
+html.ybez-desktop-tablet .d6-w32-route-body{padding:8px 7px 12px !important;}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-node-name{font-size:13.8px !important;}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-node-sub,
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-meta,
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-detail-body{font-size:10.7px !important;line-height:1.42 !important;}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-fare{font-size:11.5px !important;}
+
+html.ybez-desktop-tablet .d6-w32-expense-body{padding:10px 12px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-main-label{font-size:15px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-days-input{font-size:17px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-choice-btn{font-size:15px !important;min-height:36px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-help-toggle{font-size:13px !important;height:30px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-result-label{font-size:14px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-result-amount,
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-value-text{font-size:19px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-result-unit,
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-money-unit{font-size:10.5px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-note-row{font-size:10.2px !important;line-height:1.4 !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .deduct-btn{font-size:11.5px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-body .lodging-main-row .expense-money-input.ledger-money-input{width:116px !important;min-width:116px !important;}
+
+/* Single Tablet total: hide DetailContent's copy and keep the outer fixed row. */
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-total-row{display:none !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total{flex-basis:64px !important;height:64px !important;padding:0 17px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-label{font-size:14px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-value{font-size:26px !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-unit{font-size:11px !important;}
+
+html.ybez-desktop-tablet .col-center > div:first-child span[style*="font-size: 23"]{font-size:21px !important;}
+html.ybez-desktop-tablet .status-message-line{font-size:11px !important;line-height:1.35 !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-choice-head{font-size:10.5px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-grade-name{font-size:11.5px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .mobile-grade-fare{font-size:14px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-label{font-size:10.5px !important;}
+html.ybez-desktop-tablet .d6-w32-tablet-mobile-choice .access-choice-amount{font-size:14px !important;}
+
+/* Mini / PC Compact: nav consumes real footer space instead of covering the last content. */
+@media(max-width:1499px){
+  html.ybez-desktop-compact .mobile-side-panel.route-panel,
+  html.ybez-desktop-compact .travel-calc-sheet{display:flex !important;flex-direction:column !important;overflow:hidden !important;}
+  html.ybez-desktop-compact .mobile-side-panel.route-panel .m5-context-nav,
+  html.ybez-desktop-compact .travel-calc-sheet .m5-context-nav{
+    position:relative !important;left:auto !important;right:auto !important;bottom:auto !important;
+    width:100% !important;min-width:100% !important;max-width:100% !important;
+    flex:0 0 calc(62px + env(safe-area-inset-bottom,0px)) !important;margin:0 !important;z-index:80 !important;
+  }
+  html.ybez-desktop-compact .route-panel-body{flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;padding-bottom:16px !important;scroll-padding-bottom:16px !important;}
+  html.ybez-desktop-compact .travel-calc-body{flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;padding-bottom:14px !important;}
+  html.ybez-desktop-compact .travel-calc-body .expense-total-row{display:none !important;}
+  html.ybez-desktop-compact .d6-w33-fixed-total{display:flex !important;}
+  html.ybez-desktop-compact .travel-calc-body .lodging-main-row .expense-money-input.ledger-money-input{width:98px !important;min-width:98px !important;}
+  html.ybez-desktop-compact .travel-calc-body .trip-setup{padding:6px 8px 5px !important;margin:0 0 4px !important;}
+  html.ybez-desktop-compact .travel-calc-body .trip-condition-box{margin:4px 0 0 !important;padding:5px 6px !important;}
+  html.ybez-desktop-compact .travel-calc-body .trip-condition-grid{gap:4px !important;}
+  html.ybez-desktop-compact .travel-calc-body .trip-choice-btn{min-height:34px !important;padding-top:4px !important;padding-bottom:4px !important;}
+  html.ybez-desktop-compact .travel-calc-body .trip-help-toggle{height:28px !important;margin-top:3px !important;}
+}
+
+@media(max-width:699px){
+  .travel-calc-sheet{display:flex !important;flex-direction:column !important;overflow:hidden !important;}
+  .travel-calc-sheet .travel-calc-body{flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;}
+  .travel-calc-sheet .travel-calc-body .expense-total-row{display:none !important;}
+  .travel-calc-sheet .d6-w33-fixed-total{display:flex !important;}
+  .travel-calc-body .lodging-main-row .expense-money-input.ledger-money-input{width:96px !important;min-width:96px !important;}
+}
+
+.d6-w33-fixed-total{
+  display:none;flex:0 0 58px;min-height:58px;align-items:center;justify-content:space-between;
+  padding:0 14px;box-sizing:border-box;border-top:1px solid #DCE3EB;background:#F8FAFC;
+  box-shadow:0 -4px 14px rgba(23,58,99,.09);z-index:85;
+}
+.d6-w33-fixed-total-label{font-size:13px;font-weight:900;color:#475569;}
+.d6-w33-fixed-total-value{font-family:var(--gm);font-size:22px;font-weight:900;color:#173A63;font-variant-numeric:tabular-nums;}
+.d6-w33-fixed-total-unit{font-size:10px;margin-left:3px;color:#64748B;font-weight:800;}
+
+/* Tablet popups share the same scaled virtual canvas instead of exploding to raw browser size. */
+html.ybez-desktop-tablet .modal-bg,
+html.ybez-desktop-tablet .m5-proof-backdrop,
+html.ybez-desktop-tablet .m5-proof-info-backdrop,
+html.ybez-desktop-tablet .mobile-quick-backdrop,
+html.ybez-desktop-tablet .d6-w33-tablet-overlay{
+  position:absolute !important;inset:auto !important;left:50% !important;top:50% !important;
+  width:1305px !important;height:900px !important;min-width:1305px !important;min-height:900px !important;
+  transform:translate(-50%,-50%) scale(var(--d6-w32-tablet-scale,.8)) !important;transform-origin:center center !important;box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .m5-proof-sheet,
+html.ybez-desktop-tablet .m5-proof-info-modal,
+html.ybez-desktop-tablet .mascot-choice-modal,
+html.ybez-desktop-tablet .trip-help-modal,
+html.ybez-desktop-tablet .training-schedule-modal{max-height:82% !important;}
+html.ybez-desktop-tablet .m5-proof-sheet{max-width:720px !important;}
+html.ybez-desktop-tablet .m5-proof-info-modal{max-width:720px !important;}
+html.ybez-desktop-tablet .mascot-choice-modal{max-width:760px !important;}
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   D6-W3.4 · Tablet balance + guaranteed menu + desktop fixed total
+   User-validated W3.3 Mini behavior is protected.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Tablet width rebalance:
+   expense +~10%, main -~30%, remainder goes to route.
+   385 + 450 + 470 = 1305, so the 1.45:1 virtual canvas is preserved. */
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell{
+  grid-template-columns:385px 450px 470px !important;
+}
+
+/* Tablet mascot is deliberately removed. The bundled mobile selector owns the full center width. */
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only{
+  width:100% !important;
+  min-width:0 !important;
+  padding:0 10px !important;
+  margin:6px 0 0 !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-selection-panel{
+  display:flex !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  flex-direction:column !important;
+  gap:5px !important;
+}
+
+/* Old desktop action bar is not relied on in Tablet.
+   A dedicated Desktop-style menu is pinned to the center column. */
+html.ybez-desktop-tablet .col-center .bottom-action-bar.d22-action-bar{
+  display:none !important;
+}
+html.ybez-desktop-tablet .d6-w32-tablet-footer{
+  display:grid !important;
+  position:absolute !important;
+  left:385px !important;
+  right:auto !important;
+  bottom:0 !important;
+  width:450px !important;
+  height:68px !important;
+  min-width:450px !important;
+  max-width:450px !important;
+  z-index:220 !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  align-items:center !important;
+  gap:2px !important;
+  padding:5px 8px 6px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  background:rgba(255,255,255,.99) !important;
+  border-top:1px solid #DCE3EB !important;
+  box-shadow:0 -5px 16px rgba(23,58,99,.08) !important;
+}
+html.ybez-desktop-tablet .d6-w32-footer-btn{
+  height:55px !important;
+}
+html.ybez-desktop-tablet .d6-w32-footer-icon{
+  width:28px !important;
+  height:28px !important;
+}
+html.ybez-desktop-tablet .d6-w32-footer-label{
+  font-size:10px !important;
+}
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center{
+  padding-bottom:68px !important;
+}
+
+/* Vertical interaction hint only; no horizontal Tablet paging. */
+html.ybez-desktop-tablet .d6-w34-scroll-active{
+  scrollbar-color:#9FB0C3 transparent !important;
+}
+
+/* Expense gets more breathing room; titles no longer hug the left edge. */
+html.ybez-desktop-tablet .d6-w32-expense-body{
+  padding:10px 14px 10px !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-label-cell{
+  padding-left:10px !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-main-row{
+  column-gap:6px !important;
+}
+
+/* 2-day trip options: use the left side and stop wasting vertical/center space. */
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-condition-box{
+  margin:5px 0 6px !important;
+  padding:7px 9px !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-condition-grid{
+  grid-template-columns:repeat(2,minmax(118px,145px)) !important;
+  justify-content:start !important;
+  align-items:start !important;
+  gap:5px 6px !important;
+  width:max-content !important;
+  max-width:100% !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-stay-option{
+  align-items:flex-start !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-help-wrap,
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-help-toggle-row{
+  justify-content:flex-start !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-body .trip-help-toggle{
+  margin-top:2px !important;
+}
+
+/* Tablet total remains a single fixed row at the bottom of its right panel. */
+html.ybez-desktop-tablet .d6-w32-expense-body .expense-total-row{
+  display:none !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-total{
+  flex:0 0 64px !important;
+  height:64px !important;
+}
+
+/* Full Desktop: make the right pane a scroll body + a separate fixed total.
+   This fixes the old "total only appears when scrolled to the bottom" behavior. */
+@media(min-width:1500px){
+  html:not(.ybez-desktop-tablet) .dashboard.d51-dashboard-shell > .col-right{
+    overflow:hidden !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  html:not(.ybez-desktop-tablet) .d6-w34-desktop-expense-shell{
+    width:100% !important;
+    height:100% !important;
+    min-height:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+  }
+  html:not(.ybez-desktop-tablet) .d6-w34-desktop-expense-scroll{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    scrollbar-width:thin !important;
+  }
+  html:not(.ybez-desktop-tablet) .d6-w34-desktop-expense-scroll .expense-total-row{
+    display:none !important;
+  }
+  html:not(.ybez-desktop-tablet) .d6-w34-desktop-expense-shell > .d6-w33-fixed-total{
+    display:flex !important;
+    flex:0 0 64px !important;
+    min-height:64px !important;
+    z-index:120 !important;
+  }
+}
+
+/* Keep W3.3 Mini/Compact footer and fixed-total behavior authoritative. */
+@media(max-width:1499px){
+  html.ybez-desktop-compact .d6-w34-desktop-expense-shell,
+  html.ybez-desktop-compact .d6-w34-desktop-expense-scroll{
+    display:contents !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -14819,7 +15514,8 @@ const App = () => {
     const [isDesktopCompact, setIsDesktopCompact] = useState(() =>
         typeof window !== "undefined" && isDesktopLikeEnvironment() && window.innerWidth < 1500
     );
-    const desktopPagerActive = isDesktopMini || isDesktopCompact;
+    const isDesktopTablet = desktopUiMode === "tablet";
+    const desktopPagerActive = isDesktopMini || (isDesktopCompact && !isDesktopTablet);
     const mobileAutoOpenedKeyRef = useRef("");
     const [intraCityOpen, setIntraCityOpen] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
@@ -15455,33 +16151,363 @@ const App = () => {
             popupResolvedRef.current.destination = "";
         }
     }, [origin, via, dest]);
-    // D3: 미니/대시보드 UI 모드는 React 상태가 우선이고,
-    // 아직 사용자가 모드를 고르지 않은 auto 상태에서는 M5.14의 pywebview 폭 감지를 유지한다.
+    // D6-W3: Desktop / Mini / Tablet을 하나의 React 상태로 관리한다.
     useEffect(() => {
         if (typeof window === "undefined") return;
-        const syncDesktopMini = () => {
+        const syncDesktopMode = () => {
             const desktopApp = window.__YBEZ_DESKTOP_APP__ === true ||
                 !!window.pywebview ||
                 document.documentElement.getAttribute("data-ybez-desktop") === "1";
             const autoMini = desktopUiMode === "auto" && !!desktopApp && window.innerWidth <= 699;
             const mini = desktopUiMode === "mini" || autoMini;
+            const tablet = desktopUiMode === "tablet";
             setIsDesktopMini(mini);
             document.documentElement.classList.toggle("ybez-desktop-mini", mini);
-            document.documentElement.setAttribute("data-ybez-ui-mode", mini ? "mini" : "dashboard");
+            document.documentElement.classList.toggle("ybez-desktop-tablet", tablet);
+            document.documentElement.setAttribute(
+                "data-ybez-ui-mode",
+                tablet ? "tablet" : (mini ? "mini" : "dashboard")
+            );
         };
-        syncDesktopMini();
-        window.addEventListener("resize", syncDesktopMini);
-        window.addEventListener("pywebviewready", syncDesktopMini);
+        syncDesktopMode();
+        window.addEventListener("resize", syncDesktopMode);
+        window.addEventListener("pywebviewready", syncDesktopMode);
         return () => {
-            window.removeEventListener("resize", syncDesktopMini);
-            window.removeEventListener("pywebviewready", syncDesktopMini);
+            window.removeEventListener("resize", syncDesktopMode);
+            window.removeEventListener("pywebviewready", syncDesktopMode);
             document.documentElement.classList.remove("ybez-desktop-mini");
+            document.documentElement.classList.remove("ybez-desktop-tablet");
             document.documentElement.removeAttribute("data-ybez-ui-mode");
         };
     }, [desktopUiMode]);
 
+    // D6-W3: Document Picture-in-Picture Mini + Tablet.
+    // 하나의 PiP Window / 하나의 React #root를 Mini ↔ Tablet ↔ Desktop 사이에서 재사용한다.
+    const savePiPExitSnapshotW3 = () => {
+        if (typeof window === "undefined") return false;
+        try {
+            try { localStorage.setItem("ybez_hist", JSON.stringify(history || [])); } catch (_) {}
+            try { localStorage.setItem("ybez_fav", JSON.stringify(favorites || [])); } catch (_) {}
+
+            const snapshot = {
+                version: "D6-W3",
+                savedAt: new Date().toISOString(),
+                mode: desktopUiMode,
+                search: {
+                    origin: origin || "",
+                    via: via || "",
+                    destination: dest || "",
+                    showVia: !!showVia
+                },
+                fare: { grade, accessSelection, accessSelections, selSub },
+                trip: {
+                    tripDays, tripType, ded,
+                    lodgingSelected, groupSelected,
+                    lodgingNights, groupNights,
+                    lodgingTotal, lodgingTotalInput,
+                    trainingDailyManual, trainingDailyManualInput,
+                    trainingGroupAppliedDays,
+                    shipFare, otherLodgingFare,
+                    manualTransport, accessExtraFare
+                },
+                page: mobilePagerMode,
+                result, subResults, calcSt
+            };
+
+            let encoded = JSON.stringify(snapshot);
+            if (encoded.length > 900000) {
+                delete snapshot.result;
+                delete snapshot.subResults;
+                delete snapshot.calcSt;
+                snapshot.compact = true;
+                encoded = JSON.stringify(snapshot);
+            }
+            localStorage.setItem("ybez_pip_exit_snapshot_D6W3", encoded);
+            localStorage.setItem("ybez_pip_exit_saved_at", snapshot.savedAt);
+            return true;
+        } catch (err) {
+            console.warn("[YBEZ D6-W3] PiP exit snapshot save failed:", err);
+            return false;
+        }
+    };
+
+    const showPiPExitStandbyW3 = () => {
+        if (typeof document === "undefined") return;
+        let standby = document.getElementById("ybez-pip-w1-standby");
+        if (!standby) {
+            standby = document.createElement("div");
+            standby.id = "ybez-pip-w1-standby";
+            document.body.appendChild(standby);
+        }
+        standby.classList.add("d6-w2-exiting");
+
+        const renderProgress = (msg) => {
+            standby.innerHTML =
+                '<div class="ybez-pip-w1-standby-card">' +
+                  '<div class="ybez-pip-w1-standby-title">여비이지</div>' +
+                  '<div class="ybez-pip-w1-standby-text">' + msg + '</div>' +
+                '</div>';
+        };
+
+        renderProgress("종료 중.");
+        window.setTimeout(() => renderProgress("종료 중.."), 320);
+        window.setTimeout(() => renderProgress("종료 중..."), 640);
+        window.setTimeout(() => {
+            standby.innerHTML =
+                '<div class="ybez-pip-w1-standby-card">' +
+                  '<div class="ybez-pip-w1-standby-title">여비이지가 종료되었습니다.</div>' +
+                '</div>';
+        }, 1050);
+    };
+
+    const D6_W32_TABLET_BASE_W = 1305;
+    const D6_W32_TABLET_BASE_H = 900;
+
+    const getTabletPiPSizeW34 = () => {
+        const ratio = D6_W32_TABLET_BASE_W / D6_W32_TABLET_BASE_H; // 1.45
+        const sw = Math.max(1280, Number((window.screen && window.screen.availWidth) || 1600));
+        const sh = Math.max(800, Number((window.screen && window.screen.availHeight) || 1000));
+        const maxW = Math.min(1500, Math.floor(sw * 0.92));
+        const maxH = Math.min(1035, Math.floor(sh * 0.90));
+
+        let width = maxW;
+        let height = Math.floor(width / ratio);
+        if (height > maxH) {
+            height = maxH;
+            width = Math.floor(height * ratio);
+        }
+
+        return {
+            width: Math.max(1160, width),
+            height: Math.max(800, height)
+        };
+    };
+
+    const detachTabletScaleW32 = (pipWindow) => {
+        if (!pipWindow) return;
+        try {
+            const fn = window.__YBEZ_PIP_W32_RESIZE__;
+            if (fn) pipWindow.removeEventListener("resize", fn);
+        } catch (_) {}
+        window.__YBEZ_PIP_W32_RESIZE__ = null;
+        try {
+            pipWindow.document.documentElement.style.removeProperty("--d6-w32-tablet-scale");
+        } catch (_) {}
+    };
+
+    const syncTabletScaleW32 = (pipWindow) => {
+        if (!pipWindow || pipWindow.closed) return;
+        const pipDoc = pipWindow.document;
+        const sync = () => {
+            const pad = 16;
+            const iw = Math.max(1, Number(pipWindow.innerWidth || 1));
+            const ih = Math.max(1, Number(pipWindow.innerHeight || 1));
+            const scale = Math.max(
+                0.1,
+                Math.min((iw - pad * 2) / D6_W32_TABLET_BASE_W, (ih - pad * 2) / D6_W32_TABLET_BASE_H)
+            );
+            pipDoc.documentElement.style.setProperty("--d6-w32-tablet-scale", String(scale));
+        };
+        detachTabletScaleW32(pipWindow);
+        window.__YBEZ_PIP_W32_RESIZE__ = sync;
+        pipWindow.addEventListener("resize", sync);
+        sync();
+    };
+
+    const restoreDocumentPiPToDesktopW3 = () => {
+        if (typeof window === "undefined") return false;
+        const pipWindow = window.__YBEZ_PIP_W3_WINDOW__;
+        if (!pipWindow || pipWindow.closed) return false;
+
+        window.__YBEZ_PIP_W3_RETURNING__ = true;
+        const root = pipWindow.document && pipWindow.document.getElementById("root");
+        const anchor = document.getElementById("ybez-pip-root-anchor-w3");
+
+        if (root) {
+            if (anchor && anchor.parentNode) {
+                anchor.parentNode.insertBefore(root, anchor.nextSibling);
+            } else {
+                document.body.insertBefore(root, document.body.firstChild);
+            }
+        }
+
+        const standby = document.getElementById("ybez-pip-w1-standby");
+        if (standby) standby.remove();
+
+        window.__YBEZ_PIP_W3_ACTIVE__ = false;
+        setMobileDetailOpen(false);
+        setShowDetail(false);
+        setMobileHomeMotion("");
+        setMobileRouteMotion("");
+        setMobileExpenseMotion("");
+        setDesktopUiMode("dashboard");
+
+        document.documentElement.classList.remove("ybez-desktop-mini");
+        document.documentElement.classList.remove("ybez-desktop-tablet");
+        document.documentElement.setAttribute("data-ybez-ui-mode", "dashboard");
+
+        detachTabletScaleW32(pipWindow);
+        try {
+            const exitHandler = window.__YBEZ_PIP_W3_PAGEHIDE__;
+            if (exitHandler) pipWindow.removeEventListener("pagehide", exitHandler);
+        } catch (_) {}
+        window.__YBEZ_PIP_W3_PAGEHIDE__ = null;
+        try { pipWindow.close(); } catch (_) {}
+        window.__YBEZ_PIP_W3_WINDOW__ = null;
+
+        window.setTimeout(() => {
+            window.__YBEZ_PIP_W3_RETURNING__ = false;
+            try {
+                window.focus();
+                window.dispatchEvent(new Event("resize"));
+            } catch (_) {}
+        }, 0);
+        return true;
+    };
+
+    const applyPiPModeW3 = (pipWindow, mode) => {
+        if (!pipWindow || pipWindow.closed) return false;
+        const nextMode = mode === "tablet" ? "tablet" : "mini";
+        const pipDoc = pipWindow.document;
+        const isTablet = nextMode === "tablet";
+
+        try {
+            pipDoc.documentElement.classList.add("ybez-desktop-like", "ybez-document-pip-supported");
+            pipDoc.documentElement.classList.toggle("ybez-desktop-mini", !isTablet);
+            pipDoc.documentElement.classList.toggle("ybez-desktop-compact", !isTablet);
+            pipDoc.documentElement.classList.toggle("ybez-desktop-tablet", isTablet);
+            pipDoc.documentElement.setAttribute("data-ybez-ui-mode", nextMode);
+            pipDoc.title = isTablet ? "여비이지 · 태블릿모드" : "여비이지 · 미니모드";
+        } catch (_) {}
+
+        if (isTablet) {
+            setMobileDetailOpen(false);
+            setShowDetail(false);
+            setMobileHomeMotion("");
+            setMobileRouteMotion("");
+            setMobileExpenseMotion("");
+        }
+
+        try {
+            const targetSizeW34 = isTablet ? getTabletPiPSizeW34() : { width: 520, height: 900 };
+            pipWindow.resizeTo(targetSizeW34.width, targetSizeW34.height);
+        } catch (err) {
+            console.warn("[YBEZ D6-W3] PiP resize was limited by browser:", err);
+        }
+
+        if (isTablet) {
+            window.setTimeout(() => syncTabletScaleW32(pipWindow), 0);
+        } else {
+            detachTabletScaleW32(pipWindow);
+        }
+
+        setDesktopUiMode(nextMode);
+        window.dispatchEvent(new CustomEvent("ybez:desktop-mode-request", {
+            detail: { mode: nextMode, via: "document-pip-w3" }
+        }));
+        try { pipWindow.focus(); } catch (_) {}
+        return true;
+    };
+
+    const openDocumentPiPW3 = async (initialMode = "mini") => {
+        if (typeof window === "undefined" || !("documentPictureInPicture" in window)) return false;
+
+        const nextMode = initialMode === "tablet" ? "tablet" : "mini";
+        const existing = window.__YBEZ_PIP_W3_WINDOW__;
+        if (existing && !existing.closed) {
+            return applyPiPModeW3(existing, nextMode);
+        }
+
+        let pipWindow;
+        try {
+            const requestSizeW34 = nextMode === "tablet" ? getTabletPiPSizeW34() : { width: 520, height: 900 };
+            pipWindow = await window.documentPictureInPicture.requestWindow({
+                width: requestSizeW34.width,
+                height: requestSizeW34.height
+            });
+        } catch (err) {
+            console.warn("[YBEZ D6-W3] Document PiP request failed:", err);
+            return false;
+        }
+
+        const pipDoc = pipWindow.document;
+        const root = document.getElementById("root");
+        if (!root) {
+            try { pipWindow.close(); } catch (_) {}
+            return false;
+        }
+
+        window.__YBEZ_PIP_W3_WINDOW__ = pipWindow;
+        window.__YBEZ_PIP_W3_ACTIVE__ = true;
+        window.__YBEZ_PIP_W3_RETURNING__ = false;
+
+        let anchor = document.getElementById("ybez-pip-root-anchor-w3");
+        if (!anchor) {
+            anchor = document.createElement("span");
+            anchor.id = "ybez-pip-root-anchor-w3";
+            anchor.hidden = true;
+            root.parentNode.insertBefore(anchor, root);
+        }
+
+        const base = pipDoc.createElement("base");
+        base.href = document.baseURI;
+        pipDoc.head.appendChild(base);
+
+        document.querySelectorAll('head style, head link[rel="stylesheet"]').forEach(node => {
+            try { pipDoc.head.appendChild(node.cloneNode(true)); } catch (_) {}
+        });
+        document.querySelectorAll('head link[rel*="icon"]').forEach(node => {
+            try { pipDoc.head.appendChild(node.cloneNode(true)); } catch (_) {}
+        });
+
+        const sourceHtmlClasses = Array.from(document.documentElement.classList)
+            .filter(c => !["ybez-desktop-mini", "ybez-desktop-compact", "ybez-desktop-tablet"].includes(c));
+        pipDoc.documentElement.className = sourceHtmlClasses.join(" ");
+        pipDoc.documentElement.style.width = "100%";
+        pipDoc.documentElement.style.height = "100%";
+        pipDoc.body.className = document.body.className || "";
+        pipDoc.body.style.margin = "0";
+        pipDoc.body.style.padding = "0";
+        pipDoc.body.style.width = "100%";
+        pipDoc.body.style.minHeight = "100dvh";
+        pipDoc.body.style.overflow = "hidden";
+        pipDoc.body.style.background = "#F5F7FA";
+
+        let standby = document.getElementById("ybez-pip-w1-standby");
+        if (!standby) {
+            standby = document.createElement("div");
+            standby.id = "ybez-pip-w1-standby";
+            standby.setAttribute("aria-live", "polite");
+            document.body.appendChild(standby);
+        }
+        standby.classList.remove("d6-w2-exiting");
+        standby.innerHTML =
+            '<div class="ybez-pip-w1-standby-card">' +
+              '<div class="ybez-pip-w1-standby-title">여비이지</div>' +
+              '<div class="ybez-pip-w1-standby-text">' +
+                (nextMode === "tablet" ? "태블릿모드 사용 중" : "미니모드 사용 중") +
+              '</div>' +
+            '</div>';
+
+        pipDoc.body.appendChild(root);
+
+        const onPiPPageHideW32 = () => {
+            if (window.__YBEZ_PIP_W3_RETURNING__) return;
+            savePiPExitSnapshotW3();
+            window.__YBEZ_PIP_W3_ACTIVE__ = false;
+            window.__YBEZ_PIP_W3_WINDOW__ = null;
+            showPiPExitStandbyW3();
+        };
+        window.__YBEZ_PIP_W3_PAGEHIDE__ = onPiPPageHideW32;
+        pipWindow.addEventListener("pagehide", onPiPPageHideW32, { once: true });
+
+        applyPiPModeW3(pipWindow, nextMode);
+        return true;
+    };
+
     const requestDesktopUiMode = (mode) => {
-        const nextMode = mode === "mini" ? "mini" : "dashboard";
+        const nextMode = mode === "tablet" ? "tablet" : (mode === "mini" ? "mini" : "dashboard");
+
         setShowFav(false);
         setShowHist(false);
         setShowProof(false);
@@ -15489,6 +16515,21 @@ const App = () => {
         setActiveModal(null);
         setTripTypeHelpOpen(false);
         setStayHelpOpen(false);
+
+        if ((nextMode === "mini" || nextMode === "tablet") &&
+            typeof window !== "undefined" &&
+            "documentPictureInPicture" in window) {
+            openDocumentPiPW3(nextMode);
+            return;
+        }
+
+        if (nextMode === "dashboard" &&
+            typeof window !== "undefined" &&
+            window.__YBEZ_PIP_W3_ACTIVE__) {
+            restoreDocumentPiPToDesktopW3();
+            return;
+        }
+
         if (nextMode === "dashboard") {
             setMobileDetailOpen(false);
             setShowDetail(false);
@@ -15512,7 +16553,10 @@ const App = () => {
             const compact = desktopLike && window.innerWidth < 1500;
             setIsDesktopCompact(compact);
             document.documentElement.classList.toggle("ybez-desktop-like", desktopLike);
-            document.documentElement.classList.toggle("ybez-desktop-compact", compact || desktopUiMode === "mini");
+            document.documentElement.classList.toggle(
+                "ybez-desktop-compact",
+                desktopUiMode === "mini" || (compact && desktopUiMode !== "tablet")
+            );
         };
         syncDesktopCompact();
         window.addEventListener("resize", syncDesktopCompact);
@@ -25532,13 +26576,13 @@ const App = () => {
                 React.createElement("button", {
                     type: "button",
                     className: "m51-main-proof-btn",
-                    onClick: () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(true); },
+                    onClick: () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); },
                     title: "받아야 할 증빙",
                     "aria-label": "받아야 할 증빙"
                 },
                     React.createElement("svg", { className: "m51-main-proof-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                        React.createElement("rect", { x: "4", y: "4", width: "16", height: "16", rx: "3" }),
-                        React.createElement("path", { d: "m8 12 2.4 2.4L16.5 8.5" })),
+                        React.createElement("path", { d: "M7 3h10v18l-2-1.6L13 21l-2-1.6L9 21l-2-1.6V3z" }),
+                        React.createElement("path", { d: "M9.5 8h5M9.5 12h5M9.5 16h3" })),
                     React.createElement("span", null, "증빙"))),
             React.createElement(MobileReferenceTerminalChoices, null));
     });
@@ -25727,10 +26771,15 @@ const App = () => {
         if (type === "dashboard") return React.createElement("svg", common,
             React.createElement("rect", { x: "3.5", y: "4.5", width: "17", height: "12.5", rx: "1.8" }),
             React.createElement("path", { d: "M9 20h6M12 17v3" }));
+        if (type === "mini") return React.createElement("svg", common,
+            React.createElement("rect", { x: "7", y: "2.5", width: "10", height: "19", rx: "2.2" }),
+            React.createElement("path", { d: "M10.5 5h3M11 18.8h2" }));
+        if (type === "tablet") return React.createElement("svg", common,
+            React.createElement("rect", { x: "3.2", y: "5", width: "17.6", height: "13.6", rx: "2.1" }),
+            React.createElement("path", { d: "M12 15.8h.01" }));
         if (type === "proof") return React.createElement("svg", common,
-            React.createElement("path", { d: "M7 3h7l4 4v14H7z" }),
-            React.createElement("path", { d: "M14 3v5h5" }),
-            React.createElement("path", { d: "M9.5 12h5M9.5 15.5h5" }));
+            React.createElement("path", { d: "M7 3h10v18l-2-1.6L13 21l-2-1.6L9 21l-2-1.6V3z" }),
+            React.createElement("path", { d: "M9.5 8h5M9.5 12h5M9.5 16h3" }));
         if (type === "history") return React.createElement("svg", common,
             React.createElement("circle", { cx: "12", cy: "12", r: "8.2" }),
             React.createElement("path", { d: "M12 7.2v5.1l3.35 1.9" }));
@@ -25779,9 +26828,33 @@ const App = () => {
             'input, textarea, select, [contenteditable="true"], [role="textbox"], [role="spinbutton"], [role="slider"]'
         );
     };
-    const desktopMiniFindScrollTarget = () => {
-        if (typeof document === "undefined") return null;
-        const selectors = [
+    const tabletScrollPanelsW34 = (targetDocument) => {
+        if (!targetDocument) return [];
+        return [
+            targetDocument.querySelector(".d6-w32-route-body"),
+            targetDocument.querySelector(".dashboard.d51-dashboard-shell > .col-center"),
+            targetDocument.querySelector(".d6-w32-expense-body")
+        ].filter(Boolean);
+    };
+
+    const markTabletScrollPanelW34 = (targetDocument, target) => {
+        const panels = tabletScrollPanelsW34(targetDocument);
+        panels.forEach(el => el.classList.toggle("d6-w34-scroll-active", el === target));
+        return target;
+    };
+
+    const activeTabletScrollPanelW34 = (targetDocument) => {
+        const panels = tabletScrollPanelsW34(targetDocument);
+        if (!panels.length) return null;
+        return panels.find(el => el.classList.contains("d6-w34-scroll-active")) ||
+            panels[2] || panels[1] || panels[0];
+    };
+
+    const desktopMiniFindScrollTarget = (targetDocument = document) => {
+        if (!targetDocument) return null;
+        const targetWindow = targetDocument.defaultView || window;
+
+        const modalSelectors = [
             ".modal-bg .modal-box .modal-body",
             ".modal-bg .modal-box",
             ".m5-proof-info-modal",
@@ -25792,58 +26865,139 @@ const App = () => {
             ".trip-help-modal",
             ".mascot-choice-modal",
             ".training-schedule-modal .modal-body",
-            ".training-schedule-modal",
-            mobilePagerMode === "expense" ? ".travel-calc-sheet" : "",
-            mobilePagerMode === "route" ? ".mobile-side-panel.route-panel .mobile-side-panel-body" : "",
-            mobilePagerMode === "route" ? ".mobile-side-panel.route-panel" : "",
-            mobilePagerMode === "home" ? ".dashboard.d51-mobile-shell > .col-center" : ""
-        ].filter(Boolean);
-        for (const sel of selectors) {
-            const nodes = Array.from(document.querySelectorAll(sel));
+            ".training-schedule-modal"
+        ];
+        for (const sel of modalSelectors) {
+            const nodes = Array.from(targetDocument.querySelectorAll(sel));
             const visible = nodes.find(el => {
-                const st = window.getComputedStyle(el);
+                const st = targetWindow.getComputedStyle(el);
                 const r = el.getBoundingClientRect();
                 return st.display !== "none" && st.visibility !== "hidden" &&
                     r.width > 0 && r.height > 0 && el.scrollHeight > el.clientHeight + 2;
             });
             if (visible) return visible;
         }
-        const root = document.scrollingElement || document.documentElement;
+
+        const selectors = [
+            mobilePagerMode === "expense" ? ".travel-calc-sheet" : "",
+            mobilePagerMode === "route" ? ".mobile-side-panel.route-panel .mobile-side-panel-body" : "",
+            mobilePagerMode === "route" ? ".mobile-side-panel.route-panel" : "",
+            mobilePagerMode === "home" ? ".dashboard.d51-mobile-shell > .col-center" : ""
+        ].filter(Boolean);
+
+        for (const sel of selectors) {
+            const nodes = Array.from(targetDocument.querySelectorAll(sel));
+            const visible = nodes.find(el => {
+                const st = targetWindow.getComputedStyle(el);
+                const r = el.getBoundingClientRect();
+                return st.display !== "none" && st.visibility !== "hidden" &&
+                    r.width > 0 && r.height > 0 && el.scrollHeight > el.clientHeight + 2;
+            });
+            if (visible) return visible;
+        }
+
+        const root = targetDocument.scrollingElement || targetDocument.documentElement;
         return root && root.scrollHeight > root.clientHeight + 2 ? root : null;
     };
+
     useEffect(() => {
-        if (!desktopPagerActive || typeof window === "undefined") return;
-        const onKeyDown = (e) => {
-            if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
-                !["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key) ||
-                desktopMiniArrowKeyBlocked(e.target)) {
+        if ((!desktopPagerActive && !isDesktopTablet) || typeof window === "undefined") return;
+
+        const keyDocuments = [document];
+        try {
+            const pipDoc = window.__YBEZ_PIP_W3_WINDOW__ &&
+                !window.__YBEZ_PIP_W3_WINDOW__.closed
+                ? window.__YBEZ_PIP_W3_WINDOW__.document
+                : null;
+            if (pipDoc && pipDoc !== document) keyDocuments.push(pipDoc);
+        } catch (_) {}
+
+        const cleanups = [];
+
+        keyDocuments.forEach(targetDocument => {
+            if (isDesktopTablet) {
+                const panels = tabletScrollPanelsW34(targetDocument);
+                const defaultPanel = panels[2] || panels[1] || panels[0];
+                if (defaultPanel) markTabletScrollPanelW34(targetDocument, defaultPanel);
+
+                panels.forEach(panel => {
+                    const activate = () => markTabletScrollPanelW34(targetDocument, panel);
+                    const wheel = (e) => {
+                        activate();
+                        if (panel.scrollHeight <= panel.clientHeight + 1) return;
+                        e.preventDefault();
+                        panel.scrollTop += e.deltaY;
+                    };
+                    panel.addEventListener("mouseenter", activate);
+                    panel.addEventListener("focusin", activate);
+                    panel.addEventListener("wheel", wheel, { passive: false });
+                    cleanups.push(() => {
+                        panel.removeEventListener("mouseenter", activate);
+                        panel.removeEventListener("focusin", activate);
+                        panel.removeEventListener("wheel", wheel);
+                    });
+                });
+
+                const tabletKey = (e) => {
+                    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+                        !["ArrowUp", "ArrowDown"].includes(e.key) ||
+                        desktopMiniArrowKeyBlocked(e.target)) {
+                        return;
+                    }
+                    if (modalSt.type || activeModal || showFav || showHist || showProof || showProofInfo || tripTypeHelpOpen)
+                        return;
+
+                    const target = activeTabletScrollPanelW34(targetDocument);
+                    if (!target || target.scrollHeight <= target.clientHeight + 1) return;
+                    e.preventDefault();
+                    target.scrollBy({
+                        top: e.key === "ArrowDown" ? 128 : -128,
+                        left: 0,
+                        behavior: "auto"
+                    });
+                };
+                targetDocument.addEventListener("keydown", tabletKey, true);
+                cleanups.push(() => targetDocument.removeEventListener("keydown", tabletKey, true));
                 return;
             }
 
-            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-                const scrollTarget = desktopMiniFindScrollTarget();
-                if (!scrollTarget) return;
+            const miniKey = (e) => {
+                const accepted = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+                if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+                    !accepted.includes(e.key) ||
+                    desktopMiniArrowKeyBlocked(e.target)) {
+                    return;
+                }
+
+                if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    const scrollTarget = desktopMiniFindScrollTarget(targetDocument);
+                    if (!scrollTarget) return;
+                    e.preventDefault();
+                    scrollTarget.scrollBy({
+                        top: e.key === "ArrowDown" ? 118 : -118,
+                        left: 0,
+                        behavior: "auto"
+                    });
+                    return;
+                }
+
+                if (modalSt.type || activeModal || showFav || showHist || showProof || showProofInfo || tripTypeHelpOpen)
+                    return;
                 e.preventDefault();
-                const delta = e.key === "ArrowDown" ? 118 : -118;
-                scrollTarget.scrollBy({ top: delta, left: 0, behavior: "auto" });
-                return;
-            }
+                if (e.key === "ArrowRight") desktopMiniGoRight();
+                else desktopMiniGoLeft();
+            };
+            targetDocument.addEventListener("keydown", miniKey, true);
+            cleanups.push(() => targetDocument.removeEventListener("keydown", miniKey, true));
+        });
 
-            // 좌우는 팝업/증빙/감액창이 열린 동안 뒤 화면을 넘기지 않는다.
-            if (modalSt.type || activeModal || showFav || showHist || showProof || showProofInfo || tripTypeHelpOpen)
-                return;
-
-            e.preventDefault();
-            if (e.key === "ArrowRight") desktopMiniGoRight();
-            else desktopMiniGoLeft();
-        };
-        // 캡처 단계에서 받아 route/expense sheet 내부에서도 방향키를 안정적으로 처리한다.
-        document.addEventListener("keydown", onKeyDown, true);
-        return () => document.removeEventListener("keydown", onKeyDown, true);
+        return () => cleanups.forEach(fn => {
+            try { fn(); } catch (_) {}
+        });
     }, [
-        desktopPagerActive, mobilePagerMode, result, modalSt.type, activeModal,
-        showFav, showHist, showProof, showProofInfo, tripTypeHelpOpen,
-        trainingGroupScheduleOpen
+        desktopPagerActive, isDesktopTablet, mobilePagerMode, result,
+        modalSt.type, activeModal, showFav, showHist, showProof, showProofInfo,
+        tripTypeHelpOpen, trainingGroupScheduleOpen, desktopUiMode
     ]);
 
     const MobilePagerIndicator = () => {
@@ -25889,35 +27043,49 @@ const App = () => {
         };
         const openFavorite = () => { setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(true); };
         const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
-        const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(true); };
+        const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
         const goHome = () => { closePopups(); if (mode === "route") mobileRouteToHome(); else mobileExpenseToHome(); };
         const goExpense = () => { if (!result) return; closePopups(); mobileRouteToExpense(); };
         const goRoute = () => { if (!result) return; closePopups(); mobileExpenseToRoute(); };
+
         const miniButtons = [
-            ["dashboard", "대시보드모드", () => requestDesktopUiMode("dashboard")],
+            ["tablet", "태블릿모드", () => requestDesktopUiMode("tablet")],
+            ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard")],
             ["favorite", "즐겨찾기", openFavorite],
-            ["reset", "리셋", resetToMainKeepOrigin],
             ["history", "히스토리", openHistory],
             ["proof", "증빙", openProof]
         ];
+        const compactButtons = [
+            ["mini", "미니모드", () => requestDesktopUiMode("mini")],
+            ["tablet", "태블릿모드", () => requestDesktopUiMode("tablet")],
+            ["favorite", "즐겨찾기", openFavorite],
+            ["history", "히스토리", openHistory],
+            ["proof", "증빙", openProof]
+        ];
+
         const buttons = isDesktopMini
             ? miniButtons
-            : mode === "route"
-                ? [
-                    ["expense", "여비계산", goExpense],
-                    ["favorite", "즐겨찾기", openFavorite],
-                    ["history", "히스토리", openHistory],
-                    ["proof", "증빙", openProof],
-                    ["home", "홈", goHome]
-                ]
-                : [
-                    ["home", "홈", goHome],
-                    ["proof", "증빙", openProof],
-                    ["history", "히스토리", openHistory],
-                    ["favorite", "즐겨찾기", openFavorite],
-                    ["route", "경로정보", goRoute]
-                ];
-        return React.createElement("nav", { className: `m5-context-nav ${mode === "route" ? "route-context-nav" : "expense-context-nav"} ${isDesktopMini ? "d3-mini-context-nav" : ""}`.trim() },
+            : isDesktopCompact
+                ? compactButtons
+                : mode === "route"
+                    ? [
+                        ["expense", "여비계산", goExpense],
+                        ["favorite", "즐겨찾기", openFavorite],
+                        ["history", "히스토리", openHistory],
+                        ["proof", "증빙", openProof],
+                        ["home", "홈", goHome]
+                    ]
+                    : [
+                        ["home", "홈", goHome],
+                        ["proof", "증빙", openProof],
+                        ["history", "히스토리", openHistory],
+                        ["favorite", "즐겨찾기", openFavorite],
+                        ["route", "경로정보", goRoute]
+                    ];
+
+        return React.createElement("nav", {
+                className: `m5-context-nav ${mode === "route" ? "route-context-nav" : "expense-context-nav"} ${isDesktopMini ? "d3-mini-context-nav" : ""}`.trim()
+            },
             buttons.map(([type, label, handler]) => React.createElement("button", {
                 key: `${mode}-${type}`,
                 type: "button",
@@ -25926,15 +27094,106 @@ const App = () => {
                 title: label
             },
                 React.createElement("span", { className: "m5-context-circle" },
-                    type === "reset"
-                        ? React.createElement("svg", { className: "m5-context-glyph", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                            React.createElement("path", { d: "M21 12a9 9 0 0 1-15.22 6.48L3 16" }),
-                            React.createElement("path", { d: "M3 21v-5h5" }),
-                            React.createElement("path", { d: "M3 12A9 9 0 0 1 18.22 5.52L21 8" }),
-                            React.createElement("path", { d: "M21 3v5h-5" }))
-                        : React.createElement(M5NavGlyph, { type })),
+                    React.createElement(M5NavGlyph, { type })),
                 React.createElement("span", { className: "m5-context-label" }, label))));
     };
+
+    const MobileHomeBottomNavW3 = () => {
+        const openFavorite = () => {
+            setMobileDetailOpen(false); setShowDetail(false);
+            setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(true);
+        };
+        const openHistory = () => {
+            setMobileDetailOpen(false); setShowDetail(false);
+            setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true);
+        };
+        const openProof = () => {
+            setMobileDetailOpen(false); setShowDetail(false);
+            setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false);
+        };
+
+        let buttons;
+        if (isDesktopMini) {
+            buttons = [
+                ["tablet", "태블릿모드", () => requestDesktopUiMode("tablet"), false],
+                ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard"), false],
+                ["favorite", "즐겨찾기", openFavorite, false],
+                ["history", "히스토리", openHistory, false],
+                ["proof", "증빙", openProof, false]
+            ];
+        } else if (isDesktopCompact) {
+            buttons = [
+                ["mini", "미니모드", () => requestDesktopUiMode("mini"), false],
+                ["tablet", "태블릿모드", () => requestDesktopUiMode("tablet"), false],
+                ["favorite", "즐겨찾기", openFavorite, false],
+                ["history", "히스토리", openHistory, false],
+                ["proof", "증빙", openProof, false]
+            ];
+        } else {
+            buttons = [
+                ["route", "경로정보", () => { if (result) mobileHomeToRoute(); }, !result],
+                ["favorite", "즐겨찾기", openFavorite, false],
+                ["history", "히스토리", openHistory, false],
+                ["proof", "증빙", openProof, false],
+                ["expense", "여비계산", () => { if (result) mobileHomeToExpense(); }, !result]
+            ];
+        }
+
+        return React.createElement("nav", { className: "mobile-bottom-nav m3-bottom-nav" },
+            buttons.map(([type, label, handler, disabled]) => React.createElement("button", {
+                key: `home-${type}`,
+                type: "button",
+                disabled,
+                className: `m3-nav-item ${type === "favorite" && showFav ? "active" : ""} ${type === "history" && showHist ? "active" : ""} ${type === "proof" && showProof ? "active" : ""}`,
+                onClick: handler,
+                title: label
+            },
+                React.createElement("span", { className: "m34-nav-circle" },
+                    React.createElement(M5NavGlyph, { type })),
+                React.createElement("span", { className: "m3-nav-label" }, label))));
+    };
+
+    const TabletRoutePanelW32 = () => React.createElement("div", { className: "d6-w32-route-shell" },
+        React.createElement("div", { className: "d6-w32-side-head" }, "경로정보"),
+        React.createElement("div", { className: "d6-w32-route-body" },
+            React.createElement(VerticalRouteTable, null)));
+
+    const TabletExpensePanelW32 = () => React.createElement("div", { className: "d6-w32-expense-shell" },
+        React.createElement("div", { className: "d6-w32-side-head" }, "여비계산"),
+        React.createElement("div", { className: "d6-w32-expense-body" },
+            React.createElement("div", { className: "travel-calc-body d6-w32-expense-mobile-body" }, DetailContent())),
+        React.createElement("div", { className: "d6-w32-expense-total" },
+            React.createElement("span", { className: "d6-w32-expense-total-label" }, result && result.partialRoute ? "현재 확인액" : "합계"),
+            React.createElement("span", { className: "d6-w32-expense-total-value" },
+                fmt(detailCost.total),
+                React.createElement("span", { className: "d6-w32-expense-total-unit" }, "원"))));
+
+    const TabletFooterW32 = () => {
+        const openFavorite = () => { setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(true); };
+        const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
+        const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
+        const buttons = [
+            ["mini", "미니모드", () => requestDesktopUiMode("mini")],
+            ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard")],
+            ["favorite", "즐겨찾기", openFavorite],
+            ["history", "히스토리", openHistory],
+            ["proof", "증빙", openProof]
+        ];
+        return React.createElement("nav", { className: "d6-w32-tablet-footer" },
+            buttons.map(([type, label, handler]) => React.createElement("button", {
+                type: "button", key: `tablet-${type}`,
+                className: `d6-w32-footer-btn ${type === "favorite" && showFav ? "active" : ""} ${type === "history" && showHist ? "active" : ""} ${type === "proof" && showProof ? "active" : ""}`,
+                onClick: handler, title: label
+            },
+                React.createElement("span", { className: "d6-w32-footer-icon" }, React.createElement(M5NavGlyph, { type })),
+                React.createElement("span", { className: "d6-w32-footer-label" }, label))));
+    };
+
+    const ExpenseFixedTotalW33 = () => React.createElement("div", { className: "d6-w33-fixed-total" },
+        React.createElement("span", { className: "d6-w33-fixed-total-label" }, result && result.partialRoute ? "현재 확인액" : "합계"),
+        React.createElement("span", { className: "d6-w33-fixed-total-value" },
+            fmt(detailCost.total),
+            React.createElement("span", { className: "d6-w33-fixed-total-unit" }, "원")));
 
     const MobileDetailSheet = () => {
         if (!mobileDetailOpen || (!result && !desktopPagerActive) || modalSt.type)
@@ -26147,8 +27406,8 @@ const App = () => {
                         React.createElement("div", null,
                             React.createElement("div", { className: "m5-proof-title m51-proof-title" },
                                 React.createElement("svg", { className: "m51-proof-title-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                                    React.createElement("rect", { x: "4", y: "4", width: "16", height: "16", rx: "3" }),
-                                    React.createElement("path", { d: "m8 12 2.4 2.4L16.5 8.5" })),
+                                    React.createElement("path", { d: "M7 3h10v18l-2-1.6L13 21l-2-1.6L9 21l-2-1.6V3z" }),
+                                    React.createElement("path", { d: "M9.5 8h5M9.5 12h5M9.5 16h3" })),
                                 React.createElement("span", null, "받아야 할 증빙")),
                             React.createElement("div", { className: "m5-proof-subtitle" }, proofSubtitle)),
                         React.createElement("button", { type: "button", className: "m5-proof-close", onClick: closeProof, "aria-label": "닫기" }, "×")),
@@ -26194,9 +27453,12 @@ const App = () => {
     /* ── 렌더 ── */
     return (React.createElement("div", { className: `dashboard ${desktopPagerActive ? "d51-mobile-shell" : "d51-dashboard-shell"}`.trim() },
         React.createElement("div", { className: "col-left", style: modalSt.type ? { visibility: "hidden" } : {} },
-            React.createElement("div", { className: "sec-hdr" },
-                React.createElement("span", null, "경로 정보")),
-            React.createElement(VerticalRouteTable, null)),
+            isDesktopTablet
+                ? TabletRoutePanelW32()
+                : React.createElement(React.Fragment, null,
+                    React.createElement("div", { className: "sec-hdr" },
+                        React.createElement("span", null, "경로 정보")),
+                    React.createElement(VerticalRouteTable, null))),
         React.createElement("div", {
             className: `col-center m510-swipe-surface ${mobileHomeMotion}`.trim(),
             onTouchStart: e => mobileSwipeStart(e, "home"),
@@ -26276,14 +27538,18 @@ const App = () => {
                             React.createElement("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.4", strokeLinecap: "round", strokeLinejoin: "round" },
                                 React.createElement("path", { d: "M8 4v15m0 0-4-4m4 4 4-4" }),
                                 React.createElement("path", { d: "M16 20V5m0 0-4 4m4-4 4 4" }))))),
-                React.createElement("div", { className: "pc-choice-mascot-grid" },
-                    React.createElement("div", { className: "pc-choice-stack" },
-                        React.createElement(CenterGradeChoice, null),
-                        React.createElement("div", { className: "pc-access-selection" },
-                            React.createElement(AccessCostDecisionCards, { compact: true }),
-                            React.createElement(SameLivingDecisionCards, { compact: true }))),
-                    React.createElement(CenterMascotCard, null)),
-                React.createElement(MobileSelectionPanel, null),
+                isDesktopTablet
+                    ? React.createElement("div", { className: "d6-w34-tablet-choice-only" },
+                        React.createElement(MobileSelectionPanel, null))
+                    : React.createElement(React.Fragment, null,
+                        React.createElement("div", { className: "pc-choice-mascot-grid" },
+                            React.createElement("div", { className: "pc-choice-stack" },
+                                React.createElement(CenterGradeChoice, null),
+                                React.createElement("div", { className: "pc-access-selection" },
+                                    React.createElement(AccessCostDecisionCards, { compact: true }),
+                                    React.createElement(SameLivingDecisionCards, { compact: true }))),
+                            React.createElement(CenterMascotCard, null)),
+                        React.createElement(MobileSelectionPanel, null)),
                 React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"} ${(calcSt === "error_scope" || (!result && !nz(origin) && !nz(dest)) || statusMessages.length > 0) ? "status-tall" : ""} ${(calcSt === "working" || calcSt === "error_scope" || !!partialRouteNoticeText || statusMessages.length > 0) ? "mobile-status-important" : ""}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
@@ -26355,12 +27621,12 @@ const App = () => {
                         React.createElement("button", {
                             type: "button",
                             className: "action-btn d22-mode-btn",
-                            "data-ybez-mode-target": isDesktopMini ? "dashboard" : "mini",
+                            "data-ybez-mode-target": "mini",
                             onClick: (e) => {
                                 e.stopPropagation();
-                                requestDesktopUiMode(isDesktopMini ? "dashboard" : "mini");
+                                requestDesktopUiMode("mini");
                             },
-                            title: isDesktopMini ? "대시보드모드" : "미니모드"
+                            title: "미니모드"
                         },
                             isDesktopMini
                                 ? React.createElement("svg", { className: "menu-icon d3-dashboard-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
@@ -26385,18 +27651,24 @@ const App = () => {
                                 : favorites.slice(0, 10).map((h, i) => React.createElement("div", { key: `${h.from}|${h.to}|${i}`, className: "hist-item", onClick: () => { setOrigin(h.from); setDest(h.to); setShowFav(false); setShowMap(true); performCalc(h.from, h.to); } },
                                     React.createElement("span", { className: "fav-route", title: `${h.from} → ${h.to}` }, h.from, " ", React.createElement("span", { style: { color: "#C7C7CC" } }, "→"), " ", h.to),
                                     React.createElement("button", { type: "button", className: "fav-delete", title: "즐겨찾기 삭제", "aria-label": `${h.from}에서 ${h.to} 즐겨찾기 삭제`, onClick: (e) => { e.stopPropagation(); removeFavorite(i); } }, "×"))))),
-                    React.createElement("div", { className: "action-item d22-reset-item" },
-                        React.createElement("button", { className: "action-btn reset-btn", onClick: resetToMainKeepOrigin, title: "리셋 · 출발지 유지" },
-                            React.createElement("svg", { className: "menu-icon d22-tablet-home-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                                React.createElement("path", { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
-                                React.createElement("polyline", { points: "9 22 9 12 15 12 15 22" })),
-                            React.createElement("svg", { className: "menu-icon d22-pc-reset-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                                React.createElement("path", { d: "M20 6v5h-5" }),
-                                React.createElement("path", { d: "M4 18v-5h5" }),
-                                React.createElement("path", { d: "M6.1 9A7 7 0 0 1 17.4 6.4L20 11" }),
-                                React.createElement("path", { d: "M17.9 15A7 7 0 0 1 6.6 17.6L4 13" }))),
-                        React.createElement("span", { className: "action-label d22-tablet-home-label" }, "홈"),
-                        React.createElement("span", { className: "action-label d22-pc-reset-label" }, "리셋")),
+                    React.createElement("div", { className: "action-item d22-tablet-switch-item" },
+                        React.createElement("button", {
+                            type: "button",
+                            className: "action-btn d22-tablet-switch-btn",
+                            onClick: (e) => {
+                                e.stopPropagation();
+                                requestDesktopUiMode(isDesktopTablet ? "dashboard" : "tablet");
+                            },
+                            title: isDesktopTablet ? "데스크톱" : "태블릿모드"
+                        },
+                            isDesktopTablet
+                                ? React.createElement("svg", { className: "menu-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
+                                    React.createElement("rect", { x: "3.5", y: "4.5", width: "17", height: "12.5", rx: "1.8" }),
+                                    React.createElement("path", { d: "M9 20h6M12 17v3" }))
+                                : React.createElement("svg", { className: "menu-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
+                                    React.createElement("rect", { x: "3.2", y: "5", width: "17.6", height: "13.6", rx: "2.1" }),
+                                    React.createElement("path", { d: "M12 15.8h.01" }))),
+                        React.createElement("span", { className: "action-label" }, isDesktopTablet ? "데스크톱" : "태블릿모드")),
                     React.createElement("div", { className: "action-item", style: { position: "relative" }, onPointerDown: e => e.stopPropagation() },
                         React.createElement("button", { className: `action-btn hist-btn ${showHist ? "active" : ""}`, onClick: (e) => { e.stopPropagation(); setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(v => !v); }, title: "히스토리" },
                             React.createElement("svg", { className: "menu-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" },
@@ -26420,128 +27692,22 @@ const App = () => {
                                 setShowFav(false);
                                 setShowHist(false);
                                 setShowProof(true);
-                                setShowProofInfo(true);
+                                setShowProofInfo(false);
                             },
                             title: "받아야 할 증빙"
                         },
                             React.createElement("svg", { className: "menu-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                                React.createElement("rect", { x: "4", y: "4", width: "16", height: "16", rx: "3" }),
-                                React.createElement("path", { d: "m8 12 2.4 2.4L16.5 8.5" }))),
+                                React.createElement("path", { d: "M7 3h10v18l-2-1.6L13 21l-2-1.6L9 21l-2-1.6V3z" }),
+                                React.createElement("path", { d: "M9.5 8h5M9.5 12h5M9.5 16h3" }))),
                         React.createElement("span", { className: "action-label" }, "증빙")))),
             React.createElement(MobileResultCard, null),
-            React.createElement("nav", { className: "mobile-bottom-nav m3-bottom-nav" },
-                isDesktopMini
-                    ? React.createElement("button", {
-                        type: "button",
-                        className: "m3-nav-item d3-mini-mode-item",
-                        onClick: () => requestDesktopUiMode("dashboard"),
-                        title: "대시보드모드"
-                    },
-                        React.createElement("span", { className: "m34-nav-circle" },
-                            React.createElement(M5NavGlyph, { type: "dashboard" })),
-                        React.createElement("span", { className: "m3-nav-label d3-mini-mode-label" }, "대시보드모드"))
-                    : React.createElement("button", {
-                        type: "button",
-                        className: `m3-nav-item ${mobileDetailOpen ? "active" : ""}`,
-                        disabled: !result,
-                        onClick: () => {
-                            if (!result) return;
-                            mobileHomeToRoute();
-                        },
-                        title: "경로정보"
-                    },
-                        React.createElement("span", { className: "m34-nav-circle" },
-                            React.createElement("img", {
-                                className: "m34-nav-glyph m34-korea-icon",
-                                src: M53_KOREA_FILLED_ICON,
-                                alt: "",
-                                "aria-hidden": "true",
-                                draggable: false
-                            })),
-                        React.createElement("span", { className: "m3-nav-label" }, "경로정보")),
-                React.createElement("button", {
-                    type: "button",
-                    className: `m3-nav-item ${showFav ? "active" : ""}`,
-                    onClick: () => {
-                        setMobileDetailOpen(false);
-                        setShowDetail(false);
-                        setShowHist(false);
-                        setShowFav(true);
-                    },
-                    title: "즐겨찾기"
-                },
-                    React.createElement("span", { className: "m34-nav-circle" },
-                        React.createElement("svg", { className: "m34-nav-glyph m34-star-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.15", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                            React.createElement("path", { d: "M12 3.1l2.65 5.37 5.93.86-4.29 4.18 1.01 5.9L12 16.62 6.7 19.41l1.01-5.9-4.29-4.18 5.93-.86L12 3.1z" }))),
-                    React.createElement("span", { className: "m3-nav-label" }, "즐겨찾기")),
-                React.createElement("button", {
-                    type: "button",
-                    className: "m3-nav-item m3-reset-item",
-                    onClick: resetToMainKeepOrigin,
-                    title: "출발지 유지 리셋"
-                },
-                    React.createElement("span", { className: "m34-nav-circle m34-reset-circle" },
-                        React.createElement("svg", {
-                            className: "m34-nav-glyph m59-reset-icon",
-                            viewBox: "0 0 24 24",
-                            fill: "none",
-                            stroke: "currentColor",
-                            strokeWidth: "1.9",
-                            strokeLinecap: "round",
-                            strokeLinejoin: "round",
-                            "aria-hidden": "true"
-                        },
-                            React.createElement("path", { d: "M21 12a9 9 0 0 1-15.22 6.48L3 16" }),
-                            React.createElement("path", { d: "M3 21v-5h5" }),
-                            React.createElement("path", { d: "M3 12A9 9 0 0 1 18.22 5.52L21 8" }),
-                            React.createElement("path", { d: "M21 3v5h-5" }))),
-                    React.createElement("span", { className: "m3-nav-label" }, "리셋")),
-                React.createElement("button", {
-                    type: "button",
-                    className: `m3-nav-item ${showHist ? "active" : ""}`,
-                    onClick: () => {
-                        setMobileDetailOpen(false);
-                        setShowDetail(false);
-                        setShowFav(false);
-                        setShowHist(true);
-                    },
-                    title: "히스토리"
-                },
-                    React.createElement("span", { className: "m34-nav-circle" },
-                        React.createElement("svg", { className: "m34-nav-glyph m34-clock-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.15", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
-                            React.createElement("circle", { cx: "12", cy: "12", r: "8.2" }),
-                            React.createElement("path", { d: "M12 7.2v5.1l3.35 1.9" }))),
-                    React.createElement("span", { className: "m3-nav-label" }, "히스토리")),
-                isDesktopMini
-                    ? React.createElement("button", {
-                        type: "button",
-                        className: `m3-nav-item ${showProof ? "active" : ""}`,
-                        onClick: () => {
-                            setShowFav(false);
-                            setShowHist(false);
-                            setShowProof(true);
-                            setShowProofInfo(true);
-                        },
-                        title: "증빙"
-                    },
-                        React.createElement("span", { className: "m34-nav-circle" },
-                            React.createElement(M5NavGlyph, { type: "proof" })),
-                        React.createElement("span", { className: "m3-nav-label" }, "증빙"))
-                    : React.createElement("button", {
-                        type: "button",
-                        className: `m3-nav-item m3-expense-item ${showDetail ? "active" : ""}`,
-                        disabled: !result,
-                        onClick: () => {
-                            if (!result) return;
-                            mobileHomeToExpense();
-                        },
-                        title: "여비계산"
-                    },
-                        React.createElement("span", { className: "m34-nav-circle" },
-                            React.createElement("span", { className: "m58-main-calc-match" },
-                                React.createElement(M5NavGlyph, { type: "expense" }))),
-                        React.createElement("span", { className: "m3-nav-label" }, "여비계산")))),
+            React.createElement(MobileHomeBottomNavW3, null)),
         React.createElement("div", { className: "col-right" },
+            isDesktopTablet
+                ? TabletExpensePanelW32()
+                : React.createElement("div", { className: "d6-w34-desktop-expense-shell" },
+                    React.createElement("div", { className: "d6-w34-desktop-expense-scroll" },
+                        React.createElement(React.Fragment, null,
             React.createElement("div", { className: "sec-hdr d5-side-grade-header" }, "\uC77C\uBC18/\uC6B0\uB4F1 \uC120\uD0DD"),
             React.createElement("div", { className: "d5-side-grade-body", style: { padding: "12px 14px", borderBottom: "1px solid var(--sep)" } }, result && hasGradeChoice ? (React.createElement(React.Fragment, null,
                 React.createElement("div", { style: { marginBottom: 6, fontSize: 10, fontWeight: 850, color: "#8E8E93", textAlign: "center" } }, activeGradeSegmentLabel),
@@ -26567,8 +27733,10 @@ const App = () => {
                 "\uBA3C\uC800 \uC870\uD68C\uD558\uC138\uC694")))),
             React.createElement("div", { className: "sec-hdr" }, "\uD83E\uDDFE \uC5EC\uBE44\uACC4\uC0B0"),
             DetailContent(),
-            " "),
-        intraCityOpen && (React.createElement("div", { style: { position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }, onClick: () => { setIntraCityOpen(false); setShowMap(true); } },
+            " ")),
+                    React.createElement(ExpenseFixedTotalW33, null))),
+        isDesktopTablet && React.createElement(TabletFooterW32, null),
+        intraCityOpen && (React.createElement("div", { className: "d6-w33-tablet-overlay", style: { position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }, onClick: () => { setIntraCityOpen(false); setShowMap(true); } },
             React.createElement("div", { style: { background: "linear-gradient(180deg,#FFFFFF,#FAFAFA)", boxShadow: "0 25px 50px rgba(0,0,0,0.25)", borderRadius: 28, width: "100%", maxWidth: 360, overflow: "hidden" }, onClick: e => e.stopPropagation() },
                 React.createElement("div", { style: { padding: 20 } },
                     React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 } },
@@ -26609,6 +27777,7 @@ const App = () => {
                 React.createElement("div", { className: "travel-calc-body", style: { padding: "14px 20px 24px" } },
                     DetailContent(),
                     " "),
+                ExpenseFixedTotalW33(),
                 React.createElement(MobileContextNav, { mode: "expense" })))),
         modalSt.type && (() => {
             var _a, _b, _c, _d;
@@ -26648,7 +27817,7 @@ const App = () => {
                 const nextDest = (!isOri && !isVia) ? name : dest;
                 setTimeout(() => performCalc(nextOrigin, nextDest, nextVia), 0);
             };
-            return (React.createElement("div", { style: { position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 14, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(6px)" }, onClick: closePopup },
+            return (React.createElement("div", { className: "d6-w33-tablet-overlay", style: { position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 14, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(6px)" }, onClick: closePopup },
                 React.createElement("div", { className: "mascot-choice-modal", onClick: e => e.stopPropagation() },
                     React.createElement("div", { className: "mascot-choice-header" },
                         React.createElement("div", { className: "mascot-choice-title" },
