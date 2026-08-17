@@ -16915,17 +16915,15 @@ html[data-ybez-ui-mode="tablet"] .col-center .d22-action-bar .action-label{font-
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .bottom-action-bar.d22-action-bar > .d22-proof-item{order:5 !important;}
 }
 
-/* Tablet은 메인 1열. 경로정보/여비계산은 sheet로 호출한다. */
+/* D6-W3.6B18C: Tablet은 메인교통비 60% + 여비계산 40% 2열 상시표시. 경로정보만 sheet로 호출한다. */
 html.ybez-desktop-tablet .dashboard.d51-dashboard-shell,
 html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell{
   display:grid !important;
-  grid-template-columns:minmax(0,1fr) !important;
+  grid-template-columns:60% 40% !important;
   grid-template-rows:minmax(0,1fr) !important;
 }
 html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-left,
-html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right,
-html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-left,
-html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-right{display:none !important;}
+html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-left{display:none !important;}
 html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-center,
 html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-center{
   display:block !important;
@@ -16937,18 +16935,65 @@ html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-center{
   overflow-y:auto !important;
   overflow-x:hidden !important;
 }
+html.ybez-desktop-tablet .dashboard.d51-dashboard-shell > .col-right,
+html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-right{
+  display:flex !important;
+  flex-direction:column !important;
+  grid-column:2 !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  padding-bottom:0 !important;
+  overflow:hidden !important;
+  border-left:1px solid #DCE3EB !important;
+  background:#FFFFFF !important;
+}
 html.ybez-desktop-tablet .col-center .bottom-action-bar.d22-action-bar,
 html[data-ybez-ui-mode="tablet"] .col-center .bottom-action-bar.d22-action-bar{display:none !important;}
 html.ybez-desktop-tablet .d6-w32-tablet-footer,
 html[data-ybez-ui-mode="tablet"] .d6-w32-tablet-footer{
   display:grid !important;
   position:absolute !important;
-  left:0 !important;right:0 !important;bottom:0 !important;
-  width:100% !important;min-width:100% !important;max-width:100% !important;
+  left:0 !important;right:auto !important;bottom:0 !important;
+  width:60% !important;min-width:60% !important;max-width:60% !important;
   height:68px !important;
   grid-template-columns:repeat(5,minmax(0,1fr)) !important;
   z-index:240 !important;
 }
+
+/* D6-W3.6B18C: Tablet 여비계산 패널(TabletExpensePanelW32) 기본 골격.
+   기존 class 스코프(html.ybez-desktop-tablet)에만 있던 구조를 PiP(attribute 스코프)에도 동일하게 부여한다.
+   B14/15/16에서 안정화된 내부 폰트/여백 변수 규칙은 그대로 유지하고 건드리지 않는다. */
+html[data-ybez-ui-mode="tablet"] .d6-w32-expense-shell{
+  width:100% !important;height:100% !important;min-height:0 !important;
+  display:flex !important;flex-direction:column !important;overflow:hidden !important;
+}
+html[data-ybez-ui-mode="tablet"] .d6-w32-side-head{
+  flex:0 0 44px !important;height:44px !important;display:flex !important;
+  align-items:center !important;padding:0 14px !important;
+  border-bottom:1px solid #DCE3EB !important;background:rgba(255,255,255,.97) !important;
+  color:#173A63 !important;font-family:var(--gm) !important;font-weight:900 !important;
+}
+html[data-ybez-ui-mode="tablet"] .d6-w32-expense-body{
+  flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;overflow-x:hidden !important;
+  padding:8px 10px !important;
+}
+
+/* D6-W3.6B18C: Tablet 하단 메뉴바(왼쪽 60%)와 여비계산 합계바(오른쪽 40%)를 68px로 동일하게 맞추고
+   합계바는 Calm Navy 배경 + 흰색 '합계' + 흰색 Bold 금액으로 통일한다. */
+html.ybez-desktop-tablet .d6-w32-expense-total,
+html[data-ybez-ui-mode="tablet"] .d6-w32-expense-total{
+  flex:0 0 68px !important;height:68px !important;display:flex !important;align-items:center !important;
+  justify-content:space-between !important;padding:0 16px !important;
+  border-top:0 !important;background:#173A63 !important;
+  box-shadow:0 -4px 14px rgba(15,35,58,.14) !important;
+}
+html.ybez-desktop-tablet .d6-w32-expense-total-label,
+html[data-ybez-ui-mode="tablet"] .d6-w32-expense-total-label{color:#FFFFFF !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-value,
+html[data-ybez-ui-mode="tablet"] .d6-w32-expense-total-value{color:#FFFFFF !important;}
+html.ybez-desktop-tablet .d6-w32-expense-total-unit,
+html[data-ybez-ui-mode="tablet"] .d6-w32-expense-total-unit{color:#FFFFFF !important;}
 
 /* 메인 교통비 아래 경로정보 진입 버튼: Tablet/Mini/Compact 공통. */
 .d6-b17-route-open-btn{
@@ -19397,13 +19442,12 @@ html[data-ybez-ui-mode="tablet"] .col-center .d22-action-bar .action-btn{width:v
 html[data-ybez-ui-mode="tablet"] .col-center .d22-action-bar .menu-icon{width:var(--d6-b16-footer-icon) !important;height:var(--d6-b16-footer-icon) !important;}
 html[data-ybez-ui-mode="tablet"] .col-center .d22-action-bar .action-label{font-size:var(--d6-b16-footer-label) !important;}
 
-/* D6-W3.6B17 runtime finish: Tablet main-only + common bottom sheets. */
-html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell{display:grid !important;grid-template-columns:minmax(0,1fr) !important;grid-template-rows:minmax(0,1fr) !important;}
-html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-left,
-html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-right{display:none !important;}
+/* D6-W3.6B18C runtime finish: Tablet 60:40 2열 + common bottom sheets(경로정보 전용). */
+html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell{display:grid !important;grid-template-columns:60% 40% !important;grid-template-rows:minmax(0,1fr) !important;}
+html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-left{display:none !important;}
 html[data-ybez-ui-mode="tablet"] .dashboard.d51-dashboard-shell > .col-center{display:block !important;grid-column:1 !important;width:100% !important;min-width:0 !important;max-width:none !important;padding-bottom:68px !important;overflow-y:auto !important;overflow-x:hidden !important;}
 html[data-ybez-ui-mode="tablet"] .col-center .bottom-action-bar.d22-action-bar{display:none !important;}
-html[data-ybez-ui-mode="tablet"] .d6-w32-tablet-footer{display:grid !important;left:0 !important;right:0 !important;bottom:0 !important;width:100% !important;min-width:100% !important;max-width:100% !important;grid-template-columns:repeat(5,minmax(0,1fr)) !important;z-index:240 !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w32-tablet-footer{display:grid !important;left:0 !important;right:auto !important;bottom:0 !important;width:60% !important;min-width:60% !important;max-width:60% !important;grid-template-columns:repeat(5,minmax(0,1fr)) !important;z-index:240 !important;}
 html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{display:flex !important;}
 html[data-ybez-ui-mode="tablet"] .d6-b17-sheet-backdrop{display:flex !important;position:fixed !important;inset:0 !important;z-index:360 !important;align-items:flex-end !important;justify-content:center !important;background:rgba(15,23,42,.46) !important;backdrop-filter:blur(3px) !important;}
 html[data-ybez-ui-mode="tablet"] .mobile-side-panel.route-panel.d6-b17-bottom-sheet,
@@ -30372,11 +30416,11 @@ html[data-ybez-ui-mode="tablet"] .d6-w32-footer-btn.d6-b17-expense-cta .m5-conte
         const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
         const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
         const buttons = [
+            ["mini", "미니모드", () => requestDesktopUiMode("mini"), false],
             ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard"), false],
             ["favorite", "즐겨찾기", openFavorite, false],
             ["history", "히스토리", openHistory, false],
-            ["proof", "증빙", openProof, false],
-            ["expense", "여비계산", openExpenseSheetB17, !result]
+            ["proof", "증빙", openProof, false]
         ];
         return React.createElement("nav", { className: "d6-w32-tablet-footer" },
             buttons.map(([type, label, handler, disabled]) => React.createElement("button", {
@@ -30965,7 +31009,7 @@ html[data-ybez-ui-mode="tablet"] .d6-w32-footer-btn.d6-b17-expense-cta .m5-conte
         MobileQuickSheets(),
         MobilePagerIndicator(),
         DesktopMiniPagerArrows(),
-        showDetail && (React.createElement("div", { className: "travel-calc-overlay d6-b17-sheet-backdrop d6-b17-expense-backdrop", style: { position: "fixed", inset: 0, zIndex: 260, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end" }, onClick: closeTravelCalcOnMobile },
+        showDetail && !isDesktopTablet && (React.createElement("div", { className: "travel-calc-overlay d6-b17-sheet-backdrop d6-b17-expense-backdrop", style: { position: "fixed", inset: 0, zIndex: 260, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end" }, onClick: closeTravelCalcOnMobile },
             React.createElement("div", {
                 className: "travel-calc-sheet d6-b17-bottom-sheet d6-b17-expense-sheet",
                 style: { width: "100%", background: "linear-gradient(180deg,#fff,#FAFAFA)", borderRadius: "24px 24px 0 0", maxHeight: "88dvh", overflow: "hidden", boxShadow: "0 -8px 32px rgba(0,0,0,0.15)" },
