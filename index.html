@@ -18087,8 +18087,8 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .mob
    Pseudo-elements live on body so they follow #root into Document PiP without JS changes. ── */
 body::before,body::after{display:none;}
 
-/* Tablet: Bori. User-verified ~850×656 stays above this first-pass safety line. */
-@media (max-aspect-ratio:999/1000), (max-width:706px){
+/* Tablet: Bori. D15 signed minimum normal size is 700×460; below either dimension is guarded. */
+@media (max-width:699px), (max-height:459px){
   html.ybez-desktop-tablet body::before,
   html[data-ybez-ui-mode="tablet"] body::before{
     content:"";display:block !important;position:fixed;inset:0;z-index:2147483000;pointer-events:auto;
@@ -18469,8 +18469,8 @@ html[data-ybez-ui-mode="tablet"] body .d6-d9-proof-x{
   border:0 !important;border-radius:50% !important;background:#EEF2F6 !important;color:#647386 !important;font-size:22px !important;line-height:1 !important;cursor:pointer !important;
 }
 
-/* 1:1 remains usable. Only a genuinely narrower-than-square Tablet is guarded by Bori. */
-@media (max-aspect-ratio:999/1000), (max-width:706px){
+/* D15 signed minimum normal Tablet size: 700×460. Below either dimension is guarded by Bori. */
+@media (max-width:699px), (max-height:459px){
   html.ybez-desktop-tablet body::before,
   html[data-ybez-ui-mode="tablet"] body::before{
     content:"";display:block !important;position:fixed;inset:0;z-index:2147483000;pointer-events:auto;
@@ -19135,6 +19135,488 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{
   min-height:26px !important;
   padding-top:0 !important;
   padding-bottom:0 !important;
+}
+</style>
+
+<style id="d6-w36b18d15-tablet-min-guard-stay-popover">
+/* D6-W3.6B18D15 · signed Tablet final functional finish only.
+   Changes: 700×460 minimum guard, group-stay transient night popover, numeric-only
+   transient night counts. D14 grade-card two-line grammar remains the approved base. */
+</style>
+
+
+<style id="d6-w36b18d19-claude-tablet-finalfix">
+/* D6-W3.6B18D19 · Claude tablet finish pass. Base: D15.
+   Scope: html.ybez-desktop-tablet / html[data-ybez-ui-mode="tablet"] only.
+   No changes to fare/calc logic, other modes, or existing protected features.
+   Reference edge = approved Tablet 시외선택/접근비용 selection area (9px each side). */
+
+html.ybez-desktop-tablet,
+html[data-ybez-ui-mode="tablet"]{
+  --d6-d19-edge:9px;
+}
+
+/* [항목3 보강] .search-inputs-row(=.d2-route-editor)에 @media(min-width:700px)and(max-width:1499px)
+   블록의 gap:7px가 걸려 원인이 됨을 실측으로 확인. 태블릿에서만 0으로 되돌린다. */
+html.ybez-desktop-tablet .d2-route-editor,
+html[data-ybez-ui-mode="tablet"] .d2-route-editor{
+  gap:0 !important;
+  row-gap:0 !important;
+}
+
+/* [항목3] 출발지/도착지 행 높이 통일 + 중앙 divider 보정
+   B안: 기존 D2-1F 미디어쿼리(@media(max-width:699px),(min-width:1100px))는
+   태블릿(700~1099)을 포함하지 않으므로 건드리지 않고, 태블릿 전용 규칙만 신규 추가한다. */
+html.ybez-desktop-tablet .d2-route-row,
+html[data-ybez-ui-mode="tablet"] .d2-route-row{
+  min-height:44px !important;
+}
+html.ybez-desktop-tablet .d2-route-origin,
+html.ybez-desktop-tablet .d2-route-dest,
+html[data-ybez-ui-mode="tablet"] .d2-route-origin,
+html[data-ybez-ui-mode="tablet"] .d2-route-dest{
+  height:44px !important;
+  min-height:44px !important;
+}
+html.ybez-desktop-tablet .d2-route-origin .d2-route-marker-cell,
+html.ybez-desktop-tablet .d2-route-dest .d2-route-marker-cell,
+html.ybez-desktop-tablet .d2-route-origin .d2-route-action-slot,
+html.ybez-desktop-tablet .d2-route-dest .d2-route-action-slot,
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-marker-cell,
+html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-marker-cell,
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-action-slot,
+html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-action-slot{
+  height:44px !important;
+  min-height:44px !important;
+}
+html.ybez-desktop-tablet .d2-route-origin .d2-route-input,
+html.ybez-desktop-tablet .d2-route-dest .d2-route-input,
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-input,
+html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-input{
+  height:44px !important;
+  min-height:44px !important;
+  padding:3px 0 !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .d2-route-origin .d2-route-input .input-box,
+html.ybez-desktop-tablet .d2-route-dest .d2-route-input .input-box,
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-input .input-box,
+html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-input .input-box{
+  height:38px !important;
+  min-height:38px !important;
+}
+/* 두 행 높이가 44px로 동일해지면 base divider(::before, top:0)는 자동으로 정중앙에 위치한다.
+   태블릿은 699/1100 미디어쿼리 밖이라 base 규칙을 그대로 상속하므로 위치만 명시적으로 고정한다. */
+html.ybez-desktop-tablet .d2-route-row + .d2-route-row::before,
+html[data-ybez-ui-mode="tablet"] .d2-route-row + .d2-route-row::before{
+  top:0 !important;
+  height:1px !important;
+}
+
+/* [항목5] 공통 좌우폭 통일 - 시외선택 영역(9px)을 기준으로 5개 요소 외곽선 정렬 */
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only{
+  padding-left:var(--d6-d19-edge) !important;
+  padding-right:var(--d6-d19-edge) !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .status-bar,
+html[data-ybez-ui-mode="tablet"] .status-bar{
+  width:auto !important;
+  margin-left:9px !important;
+  margin-right:9px !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet body .mobile-result-card,
+html[data-ybez-ui-mode="tablet"] body .mobile-result-card{
+  padding-left:0 !important;
+  padding-right:0 !important;
+  margin-left:18px !important;
+  margin-right:18px !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet body .d6-b17-route-open-btn,
+html[data-ybez-ui-mode="tablet"] body .d6-b17-route-open-btn{
+  width:calc(100% - 36px) !important;
+  margin-left:18px !important;
+  margin-right:18px !important;
+  box-sizing:border-box !important;
+}
+
+/* [항목6] 시외일반/우등 카드 - 접근비용 카드와 동일한 2단 정보계층으로 통일 */
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-choice-head:not(.multi),
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-choice-head:not(.multi){
+  display:none !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-btn,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-btn{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  grid-template-rows:auto auto !important;
+  column-gap:7px !important;
+  row-gap:0 !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .d6-b18d4-grade-route,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-route{
+  display:block !important;
+  grid-column:1 / -1 !important;
+  grid-row:1 !important;
+  justify-self:start !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-name,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name{
+  grid-column:1 !important;
+  grid-row:2 !important;
+  justify-self:start !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-fare,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{
+  grid-column:2 !important;
+  grid-row:2 !important;
+  justify-self:end !important;
+}
+/* [항목6 보강] 시외일반/우등 카드 줄 간격을 접근비용 카드와 동일하게 축소 */
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-btn,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-btn{
+  align-content:start !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .d6-b18d4-grade-route,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-route{
+  line-height:1 !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-name,
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-fare,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{
+  margin-top:0 !important;
+  align-self:start !important;
+}
+
+/* [항목4] 초기 빈 상태: 큰 결과카드(.mobile-result-card)는 태블릿(700px+)에서
+   기존 base CSS(@media(min-width:700px){.mobile-result-card{display:none !important;}})로
+   이미 숨겨져 있다 (수정 불필요, 보호 대상). 상태바는 항상 렌더링되는 별도 요소이므로
+   노출만 명시적으로 보장한다. */
+html.ybez-desktop-tablet .status-bar,
+html[data-ybez-ui-mode="tablet"] .status-bar{
+  display:flex !important;
+}
+
+/* [항목7] 농어촌버스/선박 특수교통 안내박스 - 왼쪽 시작 위치 유지, 오른쪽 끝만 축소 */
+html.ybez-desktop-tablet .m34-result-card .m515-result-lower > .m515-inline-special,
+html[data-ybez-ui-mode="tablet"] .m34-result-card .m515-result-lower > .m515-inline-special{
+  width:84% !important;
+  max-width:84% !important;
+  justify-self:start !important;
+  margin-right:auto !important;
+}
+
+/* [항목8] 편도/왕복 pill - 글씨는 유지, min-width·좌우 padding만 축소 */
+html.ybez-desktop-tablet .m34-result-card .m34-fare-pill,
+html[data-ybez-ui-mode="tablet"] .m34-result-card .m34-fare-pill{
+  min-width:34px !important;
+  height:26px !important;
+  padding-left:6px !important;
+  padding-right:6px !important;
+  border-radius:8px !important;
+}
+
+/* [항목9] 여비계산 헤더 - 좌측 "여비이지 2nd" 타이틀과 대칭되는 존재감으로 확대 */
+html.ybez-desktop-tablet body .d6-d9-expense-head,
+html[data-ybez-ui-mode="tablet"] body .d6-d9-expense-head{
+  gap:4px !important;
+}
+html.ybez-desktop-tablet body .d6-d9-expense-title,
+html[data-ybez-ui-mode="tablet"] body .d6-d9-expense-title{
+  font-size:19px !important;
+  line-height:1.08 !important;
+}
+html.ybez-desktop-tablet body .d6-d9-expense-summary,
+html[data-ybez-ui-mode="tablet"] body .d6-d9-expense-summary{
+  margin-top:1px !important;
+  font-size:12.5px !important;
+  line-height:1.18 !important;
+  color:#5E7084 !important;
+}
+</style>
+
+
+
+<style id="d6-w36b18d21-tablet-ui-finish">
+/* D6-W3.6B18D21 · Tablet UI finish only. Base: current D19-derived candidate.
+   Scope: Tablet presentation + Tablet stay-confirm controls only.
+   Protected: fare/calc/route/access logic, Desktop/Mini/Compact/Mobile, footer, status, route editor. */
+html.ybez-desktop-tablet,
+html[data-ybez-ui-mode="tablet"]{
+  --d6-d21-condition-w:300px;
+  --d6-d21-condition-gap:7px;
+}
+
+/* 1) Grade cards use the same route -> mode/amount grammar as access cards. */
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-btn,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-btn{
+  min-height:52px !important;
+  height:52px !important;
+  padding:5px 9px !important;
+  align-content:center !important;
+  row-gap:0 !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .d6-b18d4-grade-route,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-route{
+  line-height:1.15 !important;
+  align-self:center !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-name,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name{
+  margin-top:2px !important;
+  align-self:center !important;
+  line-height:1.15 !important;
+}
+html.ybez-desktop-tablet .d6-w34-tablet-choice-only .mobile-grade-fare,
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{
+  margin-top:2px !important;
+  align-self:center !important;
+  line-height:1 !important;
+}
+
+/* 2) Slightly widen the Tablet trip-condition block and keep one vertical rhythm. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-condition-box,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-condition-box{
+  margin:0 !important;
+  padding:0 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .d6-d10-trip-condition-grid,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-trip-condition-grid{
+  width:min(100%,var(--d6-d21-condition-w)) !important;
+  max-width:var(--d6-d21-condition-w) !important;
+  margin:var(--d6-d21-condition-gap) auto 0 !important;
+  row-gap:var(--d6-d21-condition-gap) !important;
+  column-gap:7px !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-wrap,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-wrap{
+  width:100% !important;
+  margin:var(--d6-d21-condition-gap) 0 0 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  width:min(100%,var(--d6-d21-condition-w)) !important;
+  max-width:var(--d6-d21-condition-w) !important;
+  margin:0 auto !important;
+  gap:0 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn{
+  width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+
+/* 3) Tablet stay-night editor: use the whole option width and add a real close/confirm action. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .d6-d10-night-popover,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-night-popover{
+  left:0 !important;
+  right:0 !important;
+  transform:none !important;
+  width:100% !important;
+  max-width:none !important;
+  height:38px !important;
+  padding:3px !important;
+  display:grid !important;
+  grid-template-columns:25px minmax(28px,1fr) 25px 42px !important;
+  align-items:center !important;
+  gap:3px !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .d6-d10-night-popover .d6-d10-night-step,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-night-popover .d6-d10-night-step{
+  width:25px !important;
+  min-width:25px !important;
+  height:30px !important;
+  min-height:30px !important;
+  padding:0 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .d6-d10-night-popover .d6-d10-night-count,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-night-popover .d6-d10-night-count{
+  min-width:0 !important;
+  text-align:center !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .d6-d21-night-confirm,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d21-night-confirm{
+  width:42px !important;
+  min-width:42px !important;
+  height:30px !important;
+  min-height:30px !important;
+  padding:0 !important;
+  border:1px solid #6F8EAC !important;
+  border-radius:7px !important;
+  background:#EAF1F7 !important;
+  color:#173A63 !important;
+  font-family:var(--gm) !important;
+  font-size:10.5px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  cursor:pointer !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .d6-d21-night-confirm:hover,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d21-night-confirm:hover{
+  background:#DCE8F2 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-choice-btn.d6-d21-adjusting,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-choice-btn.d6-d21-adjusting{
+  border-color:#8FA8BF !important;
+  background:#F4F8FC !important;
+  color:#284E72 !important;
+  box-shadow:0 0 0 2px rgba(23,58,99,.05) !important;
+}
+
+/* 4) Mixed-training daily notice: preserve the right edge and open only the left side slightly. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-mixed-daily-note,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-mixed-daily-note{
+  margin-left:28px !important;
+  margin-right:4px !important;
+  width:auto !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+}
+</style>
+
+<style id="d6-w36b18d22-tablet-final-spacing-rule">
+/* D6-W3.6B18D22 · Tablet final micro-finish only. Base: D21.
+   Scope: Tablet schedule-action geometry only.
+   Protected: D21 grade/access cards, stay confirm UI, calculation/route/access logic,
+   Desktop/Mini/Compact/Mobile and every already-passed Tablet element. */
+html.ybez-desktop-tablet,
+html[data-ybez-ui-mode="tablet"]{
+  --d6-d22-schedule-w:290px;
+  --d6-d22-schedule-gap:5px;
+}
+
+/* Keep the 300px 2×2 condition grid. The schedule action is optically subordinate:
+   5px inset on each side, centered, with a slightly tighter visual gap above. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-wrap,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-wrap{
+  margin:var(--d6-d22-schedule-gap) 0 0 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions{
+  width:min(100%,var(--d6-d22-schedule-w)) !important;
+  max-width:var(--d6-d22-schedule-w) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn{
+  width:100% !important;
+  max-width:100% !important;
+}
+</style>
+
+<style id="d6-w36b18d23-tablet-schedule-action-button">
+/* D6-W3.6B18D23 · Tablet schedule action button only. Base: D22.
+   User-confirmed scope: one button only.
+   Protected: D22 spacing (5px), trip-condition grid (278px actual), all calculation/state logic,
+   all other Tablet UI and Desktop/Mini/Compact/Mobile. */
+html.ybez-desktop-tablet,
+html[data-ybez-ui-mode="tablet"]{
+  --d6-d23-schedule-action-w:268px;
+  --d6-d23-schedule-action-h:26px;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions{
+  width:min(100%,var(--d6-d23-schedule-action-w)) !important;
+  max-width:var(--d6-d23-schedule-action-w) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  height:var(--d6-d23-schedule-action-h) !important;
+  min-height:var(--d6-d23-schedule-action-h) !important;
+  padding:0 10px !important;
+  border-radius:8px !important;
+  font-size:11.5px !important;
+  line-height:1 !important;
+  transition:transform .10s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease !important;
+}
+/* Required = clear action: filled Calm Navy, finite soft attention pulse. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.required,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required{
+  border:1px solid #102F50 !important;
+  background:#173A63 !important;
+  color:#FFFFFF !important;
+  box-shadow:0 2px 6px rgba(23,58,99,.22), 0 0 0 1px rgba(23,58,99,.08) !important;
+  animation:d6D23ScheduleActionPulse 1.15s ease-in-out 0s 3 !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.required:hover,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:hover{
+  background:#204B78 !important;
+  border-color:#173A63 !important;
+  color:#FFFFFF !important;
+  box-shadow:0 3px 8px rgba(23,58,99,.26), 0 0 0 2px rgba(23,58,99,.08) !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.required:active,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:active{
+  transform:translateY(1px) !important;
+  box-shadow:0 1px 3px rgba(23,58,99,.22) !important;
+}
+/* Complete = visually settled/disabled-like, but remains clickable for correction. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.complete,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.complete{
+  border:1px solid #C7CED6 !important;
+  background:#E8EBEF !important;
+  color:#6B7280 !important;
+  box-shadow:none !important;
+  animation:none !important;
+  transform:none !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.complete:hover,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.complete:hover{
+  border-color:#B8C0C9 !important;
+  background:#E1E5E9 !important;
+  color:#5F6874 !important;
+  box-shadow:none !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.complete:active,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.complete:active{
+  transform:translateY(1px) !important;
+}
+@keyframes d6D23ScheduleActionPulse{
+  0%,100%{box-shadow:0 2px 6px rgba(23,58,99,.22),0 0 0 0 rgba(23,58,99,.10)}
+  50%{box-shadow:0 2px 7px rgba(23,58,99,.25),0 0 0 3px rgba(23,58,99,.10)}
+}
+</style>
+
+
+
+<style id="d6-w36b18d24-tablet-group-schedule-finish">
+/* D6-W3.6B18D24: Tablet only — group schedule interaction finish.
+   Required action is button-like but calm: light navy surface + shallow depth, no pulse/glow.
+   D23 dimensions (268x26), center axis, 5px spacing and complete-state styling remain protected. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.required,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required{
+  border:1px solid #6F8EAC !important;
+  background:#EAF1F7 !important;
+  color:#173A63 !important;
+  box-shadow:0 2px 4px rgba(23,58,99,.13), inset 0 1px 0 rgba(255,255,255,.88) !important;
+  animation:none !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.required:hover,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:hover{
+  border-color:#5F81A1 !important;
+  background:#E2ECF5 !important;
+  color:#173A63 !important;
+  box-shadow:0 2px 5px rgba(23,58,99,.15), inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .training-schedule-btn.required:active,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:active{
+  transform:translateY(1px) !important;
+  background:#DCE8F2 !important;
+  box-shadow:0 1px 2px rgba(23,58,99,.12), inset 0 1px 2px rgba(23,58,99,.05) !important;
 }
 </style>
 
@@ -20203,6 +20685,8 @@ const App = () => {
     const [stayHelpOpen, setStayHelpOpen] = useState(false);
     // D6-W3.6B18D10: Tablet only — 현지숙박 박수는 순간 팝오버로 조정한다.
     const [tabletLodgingPopoverOpen, setTabletLodgingPopoverOpen] = useState(false);
+    // D6-W3.6B18D15: Tablet only — 합숙제공도 동일한 순간 팝오버로 박수를 조정한다.
+    const [tabletGroupPopoverOpen, setTabletGroupPopoverOpen] = useState(false);
     const [lodgingTotal, setLodgingTotal] = useState(0);
     const [lodgingTotalInput, setLodgingTotalInput] = useState("");
     const lodgingFocused = useRef(false);
@@ -20344,6 +20828,25 @@ const App = () => {
     useEffect(() => {
         if (!isDesktopTablet || !isMultiDayTrip || !lodgingSelected) setTabletLodgingPopoverOpen(false);
     }, [isDesktopTablet, isMultiDayTrip, lodgingSelected, tripType]);
+    useEffect(() => {
+        if (!tabletGroupPopoverOpen) return;
+        const closeOutside = (e) => {
+            const target = e && e.target;
+            if (target && typeof target.closest === "function" && target.closest(".d6-d10-group-option")) return;
+            setTabletGroupPopoverOpen(false);
+        };
+        const docs = [];
+        if (typeof document !== "undefined") docs.push(document);
+        try {
+            const pipDoc = window.documentPictureInPicture && window.documentPictureInPicture.window && window.documentPictureInPicture.window.document;
+            if (pipDoc && !docs.includes(pipDoc)) docs.push(pipDoc);
+        } catch (_) {}
+        docs.forEach(d => d.addEventListener("pointerdown", closeOutside, true));
+        return () => docs.forEach(d => d.removeEventListener("pointerdown", closeOutside, true));
+    }, [tabletGroupPopoverOpen]);
+    useEffect(() => {
+        if (!isDesktopTablet || !isMultiDayTrip || tripType !== "training" || !groupSelected) setTabletGroupPopoverOpen(false);
+    }, [isDesktopTablet, isMultiDayTrip, tripType, groupSelected]);
     useEffect(() => {
         if (lodgingNights + groupNights <= maxLodgingNights) return;
         setGroupNights(Math.max(0, maxLodgingNights - lodgingNights));
@@ -21314,6 +21817,75 @@ html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-rout
 html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name{grid-column:1 !important;grid-row:2 !important;justify-self:start !important;}
 html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{grid-column:2 !important;grid-row:2 !important;justify-self:end !important;}
 html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;min-height:26px !important;padding-top:0 !important;padding-bottom:0 !important;}
+
+/* D6-W3.6B18D19 runtime: Claude tablet finish pass (PiP sync copy of head style d6-w36b18d19-claude-tablet-finalfix). */
+html[data-ybez-ui-mode="tablet"] .d2-route-editor{gap:0 !important;row-gap:0 !important;}
+html[data-ybez-ui-mode="tablet"]{--d6-d19-edge:9px;}
+html[data-ybez-ui-mode="tablet"] .d2-route-row{min-height:44px !important;}
+html[data-ybez-ui-mode="tablet"] .d2-route-origin,html[data-ybez-ui-mode="tablet"] .d2-route-dest{height:44px !important;min-height:44px !important;}
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-marker-cell,html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-marker-cell,html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-action-slot,html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-action-slot{height:44px !important;min-height:44px !important;}
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-input,html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-input{height:44px !important;min-height:44px !important;padding:3px 0 !important;box-sizing:border-box !important;}
+html[data-ybez-ui-mode="tablet"] .d2-route-origin .d2-route-input .input-box,html[data-ybez-ui-mode="tablet"] .d2-route-dest .d2-route-input .input-box{height:38px !important;min-height:38px !important;}
+html[data-ybez-ui-mode="tablet"] .d2-route-row + .d2-route-row::before{top:0 !important;height:1px !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only{padding-left:var(--d6-d19-edge) !important;padding-right:var(--d6-d19-edge) !important;box-sizing:border-box !important;}
+html[data-ybez-ui-mode="tablet"] .status-bar{width:auto !important;margin-left:9px !important;margin-right:9px !important;box-sizing:border-box !important;display:flex !important;}
+html[data-ybez-ui-mode="tablet"] body .mobile-result-card{padding-left:0 !important;padding-right:0 !important;margin-left:18px !important;margin-right:18px !important;box-sizing:border-box !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-b17-route-open-btn{width:calc(100% - 36px) !important;margin-left:18px !important;margin-right:18px !important;box-sizing:border-box !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-choice-head:not(.multi){display:none !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-btn{display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;grid-template-rows:auto auto !important;column-gap:7px !important;row-gap:0 !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-route{display:block !important;grid-column:1 / -1 !important;grid-row:1 !important;justify-self:start !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name{grid-column:1 !important;grid-row:2 !important;justify-self:start !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{grid-column:2 !important;grid-row:2 !important;justify-self:end !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-btn{align-content:start !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-route{line-height:1 !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name,html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{margin-top:0 !important;align-self:start !important;}
+html[data-ybez-ui-mode="tablet"] .m34-result-card .m515-result-lower > .m515-inline-special{width:84% !important;max-width:84% !important;justify-self:start !important;margin-right:auto !important;}
+html[data-ybez-ui-mode="tablet"] .m34-result-card .m34-fare-pill{min-width:34px !important;height:26px !important;padding-left:6px !important;padding-right:6px !important;border-radius:8px !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-d9-expense-head{gap:4px !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-d9-expense-title{font-size:19px !important;line-height:1.08 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-d9-expense-summary{margin-top:1px !important;font-size:12.5px !important;line-height:1.18 !important;color:#5E7084 !important;}
+
+/* D6-W3.6B18D21 runtime: sync Tablet UI finish with head style. */
+html[data-ybez-ui-mode="tablet"]{--d6-d21-condition-w:300px;--d6-d21-condition-gap:7px;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-btn{min-height:52px !important;height:52px !important;padding:5px 9px !important;align-content:center !important;row-gap:0 !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .d6-b18d4-grade-route{line-height:1.15 !important;align-self:center !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-name{margin-top:2px !important;align-self:center !important;line-height:1.15 !important;}
+html[data-ybez-ui-mode="tablet"] .d6-w34-tablet-choice-only .mobile-grade-fare{margin-top:2px !important;align-self:center !important;line-height:1 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-condition-box{margin:0 !important;padding:0 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-trip-condition-grid{width:min(100%,var(--d6-d21-condition-w)) !important;max-width:var(--d6-d21-condition-w) !important;margin:var(--d6-d21-condition-gap) auto 0 !important;row-gap:var(--d6-d21-condition-gap) !important;column-gap:7px !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-wrap{width:100% !important;margin:var(--d6-d21-condition-gap) 0 0 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions{display:grid !important;grid-template-columns:minmax(0,1fr) !important;width:min(100%,var(--d6-d21-condition-w)) !important;max-width:var(--d6-d21-condition-w) !important;margin:0 auto !important;gap:0 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn{width:100% !important;min-width:0 !important;margin:0 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-night-popover{left:0 !important;right:0 !important;transform:none !important;width:100% !important;max-width:none !important;height:38px !important;padding:3px !important;display:grid !important;grid-template-columns:25px minmax(28px,1fr) 25px 42px !important;align-items:center !important;gap:3px !important;box-sizing:border-box !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-night-popover .d6-d10-night-step{width:25px !important;min-width:25px !important;height:30px !important;min-height:30px !important;padding:0 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d10-night-popover .d6-d10-night-count{min-width:0 !important;text-align:center !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d21-night-confirm{width:42px !important;min-width:42px !important;height:30px !important;min-height:30px !important;padding:0 !important;border:1px solid #6F8EAC !important;border-radius:7px !important;background:#EAF1F7 !important;color:#173A63 !important;font-family:var(--gm) !important;font-size:10.5px !important;font-weight:900 !important;line-height:1 !important;cursor:pointer !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .d6-d21-night-confirm:hover{background:#DCE8F2 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-choice-btn.d6-d21-adjusting{border-color:#8FA8BF !important;background:#F4F8FC !important;color:#284E72 !important;box-shadow:0 0 0 2px rgba(23,58,99,.05) !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-mixed-daily-note{margin-left:28px !important;margin-right:4px !important;width:auto !important;max-width:none !important;box-sizing:border-box !important;}
+
+/* D6-W3.6B18D22 runtime: final Tablet schedule spacing/width sync. */
+html[data-ybez-ui-mode="tablet"]{--d6-d22-schedule-w:290px;--d6-d22-schedule-gap:5px;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-wrap{margin:var(--d6-d22-schedule-gap) 0 0 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions{width:min(100%,var(--d6-d22-schedule-w)) !important;max-width:var(--d6-d22-schedule-w) !important;margin-left:auto !important;margin-right:auto !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn{width:100% !important;max-width:100% !important;}
+
+/* D6-W3.6B18D23 runtime: one Tablet schedule action button only. */
+html[data-ybez-ui-mode="tablet"]{--d6-d23-schedule-action-w:268px;--d6-d23-schedule-action-h:26px;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions{width:min(100%,var(--d6-d23-schedule-action-w)) !important;max-width:var(--d6-d23-schedule-action-w) !important;margin-left:auto !important;margin-right:auto !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-help-toggle-row.k5g-actions .training-schedule-btn{width:100% !important;max-width:100% !important;min-width:0 !important;height:var(--d6-d23-schedule-action-h) !important;min-height:var(--d6-d23-schedule-action-h) !important;padding:0 10px !important;border-radius:8px !important;font-size:11.5px !important;line-height:1 !important;transition:transform .10s ease,box-shadow .16s ease,background-color .16s ease,border-color .16s ease !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required{border:1px solid #102F50 !important;background:#173A63 !important;color:#FFFFFF !important;box-shadow:0 2px 6px rgba(23,58,99,.22),0 0 0 1px rgba(23,58,99,.08) !important;animation:d6D23ScheduleActionPulse 1.15s ease-in-out 0s 3 !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:hover{background:#204B78 !important;border-color:#173A63 !important;color:#FFFFFF !important;box-shadow:0 3px 8px rgba(23,58,99,.26),0 0 0 2px rgba(23,58,99,.08) !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:active{transform:translateY(1px) !important;box-shadow:0 1px 3px rgba(23,58,99,.22) !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.complete{border:1px solid #C7CED6 !important;background:#E8EBEF !important;color:#6B7280 !important;box-shadow:none !important;animation:none !important;transform:none !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.complete:hover{border-color:#B8C0C9 !important;background:#E1E5E9 !important;color:#5F6874 !important;box-shadow:none !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.complete:active{transform:translateY(1px) !important;}
+@keyframes d6D23ScheduleActionPulse{0%,100%{box-shadow:0 2px 6px rgba(23,58,99,.22),0 0 0 0 rgba(23,58,99,.10)}50%{box-shadow:0 2px 7px rgba(23,58,99,.25),0 0 0 3px rgba(23,58,99,.10)}}
+
+/* D6-W3.6B18D24 runtime: Tablet group schedule action finish. */
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required{border:1px solid #6F8EAC !important;background:#EAF1F7 !important;color:#173A63 !important;box-shadow:0 2px 4px rgba(23,58,99,.13),inset 0 1px 0 rgba(255,255,255,.88) !important;animation:none !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:hover{border-color:#5F81A1 !important;background:#E2ECF5 !important;color:#173A63 !important;box-shadow:0 2px 5px rgba(23,58,99,.15),inset 0 1px 0 rgba(255,255,255,.9) !important;}
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .training-schedule-btn.required:active{transform:translateY(1px) !important;background:#DCE8F2 !important;box-shadow:0 1px 2px rgba(23,58,99,.12),inset 0 1px 2px rgba(23,58,99,.05) !important;}
 
 
 `;
@@ -30252,6 +30824,7 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;m
     const trainingMixedScheduleRequired = trainingMultiCalcActive && lodgingNights > 0 && groupNights > 0;
     const trainingGroupScheduleComplete = trainingMixedScheduleRequired
         && trainingGroupScheduleConfirmed
+        && trainingGroupAppliedDays.length === Math.max(0, Number(groupNights) || 0)
         && trainingGroupAppliedDays.every(day => day >= 2 && day <= tripDays - 1);
     // 일정 미지정 혼합형만 K5F 수기 안전장치를 유지하고, 지정 완료 후 자동계산한다.
     const trainingDailyMixedNeedsManual = trainingMixedScheduleRequired && !trainingGroupScheduleComplete;
@@ -33018,6 +33591,11 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;m
                         type: "button",
                         className: "training-schedule-confirm",
                         onClick: () => {
+                            const requiredDays = Math.max(0, Number(groupNights) || 0);
+                            if (trainingGroupDraftDays.length !== requiredDays) {
+                                setTrainingGroupScheduleError(`합숙제공 ${requiredDays}박이므로 합숙 적용일 ${requiredDays}일을 지정해 주세요.`);
+                                return;
+                            }
                             setTrainingGroupAppliedDays([...trainingGroupDraftDays].sort((a,b) => a-b));
                             setTrainingGroupScheduleConfirmed(true);
                             setTrainingGroupScheduleError("");
@@ -33411,7 +33989,7 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;m
                                     isMultiDayTrip && React.createElement("div", { className: "trip-stay-option d6-d10-lodging-wrap" },
                                         React.createElement("button", {
                                             type: "button",
-                                            className: `trip-choice-btn d6-d10-lodging-btn ${(lodgingSelected && lodgingNights > 0) ? "check-sel" : ""}`,
+                                            className: `trip-choice-btn d6-d10-lodging-btn ${(lodgingSelected && lodgingNights > 0 && !tabletLodgingPopoverOpen) ? "check-sel" : ""} ${tabletLodgingPopoverOpen ? "d6-d21-adjusting" : ""}`,
                                             onClick: () => {
                                                 const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0));
                                                 if (ceiling <= 0) return;
@@ -33426,32 +34004,44 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;m
                                                 disabled: lodgingNights <= 0,
                                                 onClick: () => handleLodgingNightsChange(Math.max(0, lodgingNights - 1))
                                             }, "−"),
-                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(lodgingNights) || 0)}박`),
+                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(lodgingNights) || 0)}`),
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 늘리기",
                                                 disabled: lodgingNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0)),
                                                 onClick: () => handleLodgingNightsChange(lodgingNights + 1)
-                                            }, "+"))),
+                                            }, "+"),
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d21-night-confirm", "aria-label": "현지숙박 박수 확인",
+                                                onClick: e => { e.stopPropagation(); setTabletLodgingPopoverOpen(false); }
+                                            }, "확인"))),
                                     isMultiDayTrip && tripType === "training" && React.createElement("div", { className: "trip-stay-option d6-d10-group-option" },
                                         React.createElement("button", {
                                             type: "button",
-                                            className: `trip-choice-btn ${groupSelected ? "check-sel" : ""}`,
-                                            onClick: () => handleStayOptionToggle("group")
-                                        }, `${groupSelected ? "☑ " : ""}합숙제공`),
-                                        groupSelected && React.createElement("div", { className: "trip-mini-nights m511-night-stepper m513-night-stepper" },
+                                            className: `trip-choice-btn ${(groupSelected && groupNights > 0 && !tabletGroupPopoverOpen) ? "check-sel" : ""} ${tabletGroupPopoverOpen ? "d6-d21-adjusting" : ""}`,
+                                            onClick: () => {
+                                                const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0));
+                                                if (ceiling <= 0 && !groupSelected) return;
+                                                if (!groupSelected) setGroupSelected(true);
+                                                if ((Number(groupNights) || 0) <= 0 && ceiling > 0) setGroupNights(1);
+                                                setTabletGroupPopoverOpen(v => !v);
+                                            }
+                                        }, (groupSelected && groupNights > 0) ? `합숙 ${groupNights}박` : "합숙제공"),
+                                        tabletGroupPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover", role: "dialog", "aria-label": "합숙제공 박수 조정" },
                                             React.createElement("button", {
-                                                type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 줄이기",
+                                                type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 줄이기",
                                                 disabled: groupNights <= 0,
                                                 onClick: () => handleGroupNightsChange(Math.max(0, groupNights - 1))
                                             }, "−"),
-                                            React.createElement("span", { className: "m513-night-value" },
-                                                React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
-                                                React.createElement("span", { className: "trip-unit" }, "박")),
+                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(groupNights) || 0)}`),
                                             React.createElement("button", {
-                                                type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 늘리기",
+                                                type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 늘리기",
                                                 disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)),
                                                 onClick: () => handleGroupNightsChange(groupNights + 1)
-                                            }, "+"))))
+                                            }, "+"),
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d21-night-confirm", "aria-label": "합숙제공 박수 확인",
+                                                onClick: e => { e.stopPropagation(); setTabletGroupPopoverOpen(false); }
+                                            }, "확인"))))
                                 : React.createElement(React.Fragment, null,
                                     React.createElement("button", { type: "button", disabled: isDesktopTablet && !isMultiDayTrip, className: `trip-choice-btn ${tripType === "general" ? "sel" : ""} ${(isDesktopTablet && !isMultiDayTrip) ? "disabled" : ""}`, onClick: () => handleTripTypeChange("general") }, "일반출장"),
                                     React.createElement("button", { type: "button", disabled: isDesktopTablet && !isMultiDayTrip, className: `trip-choice-btn ${tripType === "training" ? "sel" : ""} ${(isDesktopTablet && !isMultiDayTrip) ? "disabled" : ""}`, onClick: () => handleTripTypeChange("training") }, "연수출장"),
@@ -33482,7 +34072,7 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;m
                                         setTrainingGroupScheduleError("");
                                         setTrainingGroupScheduleOpen(true);
                                     }
-                                }, trainingGroupScheduleComplete ? "✓ 합숙 적용일 지정 완료" : "필수 · 합숙 적용일 지정")))),
+                                }, trainingGroupScheduleComplete ? "✓ 합숙 적용일 지정 완료" : "합숙 적용일 지정")))),
                     trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "training-review-note" }, "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. 여비이지는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
 
             React.createElement("div", { className: "expense-ledger" },
@@ -33539,16 +34129,20 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-open-btn{height:26px !important;m
                         trainingMultiCalcActive
                             ? `관용차량 ${vehicleDaysInput}일 이용, 연수출장의 일비는 날짜별 최대 50%까지만 감액`
                             : `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능`),
-                    trainingCommuteNoStay && React.createElement("div", { className: "expense-note-row" },
-                        React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
-                        React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
-                        React.createElement("div", { className: "training-rule-source" }, "「공무원 인재개발 업무처리지침」 [별표 1] 교육훈련여비 지급기준")),
-                    trainingLodgingOnly && React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 기타 교육일 50%"),
-                    trainingGroupOnly && !trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 기타 교육일 0%"),
-                    trainingDailyMixedNeedsManual && React.createElement("div", { className: "expense-note-row training-mixed-daily-note" },
-                        React.createElement("div", null, "입교·등록일과 수료일의 일비만 우선 반영되었습니다. 위의 ‘합숙 적용일 지정’을 완료하면 중간 교육일의 일비를 자동 계산합니다."),
-                        React.createElement("div", { className: "training-mixed-daily-rule" }, "연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0%")),
-                    trainingMixedScheduleRequired && trainingGroupScheduleComplete && React.createElement("div", { className: "expense-note-row right training-schedule-complete-note" }, `연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0% · 합숙 적용 ${trainingGroupAppliedDays.map(d => `${d}일차`).join(", ")}`),
+                    trainingCommuteNoStay && (isDesktopTablet
+                        ? React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 비합숙 중간일 50%")
+                        : React.createElement("div", { className: "expense-note-row" },
+                            React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
+                            React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
+                            React.createElement("div", { className: "training-rule-source" }, "「공무원 인재개발 업무처리지침」 [별표 1] 교육훈련여비 지급기준"))),
+                    trainingLodgingOnly && React.createElement("div", { className: "expense-note-row right" }, isDesktopTablet ? "입교·수료일 100% · 비합숙 중간일 50%" : "입교·수료일 100% · 기타 교육일 50%"),
+                    trainingGroupOnly && !trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, isDesktopTablet ? "입교·수료일 100% · 합숙 적용일 0%" : "입교·수료일 100% · 기타 교육일 0%"),
+                    trainingDailyMixedNeedsManual && (isDesktopTablet
+                        ? React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%")
+                        : React.createElement("div", { className: "expense-note-row training-mixed-daily-note" },
+                            React.createElement("div", null, "입교·등록일과 수료일의 일비만 우선 반영되었습니다. 위의 ‘합숙 적용일 지정’을 완료하면 중간 교육일의 일비를 자동 계산합니다."),
+                            React.createElement("div", { className: "training-mixed-daily-rule" }, "연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0%"))),
+                    trainingMixedScheduleRequired && trainingGroupScheduleComplete && React.createElement("div", { className: "expense-note-row right training-schedule-complete-note" }, isDesktopTablet ? "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%" : `연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0% · 합숙 적용 ${trainingGroupAppliedDays.map(d => `${d}일차`).join(", ")}`),
                     trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "expense-note-row right" }, "합숙이 일부 날짜에 포함되어 날짜별 체재순서 확인 필요"),
                     !(isDesktopTablet || showDetail) && dailyDeductionLabel && React.createElement("div", { className: "expense-note-row deduction" }, dailyDeductionLabel)),
 
