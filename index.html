@@ -18103,7 +18103,7 @@ body::before,body::after{display:none;}
     color:#fff;text-align:center;font-family:var(--gm);font-size:19px;font-weight:950;line-height:1.55;text-shadow:0 2px 8px rgba(0,0,0,.28);
   }
 }
-/* Mini: Ggojil. Normal PiP opens ~520×900; guard only extreme shrink. */
+/* Mini: Ggojil. D8 density-test PiP starts ~480×760; guard only extreme shrink. */
 @media (max-width:439px), (max-height:479px){
   html.ybez-desktop-mini body::before{
     content:"";display:block !important;position:fixed;inset:0;z-index:2147483000;pointer-events:auto;
@@ -18118,7 +18118,7 @@ body::before,body::after{display:none;}
   }
 }
 /* Compact: Hunter. Compact-only selector excludes Mini's shared compact class. */
-@media (max-width:329px), (max-height:439px){
+@media (max-width:329px), (max-height:679px){
   html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) body::before{
     content:"";display:block !important;position:fixed;inset:0;z-index:2147483000;pointer-events:auto;
     background:rgba(9,18,30,.58);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
@@ -18133,6 +18133,158 @@ body::before,body::after{display:none;}
 }
 </style>
 
+
+
+<style id="d6-w36b18d8-mini-density-test">
+/* D6-W3.6B18D8 · Mini density test only.
+   Goal: carry Tablet's successful vertical-density grammar into Mini without shrinking text first.
+   Stress reference: 비금→동두천. Initial PiP request/resized target is 480×760 for the first visual test.
+   Protected: Desktop / Tablet / Compact / Mobile, calculations, access/fare selection logic, proof logic. */
+
+/* 1) Mini main: remove redundant group chrome and spend height on the actual choice buttons. */
+html.ybez-desktop-mini .search-wrap{
+  gap:4px !important;padding-top:6px !important;padding-bottom:3px !important;
+}
+html.ybez-desktop-mini .mobile-selection-panel{gap:4px !important;}
+html.ybez-desktop-mini .mobile-grade-choice{
+  border:0 !important;background:transparent !important;border-radius:0 !important;box-shadow:none !important;
+  padding:0 !important;margin:0 !important;
+}
+html.ybez-desktop-mini .mobile-grade-choice > .mobile-choice-head{display:none !important;}
+html.ybez-desktop-mini .mobile-grade-grid{gap:5px !important;}
+html.ybez-desktop-mini .mobile-grade-btn{
+  display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;grid-template-rows:auto auto !important;
+  column-gap:6px !important;row-gap:1px !important;align-items:center !important;
+  min-height:44px !important;height:auto !important;padding:4px 8px !important;
+}
+html.ybez-desktop-mini .d6-b18d4-grade-route{
+  display:block !important;grid-column:1/-1 !important;grid-row:1 !important;
+  min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;
+  font-family:var(--gm) !important;font-size:8.7px !important;line-height:1.1 !important;font-weight:850 !important;
+  color:#728196 !important;text-align:left !important;letter-spacing:-.2px !important;
+}
+html.ybez-desktop-mini .mobile-grade-name{grid-column:1 !important;grid-row:2 !important;justify-self:start !important;}
+html.ybez-desktop-mini .mobile-grade-fare{grid-column:2 !important;grid-row:2 !important;justify-self:end !important;}
+html.ybez-desktop-mini .access-choice-head{display:none !important;}
+html.ybez-desktop-mini .access-choice-wrap{
+  margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;
+  box-shadow:none !important;gap:4px !important;
+}
+html.ybez-desktop-mini .access-choice-grid{margin:0 !important;padding:0 !important;gap:5px !important;}
+html.ybez-desktop-mini .access-choice-card.policy-only{
+  min-height:44px !important;height:auto !important;padding:4px 8px !important;justify-content:center !important;
+}
+html.ybez-desktop-mini .access-choice-card.policy-only > .d6-b18d4-access-tablet-only{
+  display:block !important;width:100% !important;min-width:0 !important;
+}
+html.ybez-desktop-mini .access-choice-card.policy-only > .access-choice-label,
+html.ybez-desktop-mini .access-choice-card.policy-only > .access-choice-amount{display:none !important;}
+html.ybez-desktop-mini .d6-b18d4-access-route{
+  min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;
+  font-family:var(--gm) !important;font-size:8.7px !important;line-height:1.1 !important;font-weight:850 !important;
+  color:#728196 !important;text-align:left !important;letter-spacing:-.2px !important;
+}
+html.ybez-desktop-mini .d6-b18d4-access-main{
+  display:flex !important;align-items:center !important;justify-content:space-between !important;gap:6px !important;margin-top:1px !important;
+}
+html.ybez-desktop-mini .d6-b18d4-access-mode{font-family:var(--gm) !important;font-weight:950 !important;white-space:nowrap !important;}
+html.ybez-desktop-mini .d6-b18d4-access-amount{font-family:var(--gm) !important;font-weight:900 !important;white-space:nowrap !important;}
+html.ybez-desktop-mini .status-bar.mobile-status-important{
+  min-height:28px !important;padding:4px 7px !important;margin-top:0 !important;margin-bottom:3px !important;
+}
+html.ybez-desktop-mini .mobile-result-card{padding-top:0 !important;padding-bottom:3px !important;}
+html.ybez-desktop-mini .mobile-rc-card{margin-bottom:4px !important;}
+html.ybez-desktop-mini .mobile-rc-body{padding-top:10px !important;padding-bottom:9px !important;}
+html.ybez-desktop-mini .mobile-rc-left{min-height:72px !important;}
+html.ybez-desktop-mini .mobile-rc-title{margin-bottom:6px !important;}
+html.ybez-desktop-mini .d6-b17-route-open-btn{
+  min-height:36px !important;height:36px !important;margin-top:3px !important;margin-bottom:6px !important;
+}
+
+/* 2) Mini expense: flatten outer shells; separators and one ledger axis carry the hierarchy. */
+html.ybez-desktop-mini .travel-calc-sheet.d6-b17-expense-sheet .travel-calc-body{
+  padding:8px 12px 12px !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .m5-expense-content,
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-ledger{
+  background:transparent !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-summary{
+  margin-top:0 !important;margin-bottom:4px !important;padding-top:1px !important;padding-bottom:1px !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-setup{
+  margin:0 0 5px !important;padding:0 0 5px !important;background:transparent !important;
+  border-left:0 !important;border-right:0 !important;border-top:0 !important;border-bottom:1px solid #E1E7EE !important;
+  border-radius:0 !important;box-shadow:none !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-main-row{min-height:40px !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-condition-box{
+  margin:2px 0 3px !important;padding:0 !important;border:0 !important;border-radius:0 !important;
+  background:transparent !important;box-shadow:none !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-condition-grid{gap:5px 6px !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-condition-grid .trip-choice-btn{height:31px !important;min-height:31px !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .trip-help-toggle-row{margin-top:4px !important;margin-bottom:0 !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-ledger{gap:0 !important;padding-top:0 !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-item{
+  padding-top:5px !important;padding-bottom:6px !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;
+  border-left:0 !important;border-right:0 !important;border-top:0 !important;border-bottom:1px solid #E1E7EE !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-other-toggle-row{
+  padding-top:5px !important;padding-bottom:5px !important;border-bottom:1px solid #E1E7EE !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-other-group .expense-item:last-child{border-bottom:0 !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet{
+  --d6-mini-label-col:70px;--d6-mini-tag-col:30px;--d6-mini-action-col:108px;--d6-mini-value-col:94px;
+  --d6-mini-ledger-gap:2px;--d6-mini-tag-action-space:12px;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-main-row,
+html.ybez-desktop-mini .d6-b17-expense-sheet .lodging-main-row,
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-other-group .expense-main-row{
+  display:grid !important;
+  grid-template-columns:var(--d6-mini-label-col) var(--d6-mini-tag-col) var(--d6-mini-action-col) minmax(0,1fr) var(--d6-mini-value-col) !important;
+  column-gap:var(--d6-mini-ledger-gap) !important;align-items:center !important;width:100% !important;min-width:0 !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-label-cell{grid-column:1 !important;justify-self:start !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-tag-cell{
+  grid-column:2 !important;width:var(--d6-mini-tag-col) !important;min-width:var(--d6-mini-tag-col) !important;
+  justify-self:start !important;justify-content:center !important;margin:0 !important;padding:0 !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-tag-cell .expense-tag-compact{
+  width:30px !important;min-width:30px !important;max-width:30px !important;margin:0 !important;
+  padding-left:0 !important;padding-right:0 !important;justify-content:center !important;text-align:center !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-action-cell{
+  grid-column:3 !important;width:var(--d6-mini-action-col) !important;min-width:var(--d6-mini-action-col) !important;
+  margin:0 !important;padding-left:var(--d6-mini-tag-action-space) !important;padding-right:0 !important;box-sizing:border-box !important;
+  justify-self:start !important;justify-content:flex-start !important;position:static !important;left:auto !important;right:auto !important;top:auto !important;transform:none !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-main-row > div:nth-child(4):empty{
+  display:block !important;grid-column:4 !important;min-width:0 !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-main-row > .expense-value-cell,
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-main-row > .expense-entry-cell:last-child{
+  grid-column:5 !important;width:100% !important;min-width:0 !important;justify-self:stretch !important;
+  justify-content:flex-end !important;text-align:right !important;padding-left:0 !important;padding-right:0 !important;box-sizing:border-box !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-lodging-entry{
+  grid-column:3/5 !important;margin-left:0 !important;padding-left:var(--d6-mini-tag-action-space) !important;padding-right:0 !important;
+  box-sizing:border-box !important;justify-content:flex-start !important;gap:3px !important;
+}
+html.ybez-desktop-mini .d6-b17-expense-sheet .lodging-main-row > .expense-value-cell{grid-column:5 !important;}
+html.ybez-desktop-mini .d6-b17-expense-sheet .expense-note-row,
+html.ybez-desktop-mini .d6-b17-expense-sheet .lodging-short-note{
+  margin-top:2px !important;margin-bottom:0 !important;line-height:1.35 !important;
+}
+html.ybez-desktop-mini .d6-b17-sheet-header{
+  min-height:50px !important;flex-basis:50px !important;padding-left:14px !important;padding-right:12px !important;
+}
+html.ybez-desktop-mini .d6-b17-sheet-confirm{height:32px !important;}
+html.ybez-desktop-mini .d6-b17-sheet-x{width:32px !important;height:32px !important;}
+html.ybez-desktop-mini .travel-calc-sheet.d6-b17-bottom-sheet .d6-w33-fixed-total{
+  flex-basis:58px !important;min-height:58px !important;
+}
+</style>
 </head>
 <body>
 <div id="root"></div>
@@ -20305,7 +20457,7 @@ html[data-ybez-ui-mode="tablet"] .d6-w32-expense-body .expense-other-group .expe
             // D6-W3.6B11: preserve a user-resized Tablet PiP geometry.
             // Mini keeps its existing fixed resize behavior; Tablet does not call resizeTo().
             if (!isTablet) {
-                const targetSizeW34 = { width: 520, height: 900 };
+                const targetSizeW34 = { width: 480, height: 760 };
                 pipWindow.resizeTo(targetSizeW34.width, targetSizeW34.height);
             }
         } catch (err) {
@@ -20336,7 +20488,7 @@ html[data-ybez-ui-mode="tablet"] .d6-w32-expense-body .expense-other-group .expe
 
         let pipWindow;
         try {
-            const requestSizeW34 = nextMode === "tablet" ? getTabletPiPSizeW34() : { width: 520, height: 900 };
+            const requestSizeW34 = nextMode === "tablet" ? getTabletPiPSizeW34() : { width: 480, height: 760 };
             const requestOptionsW35 = {
                 width: requestSizeW34.width,
                 height: requestSizeW34.height,
