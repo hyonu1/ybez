@@ -22283,6 +22283,111 @@ html.ybez-desktop-mini .d6-b17-route-sheet .d6-b17-route-summary{
 }
 </style>
 
+
+<style id="d44-5d5-2-desktop-copy-expense-align">
+/* D44.5D5.2 · normal Desktop only.
+   - transport input: slightly wider, so its left edge moves left while the right/unit axis stays fixed
+   - other transport/lodging inputs: same width/left edge as transport
+   - lodging total entry: small right shift only
+   No calculation/state or non-Desktop layout changes. */
+@media (min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .expense-ledger > .expense-item:first-child
+  .expense-main-row > .expense-entry-cell:last-child
+  .expense-money-input.ledger-money-input{
+    width:120px!important;
+    min-width:120px!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .expense-other-group .expense-main-row > .expense-entry-cell:last-child
+  .expense-money-input.ledger-money-input{
+    width:120px!important;
+    min-width:120px!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-row .expense-lodging-entry{
+    position:relative!important;
+    left:8px!important;
+  }
+}
+</style>
+
+
+<style id="d44-5d5-3-desktop-expense-tag-axis-finish">
+/* D44.5D5.3 · Desktop-only expense axis finish.
+   User-signed scope:
+   1) 왕복/총액/왕복 tags sit about one character from 교통비/숙박비/기타교통비 labels.
+   2) 숙박비 input left edge shares the same third-column start as the 감액 button.
+   3) Keep D5.2 input widths; no new width redesign. */
+@media (min-width:1500px){
+
+  /* 교통비: label → tag → 감액 are content-width tracks with a compact, regular gap. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .expense-ledger > .expense-item:first-child .expense-main-row{
+    grid-template-columns:max-content max-content max-content minmax(104px,1fr)!important;
+    column-gap:10px!important;
+  }
+
+  /* 숙박비: same first/second-track grammar as 교통비.
+     Because 교통비/숙박비 and 왕복/총액 have equal text length/style,
+     the third-column start is the same optical axis as the 감액 button. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-row{
+    grid-template-columns:max-content max-content max-content minmax(104px,1fr)!important;
+    column-gap:10px!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-row .expense-lodging-entry{
+    position:relative!important;
+    left:0!important;
+    justify-self:start!important;
+    justify-content:flex-start!important;
+  }
+
+  /* 기타교통비: keep its own longer label width, but pull 왕복 directly beside the label. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .expense-other-group > .expense-item:first-child .expense-main-row{
+    grid-template-columns:max-content max-content minmax(0,1fr) minmax(104px,1fr)!important;
+    column-gap:10px!important;
+  }
+}
+</style>
+
+
+<style id="d44-5d5-4-desktop-two-axis-only">
+/* D44.5D5.4 · Desktop-only, exactly two position corrections.
+   1) 교통비 감액 버튼만 오른쪽으로 이동.
+   2) 숙박비 총액 입력 묶음만 같은 축으로 오른쪽 이동.
+   Everything else remains D5.3. */
+@media (min-width:1500px){
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .expense-ledger > .expense-item:first-child
+  .expense-action-cell{
+    position:relative!important;
+    left:44px!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-row .expense-lodging-entry{
+    position:relative!important;
+    left:44px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="root"></div>
@@ -34658,6 +34763,63 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
         let display = base.replace(/접근비용/g, "추천요금");
         if (!desktopRouteHeaderD431) return display;
 
+        // D44.5D5.2 · normal Desktop long-copy finish only.
+        // Tablet/Mini/Compact/Mobile keep their existing shortText grammar.
+        const topicParticle = (value) => {
+            const s = String(value || "").trim();
+            const ch = s.charAt(s.length - 1);
+            const code = ch ? ch.charCodeAt(0) : 0;
+            return code >= 0xAC00 && code <= 0xD7A3 && ((code - 0xAC00) % 28 !== 0) ? "은" : "는";
+        };
+
+        if (key === "grade") {
+            const gradeRoute = display
+                .split("시외일반·시외우등")[0]
+                .replace(/\s*구간\s*$/g, "")
+                .replace(/\s*→\s*/g, "→")
+                .trim();
+            if (gradeRoute) {
+                display = `${gradeRoute} 구간은 시외일반·시외우등 중 이용하실 등급을 선택해 주세요.`;
+            }
+        }
+
+        if (/^access-|^same-living$/.test(key)) {
+            const livingMatch = display.match(/^(.+?)\s+구간은 같은 광역생활권으로 분류됩니다\./);
+            if (livingMatch) {
+                const routeParts = String(livingMatch[1] || "")
+                    .replace(/\s*→\s*/g, "→")
+                    .split("→")
+                    .map(x => x.trim())
+                    .filter(Boolean);
+                if (routeParts.length === 2) {
+                    const [a, b] = routeParts;
+                    display = `${a}, ${b}${topicParticle(b)} 같은 광역생활권으로 분류됩니다. 해당 구간 추천요금 반영 여부를 선택해 주세요.`;
+                }
+            }
+        }
+
+        if (key === "partial") {
+            const partialMatch = display.match(/^일부 구간만 계산했습니다\.\s*(.+?)\s*→\s*(.+?)\s+(버스 운임 미확인|연결경로 미확인)$/);
+            if (partialMatch) {
+                display = `일부 구간만 계산했습니다. ${partialMatch[1].trim()}→${partialMatch[2].trim()} 구간의 ${partialMatch[3]}입니다.`;
+            }
+        }
+
+        if (key === "special" && /제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요\./.test(display)) {
+            display = "제주 이동 교통비는 실제 이용 운임을 확인하시고 입력해 주세요.";
+        }
+
+        if (key === "special" && /신안군 조례에 따라/.test(display)) {
+            const ruralMatch = display.match(/^(.+?)\s+신안군 조례에 따라\s+(.+?)\s+교통비에 반영됩니다\.$/);
+            if (ruralMatch) {
+                display = `${ruralMatch[1].trim()}는 신안군 조례에 따라 ${ruralMatch[2].trim()} 교통비에 반영됐습니다.`;
+            }
+        }
+
+        if (key === "special" && /구간은 목포 관내출장으로 처리합니다\.$/.test(display)) {
+            display = display.replace(/^(.+?)\s+구간은 목포 관내출장으로 처리합니다\.$/, "$1는 목포 관내출장으로 처리합니다.");
+        }
+
         // D44.5D2.2 · ferry display direction must follow the user's actual travel direction.
         // This is display-only: result.islandLegs, role, fare and calculation data are not mutated.
         if (key === "special" && /여객선/.test(display)) {
@@ -36363,7 +36525,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
                         "여비이지는 전남광주↔전국 구간을 지원하는 웹앱입니다.", React.createElement("br", null),
                         "출발지 또는 도착지 중 하나는 전남광주로 입력해 주세요.")) : partialRouteNoticeText ? (React.createElement("span", { className: "status-message partial" },
-                        React.createElement("span", { className: "d6-b18-status-long" }, partialRouteNoticeText),
+                        React.createElement("span", { className: "d6-b18-status-long" }, desktopStatusDisplayTextD2(partialRouteNoticeText, "partial")),
                         React.createElement("span", { className: "d6-b18-status-short" }, partialRouteNoticeShortText || partialRouteNoticeText))) : statusMessages.length > 0 ? (React.createElement("div", { className: "status-message-stack" },
                             statusMessages.map(m => React.createElement("div", {
                                 key: m.key,
