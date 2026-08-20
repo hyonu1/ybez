@@ -37885,7 +37885,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                                     if ((Number(lodgingNights) || 0) <= 0) setLodgingSelected(false);
                                                     setTabletLodgingPopoverOpen(false);
                                                 }
-                                            }, "확인"))),
+                                            }, "✓"))),
                                     isMultiDayTrip && tripType === "training" && React.createElement("div", { className: "trip-stay-option d6-d10-group-option m5-mobile-group-option" },
                                         React.createElement("button", {
                                             type: "button",
@@ -37916,7 +37916,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                                     if ((Number(groupNights) || 0) <= 0) setGroupSelected(false);
                                                     setTabletGroupPopoverOpen(false);
                                                 }
-                                            }, "확인"))),
+                                            }, "✓"))),
                                     trainingMixedScheduleRequired && React.createElement("button", {
                                         type: "button",
                                         className: `training-schedule-btn m5-mobile-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
@@ -38164,7 +38164,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                 React.createElement("button", {
                                     type: "button", className: "d6-d21-night-confirm", "aria-label": "이동일 숙박 박수 확인",
                                     onClick: e => { e.stopPropagation(); setTabletTravelLodgingPopoverOpen(false); }
-                                }, (isDesktopMini || isDesktopTablet || (isDesktopLikeEnvironment() && !isDesktopCompact)) ? "✓" : "확인")))),
+                                }, (isDesktopMini || isDesktopTablet || (isDesktopLikeEnvironment() && !isDesktopCompact) || (typeof window !== "undefined" && window.innerWidth <= 699)) ? "✓" : "확인")))),
                     lodgingCalcActive && React.createElement("div", { className: "expense-note-row lodging-short-note" },
                         React.createElement("div", null, "친지집 숙박: 1박당 20,000원까지 지급 가능"),
                         React.createElement("div", null, "자기집 숙박: 숙박비가 지급되지 않음"))),
@@ -38678,6 +38678,160 @@ html.ybez-desktop-mini .d31-mini-footer::after{
   z-index:2 !important;
   content:"››" !important;
   right:2px !important;
+}
+</style>
+
+
+
+<style id="m-final-mobile-night-stepper-20260820">
+/* M-FINAL · Mobile only — Desktop-proven [−][N][+][✓] stay selector, enlarged for touch.
+   Presentation only: existing state, increment/decrement handlers, confirm handlers and calculations are untouched.
+   Protected: Desktop / Tablet / Mini / Compact and the locked Mobile expense/grid axes. */
+@media (max-width:699px){
+  /* Local/group stay popovers: current M5 DOM only. Keep the 2x2 condition grid itself unchanged. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-popover,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-popover,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-lodging-wrap .d6-d26-travel-night-popover{
+    width:156px !important;
+    min-width:0 !important;
+    max-width:calc(100vw - 28px) !important;
+    height:42px !important;
+    min-height:42px !important;
+    max-height:42px !important;
+    padding:3px !important;
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:2px !important;
+    box-sizing:border-box !important;
+    border:1px solid #C5D3DF !important;
+    border-radius:9px !important;
+    background:#FFFFFF !important;
+    box-shadow:0 8px 20px rgba(21,43,70,.16) !important;
+    z-index:620 !important;
+  }
+
+  /* Left cell opens from the left edge; right cell from the right edge, preventing viewport escape. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-popover{
+    position:absolute !important;
+    left:0 !important;
+    right:auto !important;
+    top:calc(100% + 4px) !important;
+    transform:none !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-popover{
+    position:absolute !important;
+    left:auto !important;
+    right:0 !important;
+    top:calc(100% + 4px) !important;
+    transform:none !important;
+  }
+
+  /* Travel-day selector stays on its proven right amount axis and opens inward. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-lodging-wrap .d6-d26-travel-night-popover{
+    position:absolute !important;
+    left:auto !important;
+    right:0 !important;
+    top:calc(100% + 3px) !important;
+    transform:none !important;
+  }
+
+  /* Four equal touch cells. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-step,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-step,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d10-night-step,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d21-night-confirm{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:36px !important;
+    min-height:36px !important;
+    max-height:36px !important;
+    padding:0 !important;
+    margin:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:1px solid #C5D3DF !important;
+    border-radius:6px !important;
+    background:#F8FAFC !important;
+    color:#173A63 !important;
+    font-family:var(--pr) !important;
+    font-size:18px !important;
+    line-height:1 !important;
+    font-weight:900 !important;
+    box-shadow:none !important;
+    box-sizing:border-box !important;
+    touch-action:manipulation !important;
+  }
+
+  /* N is a real fourth-cell peer, not loose text. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-count,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-count,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d10-night-count{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:36px !important;
+    min-height:36px !important;
+    max-height:36px !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:1px solid #D3DEE8 !important;
+    border-radius:6px !important;
+    background:#FFFFFF !important;
+    color:#173A63 !important;
+    font-family:var(--pr) !important;
+    font-size:16px !important;
+    line-height:1 !important;
+    font-weight:900 !important;
+    box-sizing:border-box !important;
+    white-space:nowrap !important;
+  }
+
+  /* Desktop's quiet navy confirm grammar; only the glyph changes, confirm handlers stay original. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d21-night-confirm{
+    background:#EEF4F8 !important;
+    border-color:#AFC1D1 !important;
+    color:#173A63 !important;
+    font-family:var(--gm) !important;
+    font-size:17px !important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-step:disabled,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-step:disabled,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d10-night-step:disabled{
+    opacity:.35 !important;
+  }
 }
 </style>
 
