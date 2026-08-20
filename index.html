@@ -17703,6 +17703,35 @@ html[data-ybez-ui-mode="tablet"] .d6-w32-expense-body .trip-condition-box{
 }
 </style>
 
+<style id="d31-mini-footer-dashboard-badge">
+/* D31-MINI-BADGE · Mini 모드 하단 메뉴 "데스크톱" 버튼 전용.
+   기존 D6-W3.6B18D2(Tablet/Mobile/Desktop 1·2·3 배지)와 동일한 시각 스타일을
+   재사용 - Mini의 실제 클래스(d31-mini-footer-btn)가 그 규칙 목록에 빠져있어서
+   Mini에만 배지가 없었음. 이 규칙은 오직 .nav-dashboard(데스크톱) 버튼에만 매칭되고,
+   Mini의 다른 4개 버튼(즐겨찾기/히스토리/증빙/홈·여비계산)이나 Tablet/Compact/Mobile/
+   Desktop 다른 요소와는 전혀 매칭되지 않음. 라벨/아이콘 배치, 메뉴 전환 로직 변경 없음. */
+.d31-mini-footer-btn.nav-dashboard .d31-mini-footer-icon{
+  position:relative !important;
+}
+.d31-mini-footer-btn.nav-dashboard .d31-mini-footer-icon::after{
+  content:"3";
+  position:absolute !important;
+  left:50% !important; top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  z-index:5 !important;
+  width:13px !important; height:13px !important;
+  border-radius:50% !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  box-sizing:border-box !important;
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  color:currentColor !important;
+  font-family:var(--gm) !important;
+  font-size:9px !important; line-height:1 !important; font-weight:950 !important;
+  letter-spacing:0 !important; text-shadow:none !important;
+  pointer-events:none !important;
+}
+</style>
+
 <style id="d6-w36b18d4-tablet-finish">
 /* D6-W3.6B18D4 · Tablet finish + mode-number icon balance.
    Scope: visual-only. 60:40 / fare math / access selection / route resolver / proof logic unchanged. */
@@ -37742,6 +37771,29 @@ ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(
   .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
   .expense-ledger > .expense-item:first-child .expense-action-cell{
     top:auto!important;
+  }
+}
+</style>
+
+<style id="d5-6-desktop-core-title-size">
+/* D5.6 · Desktop(>=1500px) 전용, 핵심 5개 제목(출장일수/교통비/일비/숙박비/식비)만
+   가독성을 위해 font-size 1단계 확대. font-weight는 이미 900(표준 최대치)이라 유지.
+   기타교통비/기타숙박비 제목(.expense-result-label 공유)은 별도 selector로 배제해
+   기존 15.5px 그대로 둠. 가로축(d5-4)/88px 행높이(d5-5)/왕복·총액/숙박입력 20px/
+   계산 로직/다른 모드는 전혀 건드리지 않음. */
+@media (min-width:1500px){
+
+  /* 출장일수 */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .trip-main-label{
+    font-size:17px!important;
+  }
+
+  /* 핵심 4행(교통비/일비/숙박비/식비) 제목만 - 기타교통비/기타숙박비는 nth-child(-n+4)로 배제 */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation
+  .expense-ledger > .expense-item:nth-child(-n+4) .expense-result-label{
+    font-size:17px!important;
   }
 }
 </style>
