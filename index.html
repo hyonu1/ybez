@@ -22884,14 +22884,21 @@ html.ybez-desktop-mini .d6-b17-route-sheet .d6-b17-route-summary{
     font-weight:850 !important;
   }
 
-  /* 4) Tablet-proven middle action guide: only shift deduction/input start together. */
+  /* 4) Tablet-proven middle action guide: only shift deduction/input start together.
+     D6-B18C-DEDUCTFIX: Mobile previously used a fixed padding-left:26px here, unlike Tablet's
+     responsive margin-left:var(--d6-b15-action-shift) (clamp(18px,2.2vw,30px), defined in the
+     Tablet scope at ~16734). At Mobile's narrow widths this clamp always resolves to its 18px
+     floor - the same value Tablet itself uses at its own narrow end - which frees up 8px more
+     room for the deduction button text (measured: "89,900원 감액" overflowed by 11px at 26px
+     indent; Tablet's own 18px floor is reused here, not a new number). */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface{
+    --d6-b15-action-shift:clamp(18px,2.2vw,30px);
+  }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .expense-action-cell{
-    padding-left:26px !important;
-    box-sizing:border-box !important;
+    margin-left:var(--d6-b15-action-shift) !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .expense-lodging-entry{
-    padding-left:26px !important;
-    box-sizing:border-box !important;
+    margin-left:var(--d6-b15-action-shift) !important;
   }
 
   /* Keep travel-day lodging on the established final-money right edge after the action-axis shift. */
@@ -36460,18 +36467,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
 
         const mobileButtonsM6A2 = mode === "route"
             ? [
-                ["expense", "<< 여비계산", goExpense],
+                ["expense", "여비계산", goExpense],
                 ["favorite", "즐겨찾기", openFavorite],
                 ["history", "히스토리", openHistory],
                 ["proof", "증빙", openProof],
-                ["home", "홈 >>", goHome]
+                ["home", "홈", goHome]
             ]
             : [
-                ["home", "<< 홈", goHome],
+                ["home", "홈", goHome],
                 ["favorite", "즐겨찾기", openFavorite],
                 ["history", "히스토리", openHistory],
                 ["proof", "증빙", openProof],
-                ["route", "경로정보 >>", goRoute]
+                ["route", "경로정보", goRoute]
             ];
 
         const buttons = isDesktopMini
@@ -36521,11 +36528,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
         } else {
             buttons = mobilePagerEnabledM6A2
                 ? [
-                    ["route", "<< 경로정보", () => { if (result) mobileHomeToRoute(); }, !result],
+                    ["route", "경로정보", () => { if (result) mobileHomeToRoute(); }, !result],
                     ["favorite", "즐겨찾기", openFavorite, false],
                     ["history", "히스토리", openHistory, false],
                     ["proof", "증빙", openProof, false],
-                    ["expense", "여비계산 >>", () => { if (result) mobileHomeToExpense(); }, !result]
+                    ["expense", "여비계산", () => { if (result) mobileHomeToExpense(); }, !result]
                 ]
                 : [
                     ["route", "경로정보", openRouteSheetB17, !result],
@@ -36600,14 +36607,14 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                 ["favorite", "즐겨찾기", openFavorite],
                 ["history", "히스토리", openHistory],
                 ["proof", "증빙", openProof],
-                ["home", "홈 >>", goHome]
+                ["home", "홈", goHome]
             ]
             : [
                 ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard")],
                 ["favorite", "즐겨찾기", openFavorite],
                 ["history", "히스토리", openHistory],
                 ["proof", "증빙", openProof],
-                ["expense", "여비계산 >>", goExpense]
+                ["expense", "여비계산", goExpense]
             ];
         return React.createElement("nav", { className: "d31-mini-footer", "data-mini-footer-surface": miniSurfaceD31 },
             buttons.map(([type, label, handler]) => React.createElement("button", {
@@ -36675,7 +36682,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
         const routeSummary = [nz(origin), nz(via), nz(dest)].filter(Boolean).join(" → ") || "경로정보";
         const routeFareText = result && result.needsManualFare
             ? ((result && result.manualFareLabel) || "실비 입력")
-            : `${fmt(displayRoundTripFare)}원`;
+            : `${fmt(displayOneWayFare)}원`;
+        const routeRoundTripText = result && result.needsManualFare
+            ? ""
+            : `왕복 ${fmt(displayRoundTripFare)}원`;
         return React.createElement("div", {
                 className: "d6-b17-sheet-backdrop d6-b17-route-backdrop",
                 onClick: mobilePagerEnabledM6A2 ? undefined : closeRouteSheetB17
@@ -36698,8 +36708,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                 React.createElement("div", { className: "d6-b17-route-summary" },
                     React.createElement("span", { className: "d6-b17-route-summary-path", title: routeSummary }, routeSummary),
                     React.createElement("span", { className: "d6-b17-route-summary-fare" },
-                        React.createElement("small", null, result && result.partialRoute ? "현재 확인액" : "왕복 메인교통비"),
-                        routeFareText)),
+                        React.createElement("small", null, result && result.partialRoute ? "현재 확인액" : "편도 메인교통비"),
+                        React.createElement("span", { className: "d6-b17-route-summary-main" }, routeFareText),
+                        routeRoundTripText && React.createElement("span", { className: "d6-b17-route-summary-round" }, routeRoundTripText))),
                 mobilePagerEnabledM6A2 && React.createElement(MobileContextNav, { mode: "route" })));
     };
 
@@ -37831,86 +37842,90 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                     isMultiDayTrip && (useTabletExpenseUi || showDetail) && !desktopTabletPresentationD42 && React.createElement("button", { type: "button", className: "trip-help-toggle trip-help-inline", onClick: () => setTripTypeHelpOpen(true) }, mobilePagerEnabledM6A2 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기")),
                 (isMultiDayTrip || useTabletExpenseUi || desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "trip-condition-box" },
-                        React.createElement("div", { className: `trip-condition-grid ${presentationTabletUiD42 ? "d6-d10-trip-condition-grid" : ""} ${desktopTabletPresentationD42 ? "d42-desktop-condition-grid" : ""}`.trim() },
+                        React.createElement("div", { className: `trip-condition-grid ${presentationTabletUiD42 ? "d6-d10-trip-condition-grid" : ""} ${desktopTabletPresentationD42 ? "d42-desktop-condition-grid" : ""} ${mobilePagerEnabledM6A2 ? "m5-mobile-condition-grid" : ""} ${mobilePagerEnabledM6A2 && trainingMixedScheduleRequired ? "has-schedule" : ""}`.trim() },
                             mobilePagerEnabledM6A2
                                 ? React.createElement(React.Fragment, null,
                                     React.createElement("button", {
                                         type: "button",
-                                        className: `trip-choice-btn ${tripType === "general" ? "sel" : ""}`,
+                                        className: `trip-choice-btn m5-mobile-trip-type ${tripType === "general" ? "sel" : ""}`,
                                         onClick: () => handleTripTypeChange("general")
                                     }, "일반출장"),
                                     React.createElement("button", {
                                         type: "button",
-                                        className: `trip-choice-btn ${tripType === "training" ? "sel" : ""}`,
+                                        className: `trip-choice-btn m5-mobile-trip-type ${tripType === "training" ? "sel" : ""}`,
                                         onClick: () => handleTripTypeChange("training")
                                     }, "연수출장"),
-                                    isMultiDayTrip && React.createElement("div", { className: "m4-mobile-stay-row" },
-                                        React.createElement("span", {
-                                            className: `m4-mobile-stay-status ${!((lodgingSelected && Number(lodgingNights) > 0) || (tripType === "training" && groupSelected && Number(groupNights) > 0)) ? "show" : ""}`
-                                        }, !((lodgingSelected && Number(lodgingNights) > 0) || (tripType === "training" && groupSelected && Number(groupNights) > 0)) ? "미적용" : ""),
-                                        React.createElement("div", { className: `m4-mobile-stay-buttons ${tripType === "training" ? "two" : "one"}` },
-                                            React.createElement("div", { className: "trip-stay-option d6-d10-lodging-wrap m4-mobile-stay-option" },
-                                                React.createElement("button", {
-                                                    type: "button",
-                                                    className: `trip-choice-btn d6-d10-lodging-btn ${(lodgingSelected && lodgingNights > 0 && !tabletLodgingPopoverOpen) ? "check-sel" : ""} ${tabletLodgingPopoverOpen ? "d6-d21-adjusting" : ""}`,
-                                                    onClick: () => {
-                                                        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0));
-                                                        if (ceiling <= 0 && !lodgingSelected) return;
-                                                        if (!lodgingSelected) setLodgingSelected(true);
-                                                        setTabletLodgingPopoverOpen(v => !v);
-                                                    }
-                                                }, `현지숙박${(lodgingSelected && lodgingNights > 0) ? ` ${lodgingNights}박` : ""}`),
-                                                tabletLodgingPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover", role: "dialog", "aria-label": "현지숙박 박수 조정" },
-                                                    React.createElement("button", {
-                                                        type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 줄이기",
-                                                        disabled: lodgingNights <= 0,
-                                                        onClick: () => handleLodgingNightsChange(Math.max(0, lodgingNights - 1))
-                                                    }, "−"),
-                                                    React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(lodgingNights) || 0)}`),
-                                                    React.createElement("button", {
-                                                        type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 늘리기",
-                                                        disabled: lodgingNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0)),
-                                                        onClick: () => handleLodgingNightsChange(lodgingNights + 1)
-                                                    }, "+"),
-                                                    React.createElement("button", {
-                                                        type: "button", className: "d6-d21-night-confirm", "aria-label": "현지숙박 박수 확인",
-                                                        onClick: e => {
-                                                            e.stopPropagation();
-                                                            if ((Number(lodgingNights) || 0) <= 0) setLodgingSelected(false);
-                                                            setTabletLodgingPopoverOpen(false);
-                                                        }
-                                                    }, "확인"))),
-                                            tripType === "training" && React.createElement("div", { className: "trip-stay-option d6-d10-group-option m4-mobile-stay-option" },
-                                                React.createElement("button", {
-                                                    type: "button",
-                                                    className: `trip-choice-btn ${(groupSelected && groupNights > 0 && !tabletGroupPopoverOpen) ? "check-sel" : ""} ${tabletGroupPopoverOpen ? "d6-d21-adjusting" : ""}`,
-                                                    onClick: () => {
-                                                        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0));
-                                                        if (ceiling <= 0 && !groupSelected) return;
-                                                        if (!groupSelected) setGroupSelected(true);
-                                                        setTabletGroupPopoverOpen(v => !v);
-                                                    }
-                                                }, (groupSelected && groupNights > 0) ? `합숙제공 ${groupNights}박` : "합숙제공"),
-                                                tabletGroupPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover", role: "dialog", "aria-label": "합숙제공 박수 조정" },
-                                                    React.createElement("button", {
-                                                        type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 줄이기",
-                                                        disabled: groupNights <= 0,
-                                                        onClick: () => handleGroupNightsChange(Math.max(0, groupNights - 1))
-                                                    }, "−"),
-                                                    React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(groupNights) || 0)}`),
-                                                    React.createElement("button", {
-                                                        type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 늘리기",
-                                                        disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)),
-                                                        onClick: () => handleGroupNightsChange(groupNights + 1)
-                                                    }, "+"),
-                                                    React.createElement("button", {
-                                                        type: "button", className: "d6-d21-night-confirm", "aria-label": "합숙제공 박수 확인",
-                                                        onClick: e => {
-                                                            e.stopPropagation();
-                                                            if ((Number(groupNights) || 0) <= 0) setGroupSelected(false);
-                                                            setTabletGroupPopoverOpen(false);
-                                                        }
-                                                    }, "확인"))))))
+                                    isMultiDayTrip && React.createElement("div", { className: "trip-stay-option d6-d10-lodging-wrap m5-mobile-lodging-option" },
+                                        React.createElement("button", {
+                                            type: "button",
+                                            className: `trip-choice-btn d6-d10-lodging-btn ${(lodgingSelected && lodgingNights > 0 && !tabletLodgingPopoverOpen) ? "check-sel" : ""} ${tabletLodgingPopoverOpen ? "d6-d21-adjusting" : ""}`,
+                                            onClick: () => {
+                                                const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0));
+                                                if (ceiling <= 0 && !lodgingSelected) return;
+                                                if (!lodgingSelected) setLodgingSelected(true);
+                                                setTabletLodgingPopoverOpen(v => !v);
+                                            }
+                                        }, `현지숙박${(lodgingSelected && lodgingNights > 0) ? ` ${lodgingNights}박` : ""}`),
+                                        tabletLodgingPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover", role: "dialog", "aria-label": "현지숙박 박수 조정" },
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 줄이기",
+                                                disabled: lodgingNights <= 0,
+                                                onClick: () => handleLodgingNightsChange(Math.max(0, lodgingNights - 1))
+                                            }, "−"),
+                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(lodgingNights) || 0)}`),
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 늘리기",
+                                                disabled: lodgingNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0)),
+                                                onClick: () => handleLodgingNightsChange(lodgingNights + 1)
+                                            }, "+"),
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d21-night-confirm", "aria-label": "현지숙박 박수 확인",
+                                                onClick: e => {
+                                                    e.stopPropagation();
+                                                    if ((Number(lodgingNights) || 0) <= 0) setLodgingSelected(false);
+                                                    setTabletLodgingPopoverOpen(false);
+                                                }
+                                            }, "확인"))),
+                                    isMultiDayTrip && tripType === "training" && React.createElement("div", { className: "trip-stay-option d6-d10-group-option m5-mobile-group-option" },
+                                        React.createElement("button", {
+                                            type: "button",
+                                            className: `trip-choice-btn ${(groupSelected && groupNights > 0 && !tabletGroupPopoverOpen) ? "check-sel" : ""} ${tabletGroupPopoverOpen ? "d6-d21-adjusting" : ""}`,
+                                            onClick: () => {
+                                                const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0));
+                                                if (ceiling <= 0 && !groupSelected) return;
+                                                if (!groupSelected) setGroupSelected(true);
+                                                setTabletGroupPopoverOpen(v => !v);
+                                            }
+                                        }, (groupSelected && groupNights > 0) ? `합숙제공 ${groupNights}박` : "합숙제공"),
+                                        tabletGroupPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover", role: "dialog", "aria-label": "합숙제공 박수 조정" },
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 줄이기",
+                                                disabled: groupNights <= 0,
+                                                onClick: () => handleGroupNightsChange(Math.max(0, groupNights - 1))
+                                            }, "−"),
+                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(groupNights) || 0)}`),
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 늘리기",
+                                                disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)),
+                                                onClick: () => handleGroupNightsChange(groupNights + 1)
+                                            }, "+"),
+                                            React.createElement("button", {
+                                                type: "button", className: "d6-d21-night-confirm", "aria-label": "합숙제공 박수 확인",
+                                                onClick: e => {
+                                                    e.stopPropagation();
+                                                    if ((Number(groupNights) || 0) <= 0) setGroupSelected(false);
+                                                    setTabletGroupPopoverOpen(false);
+                                                }
+                                            }, "확인"))),
+                                    trainingMixedScheduleRequired && React.createElement("button", {
+                                        type: "button",
+                                        className: `training-schedule-btn m5-mobile-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
+                                        onClick: () => {
+                                            setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
+                                            setTrainingGroupScheduleError("");
+                                            setTrainingGroupScheduleOpen(true);
+                                        }
+                                    }, trainingGroupScheduleComplete ? "합숙일 지정완료" : "합숙일 미지정"))
                                 : presentationTabletUiD42
                                 ? React.createElement(React.Fragment, null,
                                     React.createElement("button", {
@@ -38029,7 +38044,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                         (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail) || (!desktopTabletPresentationD42 && trainingMixedScheduleRequired)) && React.createElement("div", { className: `trip-help-wrap ${desktopTabletPresentationD42 ? "d42-desktop-help-wrap" : ""}`.trim() },
                             React.createElement("div", { className: `trip-help-toggle-row ${(!desktopTabletPresentationD42 && trainingMixedScheduleRequired) ? "k5g-actions" : ""}` },
                                 (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail)) && React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(true) }, desktopTabletPresentationD42 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기"),
-                                !desktopTabletPresentationD42 && trainingMixedScheduleRequired && React.createElement("button", {
+                                !desktopTabletPresentationD42 && !mobilePagerEnabledM6A2 && trainingMixedScheduleRequired && React.createElement("button", {
                                     type: "button",
                                     className: `training-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
                                     onClick: () => {
@@ -38409,5 +38424,262 @@ ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(
   waitForTargetsThenInit();
 })();
 </script>
+
+<style id="ybez-mobile-m5-final-polish-navhint-20260820">
+/* YBEZ Mobile M5 final polish.
+   Scope: real Mobile presentation + intentional Mini swipe hint only.
+   Protected: shared fare/expense calculations, Desktop, Tablet, Compact, route resolver, proof, and M4 swipe thresholds. */
+
+@media (max-width:699px){
+  /* Real Mobile only ------------------------------------------------------- */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet){
+    --m5-nav-hint-w:16px;
+  }
+
+  /* Keep the final content fully scrollable above the persistent footer/menu. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .col-center{
+    padding-bottom:calc(var(--m3-nav-content-h,70px) + var(--m3-safe-bottom,0px) + 14px) !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-route-sheet .d6-b17-sheet-body{
+    padding-bottom:calc(26px + env(safe-area-inset-bottom,0px)) !important;
+    scroll-padding-bottom:26px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet .travel-calc-body.d6-b17-sheet-body{
+    padding-bottom:calc(30px + env(safe-area-inset-bottom,0px)) !important;
+    scroll-padding-bottom:30px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-bottom-nav.m3-bottom-nav{
+    flex-shrink:0 !important;
+  }
+
+  /* Small side double-chevron affordance. Arrows are visual only; swipe logic is unchanged.
+     D6-B17-NAVFIX: position:relative was previously applied to .mobile-bottom-nav.m3-bottom-nav
+     here too, which overrode the required position:fixed (viewport-bottom pin) by specificity,
+     causing the bottom nav to sit right after content instead of staying at viewport bottom.
+     position:fixed already establishes its own containing block for ::before/::after, so the
+     chevrons still position correctly without position:relative on this selector. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-bottom-nav.m3-bottom-nav,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav{
+    padding-left:18px !important;
+    padding-right:18px !important;
+    gap:2px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav{
+    position:relative !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-bottom-nav.m3-bottom-nav::before,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-bottom-nav.m3-bottom-nav::after,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav::before,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav::after{
+    position:absolute !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:14px !important;
+    height:18px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    color:#536B82 !important;
+    font-family:Arial,sans-serif !important;
+    font-size:12px !important;
+    font-weight:700 !important;
+    line-height:1 !important;
+    letter-spacing:-4px !important;
+    opacity:.50 !important;
+    pointer-events:none !important;
+    z-index:2 !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-bottom-nav.m3-bottom-nav::before,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav::before{content:"‹‹" !important;left:2px !important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-bottom-nav.m3-bottom-nav::after,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .m5-context-nav::after{content:"››" !important;right:2px !important;}
+
+  /* Trip-day controls: keep label/help at the edges and pin − N + exactly to the visual center. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .trip-main-row{
+    position:relative !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    min-height:40px !important;
+    padding:0 2px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .trip-main-label{
+    flex:0 0 auto !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    transform:translate(-50%,-50%) !important;
+    margin:0 !important;
+    justify-content:center !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .trip-help-inline{
+    position:static !important;
+    transform:none !important;
+    margin-left:auto !important;
+    flex:0 0 auto !important;
+  }
+
+  /* Four condition controls share the same 2x2 axes. A narrow third lane appears only when schedule selection is required. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    grid-auto-rows:32px !important;
+    gap:5px !important;
+    width:100% !important;
+    max-width:100% !important;
+    align-items:center !important;
+  }
+  /* D6-D22-SCHEDULEFIX: 합숙일 미지정 버튼을 2x2 옆(3번째 컬럼)에 끼워넣지 않고
+     2x2 아래 새 3번째 행에 전체폭 얇은 버튼으로 배치한다 (Tablet/Mini 방식과 동일한
+     "2x2 아래" 배치 원칙 재사용, 새 컴포넌트/핸들러 없음 - 위치만 이동). */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-grid.has-schedule{
+    grid-template-rows:32px 32px auto !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-trip-type,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option{
+    min-width:0 !important;
+    height:32px !important;
+    min-height:32px !important;
+    margin:0 !important;
+    align-self:stretch !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-trip-type,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option > .trip-choice-btn,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option > .trip-choice-btn{
+    width:100% !important;
+    height:32px !important;
+    min-height:32px !important;
+    margin:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    padding:0 6px !important;
+    font-size:11.5px !important;
+    line-height:1 !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option{grid-column:1 !important;grid-row:2 !important;position:relative !important;overflow:visible !important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option{grid-column:2 !important;grid-row:2 !important;position:relative !important;overflow:visible !important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-schedule-btn{
+    grid-column:1 / -1 !important;
+    grid-row:3 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:28px !important;
+    min-height:28px !important;
+    margin:4px 0 0 !important;
+    padding:2px 8px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    white-space:nowrap !important;
+    font-size:11px !important;
+    font-weight:900 !important;
+    line-height:1.05 !important;
+    border-radius:7px !important;
+  }
+
+  /* Slightly improve deduction touch/readability without moving the proven left action axis. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .deduct-btn,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .deduct-btn.active{
+    min-width:40px !important;
+    height:30px !important;
+    min-height:30px !important;
+    padding:0 7px !important;
+    font-size:11.2px !important;
+  }
+
+  /* Lodging total input: only a small width increase so 888,888 is comfortably visible. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .lodging-main-row .expense-money-input.ledger-money-input{
+    width:90px !important;
+    min-width:90px !important;
+    max-width:90px !important;
+    padding-left:5px !important;
+    padding-right:5px !important;
+  }
+
+  /* Compact other-cost rows: reserve enough title room so 기타교통비 never collides with the 왕복 tag.
+     D6-B18D-OTHERFIX: column 3(조작/입력) was hard-coded to 0, which for 기타숙박비's editable
+     input meant it had no allocated track width and visually overflowed ~81px into the amount
+     column (measured). Reusing the same --d6-b18b-action width already used by the 4 core rows
+     (not a new number) gives both 기타교통비/기타숙박비 rows a real, shared action column so
+     amounts no longer collide - matching the "제목|태그|조작/입력|최종금액" axis Tablet/Mini use. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .expense-other-group .expense-main-row{
+    grid-template-columns:72px 30px var(--d6-b18b-action) minmax(0,1fr) var(--d6-b18b-entry) !important;
+    column-gap:2px !important;
+  }
+  /* 기타숙박비의 .expense-lodging-entry는 핵심 숙박비 행(별도 금액표시 없음)과 달리 오른쪽에
+     실제 지급금액 셀이 별도로 존재하므로, 핵심 행과 같은 grid-column:3/5(값 컬럼까지 확장)를
+     그대로 물려받으면 값 컬럼을 침범한다. 조작(3번) 컬럼 하나로만 한정해 침범을 없앤다. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .expense-other-group .expense-lodging-entry{
+    grid-column:3 !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .expense-other-group .expense-result-label{
+    font-size:13.5px !important;
+    letter-spacing:-.25px !important;
+  }
+
+  /* Travel-day lodging: closed state is one button only; the stepper exists solely while the popover is rendered. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-lodging-wrap:not(:has(.d6-d26-travel-night-popover)){
+    gap:0 !important;
+  }
+
+  /* Route footer semantics: one-way is the primary amount, round-trip is a smaller aid. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-route-summary-fare .d6-b17-route-summary-main{
+    display:block !important;
+    font-size:18px !important;
+    font-weight:950 !important;
+    line-height:1 !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-route-summary-fare .d6-b17-route-summary-round{
+    display:block !important;
+    margin-top:3px !important;
+    font-family:var(--pretendard) !important;
+    font-size:9.5px !important;
+    font-weight:750 !important;
+    line-height:1 !important;
+    opacity:.78 !important;
+  }
+}
+
+/* Mini intentionally receives a swipe affordance - RIGHT SIDE ONLY (no left "‹‹").
+   D31-MINI-HINT-FIX: previously had both ::before("‹‹") and ::after("››"), which is the
+   left+right pair Mobile uses. Mini's spec calls for a single small right-side ">>" only,
+   so ::before is removed entirely (and its padding-left, no longer needed) while ::after
+   keeps the existing "d31-mini-footer-dashboard-badge" ("미니모드 3") untouched - that badge
+   overlays the nav-dashboard icon itself, this hint overlays the nav container's right edge,
+   so the two do not collide. Mini's existing swipe/toggle logic is untouched. */
+html.ybez-desktop-mini .d31-mini-footer{
+  position:fixed !important;
+  padding-right:18px !important;
+}
+html.ybez-desktop-mini .d31-mini-footer::after{
+  position:absolute !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:14px !important;
+  height:18px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#536B82 !important;
+  font-family:Arial,sans-serif !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  letter-spacing:-4px !important;
+  opacity:.48 !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+  content:"››" !important;
+  right:2px !important;
+}
+</style>
+
 </body>
 </html>
