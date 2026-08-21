@@ -22908,6 +22908,627 @@ html.ybez-desktop-mini .d6-b17-route-sheet .d6-b17-route-summary{
   }
 }
 </style>
+<style id="r9-3-desktop-eight-card-layout">
+/* R9.3 · Normal Desktop selection layout only.
+   - Access choices on the first row; general/premium choices on the second.
+   - Up to four square cards per row (eight total) beside a two-row mascot.
+   - 1500–1920px scales from 84/176px to 110/228px.
+   - Existing React selection/calculation behavior and all non-Desktop modes stay unchanged. */
+@media (min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact){
+    --r93-choice-card:clamp(84px,calc(6.1905vw - 8.857px),110px);
+    --r93-choice-block:calc(var(--r93-choice-card) + var(--r93-choice-card) + var(--r93-choice-card) + var(--r93-choice-card) + 24px);
+    --r93-mascot:calc(var(--r93-choice-card) + var(--r93-choice-card) + 8px);
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid{
+    grid-template-columns:minmax(0,var(--r93-choice-block)) var(--r93-mascot)!important;
+    justify-content:center!important;
+    align-items:start!important;
+    gap:18px!important;
+    height:auto!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack{
+    display:flex!important;
+    flex-direction:column!important;
+    width:var(--r93-choice-block)!important;
+    min-height:var(--r93-mascot)!important;
+    gap:8px!important;
+  }
+
+  /* DOM order is preserved; visual order alone puts access choices above main-grade choices. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection{order:1!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-wrap{order:2!important;}
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-control,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection{
+    display:grid!important;
+    grid-template-columns:repeat(4,var(--r93-choice-card))!important;
+    grid-auto-rows:var(--r93-choice-card)!important;
+    gap:8px!important;
+    width:var(--r93-choice-block)!important;
+    min-height:var(--r93-choice-card)!important;
+    align-items:stretch!important;
+    justify-content:start!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-option,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection .access-choice-card{
+    width:var(--r93-choice-card)!important;
+    min-width:var(--r93-choice-card)!important;
+    max-width:var(--r93-choice-card)!important;
+    height:var(--r93-choice-card)!important;
+    min-height:var(--r93-choice-card)!important;
+    max-height:var(--r93-choice-card)!important;
+    padding:9px!important;
+    gap:5px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+    align-content:center!important;
+    justify-content:center!important;
+  }
+
+  /* Shared three-line grammar: type -> amount -> route. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-name{order:1!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-fare{order:2!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-route{
+    order:3!important;
+    display:-webkit-box!important;
+    white-space:normal!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    overflow-wrap:anywhere!important;
+    line-height:1.2!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack
+  .access-choice-card.policy-only > .d6-b18d4-access-tablet-only{
+    display:grid!important;
+    grid-template-rows:auto auto auto!important;
+    align-content:center!important;
+    justify-items:center!important;
+    gap:5px!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-main{display:contents!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-mode{order:1!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-amount{order:2!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-route{
+    order:3!important;
+    display:-webkit-box!important;
+    white-space:normal!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    overflow-wrap:anywhere!important;
+    line-height:1.2!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid > .pc-center-mascot-card,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-stage,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-card .mobile-rc-mascot-stage{
+    width:var(--r93-mascot)!important;
+    height:var(--r93-mascot)!important;
+    min-width:var(--r93-mascot)!important;
+    min-height:var(--r93-mascot)!important;
+    max-width:var(--r93-mascot)!important;
+    max-height:var(--r93-mascot)!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-card .mobile-rc-mascot-img{
+    width:var(--r93-mascot)!important;
+    height:var(--r93-mascot)!important;
+    min-width:var(--r93-mascot)!important;
+    min-height:var(--r93-mascot)!important;
+    max-width:var(--r93-mascot)!important;
+    max-height:var(--r93-mascot)!important;
+  }
+}
+</style>
+
+<style id="r9-4-desktop-choice-balance">
+/* R9.4 · Normal Desktop choice-board balance only.
+   Goal: keep the 8-card capacity while restoring the earlier breathing room:
+   wider 10:9 cards on the left, a larger square mascot pushed to the right,
+   and a clearer typography hierarchy (amount > type > route).
+   No shared state, route/fare calculation, or non-Desktop mode changes. */
+@media (min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact){
+    --r94-card-w:clamp(92px,calc(6.6667vw - 8px),120px);
+    --r94-card-h:clamp(83px,calc(5.9524vw - 6.286px),108px);
+    --r94-choice-block:calc((var(--r94-card-w) * 4) + 24px);
+    --r94-mascot:clamp(190px,calc(14.2857vw - 24.286px),250px);
+  }
+
+  /* Use the full framed width: cards anchor left, mascot anchors right. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid{
+    grid-template-columns:var(--r94-choice-block) var(--r94-mascot)!important;
+    justify-content:space-between!important;
+    align-items:start!important;
+    column-gap:18px!important;
+    height:auto!important;
+    min-height:calc(var(--r94-mascot) + 24px)!important;
+  }
+
+  /* Preserve an intentional quiet zone above the common 4-card case.
+     The lower general/premium row stays visually closest to the status bar. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-end!important;
+    width:var(--r94-choice-block)!important;
+    min-width:var(--r94-choice-block)!important;
+    max-width:var(--r94-choice-block)!important;
+    min-height:var(--r94-mascot)!important;
+    gap:8px!important;
+    align-self:start!important;
+    justify-self:start!important;
+  }
+
+  /* Access row remains above; general/premium remains below. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection{order:1!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-wrap{order:2!important;}
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-control,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection{
+    display:grid!important;
+    grid-template-columns:repeat(4,var(--r94-card-w))!important;
+    grid-auto-rows:var(--r94-card-h)!important;
+    gap:8px!important;
+    width:var(--r94-choice-block)!important;
+    min-width:var(--r94-choice-block)!important;
+    max-width:var(--r94-choice-block)!important;
+    min-height:var(--r94-card-h)!important;
+    align-items:stretch!important;
+    justify-content:start!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-option,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection .access-choice-card{
+    width:var(--r94-card-w)!important;
+    min-width:var(--r94-card-w)!important;
+    max-width:var(--r94-card-w)!important;
+    height:var(--r94-card-h)!important;
+    min-height:var(--r94-card-h)!important;
+    max-height:var(--r94-card-h)!important;
+    padding:8px 9px!important;
+    gap:5px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    align-content:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+
+  /* Three-line card grammar: type -> amount -> route.
+     Visual hierarchy: amount > type > route. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-name{
+    order:1!important;
+    font-size:13px!important;
+    line-height:1.12!important;
+    font-weight:900!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-fare{
+    order:2!important;
+    font-size:19px!important;
+    line-height:1.05!important;
+    font-weight:950!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-route{
+    order:3!important;
+    font-size:10.5px!important;
+    line-height:1.18!important;
+    font-weight:800!important;
+    text-align:center!important;
+    display:-webkit-box!important;
+    white-space:normal!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack
+  .access-choice-card.policy-only > .d6-b18d4-access-tablet-only{
+    display:grid!important;
+    grid-template-rows:auto auto auto!important;
+    align-content:center!important;
+    justify-items:center!important;
+    gap:5px!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-main{display:contents!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-mode{
+    order:1!important;
+    font-size:14px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack
+  .access-choice-grid > .access-choice-card.policy-only:first-of-type .d6-b18d4-access-mode::after{
+    font-size:14px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-amount{
+    order:2!important;
+    font-size:19px!important;
+    line-height:1.05!important;
+    font-weight:950!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-route{
+    order:3!important;
+    font-size:10.5px!important;
+    line-height:1.18!important;
+    font-weight:800!important;
+    text-align:center!important;
+    display:-webkit-box!important;
+    white-space:normal!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* Larger square mascot, anchored to the right side of the existing frame. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid > .pc-center-mascot-card,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-stage,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-card .mobile-rc-mascot-stage{
+    width:var(--r94-mascot)!important;
+    height:var(--r94-mascot)!important;
+    min-width:var(--r94-mascot)!important;
+    min-height:var(--r94-mascot)!important;
+    max-width:var(--r94-mascot)!important;
+    max-height:var(--r94-mascot)!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid > .pc-center-mascot-card{
+    justify-self:end!important;
+    align-self:start!important;
+    margin:0!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-card .mobile-rc-mascot-img{
+    width:var(--r94-mascot)!important;
+    height:var(--r94-mascot)!important;
+    min-width:var(--r94-mascot)!important;
+    min-height:var(--r94-mascot)!important;
+    max-width:var(--r94-mascot)!important;
+    max-height:var(--r94-mascot)!important;
+  }
+}
+</style>
+
+
+<style id="r9-5-desktop-choice-elevation">
+/* R9.5 · Normal Desktop selection-card finish only.
+   Signed scope:
+   - B option: slightly larger 8-card board + 250px mascot at 1920+
+   - residual height difference is symmetric (C principle)
+   - amount > choice type > route typography
+   - shared shallow "button material" on all clickable Desktop selection cards
+   - no DOM/state/calculation/routing/non-Desktop changes. */
+@media (min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact){
+    --r95-card-w:100px;
+    --r95-card-h:96px;
+    --r95-col-gap:6px;
+    --r95-row-gap:10px;
+    --r95-mascot:202px;
+    --r95-choice-block:calc((var(--r95-card-w) * 4) + (var(--r95-col-gap) * 3));
+  }
+
+  /* Width stages approved in QA; same 4×2 grammar at every normal-Desktop stage. */
+  @media (min-width:1600px){
+    html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact){
+      --r95-card-w:108px;
+      --r95-card-h:102px;
+      --r95-col-gap:7px;
+      --r95-row-gap:12px;
+      --r95-mascot:216px;
+    }
+  }
+  @media (min-width:1700px){
+    html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact){
+      --r95-card-w:114px;
+      --r95-card-h:108px;
+      --r95-col-gap:8px;
+      --r95-row-gap:12px;
+      --r95-mascot:230px;
+    }
+  }
+  @media (min-width:1920px){
+    html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact){
+      --r95-card-w:122px;
+      --r95-card-h:116px;
+      --r95-col-gap:8px;
+      --r95-row-gap:14px;
+      --r95-mascot:250px;
+    }
+  }
+
+  /* Left choice board and right mascot keep the intentional horizontal breathing room.
+     The two card rows are optically centered inside the mascot height. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid{
+    grid-template-columns:var(--r95-choice-block) var(--r95-mascot)!important;
+    justify-content:space-between!important;
+    align-items:start!important;
+    column-gap:18px!important;
+    height:auto!important;
+    min-height:calc(var(--r95-mascot) + 24px)!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    width:var(--r95-choice-block)!important;
+    min-width:var(--r95-choice-block)!important;
+    max-width:var(--r95-choice-block)!important;
+    height:var(--r95-mascot)!important;
+    min-height:var(--r95-mascot)!important;
+    max-height:var(--r95-mascot)!important;
+    gap:var(--r95-row-gap)!important;
+    align-self:start!important;
+    justify-self:start!important;
+  }
+
+  /* Signed semantic order: access row above, general/premium row below. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection{order:1!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-wrap{
+    order:2!important;
+    width:var(--r95-choice-block)!important;
+    min-width:var(--r95-choice-block)!important;
+    max-width:var(--r95-choice-block)!important;
+    height:var(--r95-card-h)!important;
+    min-height:var(--r95-card-h)!important;
+    max-height:var(--r95-card-h)!important;
+    margin:0!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-control,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection{
+    display:grid!important;
+    grid-template-columns:repeat(4,var(--r95-card-w))!important;
+    grid-auto-rows:var(--r95-card-h)!important;
+    column-gap:var(--r95-col-gap)!important;
+    row-gap:0!important;
+    width:var(--r95-choice-block)!important;
+    min-width:var(--r95-choice-block)!important;
+    max-width:var(--r95-choice-block)!important;
+    height:var(--r95-card-h)!important;
+    min-height:var(--r95-card-h)!important;
+    max-height:var(--r95-card-h)!important;
+    align-items:stretch!important;
+    justify-content:start!important;
+    margin:0!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-option,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection .access-choice-card{
+    width:var(--r95-card-w)!important;
+    min-width:var(--r95-card-w)!important;
+    max-width:var(--r95-card-w)!important;
+    height:var(--r95-card-h)!important;
+    min-height:var(--r95-card-h)!important;
+    max-height:var(--r95-card-h)!important;
+    padding:9px 8px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    text-align:center!important;
+    box-shadow:0 2px 6px rgba(23,58,99,.07), inset 0 1px 0 rgba(255,255,255,.22)!important;
+    transition:transform .11s ease, box-shadow .11s ease, border-color .11s ease, background-color .11s ease!important;
+  }
+
+  /* Same shallow material for every clickable choice card; selected color/background stay untouched. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-option.selected,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection .access-choice-card.selected{
+    box-shadow:0 3px 8px rgba(23,58,99,.14), inset 0 1px 0 rgba(255,255,255,.18)!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-option:not(:disabled):active,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-access-selection .access-choice-card:not(.access-choice-locked):active{
+    transform:scale(.985)!important;
+    box-shadow:0 1px 3px rgba(23,58,99,.10), inset 0 1px 0 rgba(255,255,255,.18)!important;
+  }
+
+  /* Three-line optical hierarchy: amount > type > route. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-option{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:0!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-name{
+    order:1!important;
+    margin:0 0 4px!important;
+    font-size:13px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-fare{
+    order:2!important;
+    margin:0 0 6px!important;
+    font-size:19px!important;
+    line-height:1.05!important;
+    font-weight:950!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .pc-grade-route{
+    order:3!important;
+    margin:0!important;
+    font-size:10.5px!important;
+    line-height:1.25!important;
+    font-weight:800!important;
+    text-align:center!important;
+    display:-webkit-box!important;
+    white-space:normal!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack
+  .access-choice-card.policy-only > .d6-b18d4-access-tablet-only{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    height:100%!important;
+    gap:0!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-main{display:contents!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-mode{
+    order:1!important;
+    margin:0 0 4px!important;
+    font-size:14px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack
+  .access-choice-grid > .access-choice-card.policy-only:first-of-type .d6-b18d4-access-mode::after{
+    font-size:14px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-amount{
+    order:2!important;
+    margin:0 0 6px!important;
+    font-size:19px!important;
+    line-height:1.05!important;
+    font-weight:950!important;
+    text-align:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-stack .d6-b18d4-access-route{
+    order:3!important;
+    margin:0!important;
+    font-size:10.5px!important;
+    line-height:1.25!important;
+    font-weight:800!important;
+    text-align:center!important;
+    display:-webkit-box!important;
+    white-space:normal!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* Mascot stays at the signed size and current material; only dimensions/alignment are bound here. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid > .pc-center-mascot-card,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-stage,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-card .mobile-rc-mascot-stage{
+    width:var(--r95-mascot)!important;
+    height:var(--r95-mascot)!important;
+    min-width:var(--r95-mascot)!important;
+    min-height:var(--r95-mascot)!important;
+    max-width:var(--r95-mascot)!important;
+    max-height:var(--r95-mascot)!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-choice-mascot-grid > .pc-center-mascot-card{
+    justify-self:end!important;
+    align-self:start!important;
+    margin:0!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .pc-center-mascot-card .mobile-rc-mascot-img{
+    width:var(--r95-mascot)!important;
+    height:var(--r95-mascot)!important;
+    min-width:var(--r95-mascot)!important;
+    min-height:var(--r95-mascot)!important;
+    max-width:var(--r95-mascot)!important;
+    max-height:var(--r95-mascot)!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="root"></div>
