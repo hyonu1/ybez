@@ -23996,6 +23996,8 @@ const App = () => {
     const [lodgingTotalInput, setLodgingTotalInput] = useState("");
     // FREEZE-20260821: 공무원 여비 규정 여비 지급구분. 기본은 제2호, 모든 UI 모드가 동일 state를 공유한다.
     const [travelExpenseClass, setTravelExpenseClass] = useState(2); // 1 | 2
+    // R8-20260821: 여비 지급구분 안내는 native <details> 대신 모든 모드 공통 modal을 사용한다.
+    const [travelClassInfoOpen, setTravelClassInfoOpen] = useState(false);
     const lodgingFocused = useRef(false);
     // D28 Tablet: 이동일 숙박은 현지숙박과 독립된 상시 0~2박 입력이다.
     // 현지숙박은 출장기간 안, 이동일 숙박은 출장 전·후 숙박으로 분리한다.
@@ -36115,7 +36117,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                 (i === rows.length - 1 && result && result.partialRoute && r.kind === "missing")
                                     ? React.createElement("div", { className: "vroute-node-sub" }, "미확인 연결점")
                                     : null))))))),
-            terminalRows.length > 0 && React.createElement("details", { className: "vroute-terminal-details", open: isDesktopMini || window.innerWidth >= 700 },
+            terminalRows.length > 0 && React.createElement("details", { className: "vroute-terminal-details", open: true },
                 React.createElement("summary", { className: "mobile-detail-toggle terminal-summary" },
                     React.createElement("span", null, "터미널 정보")),
                 React.createElement("div", { className: "vroute-terminal-inline" },
@@ -36676,7 +36678,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
     const TabletRoutePanelW32 = () => React.createElement("div", { className: "d6-w32-route-shell" },
         React.createElement("div", { className: "d6-w32-side-head" }, "경로정보"),
         React.createElement("div", { className: "d6-w32-route-body" },
-            React.createElement(VerticalRouteTable, null)));
+            React.createElement(VerticalRouteTable, null)),
+        result && React.createElement("div", { className: "d6-r8-tablet-route-fare", "aria-label": "교통비" },
+            result.needsManualFare ? ((result && result.manualFareLabel) || "실비 입력") : `${fmt(displayOneWayFare)}원`));
 
     const TabletExpensePanelW32 = () => React.createElement("div", { className: "d6-w32-expense-shell" },
         React.createElement("div", { className: "d6-w32-side-head d6-d9-expense-head" },
@@ -36821,12 +36825,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                         React.createElement("button", { type: "button", className: "d6-b17-sheet-x", onClick: closeRouteSheetB17, "aria-label": "경로정보 닫기" }, "×"))),
                 React.createElement("div", { className: "mobile-side-panel-body route-panel-body d6-b17-sheet-body" },
                     React.createElement(VerticalRouteTable, null)),
-                React.createElement("div", { className: "d6-b17-route-summary" },
-                    React.createElement("span", { className: "d6-b17-route-summary-path", title: routeSummary }, routeSummary),
-                    React.createElement("span", { className: "d6-b17-route-summary-fare" },
-                        React.createElement("small", null, result && result.partialRoute ? "현재 확인액" : "편도 메인교통비"),
-                        React.createElement("span", { className: "d6-b17-route-summary-main" }, routeFareText),
-                        routeRoundTripText && React.createElement("span", { className: "d6-b17-route-summary-round" }, routeRoundTripText))),
+                React.createElement("div", { className: "d6-b17-route-summary d6-r8-route-summary-simple", "aria-label": "교통비" },
+                    React.createElement("span", { className: "d6-b17-route-summary-fare d6-r8-route-summary-amount" }, routeFareText)),
                 mobilePagerEnabledM6A2 && React.createElement(MobileContextNav, { mode: "route" })));
     };
 
@@ -37131,7 +37131,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
             onTouchCancel: mobilePagerEnabledM6A2 ? mobileSwipeCancel : undefined
         },
             React.createElement("div", { style: { padding: "14px 16px 10px", borderBottom: "1px solid var(--sep)", background: "rgba(255,255,255,0.95)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 } },
-                React.createElement("div", null,
+                React.createElement("div", { style: { marginLeft: 9 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 6 } },
                         React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 23, fontWeight: 900, color: "var(--blue)" } }, "여비이지 2nd")),
                     React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교"))),
@@ -37384,11 +37384,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                 "\uBA3C\uC800 \uC870\uD68C\uD558\uC138\uC694")))),
             ),
             isDesktopCompact
-                ? React.createElement("div", { className: "sec-hdr" }, "🧾 여비계산")
+                ? React.createElement("div", { className: "sec-hdr" }, "여비계산")
                 : React.createElement("div", { className: "sec-hdr d39-desktop-expense-head" },
                     React.createElement("div", { className: "d39-expense-head-copy" },
-                        React.createElement("span", { className: "d39-expense-head-title" }, "🧾 여비계산"),
-                        React.createElement("span", { className: "d39-expense-head-sub" }, `${tripDays}일 ${tripType === "training" ? "연수출장" : "일반출장"}`))),
+                        React.createElement("span", { className: "d39-expense-head-title" }, "여비계산"))),
             DetailContent(),
             " ")),
                     React.createElement(ExpenseFixedTotalW33, null))),
@@ -37396,6 +37395,28 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
         isDesktopMini && React.createElement(MiniFooterD31, null),
         (isDesktopMini || isDesktopTablet) && React.createElement(PiPMinimizeButtonW3, null),
         React.createElement(FeedbackModalD443, null),
+        travelClassInfoOpen && React.createElement("div", {
+            className: "modal-bg travel-class-info-modal-bg",
+            onClick: e => { if (e.target === e.currentTarget) setTravelClassInfoOpen(false); }
+        },
+            React.createElement("div", { className: "modal-box travel-class-info-modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "travel-class-info-modal-title", onClick: e => e.stopPropagation() },
+                React.createElement("div", { className: "travel-class-info-modal-head" },
+                    React.createElement("div", { id: "travel-class-info-modal-title", className: "travel-class-info-title" }, "제1호 적용 대상 안내"),
+                    React.createElement("button", { type: "button", className: "travel-class-info-modal-close", onClick: () => setTravelClassInfoOpen(false), "aria-label": "안내 닫기" }, "×")),
+                React.createElement("div", { className: "travel-class-info-modal-body" },
+                    React.createElement("div", { className: "travel-class-info-kicker" }, "교육기관에서 자주 사용하는 적용 대상 예시"),
+                    React.createElement("ul", { className: "travel-class-info-list" },
+                        React.createElement("li", null, "초·중·고등학교의 교장"),
+                        React.createElement("li", null, "교육지원청의 교육장"),
+                        React.createElement("li", null, "시·도교육청의 국장인 장학관")),
+                    React.createElement("div", { className: "travel-class-info-source" }, "근거: 「공무원 여비 규정」 별표 1 제1호 라목"),
+                    React.createElement("div", { className: "travel-class-info-divider" }),
+                    React.createElement("div", { className: "travel-class-info-subtitle" }, "전남광주통합특별시교육감"),
+                    React.createElement("div", { className: "travel-class-info-source" }, "적용: 「공무원 여비 규정」 별표 1 제1호가목"),
+                    React.createElement("div", { className: "travel-class-info-source" }, "근거: 「전남광주통합특별시교육감 소속 지방공무원 여비 조례」 제2조"),
+                    React.createElement("div", { className: "travel-class-info-foot" }, "※ 위 내용은 교육기관에서 자주 사용하는 제1호 적용 대상 예시이며, 제1호 전체 대상자를 열거한 것은 아닙니다.")),
+                React.createElement("div", { className: "travel-class-info-modal-actions" },
+                    React.createElement("button", { type: "button", className: "travel-class-info-modal-confirm", onClick: () => setTravelClassInfoOpen(false) }, "확인")))),
         intraCityOpen && (React.createElement("div", { className: "d6-w33-tablet-overlay", style: { position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }, onClick: () => { setIntraCityOpen(false); setShowMap(true); } },
             React.createElement("div", { style: { background: "linear-gradient(180deg,#FFFFFF,#FAFAFA)", boxShadow: "0 25px 50px rgba(0,0,0,0.25)", borderRadius: 28, width: "100%", maxWidth: 360, overflow: "hidden" }, onClick: e => e.stopPropagation() },
                 React.createElement("div", { style: { padding: 20 } },
@@ -37906,7 +37927,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
         const desktopD39Layout = !useTabletExpenseUi && !isDesktopCompact && isDesktopLikeEnvironment() && typeof window !== "undefined" && window.innerWidth >= 1500;
         // D42 Desktop presentation only: borrow the proven Tablet visual hierarchy without
         // changing useTabletExpenseUi (which also participates in shared calculation/state rules).
-        const desktopTabletPresentationD42 = desktopD39Layout;
+        const desktopTabletPresentationD42 = desktopD39Layout || isDesktopCompact;
         const presentationTabletUiD42 = useTabletExpenseUi || desktopTabletPresentationD42;
         // D29 common: 숙박비 총액 입력과 이동일 숙박 0~2박 컨트롤은 모든 UI 모드에서 사용한다.
         const showLodging = true;
@@ -38278,20 +38299,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                             React.createElement("div", { className: "travel-class-segment" },
                                 React.createElement("button", { type: "button", className: `travel-class-btn ${travelExpenseClass === 1 ? "selected" : ""}`, onClick: () => setTravelExpenseClass(1), "aria-pressed": travelExpenseClass === 1 }, "제1호"),
                                 React.createElement("button", { type: "button", className: `travel-class-btn ${travelExpenseClass === 2 ? "selected" : ""}`, onClick: () => setTravelExpenseClass(2), "aria-pressed": travelExpenseClass === 2 }, "제2호")),
-                            React.createElement("details", { className: "travel-class-info-details" },
-                                React.createElement("summary", { className: "travel-class-info-btn", title: "제1호 적용 대상 안내", "aria-label": "제1호 적용 대상 안내" }, "ⓘ"),
-                                React.createElement("div", { className: "travel-class-info-popover", role: "note" },
-                                    React.createElement("div", { className: "travel-class-info-title" }, "제1호 적용 대상 안내"),
-                                    React.createElement("div", { className: "travel-class-info-kicker" }, "교육기관에서 자주 사용하는 적용 대상 예시"),
-                                    React.createElement("ul", { className: "travel-class-info-list" },
-                                        React.createElement("li", null, "초·중·고등학교의 교장"),
-                                        React.createElement("li", null, "교육지원청의 교육장"),
-                                        React.createElement("li", null, "시·도교육청의 국장인 장학관")),
-                                    React.createElement("div", { className: "travel-class-info-source" }, "근거: 「공무원 여비 규정」 별표 1 제1호 라목"),
-                                    React.createElement("div", { className: "travel-class-info-divider" }),
-                                    React.createElement("div", { className: "travel-class-info-subtitle" }, "교육청의 교육감"),
-                                    React.createElement("div", { className: "travel-class-info-source" }, "근거: 해당 시·도교육청 지방공무원 여비 조례"),
-                                    React.createElement("div", { className: "travel-class-info-foot" }, "※ 위 내용은 교육기관에서 자주 사용하는 제1호 적용 대상 예시이며, 제1호 전체 대상자를 열거한 것은 아닙니다."))))),
+                            React.createElement("button", {
+                                type: "button", className: "travel-class-info-btn", title: "제1호 적용 대상 안내", "aria-label": "제1호 적용 대상 안내",
+                                onClick: () => setTravelClassInfoOpen(true)
+                            }, "i"))),
                     tabletTravelLodgingMode && React.createElement("div", { className: "expense-note-row d6-d26-travel-lodging-row" },
                         React.createElement("div", { className: "d6-d26-travel-lodging-wrap" },
                             React.createElement("button", {
@@ -38326,7 +38337,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                 React.createElement("button", {
                                     type: "button", className: "d6-d21-night-confirm", "aria-label": "이동일 숙박 박수 확인",
                                     onClick: e => { e.stopPropagation(); setTabletTravelLodgingPopoverOpen(false); }
-                                }, (isDesktopMini || isDesktopTablet || (isDesktopLikeEnvironment() && !isDesktopCompact) || (typeof window !== "undefined" && window.innerWidth <= 699)) ? "✓" : "확인")))),
+                                }, (isDesktopMini || isDesktopTablet || isDesktopCompact || (isDesktopLikeEnvironment() && !isDesktopCompact) || (typeof window !== "undefined" && window.innerWidth <= 699)) ? "✓" : "확인")))),
                     lodgingCalcActive && React.createElement("div", { className: "expense-note-row lodging-short-note" },
                         React.createElement("div", null, "친지집 숙박: 1박당 20,000원까지 지급 가능"),
                         React.createElement("div", null, "자기집 숙박: 숙박비가 지급되지 않음"))),
@@ -39486,6 +39497,131 @@ html[data-ybez-ui-mode="mini"] .ybez-pip-minimize-btn::after{
 }
 html[data-ybez-ui-mode="tablet"] .ybez-pip-minimize-btn::after{
   width:10px !important;height:1.5px !important;background:#173A63 !important;
+}
+</style>
+
+
+<style id="ybez-r8-final-ui-finish-20260821">
+/* R8 · signed UI finish only. No fare/resolver/access/expense calculation changes. */
+
+/* A. One-layer info button + real common modal. */
+.travel-class-info-details,.travel-class-info-popover{display:none !important;}
+.travel-class-info-btn{
+  width:26px !important;height:26px !important;min-width:26px !important;min-height:26px !important;
+  padding:0 !important;border:1px solid #9FB4C7 !important;border-radius:50% !important;
+  background:#FFFFFF !important;color:#24577F !important;box-shadow:none !important;
+  display:inline-flex !important;align-items:center !important;justify-content:center !important;
+  font-family:Arial,sans-serif !important;font-size:15px !important;font-weight:800 !important;font-style:normal !important;
+  line-height:1 !important;cursor:pointer !important;box-sizing:border-box !important;
+}
+.travel-class-info-btn:hover,.travel-class-info-btn:focus-visible{background:#EEF5FA !important;border-color:#6F92AF !important;color:#173A63 !important;outline:none !important;}
+.travel-class-info-modal-bg{z-index:900 !important;}
+.travel-class-info-modal{width:min(430px,calc(100vw - 32px)) !important;max-width:430px !important;max-height:min(82dvh,620px) !important;border-radius:18px !important;overflow:hidden !important;background:#FFFFFF !important;}
+.travel-class-info-modal-head{min-height:54px !important;padding:10px 12px 10px 16px !important;border-bottom:1px solid #E3EAF0 !important;display:flex !important;align-items:center !important;justify-content:space-between !important;gap:12px !important;background:#FFFFFF !important;}
+.travel-class-info-modal-head .travel-class-info-title{margin:0 !important;font-size:16px !important;}
+.travel-class-info-modal-close{width:34px !important;height:34px !important;border:0 !important;border-radius:50% !important;background:#EEF2F6 !important;color:#63788C !important;font-size:22px !important;line-height:1 !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;}
+.travel-class-info-modal-body{padding:15px 16px 10px !important;overflow-y:auto !important;}
+.travel-class-info-modal-actions{padding:8px 16px 15px !important;display:flex !important;justify-content:flex-end !important;background:#FFFFFF !important;}
+.travel-class-info-modal-confirm{min-width:76px !important;height:36px !important;padding:0 16px !important;border:1px solid #9FB4C7 !important;border-radius:10px !important;background:#173A63 !important;color:#FFFFFF !important;font-family:var(--gm) !important;font-size:13px !important;font-weight:900 !important;cursor:pointer !important;}
+@media(max-width:699px){
+  .travel-class-info-btn{width:26px !important;height:26px !important;min-width:26px !important;min-height:26px !important;font-size:15px !important;}
+  .travel-class-info-modal{width:calc(100vw - 28px) !important;max-width:380px !important;max-height:78dvh !important;}
+  .travel-class-info-modal-bg{padding:14px !important;align-items:center !important;}
+}
+
+/* B. Route information = static cards; no accordion row and no internal horizontal rules. */
+.vroute-terminal-details > summary{display:none !important;}
+.vroute-terminal-section .vroute-detail-title,
+.vroute-living-zone .vroute-detail-title{border-bottom:0 !important;border-bottom-color:transparent !important;}
+.vroute-terminal-section .vroute-detail-row,
+.vroute-living-zone .vroute-detail-row{border-top:0 !important;border-bottom:0 !important;}
+.d6-b17-route-sheet .vroute-terminal-section,
+.d6-b17-route-sheet .vroute-living-zone,
+.d6-w32-route-body .vroute-terminal-section,
+.d6-w32-route-body .vroute-living-zone{overflow:hidden !important;}
+
+/* C. Every side-sheet route footer is just the one-way amount. */
+.d6-b17-route-summary.d6-r8-route-summary-simple{justify-content:flex-end !important;padding:0 18px !important;gap:0 !important;}
+.d6-b17-route-summary.d6-r8-route-summary-simple .d6-r8-route-summary-amount{
+  display:block !important;align-items:initial !important;font-family:var(--gm) !important;font-size:24px !important;font-weight:950 !important;line-height:1 !important;color:#FFFFFF !important;white-space:nowrap !important;
+}
+.d6-r8-tablet-route-fare{
+  flex:0 0 58px !important;min-height:58px !important;padding:0 16px !important;background:#173A63 !important;color:#FFFFFF !important;
+  display:flex !important;align-items:center !important;justify-content:flex-end !important;font-family:var(--gm) !important;font-size:24px !important;font-weight:950 !important;line-height:1 !important;box-shadow:0 -4px 14px rgba(15,35,58,.12) !important;
+}
+
+/* D. Dark selected recommendation cards: target the actually visible route-first DOM. */
+html.ybez-desktop-tablet .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-route,
+html.ybez-desktop-tablet .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-mode,
+html.ybez-desktop-tablet .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-amount,
+html[data-ybez-ui-mode="tablet"] .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-route,
+html[data-ybez-ui-mode="tablet"] .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-mode,
+html[data-ybez-ui-mode="tablet"] .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-amount,
+html.ybez-desktop-mini .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-route,
+html.ybez-desktop-mini .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-mode,
+html.ybez-desktop-mini .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-amount,
+html.ybez-desktop-compact .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-route,
+html.ybez-desktop-compact .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-mode,
+html.ybez-desktop-compact .mobile-selection-panel .access-choice-card.selected .d6-b18d4-access-amount{color:#FFFFFF !important;}
+
+/* E. Desktop title = same top axis as Route Information, without duplicate subtitle. */
+@media(min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .d39-desktop-expense-head{
+    align-items:flex-start !important;padding:12px 18px 0 !important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .d39-expense-head-copy{
+    justify-content:flex-start !important;gap:0 !important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .d39-expense-head-sub{display:none !important;}
+}
+
+/* F. Compact shell stays put; inside it, use the proven Desktop stay-control grammar. */
+html.ybez-desktop-compact .d6-b17-expense-sheet .trip-summary{
+  font-size:16px !important;line-height:1.4 !important;font-weight:900 !important;margin:0 2px 8px !important;color:#334B62 !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .trip-condition-box{
+  margin:4px 0 0 !important;padding:7px 8px 6px !important;border-radius:12px !important;background:#F8FAFC !important;border:1px solid #E2E8F0 !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d42-desktop-condition-grid{
+  display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:6px 8px !important;width:min(100%,304px) !important;max-width:304px !important;margin:0 auto !important;align-items:start !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d42-desktop-condition-grid > .trip-choice-btn,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d42-desktop-condition-grid .trip-stay-option > .trip-choice-btn{
+  width:100% !important;min-width:0 !important;height:35px !important;min-height:35px !important;padding:0 10px !important;font-size:13px !important;white-space:nowrap !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .trip-stay-option{
+  position:relative !important;display:flex !important;flex-direction:column !important;align-items:stretch !important;gap:3px !important;min-width:0 !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d10-night-popover,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-night-popover{
+  position:static !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;transform:none !important;
+  width:124px !important;min-width:124px !important;max-width:124px !important;height:34px !important;min-height:34px !important;max-height:34px !important;
+  margin:0 auto !important;padding:3px !important;display:grid !important;grid-template-columns:27px 28px 27px 28px !important;align-items:center !important;justify-content:center !important;gap:2px !important;
+  border:1px solid #C5D3DF !important;border-radius:8px !important;background:#FFFFFF !important;box-shadow:0 2px 6px rgba(23,58,99,.05) !important;box-sizing:border-box !important;z-index:auto !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d10-night-popover .d6-d10-night-step,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d10-night-popover .d6-d21-night-confirm,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-night-popover .d6-d10-night-step,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-night-popover .d6-d21-night-confirm{
+  width:27px !important;min-width:27px !important;max-width:27px !important;height:27px !important;min-height:27px !important;max-height:27px !important;padding:0 !important;margin:0 !important;
+  display:flex !important;align-items:center !important;justify-content:center !important;border:1px solid #C5D3DF !important;border-radius:5px !important;background:#F8FAFC !important;color:#173A63 !important;font-family:var(--pr) !important;font-size:14px !important;line-height:1 !important;font-weight:900 !important;box-shadow:none !important;box-sizing:border-box !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d10-night-popover .d6-d21-night-confirm,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-night-popover .d6-d21-night-confirm{
+  width:28px !important;min-width:28px !important;max-width:28px !important;background:#EEF4F8 !important;border-color:#AFC1D1 !important;font-family:var(--gm) !important;font-size:13px !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d10-night-popover .d6-d10-night-count,
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-night-popover .d6-d10-night-count{
+  width:28px !important;min-width:28px !important;max-width:28px !important;height:27px !important;min-height:27px !important;max-height:27px !important;display:flex !important;align-items:center !important;justify-content:center !important;margin:0 !important;border:1px solid #D3DEE8 !important;border-radius:5px !important;background:#FFFFFF !important;color:#173A63 !important;font-size:12.5px !important;line-height:1 !important;font-weight:900 !important;box-sizing:border-box !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-lodging-row{
+  display:flex !important;justify-content:flex-end !important;align-items:flex-start !important;min-height:22px !important;margin:4px 0 0 !important;padding:0 !important;overflow:visible !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation .d6-d26-travel-lodging-wrap{
+  position:relative !important;display:inline-flex !important;flex-direction:column !important;align-items:flex-end !important;gap:3px !important;margin-left:auto !important;overflow:visible !important;
+}
+html.ybez-desktop-compact .d42-desktop-tablet-presentation button.d6-d26-travel-lodging-btn{
+  width:72px !important;min-width:72px !important;max-width:72px !important;height:24px !important;min-height:24px !important;max-height:24px !important;padding:0 4px !important;border-radius:6px !important;font-size:11.5px !important;line-height:1 !important;
 }
 </style>
 
