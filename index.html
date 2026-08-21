@@ -39955,5 +39955,143 @@ button.trip-choice-btn:active,
 /* Explicitly no press transform on information-only route/detail cards or total bars. */
 </style>
 
+<style id="ybez-r9-2-compact-movingday-restore-20260822">
+/* R9.2 · Compact-only moving-day UI restoration.
+   Scope is strictly Compact. Preserve all state/handlers and every other mode. */
+html.ybez-desktop-compact .d6-b17-expense-sheet .expense-note-row.travel-class-moving-row,
+html.ybez-desktop-compact .d6-w32-expense-body .expense-note-row.travel-class-moving-row{
+  width:auto !important;
+  max-width:100% !important;
+  margin:4px 0 2px !important;
+  padding:0 10px 0 4px !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) max-content !important;
+  align-items:start !important;
+  justify-content:stretch !important;
+  column-gap:8px !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+  text-align:left !important;
+}
+html.ybez-desktop-compact .travel-class-moving-row .travel-class-control{
+  grid-column:1 !important;
+  justify-self:start !important;
+  align-self:start !important;
+  min-width:0 !important;
+}
+html.ybez-desktop-compact .travel-class-moving-row .d6-r9-travel-lodging-wrap{
+  grid-column:2 !important;
+  justify-self:end !important;
+  align-self:start !important;
+  position:relative !important;
+  display:inline-flex !important;
+  flex-direction:column !important;
+  align-items:flex-end !important;
+  gap:3px !important;
+  margin:0 !important;
+  max-width:124px !important;
+  overflow:visible !important;
+}
+html.ybez-desktop-compact .d6-b17-expense-sheet .travel-class-moving-row button.d6-d26-travel-lodging-btn,
+html.ybez-desktop-compact .d6-w32-expense-body .travel-class-moving-row button.d6-d26-travel-lodging-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:78px !important;
+  min-width:78px !important;
+  max-width:78px !important;
+  height:25px !important;
+  min-height:25px !important;
+  max-height:25px !important;
+  padding:0 7px !important;
+  margin:0 !important;
+  border:1px solid #B8C9D8 !important;
+  border-radius:7px !important;
+  background:#F7FAFC !important;
+  color:#426783 !important;
+  font-family:var(--pretendard) !important;
+  font-size:11px !important;
+  font-weight:750 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  box-shadow:0 1px 2px rgba(23,58,99,.06), inset 0 1px 0 rgba(255,255,255,.92) !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  cursor:pointer !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-compact .d6-b17-expense-sheet .travel-class-moving-row button.d6-d26-travel-lodging-btn.adjusting,
+html.ybez-desktop-compact .d6-w32-expense-body .travel-class-moving-row button.d6-d26-travel-lodging-btn.adjusting{
+  border-color:#8FA8BF !important;
+  background:#EEF4F9 !important;
+  color:#294F72 !important;
+}
+html.ybez-desktop-compact .d6-b17-expense-sheet .travel-class-moving-row .d6-d26-travel-night-popover,
+html.ybez-desktop-compact .d6-w32-expense-body .travel-class-moving-row .d6-d26-travel-night-popover{
+  position:static !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:auto !important;
+  transform:none !important;
+  display:grid !important;
+  grid-template-columns:27px 28px 27px 28px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:2px !important;
+  width:124px !important;
+  min-width:124px !important;
+  max-width:124px !important;
+  height:34px !important;
+  min-height:34px !important;
+  max-height:34px !important;
+  margin:0 !important;
+  padding:3px !important;
+  border:1px solid #C5D3DF !important;
+  border-radius:8px !important;
+  background:#FFFFFF !important;
+  box-shadow:0 2px 6px rgba(23,58,99,.05) !important;
+  box-sizing:border-box !important;
+  z-index:40 !important;
+}
+html.ybez-desktop-compact .travel-class-moving-row .d6-d26-travel-night-popover .d6-d10-night-step,
+html.ybez-desktop-compact .travel-class-moving-row .d6-d26-travel-night-popover .d6-d21-night-confirm,
+html.ybez-desktop-compact .travel-class-moving-row .d6-d26-travel-night-popover .d6-d10-night-count{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  height:27px !important;
+  min-height:27px !important;
+  max-height:27px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:1px solid #C5D3DF !important;
+  border-radius:5px !important;
+  background:#F8FAFC !important;
+  color:#173A63 !important;
+  font-family:var(--pretendard) !important;
+  font-size:13px !important;
+  font-weight:850 !important;
+  line-height:1 !important;
+  box-shadow:none !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-compact .travel-class-moving-row .d6-d26-travel-night-popover .d6-d10-night-step{
+  width:27px !important; min-width:27px !important; max-width:27px !important;
+}
+html.ybez-desktop-compact .travel-class-moving-row .d6-d26-travel-night-popover .d6-d10-night-count{
+  width:28px !important; min-width:28px !important; max-width:28px !important;
+  background:#FFFFFF !important;
+  border-color:#D3DEE8 !important;
+}
+html.ybez-desktop-compact .travel-class-moving-row .d6-d26-travel-night-popover .d6-d21-night-confirm{
+  width:28px !important; min-width:28px !important; max-width:28px !important;
+  background:#EEF4F8 !important;
+  border-color:#AFC1D1 !important;
+  font-family:var(--gm) !important;
+  font-size:13px !important;
+}
+</style>
+
 </body>
 </html>
