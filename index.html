@@ -24014,6 +24014,9 @@ const App = () => {
     const [trainingGroupScheduleError, setTrainingGroupScheduleError] = useState("");
     const isMultiDayTrip = tripDays > 1;
     const maxLodgingNights = Math.max(0, tripDays - 1);
+    // M-Touch 20260821: real Mobile pager also uses the shared stay popovers; keep Mini/Compact/Tablet excluded.
+    const mobileStayPopoverModeM = typeof window !== "undefined" && window.innerWidth <= 699 &&
+        !isDesktopMini && !isDesktopCompact && !isDesktopTablet;
     const normalizeTripDays = useCallback((raw) => {
         const n = Number(String(raw == null ? "" : raw).replace(/[^0-9]/g, ""));
         if (!Number.isFinite(n) || n < 1) return 1;
@@ -24165,8 +24168,8 @@ const App = () => {
         return () => docs.forEach(d => d.removeEventListener("pointerdown", closeOutside, true));
     }, [tabletLodgingPopoverOpen]);
     useEffect(() => {
-        if (!(useTabletExpenseUi || desktopRouteHeaderD431) || !isMultiDayTrip || !lodgingSelected) setTabletLodgingPopoverOpen(false);
-    }, [useTabletExpenseUi, desktopRouteHeaderD431, isMultiDayTrip, lodgingSelected, tripType]);
+        if (!(useTabletExpenseUi || desktopRouteHeaderD431 || mobileStayPopoverModeM) || !isMultiDayTrip || !lodgingSelected) setTabletLodgingPopoverOpen(false);
+    }, [useTabletExpenseUi, desktopRouteHeaderD431, mobileStayPopoverModeM, isMultiDayTrip, lodgingSelected, tripType]);
     useEffect(() => {
         if (!tabletTravelLodgingPopoverOpen) return;
         const closeOutside = (e) => {
@@ -24200,8 +24203,8 @@ const App = () => {
         return () => docs.forEach(d => d.removeEventListener("pointerdown", closeOutside, true));
     }, [tabletGroupPopoverOpen]);
     useEffect(() => {
-        if (!(useTabletExpenseUi || desktopRouteHeaderD431) || !isMultiDayTrip || tripType !== "training" || !groupSelected) setTabletGroupPopoverOpen(false);
-    }, [useTabletExpenseUi, desktopRouteHeaderD431, isMultiDayTrip, tripType, groupSelected]);
+        if (!(useTabletExpenseUi || desktopRouteHeaderD431 || mobileStayPopoverModeM) || !isMultiDayTrip || tripType !== "training" || !groupSelected) setTabletGroupPopoverOpen(false);
+    }, [useTabletExpenseUi, desktopRouteHeaderD431, mobileStayPopoverModeM, isMultiDayTrip, tripType, groupSelected]);
     useEffect(() => {
         // D44.5A2 common safety guard: preserve local lodging first and trim group lodging only.
         if (lodgingNights + groupNights <= maxLodgingNights) return;
@@ -37872,7 +37875,16 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                                 disabled: lodgingNights <= 0,
                                                 onClick: () => handleLodgingNightsChange(Math.max(0, lodgingNights - 1))
                                             }, "−"),
-                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(lodgingNights) || 0)}`),
+                                            React.createElement("input", {
+                                                type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
+                                                className: "d6-d10-night-count m-touch-night-input",
+                                                value: Math.max(0, Number(lodgingNights) || 0),
+                                                onFocus: e => e.target.select(),
+                                                onKeyDown: mobileNumericDoneKey,
+                                                onChange: e => handleLodgingNightsChange(e.target.value),
+                                                autoComplete: "off", spellCheck: false,
+                                                "aria-label": "현지숙박 박수 직접 입력"
+                                            }),
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 늘리기",
                                                 disabled: lodgingNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0)),
@@ -37903,7 +37915,16 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                                 disabled: groupNights <= 0,
                                                 onClick: () => handleGroupNightsChange(Math.max(0, groupNights - 1))
                                             }, "−"),
-                                            React.createElement("span", { className: "d6-d10-night-count" }, `${Math.max(0, Number(groupNights) || 0)}`),
+                                            React.createElement("input", {
+                                                type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
+                                                className: "d6-d10-night-count m-touch-night-input",
+                                                value: Math.max(0, Number(groupNights) || 0),
+                                                onFocus: e => e.target.select(),
+                                                onKeyDown: mobileNumericDoneKey,
+                                                onChange: e => handleGroupNightsChange(e.target.value),
+                                                autoComplete: "off", spellCheck: false,
+                                                "aria-label": "합숙제공 박수 직접 입력"
+                                            }),
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 늘리기",
                                                 disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)),
@@ -38155,7 +38176,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body .
                                     disabled: tabletTravelLodgingDisplayNights <= 0,
                                     onClick: () => changeTabletTravelLodgingNights(tabletTravelLodgingDisplayNights - 1)
                                 }, "−"),
-                                React.createElement("span", { className: "d6-d10-night-count" }, `${tabletTravelLodgingDisplayNights}`),
+                                mobileStayPopoverModeM
+                                    ? React.createElement("input", {
+                                        type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
+                                        className: "d6-d10-night-count m-touch-night-input",
+                                        value: tabletTravelLodgingDisplayNights,
+                                        onFocus: e => e.target.select(),
+                                        onKeyDown: mobileNumericDoneKey,
+                                        onChange: e => changeTabletTravelLodgingNights(e.target.value),
+                                        autoComplete: "off", spellCheck: false,
+                                        "aria-label": "이동일 숙박 박수 직접 입력"
+                                    })
+                                    : React.createElement("span", { className: "d6-d10-night-count" }, `${tabletTravelLodgingDisplayNights}`),
                                 React.createElement("button", {
                                     type: "button", className: "d6-d10-night-step", "aria-label": "이동일 숙박 1박 늘리기",
                                     disabled: tabletTravelLodgingDisplayNights >= tabletTravelLodgingCeiling,
@@ -38831,6 +38863,122 @@ html.ybez-desktop-mini .d31-mini-footer::after{
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
   .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d10-night-step:disabled{
     opacity:.35 !important;
+  }
+}
+</style>
+
+
+<style id="m-touch-readability-final-20260821">
+/* M-Touch Final · Mobile only.
+   1) Search box outer geometry stays locked; input/suggestion text and row touch height increase only.
+   2) 2x2 trip-condition horizontal axes/order stay locked; only row/button height + typography increase.
+   3) Existing [−][N][+][✓] stay grammar grows one step; N is now a focusable numeric input on Mobile.
+   Protected: Desktop / Tablet / Mini / Compact, shared calculations, fare/access/proof/route logic, swipe thresholds. */
+@media (max-width:699px){
+  /* Search: keep 64px outer boxes exactly as-is. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-origin-wrap .input-field,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .mobile-dest-wrap .input-field{
+    font-size:21px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .ac-input-wrap .sug-item{
+    min-height:54px !important;
+    padding:10px 14px !important;
+    font-size:18px !important;
+    box-sizing:border-box !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .ac-input-wrap .sug-name-text{
+    font-size:18px !important;
+    line-height:1.2 !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .ac-input-wrap .sug-region-tag{
+    height:28px !important;
+    min-height:28px !important;
+    font-size:13px !important;
+  }
+
+  /* Trip condition buttons: width/order unchanged; touch height only. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-grid{
+    grid-auto-rows:42px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-grid.has-schedule{
+    grid-template-rows:42px 42px auto !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-trip-type,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option{
+    height:42px !important;
+    min-height:42px !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-trip-type,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option > .trip-choice-btn,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option > .trip-choice-btn{
+    height:42px !important;
+    min-height:42px !important;
+    font-size:13px !important;
+  }
+
+  /* Larger 4-cell selector; same proven anchors and viewport guard. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-popover,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-popover,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-lodging-wrap .d6-d26-travel-night-popover{
+    width:178px !important;
+    min-width:0 !important;
+    max-width:calc(100vw - 28px) !important;
+    height:48px !important;
+    min-height:48px !important;
+    max-height:48px !important;
+    padding:3px !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:2px !important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d10-night-step,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d10-night-step,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d10-night-step,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d21-night-confirm{
+    height:42px !important;
+    min-height:42px !important;
+    max-height:42px !important;
+    font-size:20px !important;
+  }
+
+  /* Numeric cell: same visual peer as before, now directly editable. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m-touch-night-input{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:42px !important;
+    min-height:42px !important;
+    max-height:42px !important;
+    margin:0 !important;
+    padding:0 2px !important;
+    display:block !important;
+    border:1px solid #D3DEE8 !important;
+    border-radius:6px !important;
+    background:#FFFFFF !important;
+    color:#173A63 !important;
+    font-family:var(--pr) !important;
+    font-size:18px !important;
+    font-weight:900 !important;
+    line-height:42px !important;
+    text-align:center !important;
+    box-sizing:border-box !important;
+    outline:none !important;
+    appearance:none !important;
+    -webkit-appearance:none !important;
+    touch-action:manipulation !important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m-touch-night-input:focus{
+    border-color:#829DB6 !important;
+    box-shadow:0 0 0 2px rgba(23,58,99,.10) !important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option .d6-d21-night-confirm,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .d6-d26-travel-night-popover .d6-d21-night-confirm{
+    font-size:18px !important;
   }
 }
 </style>
