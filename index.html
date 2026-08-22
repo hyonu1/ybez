@@ -42552,5 +42552,18 @@ html body .action-btn.d22-tablet-switch-btn::after{content:none!important;displa
 
 
 <!-- R10.8D 20260822: restore the existing in-project expense calculator glyph for expense title headers only; R10.8C menu SVGs stay separate. -->
+<!-- R10.8E1 20260822: Desktop vertical rhythm only; status bottom margin restore -->
+<style id="ybez-r108e1-desktop-status-rhythm-20260822">
+/* R10.8E1 · signed minimal scope.
+   Restore Desktop status-bar vertical rhythm without touching route, cards, menus,
+   Mini/Tablet/Compact/Mobile or any internal component geometry. */
+@media(min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-bar{
+    margin-top:10px!important;
+    margin-bottom:10px!important;
+  }
+}
+</style>
 </body>
 </html>
