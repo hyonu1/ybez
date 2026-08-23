@@ -24332,9 +24332,11 @@ const ISLAND_DB = {
 };
 // 2R6B7F3-R: 제주도는 2세대 자동산정에서 제외하고 사용자가 기타교통비를 실비 입력한다.
 const MANUAL_REAL_COST_ENDPOINTS = new Set(["제주"]);
-/* ── 목포·무안권 동일생활권 0원 후보(선택지 전용) ── */
-const MOKPO_MUAN_SAME_LIVING_TERMS = new Set(["남악", "일로", "오룡", "삼향"]);
-const MOKPO_MUAN_SAME_LIVING_LABEL = "남악·일로·오룡·삼향";
+/* ── R10.8A-Z4: 목포↔남악만 동일생활권 0원 선택지 유지 ──
+   무안/일로/오룡/삼향은 이 특수정책에서 제외한다.
+   내부 노드·정규화 데이터는 삭제하지 않는다. */
+const MOKPO_MUAN_SAME_LIVING_TERMS = new Set(["남악"]);
+const MOKPO_MUAN_SAME_LIVING_LABEL = "남악";
 /* ── 전남 하위 터미널 → 실제 노드ID 직접 매핑 (name2node 오매핑 방지)
    findSubResults에서 name2node 대신 이 표를 우선 사용한다.
    특히 산정(NODE_0629)이 목포종합(NODE_0177)으로 잘못 잡히는 문제 수정. ── */
@@ -27919,41 +27921,32 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     // 메인 산정안은 절대 바꾸지 않고, 가운데 선택창의 2번 이하 후보로만 사용한다.
     const buildMokpoMuanSameLivingChoices = useCallback((fromCity, toCity, baseSubs = { depSubs: [], arrSubs: [], specialSubs: [] }) => {
         const fc = nz(fromCity), tc = nz(toCity);
-        const isMokpo = (v) => v === "목포";
-        const isMuan = (v) => v === "무안";
-        const isSameTerm = (v) => MOKPO_MUAN_SAME_LIVING_TERMS.has(v);
         const out = {
             depSubs: [...(baseSubs.depSubs || [])],
             arrSubs: [...(baseSubs.arrSubs || [])],
             specialSubs: [...(baseSubs.specialSubs || [])]
         };
+
+        const isMokpo = (v) => v === "목포";
+        const isNamak = (v) => v === "남악";
         const addSame = (depName, arrName) => {
             out.specialSubs.push({
                 depName, arrName, gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
                 sources: ["area_rule"], choiceType: "same_living", sameLiving: true,
                 routeTag: "광역생활권",
-                note: "목포·무안·남악·일로·오룡·삼향 광역생활권 0원 후보"
+                note: "목포·남악 광역생활권 0원 후보"
             });
         };
-        // 목포↔무안 대표 검색: 메인 대표요금 아래에 묶음 0원 후보를 추가
-        if (isMokpo(fc) && isMuan(tc))
-            addSame("목포", MOKPO_MUAN_SAME_LIVING_LABEL);
-        else if (isMuan(fc) && isMokpo(tc))
-            addSame(MOKPO_MUAN_SAME_LIVING_LABEL, "목포");
-        // 남악은 일반검색 유지, 일로·오룡·삼향은 검색 숨김. 내부 접근후보로만 광역생활권 0원 정책을 유지
-        else if (isMokpo(fc) && isSameTerm(tc))
-            addSame("목포", tc);
-        else if (isSameTerm(fc) && isMokpo(tc))
-            addSame(fc, "목포");
-        else if (isMuan(fc) && isSameTerm(tc))
-            addSame("무안", tc);
-        else if (isSameTerm(fc) && isMuan(tc))
-            addSame(fc, "무안");
-        else if (isSameTerm(fc) && isSameTerm(tc) && fc !== tc)
-            addSame(fc, tc);
+
+        // Z4: 사용자 특수생활권 선택은 목포↔남악 한 쌍만 허용한다.
+        if (isMokpo(fc) && isNamak(tc))
+            addSame("목포", "남악");
+        else if (isNamak(fc) && isMokpo(tc))
+            addSame("남악", "목포");
+
         if (out.specialSubs.length) {
-            // 동일생활권 대상은 일반 하위노드 직통 후보에서 중복 노출하지 않는다.
-            const blockNames = new Set(["남악", "일로", "오룡", "삼향", MOKPO_MUAN_SAME_LIVING_LABEL]);
+            // 남악 동일생활권 후보가 있을 때만 일반 하위노드 중복 노출을 제거한다.
+            const blockNames = new Set(["남악"]);
             const keep = (r) => !blockNames.has(r.depName) && !blockNames.has(r.arrName);
             out.depSubs = out.depSubs.filter(keep);
             out.arrSubs = out.arrSubs.filter(keep);
@@ -33607,8 +33600,28 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         setSmartResult(null);
         setBypassInfo([]);
         setAltRoutes([]);
-        const rawFrom = canonicalEndpointName(nz(o));
-        const rawTo = canonicalEndpointName(nz(d));
+        const enteredFrom = nz(o);
+        const enteredTo = nz(d);
+        const enteredVia = nz(viaCity);
+
+        /* R10.8A-Z4: 정식 검색목록 외 사용자 입력 hard lock.
+           cityList는 실제 자동완성/검색에 노출되는 런타임 허용목록이다.
+           내부 노드명·숨김 alias·미노출 하위지역은 라우팅 데이터에는 남겨두되,
+           사용자가 직접 확정하여 미확인 경로 계산으로 진입하지 못하게 한다. */
+        const blockedUserSearchName = [enteredFrom, enteredTo, enteredVia]
+            .find(name => name && !cityList.includes(name));
+        if (blockedUserSearchName) {
+            activeCalcKeyRef.current = "";
+            setBypassInfo([
+                `⚠ "${blockedUserSearchName}"은 현재 검색 가능한 지역이 아닙니다.`,
+                "검색창의 목록에서 지역을 선택해 주세요."
+            ]);
+            setCalcSt("error_no_route");
+            return;
+        }
+
+        const rawFrom = canonicalEndpointName(enteredFrom);
+        const rawTo = canonicalEndpointName(enteredTo);
         const calcKey = `${rawFrom}|${rawTo}|${grade === "gen" ? "gen" : "pre"}`;
         activeCalcKeyRef.current = calcKey;
         const applyCalcResult = (value) => {
@@ -35611,7 +35624,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 const zeroLabel = compact
                     ? "광역생활권"
                     : (isMokpoNamak
-                        ? "목포·남악·오룡·일로·삼향 광역생활권 처리"
+                        ? "목포·남악 광역생활권 처리"
                         : `${plan.lv4}·${plan.lv5} 광역생활권 처리`);
                 return React.createElement("div", { className: "access-choice-wrap", key: `${plan.side}-${plan.lv4}-${plan.lv5}-${idx}` },
                     compact && React.createElement("div", { className: "access-choice-head" }, React.createElement("div", { className: "access-choice-title" }, activeAccessPlans.length > 1 ? `${plan.side === "origin" ? "출발" : "도착"} 추천요금` : "추천요금")),
@@ -35661,7 +35674,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const zeroLabel = compact
             ? "광역생활권"
             : (isMokpoNamak
-                ? "목포·남악·오룡·일로·삼향 광역생활권 처리"
+                ? "목포·남악 광역생활권 처리"
                 : `${zeroRoute} 광역생활권 처리`);
         const paidCard = React.createElement("button", { key: "paid", type: "button", className: `access-choice-card policy-only ${!zeroSelected ? "selected" : ""}`, onClick: () => setSelSub(null) },
             React.createElement("div", { className: "d6-b18d4-access-tablet-only" },
@@ -43209,5 +43222,6 @@ html body .r104-final-top-scope.deduction-modal .transport-proof-principle{
 <!-- R10.8A-Z1 20260823: read-only forced zero-access classifier; no UI/render change -->
 <!-- R10.8A-Z2 20260823: endpoint forced-zero same-living shown as final-result tag only -->
 <!-- R10.8A-Z3 20260823: one-segment mirror JOINT dedup; first generated plan wins -->
+<!-- R10.8A-Z4 20260823: Mokpo-Namak only same-living + runtime search-list hard lock -->
 </body>
 </html>
