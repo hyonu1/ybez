@@ -30369,14 +30369,84 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 integratedMainFareOneway: Number(prev.integratedMainFareOneway || rawPlan.integratedMainFareOneway || 0)
             } : { ...rawPlan });
         });
-        const accessPlans = [...merged.values()].map((rawPlan) => {
+        const normalizedAccessPlans = [...merged.values()].map((rawPlan) => {
             const plan = { ...rawPlan };
             if (plan.mode === "JOINT_ZONE_CHOICES" && (plan.integratedIntoMainFare || choiceEmbeddedInMainFare(plan))) {
                 plan.integratedIntoMainFare = true;
                 plan.integratedMainFareOneway = Number(plan.integratedMainFareOneway || plan.oneway || 0);
             }
             return plan;
-        }).sort((a, b) => {
+        });
+
+        /* ── R10.8A-Z3: 1-segment mirror JOINT duplicate 제거 ──
+           무안↔목포처럼 하나의 실제 main segment가 동시에 origin/destination endpoint로 승격되면
+           같은 추천요금이 두 번 합산될 수 있다. 확실히 같은 물리구간을 가리키는 mirror pair일 때만
+           먼저 생성된 plan을 남기고 두 번째 plan을 버린다. 판정이 불완전하면 아무것도 제거하지 않는다. */
+        const dedupeMirrorJointPlans = (plans) => {
+            if (!Array.isArray(plans) || plans.length < 2) return Array.isArray(plans) ? plans : [];
+            if (!Array.isArray(mainSegsForAccess) || mainSegsForAccess.length !== 1) return plans;
+
+            const onlySeg = mainSegsForAccess[0];
+            if (!onlySeg || !nz(onlySeg.from) || !nz(onlySeg.to)) return plans;
+
+            const segFare = positiveSegmentFare(onlySeg);
+            if (!(segFare > 0)) return plans;
+
+            const canonicalPairKey = (plan) => {
+                if (!plan || !plan.lv4 || !plan.lv5) return "";
+                const a = nz(canonicalEndpointName(plan.lv4));
+                const b = nz(canonicalEndpointName(plan.lv5));
+                if (!a || !b || sameContinuityPlace(a, b)) return "";
+                return [a, b].sort().join("|");
+            };
+
+            const physicallyMatchesOnlySegment = (plan) => {
+                if (!plan || plan.mode !== "JOINT_ZONE_CHOICES") return false;
+                if (plan.side !== "origin" && plan.side !== "destination") return false;
+                if (!plan.lv4 || !plan.lv5) return false;
+
+                const one = Number(plan.oneway || 0);
+                if (!(one > 0) || Math.abs(one - segFare) >= 0.5) return false;
+
+                if (plan.side === "origin") {
+                    return sameContinuityPlace(onlySeg.from, plan.lv5)
+                        && sameContinuityPlace(onlySeg.to, plan.lv4);
+                }
+                return sameContinuityPlace(onlySeg.from, plan.lv4)
+                    && sameContinuityPlace(onlySeg.to, plan.lv5);
+            };
+
+            const kept = [];
+            for (const plan of plans) {
+                if (!physicallyMatchesOnlySegment(plan)) {
+                    kept.push(plan);
+                    continue;
+                }
+
+                const pair = canonicalPairKey(plan);
+                if (!pair) {
+                    kept.push(plan);
+                    continue;
+                }
+
+                const mirrorExists = kept.some(prev => {
+                    if (!physicallyMatchesOnlySegment(prev)) return false;
+                    if (prev.side === plan.side) return false;
+                    if (canonicalPairKey(prev) !== pair) return false;
+
+                    const prevOne = Number(prev.oneway || 0);
+                    const one = Number(plan.oneway || 0);
+                    if (!(prevOne > 0) || !(one > 0) || Math.abs(prevOne - one) >= 0.5) return false;
+
+                    return true;
+                });
+
+                if (!mirrorExists) kept.push(plan);
+            }
+            return kept;
+        };
+
+        const accessPlans = dedupeMirrorJointPlans(normalizedAccessPlans).sort((a, b) => {
             const rank = (p) => p && p.side === "origin" ? 0 : (p && p.side === "destination" ? 1 : 2);
             return rank(a) - rank(b);
         });
@@ -43138,5 +43208,6 @@ html body .r104-final-top-scope.deduction-modal .transport-proof-principle{
 <!-- R10.8F3F 20260823: Desktop deduction rows restored to white card geometry -->
 <!-- R10.8A-Z1 20260823: read-only forced zero-access classifier; no UI/render change -->
 <!-- R10.8A-Z2 20260823: endpoint forced-zero same-living shown as final-result tag only -->
+<!-- R10.8A-Z3 20260823: one-segment mirror JOINT dedup; first generated plan wins -->
 </body>
 </html>
