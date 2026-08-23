@@ -26589,7 +26589,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
          "ybez-r108a-mobile-stay-real-shared-20260822",
          "ybez-r108b2-mini-lock-desktop-idle-edge-20260822",
          "ybez-r108b4-mini-desktop-inputbox-paint-fix-20260822",
-         "ybez-r108c-menu-svg-finish-20260822"].forEach(id => {
+         "ybez-r108c-menu-svg-finish-20260822",
+         "ybez-r108f2-r104-tightx-20260823",
+         "ybez-r108f3b-r104-absolute-x-20260823",
+         "ybez-r108f3e-ui-closeout-20260823"].forEach(id => {
             if (pipDoc.getElementById(id)) return; // 중복 clone 방지
             const src = document.getElementById(id);
             if (src) { try { pipDoc.head.appendChild(src.cloneNode(true)); } catch (_) {} }
@@ -35355,6 +35358,89 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (Array.isArray(result.ybezAccessPlans) && result.ybezAccessPlans.length) return result.ybezAccessPlans.filter(Boolean);
         return result.ybezAccessPlan ? [result.ybezAccessPlan] : [];
     }, [result]);
+
+    /* R10.8A-Z1: render-only classification for forced/non-selectable zero access.
+       READ ONLY:
+       - does not mutate result / areaSegments / ybezAccessPlan(s)
+       - does not change fare / route / hub / selection state
+       - JOINT_ZONE_CHOICES remains excluded and selectable
+       - this value is intentionally NOT rendered until Z2 */
+    const forcedZeroAccessNotices = useMemo(() => {
+        if (!result) return [];
+
+        const out = [];
+        const seen = new Set();
+        const norm = (v) => String(v == null ? "" : v).trim();
+        const pairKey = (a, b) => [norm(a), norm(b)].sort().join("|");
+
+        const selectablePairs = new Set(
+            activeAccessPlans
+                .filter(plan => plan && plan.mode === "JOINT_ZONE_CHOICES")
+                .map(plan => pairKey(plan.lv4, plan.lv5))
+                .filter(Boolean)
+        );
+
+        const pushNotice = (fromName, toName, label, sourceType) => {
+            const from = norm(fromName);
+            const to = norm(toName);
+            if (!from || !to || from === to) return;
+
+            const pair = pairKey(from, to);
+            if (!pair || selectablePairs.has(pair)) return;
+
+            const policyLabel = norm(label) || "0원 접근";
+            const dedupeKey = `${pair}|${policyLabel.replace(/\s+/g, "")}`;
+            if (seen.has(dedupeKey)) return;
+            seen.add(dedupeKey);
+
+            out.push(Object.freeze({
+                from,
+                to,
+                route: `${from} → ${to}`,
+                label: policyLabel,
+                oneway: 0,
+                sourceType
+            }));
+        };
+
+        activeAccessPlans.forEach(plan => {
+            if (!plan) return;
+            if (plan.mode !== "LOCAL_WITHIN" && plan.mode !== "JOINT_ZONE_ZERO") return;
+            if (Number(plan.oneway || 0) !== 0) return;
+
+            const from = plan.side === "origin" ? plan.lv5 : plan.lv4;
+            const to = plan.side === "origin" ? plan.lv4 : plan.lv5;
+            const label = plan.localLabel
+                || (plan.mode === "JOINT_ZONE_ZERO"
+                    ? "광역생활권"
+                    : `${norm(plan.lv4)} 관내`.trim());
+
+            pushNotice(from, to, label, "ACCESS_PLAN");
+        });
+
+        const areaSegs = Array.isArray(result.areaSegments) ? result.areaSegments : [];
+        areaSegs.forEach(seg => {
+            if (!seg) return;
+
+            const rawFare = seg.gen != null
+                ? seg.gen
+                : (seg.fare != null ? seg.fare
+                : (seg.cost != null ? seg.cost : null));
+
+            if (rawFare == null || Number(rawFare) !== 0) return;
+
+            const meta = `${seg.note || ""} ${seg.sourceLabel || ""} ${seg.source || ""} ${seg.kind || ""}`;
+            if (!/(광역생활권|공동생활권|관내)/.test(meta)) return;
+
+            const label = /(광역생활권|공동생활권)/.test(meta)
+                ? "광역생활권"
+                : "관내";
+
+            pushNotice(seg.from, seg.to, label, "AREA_SEGMENT");
+        });
+
+        return Object.freeze(out.slice());
+    }, [result, activeAccessPlans]);
     useEffect(() => { setSegmentChoiceModal(null); }, [result]);
     // F5-P: 검증된 유료 접근요금이 있는 JOINT_ZONE_CHOICES는 실제 접근비용을 기본값으로 둔다.
     // 광역생활권 0원은 사용자가 명시적으로 선택하는 대안이다.
@@ -35477,9 +35563,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             React.createElement("div", { className: "access-choice-label" }, zeroLabel),
                             React.createElement("div", { className: "access-choice-amount" }, "0원"))));
             }
-            if (plan.mode === "JOINT_ZONE_ZERO") return React.createElement("div", { className: "access-choice-wrap", key: `${plan.side}-${idx}` }, React.createElement("div", { className: "local-within-notice" }, React.createElement("strong", null, route), React.createElement("span", null, plan.localLabel || "광역생활권 0원")));
+            if (plan.mode === "JOINT_ZONE_ZERO") return null;
             if (plan.mode === "FIXED_ACCESS") return null;
-            if (plan.mode === "LOCAL_WITHIN") return React.createElement("div", { className: "access-choice-wrap", key: `${plan.side}-${idx}` }, React.createElement("div", { className: "local-within-notice" }, React.createElement("strong", null, route), React.createElement("span", null, plan.localLabel || `${plan.lv4} 관내`)));
+            if (plan.mode === "LOCAL_WITHIN") return null;
             if (plan.mode === "FREE_ZERO") return React.createElement("div", { className: "access-choice-wrap", key: `${plan.side}-${idx}` }, React.createElement("div", { className: "access-choice-head" }, React.createElement("div", { className: "access-choice-title" }, "접근구간")), React.createElement("div", { className: "access-choice-route" }, route), React.createElement("div", { className: "access-choice-card access-choice-locked selected" }, React.createElement("div", { className: "access-choice-label" }, "무료·관내 처리"), React.createElement("div", { className: "access-choice-amount" }, "추천요금 0원")));
             return null;
         };
@@ -36432,6 +36518,49 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         }
         return "";
     }, [result]);
+    /* R10.8A-Z2: display-only endpoint same-living tag.
+       - source must be Z1 ACCESS_PLAN (never route-internal AREA_SEGMENT)
+       - only forced/non-selectable LOCAL_WITHIN / JOINT_ZONE_ZERO
+       - JOINT_ZONE_CHOICES remains a real user choice and is excluded
+       - no fare/route/access state mutation */
+    const sameLivingEndpointTag = useMemo(() => {
+        if (!result || !Array.isArray(forcedZeroAccessNotices) || !forcedZeroAccessNotices.length) return "";
+
+        const eligibleNoticePairs = new Set(
+            forcedZeroAccessNotices
+                .filter(n => n && n.sourceType === "ACCESS_PLAN" && Number(n.oneway || 0) === 0)
+                .map(n => [nz(n.from), nz(n.to)].sort().join("|"))
+                .filter(Boolean)
+        );
+
+        const labels = [];
+        const seen = new Set();
+
+        activeAccessPlans.forEach(plan => {
+            if (!plan) return;
+            if (plan.mode !== "LOCAL_WITHIN" && plan.mode !== "JOINT_ZONE_ZERO") return;
+            if (Number(plan.oneway || 0) !== 0) return;
+
+            const lv4 = nz(plan.lv4);
+            const lv5 = nz(plan.lv5);
+            if (!lv4 || !lv5 || lv4 === lv5) return;
+
+            const pair = [lv4, lv5].sort().join("|");
+            if (!eligibleNoticePairs.has(pair)) return;
+
+            const label = `${lv4}·${lv5} 같은생활권`;
+            if (seen.has(label)) return;
+            seen.add(label);
+            labels.push(label);
+        });
+
+        return labels.join(" · ");
+    }, [result, activeAccessPlans, forcedZeroAccessNotices]);
+
+    const finalResultRouteTag = useMemo(() => {
+        return [specialFareNotice, sameLivingEndpointTag].filter(Boolean).join(" · ");
+    }, [specialFareNotice, sameLivingEndpointTag]);
+
     const specialTransportStatusText = useMemo(() => {
         if (!result || result.partialRoute) return "";
         if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.";
@@ -38142,9 +38271,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     const FeedbackModalD443 = () => {
         if (!showFeedbackD31) return null;
         return React.createElement("div", { className: "d443-feedback-backdrop", onClick: () => setShowFeedbackD31(false) },
-            React.createElement("div", { className: "d443-feedback-modal", role: "dialog", "aria-modal": "true", "aria-label": "피드백", onClick: e => e.stopPropagation() },
-                React.createElement(PopupHeaderR104, { title: "피드백", subtitle: "오류·누락 및 개선 의견", onConfirm: () => setShowFeedbackD31(false) }),
-                React.createElement(PopupBodyCloseR104, { onClose: () => setShowFeedbackD31(false), label: "피드백 보조 닫기" }),
+            React.createElement("div", { className: "d443-feedback-modal d443-feedback-simple", role: "dialog", "aria-modal": "true", "aria-label": "피드백 연락처", onClick: e => e.stopPropagation() },
+                React.createElement("button", { type: "button", className: "d443-feedback-simple-x", onClick: () => setShowFeedbackD31(false), title: "피드백 닫기", "aria-label": "피드백 닫기" }, "×"),
                 React.createElement("div", { className: "d443-feedback-list" },
                     React.createElement("div", null, React.createElement("b", null, "전남메신저 쪽지"), React.createElement("span", null, "전현우@우수영초등학교")),
                     React.createElement("div", null, React.createElement("b", null, "업무메일"), React.createElement("span", null, "전현우@우수영초등학교")),
@@ -38430,19 +38558,20 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 React.createElement("div", { className: "m5-proof-day-head" }, `숙박 ${nightDay}일차 밤`),
                                 React.createElement("div", { className: "m5-proof-lodging-line" }, "숙박비 영수증"))))))),
             showProof && React.createElement("div", { className: "m5-proof-info-backdrop", onClick: closeProof },
-                React.createElement("div", { className: "m5-proof-info-modal m51-proof-info-modal", role: "dialog", "aria-modal": "true", "aria-label": "증빙 상세", onClick: e => e.stopPropagation() },
+                React.createElement("div", { className: "m5-proof-info-modal m51-proof-info-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "증빙 상세", onClick: e => e.stopPropagation() },
                     React.createElement(PopupHeaderR104, { title: "증빙 상세", subtitle: proofSubtitle, onConfirm: closeProof }),
-                    React.createElement(PopupBodyCloseR104, { onClose: closeProof, label: "증빙 상세 보조 닫기" }),
-                    React.createElement("div", { className: "m51-proof-detail-list" },
-                        proofDetailItems.map(([name, desc]) => React.createElement("div", { className: "m51-proof-detail-item", key: name },
-                            React.createElement("div", { className: "m51-proof-detail-name" }, name),
-                            React.createElement("div", { className: "m51-proof-detail-copy" }, desc)))),
-                    React.createElement("div", { className: "m51-proof-extra" },
-                        React.createElement("div", { className: "m51-proof-extra-title" }, "기타 확인자료"),
-                        React.createElement("div", { className: "m51-proof-extra-copy" }, "통상적인 증빙 확보가 어려운 경우에는 이동경로·결제시간·주유소 위치·출장자·출장차량·출장지가 함께 확인되는 현장사진 등 실제 출장 이동을 객관적으로 확인할 수 있는 자료를 다른 추가 증빙과 함께 검토할 수 있습니다.")),
-                    React.createElement("div", { className: "m51-proof-rule-note" }, mobilePagerEnabledM6A2
-                        ? "버스요금 지급 항목은 해당 구간의 정해진 버스요금을 지급하고, 실비 지급 항목과 숙박비는 실제 사용내용을 확인할 수 있는 증거서류로 정산합니다."
-                        : "운임과 숙박비는 실제 사용내용을 확인할 수 있는 증거서류로 정산합니다."),
+                    React.createElement("div", { className: "modal-body r104-final-top-body" },
+                        React.createElement(PopupBodyCloseR104, { onClose: closeProof, label: "증빙 상세 보조 닫기" }),
+                        React.createElement("div", { className: "m51-proof-detail-list" },
+                            proofDetailItems.map(([name, desc]) => React.createElement("div", { className: "m51-proof-detail-item", key: name },
+                                React.createElement("div", { className: "m51-proof-detail-name" }, name),
+                                React.createElement("div", { className: "m51-proof-detail-copy" }, desc)))),
+                        React.createElement("div", { className: "m51-proof-extra" },
+                            React.createElement("div", { className: "m51-proof-extra-title" }, "기타 확인자료"),
+                            React.createElement("div", { className: "m51-proof-extra-copy" }, "통상적인 증빙 확보가 어려운 경우에는 이동경로·결제시간·주유소 위치·출장자·출장차량·출장지가 함께 확인되는 현장사진 등 실제 출장 이동을 객관적으로 확인할 수 있는 자료를 다른 추가 증빙과 함께 검토할 수 있습니다.")),
+                        React.createElement("div", { className: "m51-proof-rule-note" }, mobilePagerEnabledM6A2
+                            ? "버스요금 지급 항목은 해당 구간의 정해진 버스요금을 지급하고, 실비 지급 항목과 숙박비는 실제 사용내용을 확인할 수 있는 증거서류로 정산합니다."
+                            : "운임과 숙박비는 실제 사용내용을 확인할 수 있는 증거서류로 정산합니다.")),
                     null)));
     };
 
@@ -38653,7 +38782,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 onClick: policyDrivenMain ? undefined : () => setSelSub(null),
                                 route: displayRouteLabel,
                                 price: result.needsManualFare ? null : ((activeJneGradePair || policyDrivenMain) ? displayOneWayFare : candidateFare(result, grade)),
-                                tag: centralIslandDisplay ? null : specialFareNotice,
+                                tag: centralIslandDisplay ? null : finalResultRouteTag,
                                 island: centralIslandDisplay
                             }),
                             showSubs && nonPolicySpecialSubs.map((r, i) => (React.createElement(ChoiceCard, { key: `special-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade), tag: r.routeTag || "광역생활권" }))),
@@ -38789,9 +38918,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             className: "modal-bg travel-class-info-modal-bg",
             onClick: e => { if (e.target === e.currentTarget) setTravelClassInfoOpen(false); }
         },
-            React.createElement("div", { className: "modal-box travel-class-info-modal", role: "dialog", "aria-modal": "true", "aria-label": "제1호 적용 대상(예시)", onClick: e => e.stopPropagation() },
+            React.createElement("div", { className: "modal-box travel-class-info-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "제1호 적용 대상(예시)", onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "제1호 적용대상", subtitle: "예시 · 여비 지급구분 안내", onConfirm: () => setTravelClassInfoOpen(false) }),
-                React.createElement("div", { className: "travel-class-info-modal-body" },
+                React.createElement("div", { className: "travel-class-info-modal-body r104-final-top-body" },
                     React.createElement(PopupBodyCloseR104, { onClose: () => setTravelClassInfoOpen(false), label: "제1호 안내 보조 닫기" }),
                     React.createElement("ul", { className: "travel-class-info-list" },
                         React.createElement("li", null, "초·중·고등학교의 교장"),
@@ -38914,9 +39043,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             React.createElement("span", { className: "mascot-choice-name" }, name)))))))));
         })(),
         tripTypeHelpOpen && React.createElement("div", { className: "modal-bg", onClick: () => setTripTypeHelpOpen(false) },
-            React.createElement("div", { className: "modal-box trip-help-modal", role: "dialog", "aria-modal": "true", "aria-label": "출장조건 설명", onClick: e => e.stopPropagation() },
+            React.createElement("div", { className: "modal-box trip-help-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "출장조건 설명", onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "출장조건 설명", subtitle: "출장 유형·숙박 조건 안내", onConfirm: () => setTripTypeHelpOpen(false) }),
-                React.createElement("div", { className: "modal-body trip-help-modal-body" },
+                React.createElement("div", { className: "modal-body trip-help-modal-body r104-final-top-body" },
                     React.createElement(PopupBodyCloseR104, { onClose: () => setTripTypeHelpOpen(false), label: "출장조건 설명 보조 닫기" }),
                     React.createElement("div", { className: "trip-help-title" }, "일반출장"),
                     React.createElement("div", { className: "trip-help-text" }, "회의·협의·현장방문·점검 등 일반적인 업무를 수행하기 위한 출장, 별도의 조정 사유가 없는 한 여비(운임·일비·식비·숙박비)가 감액 없이 정상 지급됩니다."),
@@ -38933,9 +39062,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     React.createElement("div", { className: "trip-help-daily" }, "연수출장의 경우, 입교일과 수료일은 교육기관으로 가고 오는 이동일이므로 일비를 전액 지급합니다. 그러나 중간 교육일(기타일)에는 원내에서 숙식이 모두 무상으로 제공되므로, 개인의 추가적인 일비(교통비성 정액 지출) 소요가 발생하지 않는다고 판단하여 일비를 전혀 지급하지 않습니다."),
                     React.createElement("div", { className: "trip-help-example" }, "예) 연수원 기숙사, 교육기관 제공 숙소, 교육과정에 포함된 합숙시설 이용 등")))),
         trainingGroupScheduleOpen && React.createElement("div", { className: "modal-bg", onClick: () => setTrainingGroupScheduleOpen(false) },
-            React.createElement("div", { className: "modal-box training-schedule-modal", role: "dialog", "aria-modal": "true", "aria-label": "합숙 적용일 지정", onClick: e => e.stopPropagation() },
+            React.createElement("div", { className: "modal-box training-schedule-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "합숙 적용일 지정", onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "합숙 적용일 지정", subtitle: `합숙제공 ${groupNights}박 · 날짜를 선택하세요.`, onConfirm: confirmTrainingScheduleR104 }),
-                React.createElement("div", { className: "modal-body training-schedule-body" },
+                React.createElement("div", { className: "modal-body training-schedule-body r104-final-top-body" },
                     React.createElement(PopupBodyCloseR104, { onClose: () => setTrainingGroupScheduleOpen(false), label: "합숙 적용일 지정 보조 닫기" }),
                     React.createElement("div", { className: "training-schedule-lead" }, "교육·연수계획상 합숙이 적용된 교육일에 체크해 주세요."),
                     React.createElement("div", { className: "training-schedule-sub" }, "연수출장 일비는 첫날(입교일)과 마지막 날(수료일)에는 100% 전액이 자동 지급되며, 중간 교육일은 실제 숙소를 이용하신 합숙일만 선택(체크)해 주시면 됩니다. 합숙일을 체크하면 일비가 지급 제외(0%) 처리되고, 미체크 시에는 비합숙(출퇴근 등) 기준이 적용되어 일비의 50%가 자동 계산되니 실제 연수 계획서 상의 합숙 일수만 정확히 확인하여 체크해 주시기 바랍니다."),
@@ -39123,9 +39252,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     null);
             };
             return (React.createElement("div", { className: "modal-bg deduction-modal-bg", onClick: closeDeductionModal },
-                React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? "transport-deduction-modal" : ""}`, role: "dialog", "aria-modal": "true", "aria-label": `${mc.title} 감액`, onClick: e => e.stopPropagation() },
+                React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? "transport-deduction-modal" : ""} r104-final-top-scope`, role: "dialog", "aria-modal": "true", "aria-label": `${mc.title} 감액`, onClick: e => e.stopPropagation() },
                     React.createElement(PopupHeaderR104, { title: mc.title, subtitle: mc.desc, unit: mc.unit, onConfirm: closeDeductionModal }),
-                    React.createElement("div", { className: "modal-body" },
+                    React.createElement("div", { className: "modal-body r104-final-top-body" },
                         React.createElement(PopupBodyCloseR104, { onClose: closeDeductionModal, label: `${mc.title} 감액 보조 닫기` }),
                         activeModal === "daily" && React.createElement(React.Fragment, null,
                             React.createElement("div", { className: "ded-section" },
@@ -42565,5 +42694,449 @@ html body .action-btn.d22-tablet-switch-btn::after{content:none!important;displa
   }
 }
 </style>
+<!-- R10.8F2 20260823: FINAL-1 R104 Tight auxiliary-X fix
+     Scope: only the signed seven popup family.
+     Protected: calculation/route/fare/data/text/handlers/Quick Sheets/Continuity. -->
+<style id="ybez-r108f2-r104-tightx-20260823">
+/*
+  Signed common geometry (all seven):
+  header bottom -> 10px -> 28px close zone -> 4px -> content.
+  The X keeps a 28x28 hit area but is visually only a light glyph.
+*/
+
+/* Normalize only the seven scoped dialogs. For Proof Detail this also removes
+   the old outer padding so its navy header becomes edge-to-edge like the others. */
+html body .r104-final-top-scope{
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+
+/* Every target now has the same body container (Proof Detail gets one minimal wrapper). */
+html body .r104-final-top-scope > .r104-final-top-body{
+  position:relative!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  padding-top:10px!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+
+/* Tight Close Zone: no absolute top/right values and no per-mode coordinates. */
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+  z-index:auto!important;
+  width:100%!important;
+  height:28px!important;
+  min-height:28px!important;
+  margin:0 0 4px!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  box-sizing:border-box!important;
+  pointer-events:none!important;
+}
+
+/* Auxiliary close: 28x28 hit area, borderless/transparent 19px glyph. */
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x{
+  pointer-events:auto!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#667281!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:var(--gm)!important;
+  font-size:19px!important;
+  font-weight:850!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+
+/* Hover/active must never turn the auxiliary X into a boxed primary button. */
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x:hover{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#34465B!important;
+}
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x:active{
+  transform:scale(.94)!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* Remove only the legacy 38px reservation that belonged to the absolute boxed X. */
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row + *{
+  padding-right:0!important;
+  box-sizing:border-box!important;
+}
+html body .r104-final-top-scope.deduction-modal .ded-section:first-of-type > :first-child{
+  padding-right:0!important;
+}
+</style>
+<!-- R10.8F3B 20260823: restore no-row absolute auxiliary X for signed R104 seven
+     Base: index_R104_TightX_FINAL1.html (F3 failed build excluded)
+     Protected: calculation/route/fare/data/text/handlers/Quick Sheets/F4/Z1/Z2. -->
+<style id="ybez-r108f3b-r104-absolute-x-20260823">
+/*
+  R10.8F3C refinement: PiP propagation + thinner upper-right auxiliary X.
+  FINAL signed geometry:
+  header bottom -> 10px -> first content.
+  The 28x28 auxiliary X is absolute and consumes ZERO vertical layout height.
+*/
+
+html body .r104-final-top-scope > .r104-final-top-body{
+  position:relative!important;
+  padding-top:10px!important;
+}
+
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row{
+  position:absolute!important;
+  top:2px!important;
+  right:3px!important;
+  bottom:auto!important;
+  left:auto!important;
+  z-index:18!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:0!important;
+  max-height:28px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  pointer-events:none!important;
+}
+
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  pointer-events:auto!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-width:0!important;
+  border-style:none!important;
+  border-color:transparent!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  color:#667281!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:var(--gm)!important;
+  font-size:16px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x:hover,
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x:focus,
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x:focus-visible{
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  color:#34465B!important;
+}
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row > .r104-popup-body-x:active{
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  transform:scale(.94)!important;
+}
+
+html body .r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row + *{
+  padding-right:30px!important;
+  box-sizing:border-box!important;
+}
+
+html body .r104-final-top-scope.deduction-modal > .r104-final-top-body > .r104-popup-body-close-row + .ded-section{
+  margin-top:0!important;
+  padding-top:0!important;
+  padding-right:0!important;
+}
+html body .r104-final-top-scope.deduction-modal > .r104-final-top-body > .r104-popup-body-close-row + .ded-section > :first-child{
+  padding-right:30px!important;
+  box-sizing:border-box!important;
+}
+
+html body .m51-proof-info-modal.r104-final-top-scope > .r104-final-top-body > .r104-popup-body-close-row + .m51-proof-detail-list{
+  padding-right:0!important;
+}
+html body .m51-proof-info-modal.r104-final-top-scope > .r104-final-top-body > .m51-proof-detail-list > .m51-proof-detail-item:first-child{
+  margin-right:0!important;
+}
+
+/* X is intentionally non-sticky/non-fixed and scrolls away with body content. */
+/* Desktop overlay/top-clipping policy intentionally untouched in F3B. */
+</style>
+<!-- R10.8F3C 20260823: PiP F2->F3B / X top2 right3 / glyph16 weight650 / safety30 -->
+<!-- R10.8F3D 20260823: desktop deduction outer-canvas cleanup only -->
+<style id="ybez-r108f3d-desktop-deduction-canvas-20260823">
+@media (min-width:1100px){
+  html body .r104-final-top-scope.deduction-modal > .r104-final-top-body{
+    background:#FFFFFF!important;
+  }
+}
+</style>
+<!-- R10.8F3D 20260823: feedback = four info rows + auxiliary X only -->
+<style id="ybez-r108f3d-feedback-simple-20260823">
+html body .d443-feedback-modal.d443-feedback-simple{
+  position:relative!important;
+  width:min(360px,calc(100vw - 32px))!important;
+  padding:38px 14px 14px!important;
+  background:#FFFFFF!important;
+  border:1px solid #DCE3EB!important;
+  border-radius:16px!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.20)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+
+html body .d443-feedback-modal.d443-feedback-simple .d443-feedback-list{
+  margin:0!important;
+  padding:0!important;
+}
+
+/* auxiliary close only: no box */
+html body .d443-feedback-simple-x{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  position:absolute!important;
+  top:8px!important;
+  right:10px!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#667281!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:var(--gm)!important;
+  font-size:16px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+html body .d443-feedback-simple-x:hover,
+html body .d443-feedback-simple-x:focus,
+html body .d443-feedback-simple-x:focus-visible{
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#34465B!important;
+}
+html body .d443-feedback-simple-x:active{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:scale(.94)!important;
+}
+</style>
+<!-- R10.8F3D 20260823: proof-width restore + desktop deduction canvas + simple feedback -->
+<!-- R10.8F3E 20260823: UI closeout
+     A) Desktop deduction hierarchy = muted body + white input rows
+     B) Feedback = 4 equal rows + upper-right auxiliary X, no X-only top space
+     C) Evidence/legal typography only
+     F3C R104 X / proof width / logic are frozen. -->
+<style id="ybez-r108f3e-ui-closeout-20260823">
+
+/* ── A. Desktop-only deduction visual hierarchy ─────────────────── */
+@media (min-width:1100px){
+  /* Same hierarchy as Compact/Tablet family:
+     muted canvas -> white functional rows -> blue audit card. */
+  html body .r104-final-top-scope.deduction-modal > .r104-final-top-body{
+    background:#F5F7FA!important;
+  }
+
+  html body .r104-final-top-scope.deduction-modal .ded-toggle-row,
+  html body .r104-final-top-scope.deduction-modal .ded-count-row{
+    background:#FFFFFF!important;
+  }
+}
+
+/* ── B. Feedback: information-only card ─────────────────────────── */
+/* Self-contained because this style is also cloned into Tablet/Mini PiP. */
+html body .d443-feedback-modal.d443-feedback-simple{
+  position:relative!important;
+  width:min(360px,calc(100vw - 24px))!important;
+  padding:10px!important;
+  background:#FFFFFF!important;
+  border:1px solid #DCE3EB!important;
+  border-radius:16px!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.20)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+
+html body .d443-feedback-modal.d443-feedback-simple .d443-feedback-list{
+  display:grid!important;
+  grid-template-rows:repeat(4,34px)!important;
+  gap:6px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+html body .d443-feedback-modal.d443-feedback-simple .d443-feedback-list > div{
+  display:grid!important;
+  grid-template-columns:105px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:8px!important;
+  height:34px!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:0 9px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:#F8FAFC!important;
+  box-sizing:border-box!important;
+  font-size:11px!important;
+}
+
+html body .d443-feedback-modal.d443-feedback-simple .d443-feedback-list b{
+  color:#526579!important;
+  font-weight:800!important;
+}
+
+html body .d443-feedback-modal.d443-feedback-simple .d443-feedback-list span{
+  min-width:0!important;
+  color:#1F344A!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  word-break:normal!important;
+}
+
+/* No dedicated X row: auxiliary close floats over the card corner. */
+html body .d443-feedback-simple-x{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  position:absolute!important;
+  top:2px!important;
+  right:3px!important;
+  z-index:6!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#667281!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:var(--gm)!important;
+  font-size:16px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+
+html body .d443-feedback-simple-x:hover,
+html body .d443-feedback-simple-x:focus,
+html body .d443-feedback-simple-x:focus-visible{
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#34465B!important;
+}
+
+html body .d443-feedback-simple-x:active{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:scale(.94)!important;
+}
+
+/* ── C. Evidence / legal typography: all modes, no layout/color change ── */
+/* Section headings: Gmarket Sans */
+html body .r104-final-top-scope.deduction-modal .ded-panel-heading,
+html body .r104-final-top-scope.deduction-modal .ded-info-heading{
+  font-family:var(--gm)!important;
+  font-weight:900!important;
+}
+
+/* Evidence item labels: Pretendard SemiBold/Bold */
+html body .r104-final-top-scope.deduction-modal .ded-evidence-name,
+html body .r104-final-top-scope.deduction-modal .transport-route-proof{
+  font-family:var(--pr)!important;
+  font-weight:700!important;
+}
+
+/* Evidence/legal explanatory text: Pretendard Regular/Medium */
+html body .r104-final-top-scope.deduction-modal .ded-evidence-text,
+html body .r104-final-top-scope.deduction-modal .ded-note-box,
+html body .r104-final-top-scope.deduction-modal .ded-source,
+html body .r104-final-top-scope.deduction-modal .ded-evidence-principle,
+html body .r104-final-top-scope.deduction-modal .ded-destination,
+html body .r104-final-top-scope.deduction-modal .transport-alt-proof,
+html body .r104-final-top-scope.deduction-modal .transport-proof-principle{
+  font-family:var(--pr)!important;
+  font-weight:500!important;
+}
+</style>
+<!-- R10.8F3E 20260823: desktop hierarchy + feedback equal rows + evidence typography -->
+<!-- R10.8F3F 20260823: Desktop deduction card geometry closeout only
+     Scope: pure Desktop R104 deduction rows.
+     Frozen: F3C X/PiP, F3D feedback/proof, F3E typography/colors, all logic. -->
+<style id="ybez-r108f3f-desktop-deduction-cards-20260823">
+@media (min-width:1100px){
+  html body .r104-final-top-scope.deduction-modal .ded-toggle-row,
+  html body .r104-final-top-scope.deduction-modal .ded-count-row{
+    border:1px solid #DCE3EB!important;
+    border-bottom:1px solid #DCE3EB!important;
+    border-radius:12px!important;
+    background:#FFFFFF!important;
+    padding:11px 12px!important;
+    margin-bottom:7px!important;
+    box-sizing:border-box!important;
+  }
+}
+</style>
+<!-- R10.8F3F 20260823: Desktop deduction rows restored to white card geometry -->
+<!-- R10.8A-Z1 20260823: read-only forced zero-access classifier; no UI/render change -->
+<!-- R10.8A-Z2 20260823: endpoint forced-zero same-living shown as final-result tag only -->
 </body>
 </html>
