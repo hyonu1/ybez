@@ -23837,6 +23837,23 @@ html body .travel-class-info-modal-body .travel-class-info-source-copy{
 }
 </style>
 
+
+<style id="r108p3-input-edge-spacing-20260824">
+/* R10.8P3 — Input Edge Spacing
+   Only daily deduction toggle and meal deduction stepper.
+   Add 10px right breathing room; no size/logic/card changes. */
+
+/* 일비 감액: 관용·임차차량 이용 토글 */
+html body .modal-box.deduction-modal.deduction-daily .ded-toggle-row > :last-child{
+  margin-right:10px!important;
+}
+
+/* 식비 감액: 제공받은 식사 − 0 + 스테퍼 */
+html body .modal-box.deduction-modal.deduction-meal .ded-count-row > .ded-inline-stepper{
+  margin-right:10px!important;
+}
+</style>
+
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
