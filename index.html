@@ -23854,12 +23854,177 @@ html body .modal-box.deduction-modal.deduction-meal .ded-count-row > .ded-inline
 }
 </style>
 
+
+<style id="r108p4-class1-status-typography-20260824">
+/* R10.8P4 — Class1 + Status Typography Cleanup */
+
+/* 제1호 적용대상: 대상 목록/근거를 하나의 왼쪽 축으로 정리 */
+html body .travel-class-info-modal-body .travel-class-info-list{
+  list-style:none!important;
+  margin-left:0!important;
+  padding-left:0!important;
+  text-align:left!important;
+}
+html body .travel-class-info-modal-body .travel-class-info-list li{
+  margin-left:0!important;
+  padding-left:0!important;
+  text-align:left!important;
+}
+html body .travel-class-info-modal-body .travel-class-info-source-line,
+html body .travel-class-info-modal-body .travel-class-info-source-copy,
+html body .travel-class-info-modal-body .travel-class-info-subtitle{
+  margin-left:0!important;
+  padding-left:0!important;
+  text-align:left!important;
+}
+html body .travel-class-info-modal-body .travel-class-info-source-copy{
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+}
+
+/* 상태표시줄: 모든 모드에서 동일한 글꼴/굵기 문법 */
+html body .status-message-stack,
+html body .status-message-stack *,
+html body .status-message-line,
+html body .status-message-line *{
+  font-family:var(--pr)!important;
+  font-weight:700!important;
+  letter-spacing:normal!important;
+}
+
+/* Desktop: 중앙정렬 제거, 일정한 왼쪽 시작축 확보 */
+@media (min-width:1500px){
+  html body:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .status-message-stack{
+    align-items:flex-start!important;
+    justify-content:center!important;
+    text-align:left!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    padding-left:38px!important;
+    padding-right:18px!important;
+  }
+  html body:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .status-message-line{
+    width:100%!important;
+    text-align:left!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+}
+
+/* 기존 여객선 전용 축소/압축 인상을 제거하되, 모드별 반응형 크기 자체는 기존 규칙에 맡김 */
+html body .status-message-line[class*="ferry"],
+html body .status-message-line .ferry,
+html body [class*="status"][class*="ferry"]{
+  letter-spacing:normal!important;
+}
+</style>
+
+
+<style id="r108p5r-desktop-status-left-align-only-20260824">
+/* R10.8P5R — Desktop status left-align only.
+   Base: P4 PASS. No font/color/content/logic changes.
+   Uses the same selector strength as D44.5D2.1 and comes later, so it wins. */
+@media (min-width:1500px){
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-bar{
+    align-items:flex-start!important;
+    justify-content:flex-start!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-message-stack{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    text-align:left!important;
+    padding-left:26px!important; /* status-bar has 12px left padding => visible start rail 38px */
+    padding-right:0!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-message-line{
+    width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    text-align:left!important;
+  }
+}
+</style>
+
+
+<style id="r108p6a-sinan-wando-lv5-internal-multihub-scoped-20260824">
+/* R10.8P6A: 신규 농어촌버스 편도 실비 입력행만 기존 여비계산 grid에 맞춘다. 상태표시줄/P5R CSS는 변경하지 않는다. */
+.r108p6-rural-manual-row{margin-top:4px;}
+.r108p6-rural-manual-row .expense-result-label{font-size:12px;font-weight:800;color:#52677C;}
+@media(max-width:699px){.r108p6-rural-manual-row{margin-top:3px;}.r108p6-rural-manual-row .expense-result-label{font-size:11px;}}
+</style>
+
+<style id="r108p6c-local-tag-special-fare-sync-20260824">
+/* R10.8P6C: 관내 태그 + 메인카드 특수교통 왕복실비 + 여비계산 양방향 동기화. */
+.r108p6c-scope-toggle{flex:0 0 auto;margin-right:6px;}
+.fare-option-card.r108p6c-has-special{flex-direction:column!important;align-items:stretch!important;gap:7px!important;}
+.r108p6c-main-special-wrap{width:100%;box-sizing:border-box;margin-top:1px;border-top:1px dashed #E2E8F0;padding-top:7px;display:flex;flex-direction:column;gap:6px;}
+.r108p6c-inline-ferry-entry{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;}
+.r108p6c-special-row{display:grid;grid-template-columns:minmax(170px,1fr) auto auto;align-items:center;gap:8px;padding:5px 2px;}
+.r108p6c-special-route{font-size:13px;font-weight:900;color:#173A63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.r108p6c-special-route .r108p6c-icon{margin-right:5px;}
+.r108p6c-special-entry{display:flex;align-items:center;gap:5px;justify-content:flex-end;}
+.r108p6c-special-help{font-size:10px;font-weight:800;color:#64748B;white-space:nowrap;}
+.r108p6c-special-input{width:112px;height:30px;border:1px solid #CBD5E1;border-radius:7px;background:#FFF;text-align:right;padding:0 9px;font-family:var(--gm);font-size:13px;font-weight:900;color:#173A63;outline:none;}
+.r108p6c-special-input:focus{border-color:#6F8EAC;box-shadow:0 0 0 3px rgba(23,58,99,.08);}
+.r108p6c-round-tag,.r108p6c-included-tag{display:inline-flex;align-items:center;justify-content:center;min-height:25px;border-radius:7px;padding:0 9px;font-size:11px;font-weight:900;white-space:nowrap;}
+.r108p6c-round-tag{background:#173A63;color:#FFF;border:1px solid #173A63;}
+.r108p6c-included-tag{background:#EEF5FC;color:#173A63;border:1px solid #C7D8EB;}
+.r108p6c-local-zero{font-family:var(--gm);font-size:18px;font-weight:900;color:#173A63;}
+@media(max-width:699px){
+  .r108p6c-scope-toggle{transform:scale(.9);transform-origin:right center;margin-right:0;}
+  .r108p6c-main-special-wrap{gap:5px;padding-top:6px;}
+  .r108p6c-special-row{grid-template-columns:1fr auto;gap:6px;}
+  .r108p6c-special-entry{grid-column:1 / -1;justify-content:flex-end;}
+  .r108p6c-special-input{width:104px;height:31px;}
+}
+</style>
+
+<style id="r108p6d-ordered-special-path-hierarchy-20260824">
+/* R10.8P6D: 전체경로 1단 위계 + 실제 이동순서 세부구간 2단 위계. P5R 상태표시줄 CSS는 건드리지 않는다. */
+.fare-option-card.r108p6c-has-special{gap:6px!important;}
+.r108p6c-main-special-wrap{width:calc(100% - 22px);margin-left:22px;box-sizing:border-box;border-top:1px dashed #E2E8F0;padding-top:7px;display:flex;flex-direction:column;gap:4px;}
+.r108p6c-special-row{display:grid;grid-template-columns:minmax(190px,1fr) auto auto;align-items:center;gap:8px;padding:4px 2px;}
+.r108p6c-special-route{font-size:12.5px;font-weight:800;color:#40566D;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.4;}
+.r108p6d-bullet{display:inline-block;width:13px;color:#7A8DA1;font-weight:900;}
+.r108p6d-local-meta{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end;white-space:nowrap;}
+.r108p6d-local-tag{display:inline-flex;align-items:center;justify-content:center;min-height:25px;border-radius:7px;padding:0 9px;font-size:11px;font-weight:900;background:#F0F7FF;color:#173A63;border:1px solid #C7D8EB;}
+.r108p6d-local-amount{font-family:var(--gm);font-size:13px;font-weight:900;color:#173A63;}
+.r108p6d-fixed-meta{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap;font-size:12px;font-weight:900;color:#173A63;}
+.r108p6d-main-inline-entry{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;}
+@media(max-width:699px){
+  .r108p6c-main-special-wrap{width:calc(100% - 16px);margin-left:16px;gap:4px;padding-top:6px;}
+  .r108p6c-special-row{grid-template-columns:1fr auto;gap:5px;}
+  .r108p6c-special-entry{grid-column:1 / -1;justify-content:flex-end;}
+  .r108p6d-local-meta,.r108p6d-fixed-meta{justify-content:flex-end;}
+}
+</style>
+
+<style id="r108p6e-special-fare-focus-independent-20260824">
+/* R10.8P6E: 실비 입력 안정화/구간별 독립 state + 상태표시줄 미세정렬. */
+.r108p6c-special-help.ferry{font-size:11px;}
+@media(min-width:700px){
+  .status-bar{justify-content:flex-start!important;align-items:center!important;text-align:left!important;padding-left:18px!important;padding-right:12px!important;}
+}
+</style>
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
 <!-- R10.3 20260822: UI-state reopen, unified stepper tokens, route 3-button rail, autocomplete gap, mobile nav reserve -->
 <!-- R10.4 20260822: common navy popup shell, deduction no-inner-confirm, balanced route rail, stay popover alignment -->
 
+<!-- R10.8P6D 20260824: ordered special path hierarchy / LV5-first internal / round-trip actual cost sync -->
 <div id="root"></div>
 <script>
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
@@ -24379,40 +24544,41 @@ const isForwardDir = (fr, to, cand) => {
     return (dot / (L1 * L2)) > 0.5;
 };
 const distToLine = (fr, to, p) => { const dx = to.lng - fr.lng, dy = to.lat - fr.lat, l = Math.sqrt(dx * dx + dy * dy) || 1; return Math.abs(dy * p.lng - dx * p.lat + to.lng * fr.lat - to.lat * fr.lng) / l; };
-/* ── 2R6B7F3-R 특수교통 정책 ──────────────────────────────
-   - 신안 연륙 농어촌버스: 조례 1,000원 교통비
-   - 신안 도서 여객선: 조례 1,000원 기타교통비
-   - 완도 군외·신지·고금·약산: 무료 농어촌·마을버스 0원
-   - 완도 도서 여객선: 기타교통비 실비 입력
-   - 울릉: 포항까지 메인교통비 + 포항↔울릉 여객선 실비 입력
-   - 제주: 2세대 자동산정 제외, 기타교통비 실비 입력
+/* ── R10.8P6 신안·완도 LV5 내부 멀티허브 특수교통 정책 ───────────────
+   - 전국 LV4 / routes / area_graph는 유지하고, 신안·완도 내부 LV5 pair만 명시 edge로 우선 판정한다.
+   - 신안 농어촌버스는 고정 1,000원을 사용하지 않고 왕복 총 실비 입력(RURAL_MANUAL).
+   - 신안·완도 여객선/도선은 왕복 총 실비 입력(FERRY_REAL), 기존 기타교통비에 반영한다.
+   - 완도 군외·신지·고금·약산은 YBEZ 내부 생활권(LOCAL_WITHIN) 0원으로 표시한다.
+   - 명시 edge가 없는 LV5 pair는 임의 BFS로 완성하지 않고 기존 LV4/gateway fallback을 사용한다.
+   - 노화↔보길은 육상 연결만 인정하고 FREE 자동확정은 HOLD한다.
    ───────────────────────────────────────────────────────── */
 /* ── 도서지역 DB ── */
 const ISLAND_DB = {
     "신안": { hub: "목포", cost: 0, type: "connected" }, "신안교육청": { hub: "목포", cost: 0, type: "local", localLabel: "목포 관내" },
-    "압해": { hub: "목포", cost: 1000, type: "connected" }, "지도": { hub: "목포", cost: 1000, type: "connected" },
-    "증도": { hub: "목포", cost: 1000, type: "connected" }, "임자": { hub: "목포", cost: 1000, type: "connected" },
-    "팔금": { hub: "목포", cost: 1000, type: "connected" }, "암태": { hub: "목포", cost: 1000, type: "connected" },
-    "자은": { hub: "목포", cost: 1000, type: "connected" }, "안좌": { hub: "목포", cost: 1000, type: "connected" },
-    "비금": { hub: "목포", cost: 0, shipCost: 1000, type: "ship", special: true },
-    "도초": { hub: "목포", cost: 0, shipCost: 1000, type: "ship", special: true },
-    "장산": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" }, "하의": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" },
-    "신의": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" }, "흑산": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" },
-    "홍도": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" }, "가거도": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" },
-    "만재도": { hub: "목포", cost: 0, shipCost: 1000, type: "ship" }, "군외": { hub: "완도", cost: 0, type: "connected", special: true },
-    "신지": { hub: "완도", cost: 0, type: "connected", special: true }, "고금": { hub: "완도", cost: 0, type: "connected", special: true },
-    "약산": { hub: "완도", cost: 0, type: "connected", special: true },
+    "압해": { hub: "목포", cost: null, type: "connected", manualCost: true }, "지도": { hub: "목포", cost: null, type: "connected", manualCost: true },
+    "증도": { hub: "목포", cost: null, type: "connected", manualCost: true }, "임자": { hub: "목포", cost: null, type: "connected", manualCost: true },
+    "팔금": { hub: "목포", cost: null, type: "connected", manualCost: true }, "암태": { hub: "목포", cost: null, type: "connected", manualCost: true },
+    "자은": { hub: "목포", cost: null, type: "connected", manualCost: true }, "안좌": { hub: "목포", cost: null, type: "connected", manualCost: true },
+    "비금": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true, special: true },
+    "도초": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true, special: true },
+    "장산": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true }, "하의": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true },
+    "신의": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true }, "흑산": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true },
+    "홍도": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true }, "가거도": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true },
+    "만재도": { hub: "목포", cost: 0, shipCost: null, type: "ship", realCost: true }, "군외": { hub: "완도", cost: 0, type: "local", localLabel: "관내", special: true },
+    "신지": { hub: "완도", cost: 0, type: "local", localLabel: "관내", special: true }, "고금": { hub: "완도", cost: 0, type: "local", localLabel: "관내", special: true },
+    "약산": { hub: "완도", cost: 0, type: "local", localLabel: "관내", special: true },
     "청산": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true },
     "노화": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true },
     "보길": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true }, "소안": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true },
-    "여서도": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true }, "금일": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true },
-    "생일": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true },
+    "여서도": { hub: "완도", cost: 0, shipCost: null, type: "ship", realCost: true },
+    "금일": { hub: "완도", gateway: "약산(당목)", gatewayFreeRural: true, cost: 0, shipCost: null, type: "ship", realCost: true },
+    "생일": { hub: "완도", gateway: "약산(당목)", gatewayFreeRural: true, cost: 0, shipCost: null, type: "ship", realCost: true },
     "진도조도": { hub: "진도", cost: 0, shipCost: 1000, type: "ship" },
     "금당": { hub: "장흥", cost: 0, shipCost: null, type: "ship", realCost: true },
     // 2R6B7F3-R: 울릉은 포항까지 육상 메인교통비, 포항↔울릉 여객선은 기타교통비 실비 입력.
     "울릉": { hub: "포항", cost: 0, shipCost: null, type: "ship", realCost: true, specialPolicy: "FERRY_REAL_COST" },
 };
-// 2R6B7F3-R: 제주도는 2세대 자동산정에서 제외하고 사용자가 기타교통비를 실비 입력한다.
+// R10.8P6C: 제주도는 항공/선박을 구분하지 않고 왕복 교통비 총 실비 하나로 입력한다.
 const MANUAL_REAL_COST_ENDPOINTS = new Set(["제주"]);
 /* ── R10.8A-Z4: 목포↔남악만 동일생활권 0원 선택지 유지 ──
    무안/일로/오룡/삼향은 이 특수정책에서 제외한다.
@@ -24463,6 +24629,145 @@ const SAME_AREA = [
     new Set(["압해", "자은", "팔금", "암태", "안좌", "임자", "지도", "증도"]),
     new Set(["군외", "완도", "고금", "약산", "신지"]),
 ];
+/* ── R10.8P6D: 신안·완도 LV5 내부 ordered-path 특수규칙 ──────────────
+   - 같은 군 내부는 LV5↔LV5 연결을 LV4보다 우선한다.
+   - 메인경로(pathAB)와 세부 비용행(legsAB)을 별도로 보관하고 둘 다 실제 이동순서를 보존한다.
+   - 확인되지 않은 내부 pair는 임의 목포/완도 fallback을 만들지 않고 왕복 교통비 통실비로 처리한다. */
+const R108P6_SINAN_LV5 = new Set(["압해", "지도", "증도", "임자", "자은", "암태", "팔금", "안좌", "비금", "도초", "장산", "하의", "신의", "흑산", "홍도", "가거도", "만재도"]);
+const R108P6_WANDO_LV5 = new Set(["군외", "완도", "신지", "고금", "약산", "청산", "노화", "보길", "소안", "금일", "생일", "금당", "여서도"]);
+const r108p6PairKey = (a, b) => [String(a || "").trim(), String(b || "").trim()].sort().join("|");
+const R108P6_LV5_PAIR_RULES = new Map();
+const r108p6AddPair = (a, b, mode, opts = {}) => R108P6_LV5_PAIR_RULES.set(r108p6PairKey(a, b), { a, b, mode, ...opts });
+const r108p6AddOrderedPair = (a, b, pathAB, legsAB, opts = {}) => r108p6AddPair(a, b, "ORDERED_PATH", { pathAB, legsAB, ...opts });
+const r108p6LocalLeg = (nodes) => ({ kind: "local", nodes });
+const r108p6RuralLeg = (nodes) => ({ kind: "rural", nodes, manualCost: true });
+const r108p6FerryLeg = (nodes) => ({ kind: "ferry", nodes, realCost: true });
+const r108p6AddLocalPair = (a, b, via = []) => {
+    const path = [a, ...(Array.isArray(via) ? via : [via]).filter(Boolean), b];
+    r108p6AddOrderedPair(a, b, path, [r108p6LocalLeg(path)]);
+};
+const r108p6AddFerryPair = (a, b, via = []) => {
+    const path = [a, ...(Array.isArray(via) ? via : [via]).filter(Boolean), b];
+    r108p6AddOrderedPair(a, b, path, [r108p6FerryLeg(path)]);
+};
+
+// 신안 북부 작은 군: 지도·증도·임자.
+r108p6AddLocalPair("지도", "증도");
+r108p6AddLocalPair("지도", "임자");
+r108p6AddLocalPair("증도", "임자", ["지도"]);
+
+// 신안 중부 작은 군: 압해·암태·자은·팔금·안좌.
+r108p6AddLocalPair("압해", "암태");
+r108p6AddLocalPair("암태", "자은");
+r108p6AddLocalPair("암태", "팔금");
+r108p6AddLocalPair("팔금", "안좌");
+r108p6AddLocalPair("압해", "자은", ["암태"]);
+r108p6AddLocalPair("압해", "팔금", ["암태"]);
+r108p6AddLocalPair("압해", "안좌", ["암태", "팔금"]);
+r108p6AddLocalPair("암태", "안좌", ["팔금"]);
+r108p6AddLocalPair("자은", "팔금", ["암태"]);
+r108p6AddLocalPair("자은", "안좌", ["암태", "팔금"]);
+
+// 신안 별도 육상 작은 군.
+r108p6AddLocalPair("비금", "도초");
+r108p6AddLocalPair("하의", "신의");
+
+// 신안 중부 ↔ 비금·도초: 암태(남강) ↔ 비금(가산) 선박 edge.
+const R108P6_SINAN_TO_NAMGANG = Object.freeze({
+    "압해": ["압해", "암태(남강)"],
+    "암태": ["암태", "암태(남강)"],
+    "자은": ["자은", "암태(남강)"],
+    "팔금": ["팔금", "암태(남강)"],
+    "안좌": ["안좌", "팔금", "암태(남강)"]
+});
+["압해", "암태", "자은", "팔금", "안좌"].forEach(a => {
+    const localPath = R108P6_SINAN_TO_NAMGANG[a];
+    const toBigeumPath = [...localPath, "비금(가산)"];
+    const toBigeumLegs = [];
+    if (localPath.length > 1) toBigeumLegs.push(r108p6LocalLeg(localPath));
+    toBigeumLegs.push(r108p6FerryLeg(["남강", "비금(가산)"]));
+    r108p6AddOrderedPair(a, "비금", toBigeumPath, toBigeumLegs, { edge: "남강↔가산" });
+    r108p6AddOrderedPair(a, "도초", [...toBigeumPath, "도초"], [...toBigeumLegs, r108p6LocalLeg(["비금(가산)", "도초"])], { edge: "남강↔가산" });
+});
+
+// 신안 중부 ↔ 남부: 안좌 공영선 edge. 메인경로는 확인된 중간 기항/연결점을 보존한다.
+const R108P6_SINAN_TO_ANJWA = Object.freeze({
+    "압해": ["압해", "암태", "팔금", "안좌"],
+    "암태": ["암태", "팔금", "안좌"],
+    "자은": ["자은", "암태", "팔금", "안좌"],
+    "팔금": ["팔금", "안좌"],
+    "안좌": ["안좌"]
+});
+["압해", "암태", "자은", "팔금", "안좌"].forEach(a => {
+    const localPath = R108P6_SINAN_TO_ANJWA[a];
+    const localLegs = localPath.length > 1 ? [r108p6LocalLeg(localPath)] : [];
+    r108p6AddOrderedPair(a, "장산", [...localPath, "장산"], [...localLegs, r108p6FerryLeg(["안좌", "장산"])]);
+    r108p6AddOrderedPair(a, "신의", [...localPath, "장산", "신의"], [...localLegs, r108p6FerryLeg(["안좌", "장산", "신의"])]);
+    r108p6AddOrderedPair(a, "하의", [...localPath, "장산", "신의", "하의"], [...localLegs, r108p6FerryLeg(["안좌", "장산", "신의", "하의"])]);
+});
+r108p6AddFerryPair("장산", "신의");
+r108p6AddFerryPair("장산", "하의", ["신의"]);
+r108p6AddFerryPair("가거도", "만재도", ["하태도"]);
+
+// 완도 본권 작은 군.
+r108p6AddLocalPair("완도", "군외");
+r108p6AddLocalPair("완도", "신지");
+r108p6AddLocalPair("완도", "고금");
+r108p6AddLocalPair("완도", "약산", ["고금"]);
+r108p6AddLocalPair("군외", "신지", ["완도"]);
+r108p6AddLocalPair("군외", "고금", ["완도"]);
+r108p6AddLocalPair("군외", "약산", ["완도", "고금"]);
+r108p6AddLocalPair("신지", "고금", ["완도"]);
+r108p6AddLocalPair("신지", "약산", ["완도", "고금"]);
+r108p6AddLocalPair("고금", "약산");
+
+// 노화·보길은 확인된 육상 작은 군.
+r108p6AddLocalPair("노화", "보길");
+
+// 완도 본권 ↔ 금일·생일: 완도권 육상 → 약산(당목) → 선박.
+["완도", "군외", "신지", "고금", "약산"].forEach(a => {
+    const localPath = [a, "약산(당목)"];
+    r108p6AddOrderedPair(a, "금일", [...localPath, "금일"], [r108p6LocalLeg(localPath), r108p6FerryLeg(["당목", "금일"])]);
+    r108p6AddOrderedPair(a, "생일", [...localPath, "생일"], [r108p6LocalLeg(localPath), r108p6FerryLeg(["당목", "생일"])]);
+});
+
+// 완도 본권 ↔ 노화·보길·소안: 화흥포–노화(동천)–소안 축.
+["완도", "군외", "신지", "고금", "약산"].forEach(a => {
+    const landToPort = a === "완도" ? ["완도", "완도(화흥포)"] : [a, "완도(화흥포)"];
+    r108p6AddOrderedPair(a, "노화", [...landToPort, "노화(동천)"], [r108p6LocalLeg(landToPort), r108p6FerryLeg(["완도(화흥포)", "노화(동천)"])]);
+    r108p6AddOrderedPair(a, "보길", [...landToPort, "노화(동천)", "보길"], [r108p6LocalLeg(landToPort), r108p6FerryLeg(["완도(화흥포)", "노화(동천)"]), r108p6LocalLeg(["노화(동천)", "보길"])]);
+    r108p6AddOrderedPair(a, "소안", [...landToPort, "노화(동천)", "소안"], [r108p6LocalLeg(landToPort), r108p6FerryLeg(["완도(화흥포)", "노화(동천)", "소안"])]);
+});
+r108p6AddFerryPair("노화", "소안");
+r108p6AddOrderedPair("보길", "소안", ["보길", "노화(동천)", "소안"], [r108p6LocalLeg(["보길", "노화(동천)"]), r108p6FerryLeg(["노화(동천)", "소안"])]);
+
+// 완도 본권 ↔ 청산, 청산 ↔ 여서.
+["완도", "군외", "신지", "고금", "약산"].forEach(a => {
+    const p = a === "완도" ? ["완도", "청산"] : [a, "완도", "청산"];
+    const legs = [];
+    if (a !== "완도") legs.push(r108p6LocalLeg([a, "완도"]));
+    legs.push(r108p6FerryLeg(["완도", "청산"]));
+    r108p6AddOrderedPair(a, "청산", p, legs);
+});
+r108p6AddFerryPair("청산", "여서도");
+
+// 완도 내부 확인 해상 edge.
+r108p6AddFerryPair("금일", "금당");
+r108p6AddOrderedPair("금일", "생일", ["금일", "약산(당목)", "생일"], [r108p6FerryLeg(["금일", "당목", "생일"])]);
+
+const r108p6ResolvePair = (from, to) => {
+    const f = nz(from), t = nz(to);
+    if (!f || !t || f === t) return null;
+    const rule = R108P6_LV5_PAIR_RULES.get(r108p6PairKey(f, t));
+    if (!rule) return null;
+    const forward = f === rule.a && t === rule.b;
+    const orientNodes = (nodes) => forward ? [...(nodes || [])] : [...(nodes || [])].reverse();
+    const path = orientNodes(rule.pathAB || [rule.a, rule.b]);
+    const legs = (rule.legsAB || []).map(leg => ({ ...leg, nodes: orientNodes(leg.nodes || []) }));
+    if (!forward) legs.reverse();
+    return { ...rule, from: f, to: t, path, legs };
+};
+
 /* ── 도서 특수교통비 표시 경로 (터미널명 반영 개선) ── */
 const buildIslandLegs = (from, to, fromI, toI, landDepName, landArrName) => {
     const legs = [];
@@ -24475,18 +24780,28 @@ const buildIslandLegs = (from, to, fromI, toI, landDepName, landArrName) => {
     const addForDest = (island, info) => {
         if (!info) return;
         if (info.type === "local") legs.push({ kind: "local", label: "관내", route: `${info.hub}→${island}`, fare: 0, source: "관내", note: info.localLabel || `${info.hub} 관내`, free: true });
-        if (info.type === "connected") legs.push({ kind: "rural", label: "농어촌버스", route: `${info.hub}→${island}`, fare: Number(info.cost || 0), source: ruralSource(info), free: Number(info.cost || 0) === 0 });
+        if (info.type === "connected") {
+            const manualCost = !!info.manualCost;
+            const fare = manualCost ? null : Number(info.cost || 0);
+            legs.push({ kind: "rural", label: "농어촌버스", route: `${info.hub}→${island}`, fare, source: manualCost ? "실비 입력" : ruralSource(info), free: !manualCost && fare === 0, manualCost });
+        }
         if (info.type === "ship" || info.shipCost || info.realCost) {
-            legs.push({ kind: "ferry", label: "여객선", route: `${info.hub}→${island}`, fare: info.realCost ? null : Number(info.shipCost || 0), source: ferrySource(info), realCost: !!info.realCost });
+            if (info.gateway && info.gatewayFreeRural) legs.push({ kind: "rural", label: "농어촌버스", route: `${info.hub}→${info.gateway}`, fare: 0, source: ruralSource(info), free: true, gateway: true });
+            legs.push({ kind: "ferry", label: "여객선", route: `${info.gateway || info.hub}→${island}`, fare: info.realCost ? null : Number(info.shipCost || 0), source: ferrySource(info), realCost: !!info.realCost });
         }
     };
     const addForOrigin = (island, info) => {
         if (!info) return;
         if (info.type === "local") legs.push({ kind: "local", label: "관내", route: `${island}→${info.hub}`, fare: 0, source: "관내", note: info.localLabel || `${info.hub} 관내`, free: true });
         if (info.type === "ship" || info.shipCost || info.realCost) {
-            legs.push({ kind: "ferry", label: "여객선", route: `${island}→${info.hub}`, fare: info.realCost ? null : Number(info.shipCost || 0), source: ferrySource(info), realCost: !!info.realCost });
+            legs.push({ kind: "ferry", label: "여객선", route: `${island}→${info.gateway || info.hub}`, fare: info.realCost ? null : Number(info.shipCost || 0), source: ferrySource(info), realCost: !!info.realCost });
+            if (info.gateway && info.gatewayFreeRural) legs.push({ kind: "rural", label: "농어촌버스", route: `${info.gateway}→${info.hub}`, fare: 0, source: ruralSource(info), free: true, gateway: true });
         }
-        if (info.type === "connected") legs.push({ kind: "rural", label: "농어촌버스", route: `${island}→${info.hub}`, fare: Number(info.cost || 0), source: ruralSource(info), free: Number(info.cost || 0) === 0 });
+        if (info.type === "connected") {
+            const manualCost = !!info.manualCost;
+            const fare = manualCost ? null : Number(info.cost || 0);
+            legs.push({ kind: "rural", label: "농어촌버스", route: `${island}→${info.hub}`, fare, source: manualCost ? "실비 입력" : ruralSource(info), free: !manualCost && fare === 0, manualCost });
+        }
     };
     if (fromI) addForOrigin(from, fromI);
     if (toI) addForDest(to, toI);
@@ -24919,6 +25234,7 @@ const App = () => {
     const desktopPagerActive = isDesktopMini || (isDesktopCompact && !isDesktopTablet);
     const mobileAutoOpenedKeyRef = useRef("");
     const [intraCityOpen, setIntraCityOpen] = useState(false);
+    const [travelScopeMode, setTravelScopeMode] = useState("extra"); // R10.8P6C 관외/관내 토글, 팝업과 독립
     const [activeModal, setActiveModal] = useState(null);
     // R5-K3B: 감액팝업은 핵심 입력만 기본 노출하고 증빙·근거는 필요할 때만 펼친다.
     const [dedAccordionOpen, setDedAccordionOpen] = useState({ daily: false, transport: false, meal: false });
@@ -25375,8 +25691,19 @@ const App = () => {
     // 입력 UX 안정화: 각 입력칸 포커스 중 여부 추적 (외부 덮어쓰기 방지용)
     const transportFocused = useRef(false);
     const accessExtraFocused = useRef(false);
+    const ruralManualFocused = useRef(false);
     const shipFareFocused = useRef(false);
     const otherLodgingFocused = useRef(false);
+    const [ruralManualFare, setRuralManualFare] = useState(0);
+    const [ruralManualInput, setRuralManualInput] = useState("");
+    // R10.8P6E: 같은 화면에 특수구간이 여러 개 떠도 각 구간의 왕복 실비를 독립 보관한다.
+    const [ruralManualFareByLeg, setRuralManualFareByLeg] = useState({});
+    const [ruralManualInputByLeg, setRuralManualInputByLeg] = useState({});
+    const [shipFareByLeg, setShipFareByLeg] = useState({});
+    const [shipFareInputByLeg, setShipFareInputByLeg] = useState({});
+    // R10.8P6C/P6E: 입력값 자체가 왕복 총 실비다.
+    const ruralManualRoundTrip = Math.max(0, Object.values(ruralManualFareByLeg || {}).reduce((s, v) => s + Number(v || 0), 0));
+    const manualShipFareTotal = Math.max(0, Object.values(shipFareByLeg || {}).reduce((s, v) => s + Number(v || 0), 0));
     const [shipFare, setShipFare] = useState(0);
     const [otherLodgingFare, setOtherLodgingFare] = useState(0);
     const [otherLodgingInput, setOtherLodgingInput] = useState("");
@@ -25387,9 +25714,10 @@ const App = () => {
     const [accessExtraInput, setAccessExtraInput] = useState("");
     const [shipFareInput, setShipFareInput] = useState("");
     useEffect(() => { if (!transportFocused.current) {
-        const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * payableTransportTripMultiplier));
+        const payableBase = Number(manualTransport || 0) + Number(ruralManualRoundTrip || 0);
+        const shown = payableBase === 0 ? "" : String(Math.round(payableBase * payableTransportTripMultiplier));
         setManualTransportInput(shown);
-    } }, [manualTransport, payableTransportTripMultiplier]); // R10.2: 관용차 + 사유별 0.5 감액을 포함한 실제 지급횟수 반영
+    } }, [manualTransport, ruralManualRoundTrip, payableTransportTripMultiplier]); // R10.8P6: 메인 교통비 + 농어촌버스 왕복 실비를 지급횟수에 함께 반영
     useEffect(() => { if (!accessExtraFocused.current) {
         setAccessExtraInput(accessExtraFare === 0 ? "" : String(accessExtraFare));
     } }, [accessExtraFare]); // 입력 UX 안정화
@@ -25400,9 +25728,21 @@ const App = () => {
         setOtherLodgingInput(otherLodgingFare === 0 ? "" : String(otherLodgingFare));
     } }, [otherLodgingFare]);
     useEffect(() => {
+        setRuralManualFare(ruralManualRoundTrip);
+        if (!ruralManualFocused.current) setRuralManualInput(ruralManualRoundTrip === 0 ? "" : String(ruralManualRoundTrip));
+    }, [ruralManualRoundTrip]);
+    useEffect(() => {
         setOtherLodgingFare(0);
         if (!otherLodgingFocused.current) setOtherLodgingInput("");
     }, [origin, dest]);
+    useEffect(() => {
+        setRuralManualFare(0);
+        if (!ruralManualFocused.current) setRuralManualInput("");
+        setRuralManualFareByLeg({});
+        setRuralManualInputByLeg({});
+        setShipFareByLeg({});
+        setShipFareInputByLeg({});
+    }, [origin, dest, via]);
     const [showMap, setShowMap] = useState(true);
     const [history, setHistory] = useState(() => { try {
         return JSON.parse(localStorage.getItem('ybez_hist') || '[]');
@@ -25785,34 +26125,14 @@ const App = () => {
         // FREEZE-20260821: 출발지/도착지가 실제로 바뀌는 새 여정은 항상 제2호에서 시작한다.
         if (endpointChanged) setTravelExpenseClass(2);
     }, [origin, via, dest]);
-    // R3-20260821: 관내/관외 수동 토글을 제거하고, 출발지/도착지가 실제로 확정된 뒤
-    // 기존 canonical 지역판정 함수 normalizeCity()를 그대로 재사용해 자동판정한다.
-    // origin.name===dest.name 같은 새 단순 비교는 쓰지 않는다 - normalizeCity()는 이미
-    // JEONNAM_SUB_TO_MAIN에서 "남악"을 의도적으로 제외해 두었으므로(주석: "남악은
-    // 전남교육청 소재 메인지역으로 유지한다") 무안 일반지역과 남악은 이 함수만으로도
-    // 이미 서로 다른 canonical 이름이 되어 자동으로 분리된다 - 별도 남악 예외 코드 불필요.
-    // 메인교통비 0원 자체는 기존 route resolver의 sameArea 처리(계산 흐름 자체)가 그대로
-    // 담당하므로 여기서는 건드리지 않는다 - 여기서 하는 일은 기존 관내여비 팝업
-    // (intraCityOpen, 20,000원 계산기, 별도 기능)을 관내 판정 이벤트에서 자동으로
-    // 1회만 열어주는 것뿐이다. 같은 endpoint 조합에서는 반복해서 열리지 않는다.
-    const intraAutoShownKeyRef = useRef("");
+    // R10.8P6C: 자동 관내 판정은 태그/토글에만 반영하고 관내여비 팝업은 자동으로 열지 않는다.
     useEffect(() => {
-        const o = nz(origin);
-        const d = nz(dest);
-        if (!o || !d) return;
-        const sameArea = normalizeCity(o) === normalizeCity(d);
-        const key = `${normalizeCity(o)}|${normalizeCity(d)}`;
-        if (sameArea) {
-            if (intraAutoShownKeyRef.current !== key) {
-                intraAutoShownKeyRef.current = key;
-                setIntraCityOpen(true);
-                setShowMap(false);
-            }
-        } else {
-            intraAutoShownKeyRef.current = "";
-            setIntraCityOpen(false);
-        }
-    }, [origin, dest]);
+        if (!result) { setTravelScopeMode("extra"); return; }
+        const localByResult = result.r108p6InternalMode === "LOCAL_WITHIN"
+            || (result.ybezAccessPlan && result.ybezAccessPlan.mode === "LOCAL_WITHIN")
+            || !!result.sameArea;
+        setTravelScopeMode(localByResult ? "intra" : "extra");
+    }, [result]);
     // D6-W3: Desktop / Mini / Tablet을 하나의 React 상태로 관리한다.
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -29603,12 +29923,13 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     islandLegs.push({ kind: "local", label: "관내", route: `${x.hub}→${x.key}`, fare: 0, source: "관내", note: label, role: x === fs ? "origin" : "dest", free: true });
                 }
                 else if (x.isConnected) {
-                    const src = islandRuralSource(x);
-                    const fare = Number((x.info && x.info.cost) || 0);
-                    notes.push(fare > 0
-                        ? `${x.hub}↔${x.key} 농어촌버스 편도 ${fmt(fare)}원 / 왕복 ${fmt(fare * 2)}원 교통비 포함`
-                        : `${x.hub}↔${x.key} 농어촌버스 무료 운행 기준 적용`);
-                    islandLegs.push({ kind: "rural", label: "농어촌버스", route: `${x.hub}→${x.key}`, fare, source: src, role: x === fs ? "origin" : "dest", free: fare === 0 });
+                    const manualCost = !!(x.info && x.info.manualCost);
+                    const src = manualCost ? "실비 입력" : islandRuralSource(x);
+                    const fare = manualCost ? null : Number((x.info && x.info.cost) || 0);
+                    notes.push(manualCost
+                        ? `${x.hub}↔${x.key} 농어촌버스 왕복 총 실비 입력`
+                        : (fare > 0 ? `${x.hub}↔${x.key} 농어촌버스 편도 ${fmt(fare)}원 / 왕복 ${fmt(fare * 2)}원 교통비 포함` : `${x.hub}↔${x.key} 농어촌버스 무료 운행 기준 적용`));
+                    islandLegs.push({ kind: "rural", label: "농어촌버스", route: `${x.hub}→${x.key}`, fare, source: src, role: x === fs ? "origin" : "dest", free: !manualCost && fare === 0, manualCost });
                 }
                 else if (x.isShip) {
                     const realCost = !!(x.info && x.info.realCost);
@@ -33836,12 +34157,13 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 origin: rawFrom, dest: rawTo, userOrigin: rawFrom, userDest: rawTo, via: null,
                 areaRoute: true, areaSpecial: true, areaScore: 5, areaMethod: "제주 교통비 실비 입력",
                 areaDetail: "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.",
-                needsManualFare: true, manualFareLabel: "실비 입력", manualOtherTransportOnly: true,
-                specialTransportNotice: "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.",
+                needsManualFare: true, manualFareLabel: "실비 입력", manualTransportOnly: true,
+                manualTransportLabel: "제주 왕복 교통비 실비 입력", p6dMainTransportInline: true,
+                specialTransportNotice: "제주 왕복 교통비 총 실비를 입력해주세요.",
                 areaSegments: null, multiHop: null, islandLegs: [], islandRouteLabel: "", isShipOnlyRoute: false
             };
             applyCalcResult(manualRes);
-            setManualTransport(null);
+            setManualTransport(0);
             setManualTransportInput("");
             setShipFare(0);
             setShipFareInput("");
@@ -34587,6 +34909,60 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 const tInfo = ISLAND_DB[to] || null;
                 if (!fInfo && !tInfo)
                     return null;
+                // R10.8P6: 같은 신안/완도 내부 LV5 pair는 기존 목포/완도 허브 강제보다 먼저 명시 edge를 본다.
+                // 명시 pair가 없으면 아래 기존 LV4/gateway fallback으로 내려간다. 임의 BFS는 하지 않는다.
+                const sameInternalCounty = (R108P6_SINAN_LV5.has(from) && R108P6_SINAN_LV5.has(to)) || (R108P6_WANDO_LV5.has(from) && R108P6_WANDO_LV5.has(to));
+                const r108p6SinanWandoScope = R108P6_SINAN_LV5.has(from) || R108P6_SINAN_LV5.has(to) || R108P6_WANDO_LV5.has(from) || R108P6_WANDO_LV5.has(to);
+                const internalRule = sameInternalCounty ? r108p6ResolvePair(from, to) : null;
+                if (internalRule) {
+                    const routeNodes = Array.isArray(internalRule.path) && internalRule.path.length ? internalRule.path.map(nz).filter(Boolean) : [from, to];
+                    const legs = [];
+                    const pushOrderedLeg = (leg) => {
+                        if (!leg) return;
+                        const nodes = Array.isArray(leg.nodes) ? leg.nodes.map(nz).filter(Boolean) : [];
+                        if (nodes.length < 2) return;
+                        const route = nodes.join("→");
+                        if (leg.kind === "local") legs.push({ kind: "local", label: "관내", route, fare: 0, source: "관내", note: "관내", role: "internal", free: true });
+                        else if (leg.kind === "rural") legs.push({ kind: "rural", label: "농어촌버스", route, fare: null, source: "실비 입력", role: "internal", manualCost: true, free: false });
+                        else if (leg.kind === "ferry") legs.push({ kind: "ferry", label: "여객선", route, fare: null, source: "실비 입력", role: "internal", realCost: true });
+                    };
+                    (internalRule.legs || []).forEach(pushOrderedLeg);
+                    const routeLabel = routeNodes.join(" → ");
+                    const kinds = new Set(legs.map(x => x.kind));
+                    const detail = kinds.size === 1 && kinds.has("local") ? "관내 0원"
+                        : [...kinds].map(k => k === "local" ? "관내" : (k === "rural" ? "농어촌버스 왕복 실비" : "승선요금 왕복 실비")).join(" → ");
+                    return {
+                        gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
+                        sources: ["area_special"], dr: routeLabel.replace(/\s*→\s*/g, "→"), routeLabel,
+                        displayRouteLabel: routeLabel,
+                        userOrigin: from, userDest: to, mainOrigin: from, mainDest: to, mainRouteLabel: routeLabel,
+                        origin: from, dest: to, via: null, areaRoute: true, areaScore: 5,
+                        areaMethod: "신안·완도 LV5 내부 ordered-path", areaDetail: detail,
+                        areaSegments: null, multiHop: { segs: [], path: routeNodes }, islandLegs: legs, islandRouteLabel: detail,
+                        isShipOnlyRoute: legs.some(x => x.kind === "ferry"), areaSpecial: true,
+                        accessExtraEnabled: false, accessExtraHint: "", r108p6InternalLv5: true,
+                        r108p6InternalMode: internalRule.mode, r108p6SinanWandoScope: true,
+                        p6dOrderedSpecialPath: true
+                    };
+                }
+                // P6D: 신안/완도 내부인데 확인된 LV5 edge가 없으면 LV4를 임의 삽입하지 않는다.
+                // 제주와 같은 왕복 교통비 통실비 입력으로 안전 종료한다.
+                if (sameInternalCounty) {
+                    const routeLabel = `${from} → ${to}`;
+                    return {
+                        gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
+                        sources: ["area_special"], dr: routeLabel.replace(/\s*→\s*/g, "→"), routeLabel, displayRouteLabel: routeLabel,
+                        userOrigin: from, userDest: to, mainOrigin: from, mainDest: to, mainRouteLabel: routeLabel,
+                        origin: from, dest: to, via: null, areaRoute: true, areaScore: 5,
+                        areaMethod: "신안·완도 내부 연결 미확인 · 왕복 교통비 실비", areaDetail: "확인된 내부 LV5 연결이 없어 임의 LV4 경유 없이 왕복 교통비 총 실비를 입력합니다.",
+                        areaSegments: null, multiHop: null, islandLegs: [], islandRouteLabel: "",
+                        isShipOnlyRoute: false, areaSpecial: true, needsManualFare: true, manualFareLabel: "실비 입력",
+                        manualTransportOnly: true, manualTransportLabel: "왕복 교통비 실비 입력", p6dMainTransportInline: true,
+                        specialTransportNotice: "왕복 교통비 총 실비를 입력해주세요.",
+                        r108p6InternalFallback: true, r108p6FallbackHub: "", r108p6SinanWandoScope: true,
+                        p6dOrderedSpecialPath: true
+                    };
+                }
                 // R5-G1: 특수출발/도착과 반대편 LV5 접근비용을 서로 독립시킨다.
                 // 예) 하의→화성: 하의→목포(특수) + 목포→광주→수원(main) + 수원→화성(access).
                 // 원본 role/access DB는 바꾸지 않고 기존 buildEndpointPlan의 확정 access만 재사용한다.
@@ -34664,21 +35040,35 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         notes.push(label);
                     }
                     else if (isConnected) {
-                        const fare = Number(info.cost || 0);
-                        const source = info.hub === "완도"
-                            ? "완도군 농어촌 및 마을버스 무료이용 지원 조례"
-                            : "신안군 공영버스사업 운영 조례";
-                        legs.push({ kind: "rural", label: "농어촌버스", route, fare, source, role, free: fare === 0 });
-                        notes.push(fare > 0
-                            ? `${info.hub}↔${place} 농어촌버스 편도 ${fmt(fare)}원 / 왕복 ${fmt(fare * 2)}원 교통비 포함`
-                            : `${info.hub}↔${place} 농어촌버스 무료 운행 기준 적용`);
+                        const manualCost = !!info.manualCost;
+                        const fare = manualCost ? null : Number(info.cost || 0);
+                        const source = manualCost ? "실비 입력" : (info.hub === "완도" ? "완도군 농어촌 및 마을버스 무료이용 지원 조례" : "신안군 공영버스사업 운영 조례");
+                        legs.push({ kind: "rural", label: "농어촌버스", route, fare, source, role, free: !manualCost && fare === 0, manualCost });
+                        notes.push(manualCost
+                            ? `${info.hub}↔${place} 농어촌버스 왕복 총 실비 입력`
+                            : (fare > 0 ? `${info.hub}↔${place} 농어촌버스 편도 ${fmt(fare)}원 / 왕복 ${fmt(fare * 2)}원 교통비 포함` : `${info.hub}↔${place} 농어촌버스 무료 운행 기준 적용`));
                     }
                     else if (isShip) {
                         const realCost = !!info.realCost;
                         const fare = realCost ? null : Number(info.shipCost || 0);
                         const source = realCost ? "실비 입력" : (info.hub === "완도" ? "완도군 주민 여객선운임 등 지원 조례" : "신안군 여객선 관련 조례");
-                        legs.push({ kind: "ferry", label: "여객선", route, fare, source, role, realCost });
-                        notes.push(realCost ? `${info.hub}→${place} 여객선 실비 입력` : `${info.hub}→${place} 여객선 편도 ${fmt(fare)}원 / 왕복 ${fmt(fare * 2)}원`);
+                        const ferryRoute = role === "origin" ? `${place}→${info.gateway || info.hub}` : `${info.gateway || info.hub}→${place}`;
+                        const ferryLeg = { kind: "ferry", label: "여객선", route: ferryRoute, fare, source, role, realCost };
+                        const gatewayLeg = info.gateway && info.gatewayFreeRural
+                            ? { kind: "local", label: "관내", route: role === "origin" ? `${info.gateway}→${info.hub}` : `${info.hub}→${info.gateway}`, fare: 0, source: "관내", role, free: true, gateway: true }
+                            : null;
+                        // P6D 실제 이동순서: 섬 출발은 배→관내, 섬 도착은 관내→배.
+                        if (role === "origin") {
+                            legs.push(ferryLeg);
+                            if (gatewayLeg) legs.push(gatewayLeg);
+                        } else {
+                            if (gatewayLeg) legs.push(gatewayLeg);
+                            legs.push(ferryLeg);
+                        }
+                        if (gatewayLeg) notes.push(`${info.hub}↔${info.gateway} 관내 0원`);
+                        notes.push(realCost
+                            ? (r108p6SinanWandoScope ? `${info.gateway || info.hub}→${place} 여객선·도선 왕복 총 실비 입력` : `${info.gateway || info.hub}→${place} 여객선 실비 입력`)
+                            : `${info.gateway || info.hub}→${place} 여객선 편도 ${fmt(fare)}원 / 왕복 ${fmt(fare * 2)}원`);
                     }
                 };
                 addLeg(from, fInfo, "origin");
@@ -34694,9 +35084,17 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     if (!v) return;
                     if (!routeParts.length || roleNorm(routeParts[routeParts.length - 1]) !== roleNorm(v)) routeParts.push(v);
                 };
-                if (fInfo) pushRoutePart(from);
+                if (fInfo) {
+                    pushRoutePart(from);
+                    if (fInfo.gateway) pushRoutePart(fInfo.gateway);
+                    pushRoutePart(fInfo.hub);
+                }
                 (landPath && landPath.length ? landPath : [mainFrom, mainTo]).forEach(pushRoutePart);
-                if (tInfo) pushRoutePart(to);
+                if (tInfo) {
+                    pushRoutePart(tInfo.hub);
+                    if (tInfo.gateway) pushRoutePart(tInfo.gateway);
+                    pushRoutePart(to);
+                }
                 const routeLabel = routeParts.join(" → ");
                 const areaSegments = landSegments.length ? landSegments.map(x => ({ ...x })) : null;
                 const totalGen = gen + ruralFare;
@@ -34728,7 +35126,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     isShipOnlyRoute,
                     areaSpecial: true,
                     accessExtraEnabled,
-                    accessExtraHint: notes.find(n => /농어촌버스/.test(n)) || ""
+                    accessExtraHint: notes.find(n => /농어촌버스/.test(n)) || "",
+                    r108p6InternalFallback: sameInternalCounty && !internalRule,
+                    r108p6FallbackHub: sameInternalCounty ? (((fInfo === null || fInfo === void 0 ? void 0 : fInfo.hub) || (tInfo === null || tInfo === void 0 ? void 0 : tInfo.hub) || "") ) : "",
+                    r108p6SinanWandoScope,
+                    p6dOrderedSpecialPath: true
                 };
             };
             const earlyIslandBaseRes = makeEarlyIslandHubResult();
@@ -35656,8 +36058,12 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (!plan || plan.mode !== "JOINT_ZONE_CHOICES") return sum;
         return sum + (accessChoiceForPlan(plan) === "fare" ? Number(plan.oneway || 0) : 0);
     }, 0), [activeAccessPlans, accessChoiceForPlan]);
+    const r108p6eManualRuralLegs = useMemo(() => (result && Array.isArray(result.islandLegs) ? result.islandLegs : []).filter(x => x && x.kind === "rural" && !!x.manualCost), [result]);
+    const r108p6eManualFerryLegs = useMemo(() => (result && Array.isArray(result.islandLegs) ? result.islandLegs : []).filter(x => x && x.kind === "ferry" && (x.realCost || x.fare == null)), [result]);
+    const hasManualRural = r108p6eManualRuralLegs.length > 0;
+    const activeRuralManualRoundTrip = hasManualRural ? Math.max(0, Number(ruralManualRoundTrip || 0)) : 0;
     const displayOneWayFare = useMemo(() => Number(selectedFare || 0) + Number(activeAccessOneWay || 0), [selectedFare, activeAccessOneWay]);
-    const displayRoundTripFare = useMemo(() => displayOneWayFare * 2, [displayOneWayFare]);
+    const displayRoundTripFare = useMemo(() => displayOneWayFare * 2 + Number(activeRuralManualRoundTrip || 0), [displayOneWayFare, activeRuralManualRoundTrip]);
     // D4.1: 농어촌버스는 육상 교통비다.
     // 특수지역 resolver가 selectedFare(gen)에 이미 합산한 농어촌버스 요금은 교통비에서 빼지 않는다.
     // 기타교통비는 여객선·도선 등 육상 교통비 외 특수교통만 사용한다.
@@ -35688,6 +36094,90 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 React.createElement("span", { className: "final-fare-round-num" }, `${fmt(one * 2)}원`),
                 React.createElement("span", { className: "final-fare-tag round" }, "왕복")));
     };
+    const r108p6eLegKey = (kind, leg) => {
+        const route = String((leg && (leg.route || leg.ferryRoute)) || "특수구간").replace(/\s*→\s*/g, "→").trim();
+        return `${kind}|${route}`;
+    };
+    const r108p6eLegRaw = (kind, leg) => {
+        const key = r108p6eLegKey(kind, leg);
+        if (kind === "rural") return String((ruralManualInputByLeg || {})[key] || "");
+        if (kind === "ferry") return String((shipFareInputByLeg || {})[key] || "");
+        return manualTransportInput || "";
+    };
+    const r108p6eSetLegRaw = (kind, leg, rawValue) => {
+        const v = onlyDigits(rawValue);
+        const amount = v === "" ? 0 : Number(v);
+        if (kind === "rural") {
+            const key = r108p6eLegKey(kind, leg);
+            setRuralManualInputByLeg(prev => ({ ...prev, [key]: v }));
+            setRuralManualFareByLeg(prev => ({ ...prev, [key]: amount }));
+            return;
+        }
+        if (kind === "ferry") {
+            const key = r108p6eLegKey(kind, leg);
+            setShipFareInputByLeg(prev => ({ ...prev, [key]: v }));
+            setShipFareByLeg(prev => ({ ...prev, [key]: amount }));
+            return;
+        }
+        setManualTransportInput(v);
+        setManualTransport(v === "" ? 0 : Number(v));
+    };
+    // P6F: 특수요금 입력 focus/caret 보호.
+    // App 내부의 ChoiceCard/MainSpecialFareInputs를 React component type으로 재생성하지 않고
+    // 직접 renderer로 호출하며, 입력 중에는 raw digits를 그대로 표시해 DOM/caret을 안정적으로 유지한다.
+    const renderR108P6ESpecialFareEntry = (kind = "transport", leg = null) => {
+        const isRural = kind === "rural";
+        const isFerry = kind === "ferry";
+        const raw = r108p6eLegRaw(kind, leg);
+        const help = isRural ? "왕복 농어촌버스 요금 입력"
+            : (isFerry ? "왕복 승선요금 입력" : ((result && result.manualTransportLabel) || "왕복 교통비 실비 입력"));
+        return React.createElement("div", { className: "r108p6c-special-entry", onClick: e => e.stopPropagation() },
+            React.createElement("span", { className: `r108p6c-special-help ${isFerry ? "ferry" : ""}`.trim() }, help),
+            React.createElement("input", {
+                className: "r108p6c-special-input", inputMode: "numeric",
+                value: raw,
+                onFocus: e => e.target.select(),
+                onChange: e => r108p6eSetLegRaw(kind, leg, e.target.value),
+                "aria-label": isRural ? "농어촌버스 왕복요금" : (isFerry ? "여객선 도선 왕복요금" : "왕복 교통비")
+            }),
+            React.createElement("span", { style: { fontSize: 11, fontWeight: 800, color: "#64748B" } }, "원"));
+    };
+    const MainSpecialFareInputsR108P6C = () => {
+        if (!result || result.manualTransportOnly) return null;
+        const legs = Array.isArray(result.islandLegs) ? result.islandLegs.filter(Boolean) : [];
+        if (!legs.length) return null;
+        const routeText = (leg) => String((leg && leg.route) || "특수구간").replace(/\s*→\s*/g, " → ");
+        const routeCell = (leg) => React.createElement("div", { className: "r108p6c-special-route", title: routeText(leg) },
+            React.createElement("span", { className: "r108p6d-bullet", "aria-hidden": "true" }, "·"), routeText(leg));
+        const localMeta = () => React.createElement("div", { className: "r108p6d-local-meta" },
+            React.createElement("span", { className: "r108p6d-local-tag" }, "관내"),
+            React.createElement("span", { className: "r108p6d-local-amount" }, "0원"));
+        const fixedMeta = (leg) => React.createElement("div", { className: "r108p6d-fixed-meta" },
+            React.createElement("span", null, `${fmt(Number(leg.fare || 0))}원`));
+        const rows = legs.map((leg, idx) => {
+            const kind = String(leg.kind || "");
+            if (kind === "local" || (kind === "rural" && leg.free && !leg.manualCost)) {
+                return React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row local", onClick: e => e.stopPropagation() },
+                    routeCell(leg), localMeta(), React.createElement("span", null));
+            }
+            if (kind === "rural" && leg.manualCost) {
+                return React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row rural", onClick: e => e.stopPropagation() },
+                    routeCell(leg), renderR108P6ESpecialFareEntry("rural", leg), React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"));
+            }
+            if (kind === "ferry" && (leg.realCost || leg.fare == null)) {
+                return React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row ferry", onClick: e => e.stopPropagation() },
+                    routeCell(leg), renderR108P6ESpecialFareEntry("ferry", leg), React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"));
+            }
+            if ((kind === "ferry" || kind === "rural") && leg.fare != null) {
+                return React.createElement("div", { key: `p6d-leg-${idx}`, className: `r108p6c-special-row ${kind}`, onClick: e => e.stopPropagation() },
+                    routeCell(leg), fixedMeta(leg), React.createElement("span", null));
+            }
+            return null;
+        }).filter(Boolean);
+        if (!rows.length) return null;
+        return React.createElement("div", { className: "r108p6c-main-special-wrap", onClick: e => e.stopPropagation() }, ...rows);
+    };
+    /* ── 패치 2R.4 접근비용 최종 선택카드 ── */
     /* ── 패치 2R.4 접근비용 최종 선택카드 ── */
     const AccessCostDecisionCards = ({ compact = false } = {}) => {
         if (!activeAccessPlans.length) return null;
@@ -35873,7 +36363,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const generalDayMultiplier = generalMultiCalcActive ? tripDays : 1;
         const generalDaily = Math.max(0, 25000 * generalDayMultiplier - 12500 * vehicleDaysApplied);
         const calculatedTransport = Number(expenseTransportOneWay || 0) * 2;
-        const baseTransport = manualTransport != null ? Number(manualTransport) : calculatedTransport;
+        const mainTransportBase = manualTransport != null ? Number(manualTransport) : calculatedTransport;
+        const baseTransport = mainTransportBase + Number(ruralManualRoundTrip || 0);
         const transportGross = Math.round(baseTransport * transportTripMultiplier);
         const vehicleAdjustedTransport = Math.round(baseTransport * payableTransportTripMultiplier);
         const transport = govVehicleFullyCoversTrip ? 0 : vehicleAdjustedTransport;
@@ -35895,7 +36386,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
             total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, expenseTransportOneWay, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier]);
+    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier]);
     const dailyDeductionLabel = detailCost.dailyDeduction > 0 ? `-${fmt(detailCost.dailyDeduction)}원` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
@@ -36033,17 +36524,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     useEffect(() => {
         if (!result)
             return;
-        if (result.manualOtherTransportOnly) {
-            setManualTransport(null);
-            if (!transportFocused.current)
-                setManualTransportInput("");
+        if (result.manualTransportOnly) {
+            if (manualTransport == null) setManualTransport(0);
             return;
         }
         const next = Number(expenseTransportOneWay || 0) * 2;
         setManualTransport(next);
-        if (!transportFocused.current)
-            setManualTransportInput(next === 0 ? "" : String(next)); // 입력 UX 안정화
-    }, [expenseTransportOneWay, result]);
+        if (!transportFocused.current) {
+            const shownBase = next + Number(ruralManualRoundTrip || 0);
+            const shown = Math.round(shownBase * payableTransportTripMultiplier);
+            setManualTransportInput(shown === 0 ? "" : String(shown));
+        }
+    }, [expenseTransportOneWay, ruralManualRoundTrip, payableTransportTripMultiplier, result]);
     // 패치 2R.3: 추가교통비 항목은 폐지한다.
     // 시스템이 아는 육상 접근요금은 교통비에 포함하고, 선박·도선만 기타교통비로 유지한다.
     const showAccessExtraInput = false;
@@ -36066,20 +36558,23 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     }, [result]);
     const shipFareHint = useMemo(() => {
         if (!result) return "";
-        if (result.manualOtherTransportOnly) return "";
+        if (result.manualTransportOnly) return "";
         if (shipAutoSummary.parts.length) return shipAutoSummary.parts
             .map(p => `${p.route} 여객선 조례 · 편도 ${fmt(p.one)}원 / 왕복 ${fmt(p.round)}원`)
             .join(" / ");
         const realCostLegs = (result.islandLegs || []).filter(x => x.kind === "ferry" && (x.realCost || x.fare == null));
-        if (realCostLegs.length) return `${realCostLegs.map(x => String(x.route || "여객선 구간").replace("→", " ↔ ")).join(" / ")} 여객선 운임 · 실비 입력`;
+        if (realCostLegs.length) {
+            if (result.r108p6SinanWandoScope) return `${realCostLegs.map(x => String(x.route || "여객선·도선 구간").replace("→", " ↔ ")).join(" / ")} · 여객선·도선 왕복 총 실비 입력`;
+            return `${realCostLegs.map(x => String(x.route || "여객선 구간").replace("→", " ↔ ")).join(" / ")} 여객선 운임 · 실비 입력`;
+        }
         return "";
     }, [result, shipAutoSummary]);
-    const hasRealCostFerry = useMemo(() => !!(result && (result.manualOtherTransportOnly || (result.islandLegs || []).some(x => x.kind === "ferry" && (x.realCost || x.fare == null)))), [result]);
+    const hasRealCostFerry = useMemo(() => !!(result && (result.islandLegs || []).some(x => x.kind === "ferry" && (x.realCost || x.fare == null))), [result]);
+    const hasR108P6SinanWandoRealCostFerry = useMemo(() => !!(result && result.r108p6SinanWandoScope && (result.islandLegs || []).some(x => x.kind === "ferry" && (x.realCost || x.fare == null))), [result]);
     const islandExpenseDestination = useMemo(() => {
         const d = nz(dest);
         if (!result || !d) return false;
-        if (ISLAND_DB[d] || MANUAL_REAL_COST_ENDPOINTS.has(d) || d === "서귀포") return true;
-        return (result.islandLegs || []).some(x => x.role === "dest" || String(x.route || "").includes(d));
+        return (result.islandLegs || []).some(x => x && x.kind === "ferry" && (x.role === "dest" || String(x.route || "").includes(d)));
     }, [result, dest]);
     const autoOpenOtherCosts = !!(result && (islandExpenseDestination || hasRealCostFerry || shipAutoSummary.total > 0));
     useEffect(() => {
@@ -36089,10 +36584,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     useEffect(() => {
         if (!result || shipFareFocused.current)
             return;
-        const total = Number(shipAutoSummary.total || 0);
+        const total = Number(shipAutoSummary.total || 0) + Number(manualShipFareTotal || 0);
         setShipFare(total);
         setShipFareInput(total === 0 ? "" : String(total));
-    }, [result, shipAutoSummary]);
+    }, [result, shipAutoSummary, manualShipFareTotal]);
     /* 표시 레이어 보정: 계산명/생활권명/접근비용 안내 분리 */
     const compactPlaceName = useCallback((v) => displayCityName(String(v || "").replace(/생활권|권역/g, "").trim()), [displayCityName]);
     const displayEndpointName = useCallback((v) => {
@@ -36126,28 +36621,33 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         legs.forEach((leg) => {
             if (!leg || !["rural", "ferry"].includes(leg.kind)) return;
             const realCost = leg.kind === "ferry" && (leg.realCost || leg.fare == null);
+            const manualRural = leg.kind === "rural" && !!leg.manualCost;
+            const freeRural = leg.kind === "rural" && !!leg.free;
             const one = Number(leg.fare || 0);
-            if (!realCost && !(one > 0)) return;
+            if (!realCost && !manualRural && !freeRural && !(one > 0)) return;
             const route = routeForLeg(leg);
-            const key = `${route}|${realCost ? "real" : one}`;
+            const key = `${route}|${realCost ? "real" : manualRural ? "manual-rural" : freeRural ? "free-rural" : one}`;
             if (seen.has(key)) return;
             seen.add(key);
             if (leg.kind === "rural") {
-                out.push({
-                    type: "rural",
-                    route,
-                    line1: `농어촌버스 편도 ${fmt(one)}원 · 왕복 ${fmt(one * 2)}원`,
-                    line2: "교통비 반영 · 농어촌버스 이용 확인"
+                if (manualRural) out.push({
+                    type: "rural", route,
+                    line1: activeRuralManualRoundTrip > 0 ? `농어촌버스 왕복 ${fmt(activeRuralManualRoundTrip)}원` : "농어촌버스 왕복 총 실비 입력",
+                    line2: leg.holdFree ? "육상 연결 확인 · 무료 여부 자동확정 안 함" : "교통비에 왕복 반영"
                 });
+                else if (freeRural) out.push({ type: "rural", route, line1: "농어촌·마을버스 무료", line2: "완도군 확인 무료구간" });
+                else out.push({ type: "rural", route, line1: `농어촌버스 편도 ${fmt(one)}원 · 왕복 ${fmt(one * 2)}원`, line2: "교통비 반영 · 농어촌버스 이용 확인" });
             }
             else {
                 out.push(realCost
-                    ? { type: "real", route, line1: "기타교통비에 실비 입력", line2: "선박승선권 확인" }
+                    ? (result.r108p6SinanWandoScope
+                        ? { type: "real", route, line1: "여객선·도선 왕복 총 실비 입력", line2: "승선료·차량선적료 등 실제 지출액" }
+                        : { type: "real", route, line1: "기타교통비에 실비 입력", line2: "선박승선권 확인" })
                     : { type: "fixed", route, line1: `편도 ${fmt(one)}원 · 왕복 ${fmt(one * 2)}원`, line2: "기타교통비 가산 처리 · 승선권 확인 필요" });
             }
         });
         return out;
-    }, [result, origin, dest, displayEndpointName]);
+    }, [result, origin, dest, displayEndpointName, activeRuralManualRoundTrip]);
     const M510ShipIcon = () => React.createElement("svg", {
         className: "m510-ship-icon", viewBox: "0 0 24 24", fill: "none",
         stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round",
@@ -36460,6 +36960,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     const displayRouteLabel = useMemo(() => {
         if (!result)
             return "";
+        if (result.p6dOrderedSpecialPath && (result.displayRouteLabel || result.routeLabel || result.mainRouteLabel))
+            return String(result.displayRouteLabel || result.routeLabel || result.mainRouteLabel).replace(/\s*→\s*/g, " → ").trim();
         if (result.partialRoute && result.displayRouteLabel) {
             const rawParts = String(result.displayRouteLabel).split(/\s*→\s*/).map(x => x.trim()).filter(Boolean);
             const o = routeRegionDisplayName(displayEndpointName(origin), true);
@@ -36667,16 +37169,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (!result)
             return "";
         if (result.partialRoute) return "일부 구간만 반영";
-        if (result.manualOtherTransportOnly) return "실비 입력";
+        if (result.manualTransportOnly) return result.manualTransportLabel || "왕복 교통비 실비";
         const legs = result.islandLegs || [];
         const ruralLegs = legs.filter(x => x.kind === "rural");
         const hasRural = ruralLegs.length > 0;
+        const hasManualRuralLeg = ruralLegs.some(x => !!x.manualCost);
         const hasPaidRural = ruralLegs.some(x => Number(x.fare || 0) > 0);
         const localLeg = legs.find(x => x.kind === "local");
         const hasFerry = legs.some(x => x.kind === "ferry");
+        if (localLeg && hasFerry) return "관내 · 여객선 실비 입력";
         if (localLeg) return localLeg.note || "관내";
-        if (hasRural && hasFerry) return hasPaidRural ? "농어촌버스 포함 · 여객선 기타교통비" : "농어촌버스 무료 · 여객선 기타교통비";
-        if (hasRural) return hasPaidRural ? "농어촌버스 포함" : "농어촌버스 무료";
+        if (hasRural && hasFerry) return hasManualRuralLeg ? "농어촌버스 실비 · 여객선 기타교통비" : (hasPaidRural ? "농어촌버스 포함 · 여객선 기타교통비" : "관내 · 여객선 기타교통비");
+        if (hasRural) return hasManualRuralLeg ? "농어촌버스 실비 입력" : (hasPaidRural ? "농어촌버스 포함" : "관내");
         if (hasFerry) {
             const realCost = legs.some(x => x.kind === "ferry" && (x.realCost || x.fare == null));
             return realCost ? "여객선 실비 입력" : "여객선 기타교통비";
@@ -36713,7 +37217,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const pair = [lv4, lv5].sort().join("|");
             if (!eligibleNoticePairs.has(pair)) return;
 
-            const label = `${lv4}·${lv5} 같은생활권`;
+            const label = plan.mode === "LOCAL_WITHIN" ? "관내" : `${lv4}·${lv5} 같은생활권`;
             if (seen.has(label)) return;
             seen.add(label);
             labels.push(label);
@@ -36728,48 +37232,57 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
 
     const specialTransportStatusText = useMemo(() => {
         if (!result || result.partialRoute) return "";
-        if (result.manualOtherTransportOnly) return result.specialTransportNotice || "제주 이동은 실제 이용 운임을 확인한 후 실비로 입력해주세요.";
+        if (result.manualTransportOnly) return result.specialTransportNotice || "왕복 교통비 총 실비를 입력해주세요.";
         const legs = result.islandLegs || [];
-        // R5-J5: 특수지역 출발 leg는 내부 route가 허브→세부지역으로 저장된 경우가 있으므로
-        // 상태표시줄에서만 실제 이동방향(세부지역→허브)으로 보정한다. 계산 데이터는 변경하지 않는다.
         const statusLegRoute = (leg, fallback = "특수구간") => {
             const raw = String((leg && leg.route) || fallback).replace(/\s*→\s*/g, "→");
             const parts = raw.split("→").map(x => x.trim()).filter(Boolean);
             if (leg && leg.role === "origin" && parts.length === 2) return `${parts[1]}→${parts[0]}`;
             return raw;
         };
-        // 기존 여객선 안내를 최우선으로 보존한다.
-        const ferry = legs.find(x => x.kind === "ferry");
-        if (ferry) {
-            const route = statusLegRoute(ferry, "여객선 구간");
-            if (ferry.realCost || ferry.fare == null) return `${route} 여객선 운임은 별도 조례 기준이 없어, 실제 운임을 직접 확인하신 후 기타교통비에 실비로 입력해 주세요.`;
-            const one = Number(ferry.fare || 0);
-            return `${route} 여객선은 조례 기준으로 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 기타교통비에 자동 반영됩니다. 실제 운임과 다를 경우 직접 수정해 주세요.`;
+        if (!result.r108p6SinanWandoScope) {
+            const ferry = legs.find(x => x.kind === "ferry");
+            if (ferry) {
+                const route = statusLegRoute(ferry, "여객선 구간");
+                if (ferry.realCost || ferry.fare == null) return `${route} 여객선 운임은 별도 조례 기준이 없어, 실제 운임을 직접 확인하신 후 기타교통비에 실비로 입력해 주세요.`;
+                const one = Number(ferry.fare || 0);
+                return `${route} 여객선은 조례 기준으로 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 기타교통비에 자동 반영됩니다. 실제 운임과 다를 경우 직접 수정해 주세요.`;
+            }
+            const rural = legs.find(x => x.kind === "rural");
+            if (rural) {
+                const route = statusLegRoute(rural, "농어촌버스 구간");
+                const one = Number(rural.fare || 0);
+                const source = String(rural.source || "");
+                if (/완도군/.test(source) && one === 0) return `${route}는 완도군 조례에 따라 농어촌·마을버스 요금이 전액 무료입니다.`;
+                if (/신안군/.test(source) && one > 0) return `${route} 신안군 조례에 따라 농어촌버스 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 교통비에 반영됩니다.`;
+            }
+            const local = legs.find(x => x.kind === "local" && (/신안교육청/.test(String(x.route || "")) || /목포 관내/.test(String(x.note || ""))));
+            if (local) return `${statusLegRoute(local, "목포→신안교육청")} 구간은 목포 관내출장으로 처리합니다.`;
+            return "";
         }
-        // 여객선이 없을 때 농어촌버스/관내 정책을 일반·우등 안내보다 우선한다.
-        const rural = legs.find(x => x.kind === "rural");
-        if (rural) {
-            const route = statusLegRoute(rural, "농어촌버스 구간");
-            const one = Number(rural.fare || 0);
-            const source = String(rural.source || "");
-            if (/완도군/.test(source) && one === 0) return `${route}는 완도군 조례에 따라 농어촌·마을버스 요금이 전액 무료입니다.`;
-            if (/신안군/.test(source) && one > 0) return `${route} 신안군 조례에 따라 농어촌버스 편도 ${fmt(one)}원·왕복 ${fmt(one * 2)}원이 교통비에 반영됩니다.`;
+        const ferries = legs.filter(x => x.kind === "ferry");
+        const manualRurals = legs.filter(x => x.kind === "rural" && x.manualCost);
+        const freeRurals = legs.filter(x => x.kind === "rural" && x.free);
+        const fallbackPrefix = result.r108p6InternalFallback
+            ? `확인된 신안·완도 내부 직결 구간이 없어 ${result.r108p6FallbackHub || "기존"} 허브 경로로 계산합니다. `
+            : "";
+        if (ferries.length && manualRurals.length) return `${fallbackPrefix}농어촌버스와 여객선·도선의 왕복 실제 지출액을 메인 교통비 카드에서 입력해 주세요.`;
+        if (ferries.length) return `${fallbackPrefix}${statusLegRoute(ferries[0], "여객선·도선 구간")} 여객선·도선 이용 구간입니다. 승선료·차량선적료 등을 포함한 왕복 실제 지출액을 기타교통비에 입력해 주세요.`;
+        if (manualRurals.length) {
+            const route = statusLegRoute(manualRurals[0], "농어촌버스 구간");
+            if (manualRurals.some(x => x.holdFree)) return `${fallbackPrefix}${route}는 육상 연결 구간입니다. 무료 여부는 자동확정하지 않고 농어촌버스 왕복 실제 이용금액을 입력합니다.`;
+            return `${fallbackPrefix}${route} 농어촌버스 이용 구간입니다. 왕복 실제 이용금액을 입력해 주세요.`;
         }
+        if (freeRurals.length) return `${fallbackPrefix}${statusLegRoute(freeRurals[0], "완도군 농어촌버스 구간")}는 완도군 조례에 따라 농어촌·마을버스 요금이 전액 무료입니다.`;
         const local = legs.find(x => x.kind === "local" && (/신안교육청/.test(String(x.route || "")) || /목포 관내/.test(String(x.note || ""))));
-        if (local) {
-            const route = statusLegRoute(local, "목포→신안교육청");
-            return `${route} 구간은 목포 관내출장으로 처리합니다.`;
-        }
-        return "";
+        if (local) return `${statusLegRoute(local, "목포→신안교육청")} 구간은 목포 관내출장으로 처리합니다.`;
+        return fallbackPrefix.trim();
     }, [result]);
 
     const specialTransportStatusShortText = useMemo(() => {
         if (!result || result.partialRoute) return "";
         const cleanRoute = (v) => String(v || "").replace(/\s*→\s*/g, "→").trim();
-        if (result.manualOtherTransportOnly) {
-            const route = cleanRoute(`${nz(origin)}→${nz(dest)}`);
-            return `${route} · 교통비 실비 입력`;
-        }
+        if (result.manualTransportOnly) return `${cleanRoute(`${nz(origin)}→${nz(dest)}`)} · ${(result.manualTransportLabel || "왕복 교통비 실비 입력")}`;
         const legs = result.islandLegs || [];
         const statusLegRoute = (leg, fallback = "특수구간") => {
             const raw = cleanRoute((leg && leg.route) || fallback);
@@ -36777,24 +37290,35 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             if (leg && leg.role === "origin" && parts.length === 2) return `${parts[1]}→${parts[0]}`;
             return raw;
         };
-        const ferry = legs.find(x => x.kind === "ferry");
-        if (ferry) {
-            const route = statusLegRoute(ferry, "여객선 구간");
-            if (ferry.realCost || ferry.fare == null) return `${route} · 여객선 실비 입력`;
-            const one = Number(ferry.fare || 0);
-            return `${route} · 여객선 편도 ${fmt(one)}원 / 왕복 ${fmt(one * 2)}원`;
+        if (!result.r108p6SinanWandoScope) {
+            const ferry = legs.find(x => x.kind === "ferry");
+            if (ferry) {
+                const route = statusLegRoute(ferry, "여객선 구간");
+                if (ferry.realCost || ferry.fare == null) return `${route} · 여객선 실비 입력`;
+                const one = Number(ferry.fare || 0);
+                return `${route} · 여객선 편도 ${fmt(one)}원 / 왕복 ${fmt(one * 2)}원`;
+            }
+            const rural = legs.find(x => x.kind === "rural");
+            if (rural) {
+                const route = statusLegRoute(rural, "농어촌버스 구간");
+                const one = Number(rural.fare || 0);
+                const source = String(rural.source || "");
+                if (/완도군/.test(source) && one === 0) return `${route} · 농어촌버스 무료`;
+                if (/신안군/.test(source) && one > 0) return `${route} · 농어촌버스 편도 ${fmt(one)}원 / 왕복 ${fmt(one * 2)}원`;
+            }
+            const local = legs.find(x => x.kind === "local" && (/신안교육청/.test(String(x.route || "")) || /목포 관내/.test(String(x.note || ""))));
+            return local ? `${statusLegRoute(local, "목포→신안교육청")} · 관내출장` : "";
         }
-        const rural = legs.find(x => x.kind === "rural");
-        if (rural) {
-            const route = statusLegRoute(rural, "농어촌버스 구간");
-            const one = Number(rural.fare || 0);
-            const source = String(rural.source || "");
-            if (/완도군/.test(source) && one === 0) return `${route} · 농어촌버스 무료`;
-            if (/신안군/.test(source) && one > 0) return `${route} · 농어촌버스 편도 ${fmt(one)}원 / 왕복 ${fmt(one * 2)}원`;
-        }
-        const local = legs.find(x => x.kind === "local" && (/신안교육청/.test(String(x.route || "")) || /목포 관내/.test(String(x.note || ""))));
-        if (local) return `${statusLegRoute(local, "목포→신안교육청")} · 관내출장`;
-        return "";
+        const ferries = legs.filter(x => x.kind === "ferry");
+        const manualRurals = legs.filter(x => x.kind === "rural" && x.manualCost);
+        const freeRurals = legs.filter(x => x.kind === "rural" && x.free);
+        if (ferries.length && manualRurals.length) return "농어촌버스 왕복 총 실비 + 여객선·도선 왕복 총 실비 입력";
+        if (ferries.length) return "여객선·도선 왕복 총 실비 입력";
+        if (manualRurals.length) return manualRurals.some(x => x.holdFree) ? "육상 연결 · 농어촌버스 실비 입력" : "농어촌버스 왕복 총 실비 입력";
+        if (freeRurals.length) return "완도군 농어촌·마을버스 무료";
+        if (result.r108p6InternalFallback) return `${result.r108p6FallbackHub || "기존"} 허브 fallback`;
+        const local = legs.find(x => x.kind === "local");
+        return local ? "관내출장" : "";
     }, [result, origin, dest]);
 
     // D5: 경로정보 출처 태그와 같은 계열색을 상태표시줄의 각 안내문에 재사용한다.
@@ -36814,7 +37338,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     }, []);
     const specialTransportStatusSource = useMemo(() => {
         if (!result) return "";
-        if (result.manualOtherTransportOnly) return "access";
+        if (result.manualTransportOnly) return "access";
         const legs = result.islandLegs || [];
         const ferry = legs.find(x => x.kind === "ferry");
         if (ferry) return ferry.source || "조례";
@@ -37114,7 +37638,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 ? ((x.realCost || x.fare == null) ? "기타교통비 실비 입력" : "기타교통비")
                 : x.kind === "local"
                     ? (x.note || "관내")
-                    : (Number(x.fare || 0) > 0 ? "농어촌버스 · 교통비 포함" : "농어촌버스 무료");
+                    : (x.manualCost ? "농어촌버스 · 왕복 총 실비 입력" : (Number(x.fare || 0) > 0 ? "농어촌버스 · 교통비 포함" : "농어촌버스 무료"));
             push(a || origin, b || dest, x.fare, (x.kind === "ferry" && (x.realCost || x.fare == null)) ? "" : (x.source || x.kind), note, x.kind);
         };
         // 특수 접근구간은 kind가 아니라 출발/도착 방향으로 배치한다.
@@ -37223,7 +37747,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 ? ((x.realCost || x.fare == null) ? "기타교통비 실비 입력" : "기타교통비")
                 : x.kind === "local"
                     ? (x.note || "관내")
-                    : (Number(x.fare || 0) > 0 ? "농어촌버스 · 교통비 포함" : "농어촌버스 무료");
+                    : (x.manualCost ? "농어촌버스 · 왕복 총 실비 입력" : (Number(x.fare || 0) > 0 ? "농어촌버스 · 교통비 포함" : "농어촌버스 무료"));
             push(a || origin, b || dest, x.fare, (x.kind === "ferry" && (x.realCost || x.fare == null)) ? "" : (x.source || x.kind), note, x.kind);
         });
         const prepared = rows.map(r => ({
@@ -37783,27 +38307,31 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const hasChoices = showSubs && (nonPolicySpecialSubs.length || depSubs.length || arrSubs.length);
         if (!hasChoices)
             return null;
-        const ChoiceCard = ({ selected, onClick, route, price, tag }) => (React.createElement("div", { className: `fare-option-card ${selected ? "selected" : ""}`, onClick: onClick },
-            React.createElement("div", { className: "fare-option-left" },
-                React.createElement("span", { className: "fare-radio" }),
-                React.createElement("div", { style: { minWidth: 0 } },
-                    React.createElement("div", { className: "fare-option-name" },
-                        route,
-                        tag ? React.createElement("span", { className: "tag-side", style: { marginLeft: 8, background: "#F0F7FF", color: "var(--blue)", borderColor: "rgba(0,122,255,.18)" } }, tag) : null))),
-            React.createElement("div", { style: { textAlign: "right", flexShrink: 0 } },
-                React.createElement("div", { className: "fare-option-price" }, price == null ? ((result && result.manualFareLabel) || "수기확인") : `${fmt(price)}원`))));
+        const ChoiceCard = ({ key: reactKey, selected, onClick, route, price, tag, specialInputs = false }) => {
+            const top = React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%" } },
+                React.createElement("div", { className: "fare-option-left" },
+                    React.createElement("span", { className: "fare-radio" }),
+                    React.createElement("div", { style: { minWidth: 0 } },
+                        React.createElement("div", { className: "fare-option-name" }, route,
+                            tag ? React.createElement("span", { className: "tag-side", style: { marginLeft: 8, background: "#F0F7FF", color: "var(--blue)", borderColor: "rgba(0,122,255,.18)" } }, tag) : null))),
+                React.createElement("div", { style: { textAlign: "right", flexShrink: 0 } },
+                    React.createElement("div", { className: "fare-option-price" }, price == null ? ((result && result.manualFareLabel) || "수기확인") : `${fmt(price)}원`)));
+            return React.createElement("div", { key: reactKey, className: `fare-option-card ${specialInputs ? "r108p6c-has-special" : ""} ${selected ? "selected" : ""}`, onClick: onClick },
+                top,
+                specialInputs ? MainSpecialFareInputsR108P6C() : null);
+        };
         const autoSubs = [...depSubs.slice(0, 3), ...arrSubs.slice(0, 3)];
         return (React.createElement("div", null,
             React.createElement("div", { className: "mobile-detail-section-title" },
                 React.createElement("span", null, "\uC694\uAE08 \uC120\uD0DD"),
                 React.createElement("small", { style: { fontSize: 10, color: "#8E8E93", fontWeight: 900 } }, "\uD6C4\uBCF4 \uC120\uD0DD \uAC00\uB2A5")),
             React.createElement("div", { className: "fare-choice-wrap" },
-                React.createElement(ChoiceCard, { selected: selSub === null, onClick: () => setSelSub(null), route: displayRouteLabel, price: result.needsManualFare ? null : candidateFare(result, grade), tag: specialFareNotice }),
-                nonPolicySpecialSubs.map((r, i) => React.createElement(ChoiceCard, { key: `m-special-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade), tag: r.routeTag || "광역생활권" })),
+                ChoiceCard({ selected: selSub === null, onClick: () => setSelSub(null), route: displayRouteLabel, price: result.needsManualFare ? null : candidateFare(result, grade), tag: specialFareNotice, specialInputs: true }),
+                nonPolicySpecialSubs.map((r, i) => ChoiceCard({ key: `m-special-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade), tag: r.routeTag || "광역생활권" })),
                 autoSubs.length > 0 && React.createElement(React.Fragment, null,
                     React.createElement("button", { type: "button", className: "sub-choice-toggle", onClick: () => setShowSubChoices(v => !v) }, showSubChoices ? "참고용 인근 터미널 요금 접기 ▲" : `참고용 인근 터미널 요금 보기 ▼ (${autoSubs.length}건)`),
                     showSubChoices && React.createElement("div", { className: "sub-choice-note" }, "\uC120\uD0DD\uD55C \uC2DC\u00B7\uAD70\uC758 \uC778\uADFC \uD130\uBBF8\uB110 \uC9C1\uD1B5\uC694\uAE08\uC785\uB2C8\uB2E4. \uC2E4\uC81C \uC774\uC6A9 \uD130\uBBF8\uB110\uC774 \uB2E4\uB97C \uB54C\uB9CC \uCC38\uACE0\uD558\uC138\uC694."),
-                    showSubChoices && autoSubs.map((r, i) => React.createElement(ChoiceCard, { key: `m-sub-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade) }))))));
+                    showSubChoices && autoSubs.map((r, i) => ChoiceCard({ key: `m-sub-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade) }))))));
     };
     /* ── M5.3: 대한민국 지도 내부 연한 채움 아이콘 (index 내장) ── */
     const M53_KOREA_FILLED_ICON = "data:image/png;base64,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";
@@ -38822,7 +39350,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 React.createElement("div", { style: { marginLeft: 9 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 6 } },
                         React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 23, fontWeight: 900, color: "var(--blue)" } }, "여비이지 2nd")),
-                    React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교"))),
+                    React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
+                React.createElement("div", { className: "mode-wrap r108p6c-scope-toggle", onClick: () => setTravelScopeMode(v => v === "intra" ? "extra" : "intra"), role: "switch", "aria-checked": travelScopeMode === "intra", title: "관외 / 관내" },
+                    React.createElement("div", { className: `mode-knob ${travelScopeMode}` }),
+                    React.createElement("div", { className: `mode-txt ${travelScopeMode === "extra" ? "on" : "off"}` }, "관외"),
+                    React.createElement("div", { className: `mode-txt ${travelScopeMode === "intra" ? "on" : "off"}` }, "관내"))),
             React.createElement("div", { className: "search-wrap", style: { display: "flex", flexDirection: "column", gap: 8 } },
                 React.createElement("div", { className: `search-inputs-row d2-route-editor ${showVia ? "has-via" : "no-via"}` },
                     React.createElement("div", { className: "d2-route-row d2-route-origin" },
@@ -38937,23 +39469,41 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 return vals[0];
                             return vals.join(" → ");
                         };
-                        const ChoiceCard = ({ selected, onClick, route, price, tag, island = null }) => (React.createElement("div", { className: `fare-option-card final-result-card ${selected ? "selected" : ""}`, onClick: onClick },
-                            island ? (React.createElement("div", { className: "final-island-card" },
-                                React.createElement("span", { className: "fare-radio" }),
-                                React.createElement("div", { className: "final-island-lines" },
-                                    React.createElement("div", { className: "final-island-line" },
-                                        React.createElement("div", { className: "final-island-route" }, island.landRoute),
-                                        price == null ? React.createElement("div", { className: "final-fare-real" }, (result && result.manualFareLabel) || "수기확인") : React.createElement(FarePair, { oneway: price })),
-                                    React.createElement("div", { className: "final-island-line ferry" },
-                                        React.createElement("div", { className: "final-island-route" }, `🚢 ${island.ferryRoute}`),
-                                        React.createElement(FarePair, { oneway: island.ferryOneWay, realCost: island.realCost }))))) :
-                            (React.createElement("div", { className: "final-result-main" },
-                                React.createElement("div", { className: "final-result-route-wrap" },
+                        const ChoiceCard = ({ key: reactKey, selected, onClick, route, price, tag, island = null, specialInputs = false }) => {
+                            const p6dManualMainInput = !!(result && result.manualTransportOnly && result.p6dMainTransportInline);
+                            const ferryInput = island && island.realCost
+                                ? React.createElement("div", { className: "r108p6c-inline-ferry-entry", onClick: e => e.stopPropagation() },
+                                    renderR108P6ESpecialFareEntry("ferry", { route: island.ferryRoute || "여객선 구간" }),
+                                    React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"))
+                                : null;
+                            const body = island
+                                ? React.createElement("div", { className: "final-island-card" },
                                     React.createElement("span", { className: "fare-radio" }),
-                                    React.createElement("div", { className: "final-result-route" },
-                                        route,
-                                        tag ? React.createElement("span", { className: "tag-side", style: { marginLeft: 8, background: "#F0F7FF", color: "var(--blue)", borderColor: "rgba(0,122,255,.18)" } }, tag) : null)),
-                                price == null ? React.createElement("div", { className: "final-fare-real" }, (result && result.manualFareLabel) || "수기확인") : React.createElement(FarePair, { oneway: price })))));
+                                    React.createElement("div", { className: "final-island-lines" },
+                                        React.createElement("div", { className: "final-island-line" },
+                                            React.createElement("div", { className: "final-island-route" }, island.landRoute),
+                                            price == null ? React.createElement("div", { className: "final-fare-real" }, (result && result.manualFareLabel) || "수기확인") : React.createElement(FarePair, { oneway: price })),
+                                        React.createElement("div", { className: "final-island-line ferry" },
+                                            React.createElement("div", { className: "final-island-route" }, `⛴ ${island.ferryRoute}`),
+                                            island.realCost ? ferryInput : React.createElement(FarePair, { oneway: island.ferryOneWay, realCost: false }))))
+                                : React.createElement("div", { className: "final-result-main" },
+                                    React.createElement("div", { className: "final-result-route-wrap" },
+                                        React.createElement("span", { className: "fare-radio" }),
+                                        React.createElement("div", { className: "final-result-route" }, route,
+                                            tag ? React.createElement("span", { className: "tag-side", style: { marginLeft: 8, background: "#F0F7FF", color: "var(--blue)", borderColor: "rgba(0,122,255,.18)" } }, tag) : null)),
+                                    p6dManualMainInput
+                                        ? React.createElement("div", { className: "r108p6d-main-inline-entry", onClick: e => e.stopPropagation() },
+                                            renderR108P6ESpecialFareEntry("transport", null),
+                                            React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"))
+                                        : price == null
+                                            ? React.createElement("div", { className: "final-fare-real" }, (result && result.manualFareLabel) || "수기확인")
+                                            : (tag === "관내" && Number(price || 0) === 0
+                                                ? React.createElement("div", { className: "r108p6c-local-zero" }, "0원")
+                                                : React.createElement(FarePair, { oneway: price })));
+                            return React.createElement("div", { key: reactKey, className: `fare-option-card final-result-card ${specialInputs ? "r108p6c-has-special" : ""} ${selected ? "selected" : ""}`, onClick: onClick },
+                                body,
+                                specialInputs ? MainSpecialFareInputsR108P6C() : null);
+                        };
                         const mainSources = compactSources(result.sources);
                         const autoSubs = [...depSubs.slice(0, 3), ...arrSubs.slice(0, 3)];
                         const jointZonePolicy = activeAccessPlans.some(p => p && p.mode === "JOINT_ZONE_CHOICES");
@@ -38961,19 +39511,20 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         const nonPolicySpecialSubs = specialSubs.filter(r => !(r && r.sameLiving));
                         const policyDrivenMain = !!jointZonePolicy || !!sameLivingPolicy;
                         return (React.createElement("div", { className: "fare-choice-wrap" },
-                            React.createElement(ChoiceCard, {
+                            ChoiceCard({
                                 selected: policyDrivenMain ? true : selSub === null,
                                 onClick: policyDrivenMain ? undefined : () => setSelSub(null),
                                 route: displayRouteLabel,
                                 price: result.needsManualFare ? null : ((activeJneGradePair || policyDrivenMain) ? displayOneWayFare : candidateFare(result, grade)),
-                                tag: centralIslandDisplay ? null : finalResultRouteTag,
-                                island: centralIslandDisplay
+                                tag: (result && (result.p6dOrderedSpecialPath || (Array.isArray(result.islandLegs) && result.islandLegs.length) || result.manualTransportOnly)) ? null : (centralIslandDisplay ? null : finalResultRouteTag),
+                                island: (result && (result.p6dOrderedSpecialPath || (Array.isArray(result.islandLegs) && result.islandLegs.length) || result.manualTransportOnly)) ? null : centralIslandDisplay,
+                                specialInputs: !(result && result.manualTransportOnly)
                             }),
-                            showSubs && nonPolicySpecialSubs.map((r, i) => (React.createElement(ChoiceCard, { key: `special-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade), tag: r.routeTag || "광역생활권" }))),
+                            showSubs && nonPolicySpecialSubs.map((r, i) => (ChoiceCard({ key: `special-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade), tag: r.routeTag || "광역생활권" }))),
                             showSubs && autoSubs.length > 0 && (React.createElement(React.Fragment, null,
                                 React.createElement("button", { type: "button", className: "sub-choice-toggle", onClick: () => setShowSubChoices(v => !v) }, showSubChoices ? "참고용 인근 터미널 요금 접기 ▲" : `참고용 인근 터미널 요금 보기 ▼ (${autoSubs.length}건)`),
                                 showSubChoices && React.createElement("div", { className: "sub-choice-note" }, "\uC120\uD0DD\uD55C \uC2DC\u00B7\uAD70\uC758 \uC778\uADFC \uD130\uBBF8\uB110 \uC9C1\uD1B5\uC694\uAE08\uC785\uB2C8\uB2E4. \uC2E4\uC81C \uC774\uC6A9 \uD130\uBBF8\uB110\uC774 \uB2E4\uB97C \uB54C\uB9CC \uCC38\uACE0\uD558\uC138\uC694."),
-                                showSubChoices && autoSubs.map((r, i) => (React.createElement(ChoiceCard, { key: `sub-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade) })))))));
+                                showSubChoices && autoSubs.map((r, i) => (ChoiceCard({ key: `sub-${i}`, selected: selSub === r, onClick: () => setSelSub(selSub === r ? null : r), route: `${r.depName} → ${r.arrName}`, price: candidateFare(r, grade) })))))));
                     })())),
                 !result && calcSt === "error_no_route" && (React.createElement("div", { className: "empty-state" },
                     React.createElement("span", { style: { fontSize: 40 } }, "\uD83D\uDEA7"),
@@ -39112,16 +39663,12 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         React.createElement("li", null, "시·도교육청의 국장인 장학관")),
                     React.createElement("div", { className: "travel-class-info-source-line" },
                         React.createElement("span", { className: "travel-class-info-source-copy" },
-                            "「공무원 여비 규정」",
-                            React.createElement("br", null),
-                            "별표 1 제1호라목")),
+                            "「공무원 여비 규정」 별표 1 제1호라목")),
                     React.createElement("div", { className: "travel-class-info-divider" }),
                     React.createElement("div", { className: "travel-class-info-subtitle" }, "전남광주통합특별시교육감"),
                     React.createElement("div", { className: "travel-class-info-source-line" },
                         React.createElement("span", { className: "travel-class-info-source-copy" },
-                            "「전남광주통합특별시교육감",
-                            React.createElement("br", null),
-                            "소속 지방공무원 여비 조례」 제2조"))),
+                            "「전남광주통합특별시교육감 소속 지방공무원 여비 조례」 제2조"))),
                 null)),
         intraCityOpen && (React.createElement("div", { className: "d6-w33-tablet-overlay", style: { position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }, onClick: () => { setIntraCityOpen(false); setShowMap(true); } },
             React.createElement(OverlayCloseR108P2, { onClose: () => { setIntraCityOpen(false); setShowMap(true); }, label: "관내 여비 보조 닫기" }),
@@ -39876,7 +40423,19 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         React.createElement("div", null),
                         transportDisplayZero
                             ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text", style: { color: "#8B8F96" } }, "0", React.createElement("span", { className: "expense-result-unit" }, "원")))
-                            : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const shown = manualTransport == null || manualTransport === 0 ? "" : String(Math.round(Number(manualTransport) * payableTransportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); setManualTransport(v === "" ? null : Number(v) / Math.max(0.5, payableTransportTripMultiplier)); }, "교통비")),
+                            : renderMoneyEntry(manualTransportInput === "" ? "" : fmt(Number(onlyDigits(manualTransportInput) || 0)), e => { transportFocused.current = true; e.target.select(); }, () => { transportFocused.current = false; const payableBase = Number(manualTransport || 0) + Number(ruralManualRoundTrip || 0); const shown = payableBase === 0 ? "" : String(Math.round(payableBase * payableTransportTripMultiplier)); setManualTransportInput(shown); }, e => { const v = onlyDigits(e.target.value); setManualTransportInput(v); const paid = v === "" ? null : Number(v) / Math.max(0.5, payableTransportTripMultiplier); setManualTransport(paid == null ? null : Math.max(0, paid - Number(ruralManualRoundTrip || 0))); }, "교통비")),
+                    hasManualRural && r108p6eManualRuralLegs.map((leg, idx) => {
+                        const raw = r108p6eLegRaw("rural", leg);
+                        const route = String(leg.route || "농어촌버스 구간").replace(/\s*→\s*/g, " → ");
+                        return React.createElement(React.Fragment, { key: `p6e-right-rural-${r108p6eLegKey("rural", leg)}` },
+                            React.createElement("div", { className: "expense-main-row r108p6-rural-manual-row" },
+                                React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, r108p6eManualRuralLegs.length > 1 ? `농어촌버스 ${idx + 1}` : "농어촌버스")),
+                                React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: "r108p6c-included-tag" }, "교통비에 포함")),
+                                React.createElement("div", null), React.createElement("div", null),
+                                renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("rural", leg, e.target.value), "농어촌버스 왕복 총 실비", false, "")),
+                            r108p6eManualRuralLegs.length > 1 && React.createElement("div", { className: "expense-note-row right" }, route));
+                    }),
+                    hasManualRural && React.createElement("div", { className: "expense-note-row right" }, ruralManualRoundTrip > 0 ? `농어촌버스 왕복 합계 ${fmt(ruralManualRoundTrip)}원 · 교통비에 포함` : "농어촌버스 왕복 실제 이용금액을 입력하세요."),
                     !transportDeducted && generalMultiCalcActive && !lodgingSelected && payableTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${Number(payableTransportTripMultiplier).toFixed(payableTransportTripMultiplier % 1 ? 1 : 0)}회`),
                     !transportDeducted && trainingMultiCalcActive && payableTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${Number(payableTransportTripMultiplier).toFixed(payableTransportTripMultiplier % 1 ? 1 : 0)}회`),
                     vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
@@ -40017,7 +40576,22 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
                             React.createElement("div", null),
                             React.createElement("div", null),
-                            renderMoneyEntry(shipFareInput === "" ? "" : fmt(Number(onlyDigits(shipFareInput) || 0)), e => { shipFareFocused.current = true; e.target.select(); }, () => { shipFareFocused.current = false; setShipFareInput(shipFare === 0 ? "" : String(shipFare)); }, e => { const v = onlyDigits(e.target.value); setShipFareInput(v); setShipFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, "")),
+                            r108p6eManualFerryLegs.length > 1
+                                ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(shipFare), React.createElement("span", { className: "expense-result-unit" }, "원")))
+                                : r108p6eManualFerryLegs.length === 1
+                                    ? (() => { const leg = r108p6eManualFerryLegs[0]; const raw = r108p6eLegRaw("ferry", leg); return renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "선박 왕복요금", false, ""); })()
+                                    : renderMoneyEntry(shipFareInput === "" ? "" : fmt(Number(onlyDigits(shipFareInput) || 0)), e => { shipFareFocused.current = true; e.target.select(); }, () => { shipFareFocused.current = false; setShipFareInput(shipFare === 0 ? "" : String(shipFare)); }, e => { const v = onlyDigits(e.target.value); setShipFareInput(v); setShipFare(v === "" ? 0 : Number(v)); }, hasRealCostFerry ? "선박 왕복요금" : "기타교통비", false, "")),
+                        r108p6eManualFerryLegs.length > 1 && r108p6eManualFerryLegs.map((leg, idx) => {
+                            const raw = r108p6eLegRaw("ferry", leg);
+                            const route = String(leg.route || "여객선 구간").replace(/\s*→\s*/g, " → ");
+                            return React.createElement(React.Fragment, { key: `p6e-right-ferry-${r108p6eLegKey("ferry", leg)}` },
+                                React.createElement("div", { className: "expense-main-row r108p6e-ferry-manual-row" },
+                                    React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, `승선요금 ${idx + 1}`)),
+                                    React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
+                                    React.createElement("div", null), React.createElement("div", null),
+                                    renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "승선요금 왕복 실비", false, "")),
+                                React.createElement("div", { className: "expense-note-row right" }, route));
+                        }),
                         shipFareHint && React.createElement("div", { className: "expense-note-row right" }, shipFareHint)),
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
