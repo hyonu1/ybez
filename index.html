@@ -23772,6 +23772,71 @@ html body .modal-box.deduction-modal .confirm-btn{
 }
 </style>
 
+
+<style id="r108p2-unified-close-class1-20260824">
+/* R10.8P2 — Unified close grammar
+   - Desktop 즐겨찾기/히스토리 popover는 DOM 자체를 건드리지 않는다.
+   - 차단형 modal/sheet의 보조 X만 전체 화면 우측 상단에 표시한다. */
+html body .r108p2-overlay-x{
+  position:fixed!important;
+  top:max(10px,env(safe-area-inset-top,0px))!important;
+  right:max(10px,env(safe-area-inset-right,0px))!important;
+  z-index:999999!important;
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  min-height:32px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#173A63!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:var(--gm)!important;
+  font-size:18px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  cursor:pointer!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+html body .r108p2-overlay-x:hover,
+html body .r108p2-overlay-x:focus,
+html body .r108p2-overlay-x:focus-visible{
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#0F2E52!important;
+}
+html body .r108p2-overlay-x:active{
+  transform:scale(.94)!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* 제1호 적용대상: '근거:' 라벨 제거 후 출처를 한 축으로 왼쪽 정렬. */
+html body .travel-class-info-modal-body .travel-class-info-source-line{
+  display:block!important;
+  grid-template-columns:none!important;
+  column-gap:0!important;
+  text-align:left!important;
+  margin-left:0!important;
+  padding-left:0!important;
+}
+html body .travel-class-info-modal-body .travel-class-info-source-copy{
+  display:block!important;
+  min-width:0!important;
+  text-align:left!important;
+}
+</style>
+
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -37524,10 +37589,29 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     const PopupBodyCloseR104 = ({ onClose, label = "보조 닫기" }) =>
         React.createElement("div", { className: "r104-popup-body-close-row" },
             React.createElement("button", { type: "button", className: "r104-popup-body-x", onClick: onClose, title: label, "aria-label": label }, "×"));
+
+    // R10.8P2: 차단형 팝업의 보조 닫기 X는 팝업 내부가 아니라 전체 화면 우측 상단에 둔다.
+    const OverlayCloseR108P2 = ({ onClose, label = "보조 닫기" }) =>
+        React.createElement("button", {
+            type: "button",
+            className: "r108p2-overlay-x",
+            onPointerDown: e => e.stopPropagation(),
+            onMouseDown: e => e.stopPropagation(),
+            onClick: e => { e.stopPropagation(); onClose(); },
+            title: label,
+            "aria-label": label
+        }, "×");
+    // R10.8P1 20260824: 불완전 합숙 적용일도 "미지정" 상태로 확정하고 팝업을 닫는다.
+    // - complete draft: 기존처럼 applied/confirmed 반영
+    // - incomplete draft: partial 값을 계산에 반영하지 않고 applied=[] / confirmed=false
+    // - X / ESC / backdrop은 기존 편집취소 의미를 그대로 유지한다.
     const confirmTrainingScheduleR104 = () => {
         const requiredDays = trainingScheduleRequiredDays;
         if (trainingGroupDraftDays.length !== requiredDays) {
-            setTrainingGroupScheduleError(`합숙제공 ${groupNights}박이므로 합숙 적용일 ${requiredDays}일을 지정해 주세요.`);
+            setTrainingGroupAppliedDays([]);
+            setTrainingGroupScheduleConfirmed(false);
+            setTrainingGroupScheduleError("");
+            setTrainingGroupScheduleOpen(false);
             return;
         }
         setTrainingGroupAppliedDays([...trainingGroupDraftDays].sort((a,b) => a-b));
@@ -37573,9 +37657,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             ];
         } else return null;
         return React.createElement("div", { className: "ybez-segment-modal-bg", onMouseDown: e => { if (e.target === e.currentTarget) setSegmentChoiceModal(null); } },
+            React.createElement(OverlayCloseR108P2, { onClose: () => setSegmentChoiceModal(null), label: "구간 선택 보조 닫기" }),
             React.createElement("div", { className: "ybez-segment-modal", role: "dialog", "aria-modal": "true", "aria-label": `${title} 개별 선택` },
                 React.createElement(PopupHeaderR104, { title, subtitle: "요금 유형을 선택하세요.", onConfirm: () => setSegmentChoiceModal(null) }),
-                React.createElement(PopupBodyCloseR104, { onClose: () => setSegmentChoiceModal(null) }),
                 React.createElement("div", { className: "ybez-segment-modal-options" }, options.map(opt =>
                     React.createElement("button", { key: opt.key, type: "button", className: `ybez-segment-modal-option ybez-choice-${opt.key} ${opt.selected ? "selected" : ""}`, onClick: opt.apply, "aria-pressed": opt.selected },
                         React.createElement("span", { className: "ybez-segment-modal-label" }, opt.label),
@@ -38354,8 +38438,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     const FeedbackModalD443 = () => {
         if (!showFeedbackD31) return null;
         return React.createElement("div", { className: "d443-feedback-backdrop", onClick: () => setShowFeedbackD31(false) },
+            React.createElement(OverlayCloseR108P2, { onClose: () => setShowFeedbackD31(false), label: "피드백 닫기" }),
             React.createElement("div", { className: "d443-feedback-modal d443-feedback-simple", role: "dialog", "aria-modal": "true", "aria-label": "피드백 연락처", onClick: e => e.stopPropagation() },
-                React.createElement("button", { type: "button", className: "d443-feedback-simple-x", onClick: () => setShowFeedbackD31(false), title: "피드백 닫기", "aria-label": "피드백 닫기" }, "×"),
                 React.createElement("div", { className: "d443-feedback-list" },
                     React.createElement("div", null, React.createElement("b", null, "전남메신저 쪽지"), React.createElement("span", null, "전현우@우수영초등학교")),
                     React.createElement("div", null, React.createElement("b", null, "업무메일"), React.createElement("span", null, "전현우@우수영초등학교")),
@@ -38396,6 +38480,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 className: "d6-b17-sheet-backdrop d6-b17-route-backdrop",
                 onClick: mobilePagerEnabledM6A2 ? undefined : closeRouteSheetB17
             },
+            React.createElement(OverlayCloseR108P2, { onClose: closeRouteSheetB17, label: "경로정보 닫기" }),
             React.createElement("div", {
                     className: `mobile-side-panel route-panel d6-b17-bottom-sheet d6-b17-route-sheet ${mobilePagerEnabledM6A2 ? `m510-swipe-surface ${mobileRouteMotion}` : ""}`.trim(),
                     onClick: e => e.stopPropagation(),
@@ -38407,8 +38492,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 React.createElement("div", { className: "mobile-side-panel-header route-header d6-b17-sheet-header" },
                     React.createElement("div", { className: "d6-b17-sheet-title" }, "경로정보"),
                     React.createElement("div", { className: "d6-b17-sheet-actions" },
-                        React.createElement("button", { type: "button", className: "d6-b17-sheet-confirm", onClick: closeRouteSheetB17 }, "확인"),
-                        React.createElement("button", { type: "button", className: "d6-b17-sheet-x", onClick: closeRouteSheetB17, "aria-label": "경로정보 닫기" }, "×"))),
+                        React.createElement("button", { type: "button", className: "d6-b17-sheet-confirm", onClick: closeRouteSheetB17 }, "확인"))),
                 React.createElement("div", { className: "mobile-side-panel-body route-panel-body d6-b17-sheet-body" },
                     React.createElement(VerticalRouteTable, null)),
                 React.createElement("div", { className: "d6-b17-route-summary d6-r8-route-summary-simple d6-r9-route-footer", "aria-label": "경로 및 교통비" },
@@ -38431,6 +38515,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 onPointerDown: closeSheet,
                 onClick: e => e.stopPropagation()
             },
+            React.createElement(OverlayCloseR108P2, { onClose: closeSheet, label: isFav ? "즐겨찾기 닫기" : "히스토리 닫기" }),
             React.createElement("div", {
                     className: "mobile-quick-sheet",
                     role: "dialog", "aria-modal": "true", "aria-label": isFav ? "즐겨찾기" : "히스토리",
@@ -38438,8 +38523,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     onClick: e => e.stopPropagation()
                 },
                 React.createElement("div", { className: "mobile-quick-header" },
-                    React.createElement("div", { className: "mobile-quick-title" }, isFav ? "즐겨찾기" : "히스토리"),
-                    React.createElement("button", { type: "button", className: "mobile-quick-close", onClick: closeSheet, "aria-label": "닫기" }, "×")),
+                    React.createElement("div", { className: "mobile-quick-title" }, isFav ? "즐겨찾기" : "히스토리")),
                 React.createElement("div", { className: "mobile-quick-body" },
                     isFav
                         ? React.createElement(React.Fragment, null,
@@ -38641,10 +38725,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 React.createElement("div", { className: "m5-proof-day-head" }, `숙박 ${nightDay}일차 밤`),
                                 React.createElement("div", { className: "m5-proof-lodging-line" }, "숙박비 영수증"))))))),
             showProof && React.createElement("div", { className: "m5-proof-info-backdrop", onClick: closeProof },
+                React.createElement(OverlayCloseR108P2, { onClose: closeProof, label: "증빙 상세 보조 닫기" }),
                 React.createElement("div", { className: "m5-proof-info-modal m51-proof-info-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "증빙 상세", onClick: e => e.stopPropagation() },
                     React.createElement(PopupHeaderR104, { title: "증빙 상세", subtitle: proofSubtitle, onConfirm: closeProof }),
                     React.createElement("div", { className: "modal-body r104-final-top-body" },
-                        React.createElement(PopupBodyCloseR104, { onClose: closeProof, label: "증빙 상세 보조 닫기" }),
                         React.createElement("div", { className: "m51-proof-detail-list" },
                             proofDetailItems.map(([name, desc]) => React.createElement("div", { className: "m51-proof-detail-item", key: name },
                                 React.createElement("div", { className: "m51-proof-detail-name" }, name),
@@ -39001,16 +39085,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             className: "modal-bg travel-class-info-modal-bg",
             onClick: e => { if (e.target === e.currentTarget) setTravelClassInfoOpen(false); }
         },
+            React.createElement(OverlayCloseR108P2, { onClose: () => setTravelClassInfoOpen(false), label: "제1호 안내 보조 닫기" }),
             React.createElement("div", { className: "modal-box travel-class-info-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "제1호 적용 대상(예시)", onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "제1호 적용대상", subtitle: "예시 · 여비 지급구분 안내", onConfirm: () => setTravelClassInfoOpen(false) }),
                 React.createElement("div", { className: "travel-class-info-modal-body r104-final-top-body" },
-                    React.createElement(PopupBodyCloseR104, { onClose: () => setTravelClassInfoOpen(false), label: "제1호 안내 보조 닫기" }),
                     React.createElement("ul", { className: "travel-class-info-list" },
                         React.createElement("li", null, "초·중·고등학교의 교장"),
                         React.createElement("li", null, "교육지원청의 교육장"),
                         React.createElement("li", null, "시·도교육청의 국장인 장학관")),
                     React.createElement("div", { className: "travel-class-info-source-line" },
-                        React.createElement("span", { className: "travel-class-info-source-label" }, "근거:"),
                         React.createElement("span", { className: "travel-class-info-source-copy" },
                             "「공무원 여비 규정」",
                             React.createElement("br", null),
@@ -39018,17 +39101,16 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     React.createElement("div", { className: "travel-class-info-divider" }),
                     React.createElement("div", { className: "travel-class-info-subtitle" }, "전남광주통합특별시교육감"),
                     React.createElement("div", { className: "travel-class-info-source-line" },
-                        React.createElement("span", { className: "travel-class-info-source-label" }, "근거:"),
                         React.createElement("span", { className: "travel-class-info-source-copy" },
                             "「전남광주통합특별시교육감",
                             React.createElement("br", null),
                             "소속 지방공무원 여비 조례」 제2조"))),
                 null)),
         intraCityOpen && (React.createElement("div", { className: "d6-w33-tablet-overlay", style: { position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }, onClick: () => { setIntraCityOpen(false); setShowMap(true); } },
+            React.createElement(OverlayCloseR108P2, { onClose: () => { setIntraCityOpen(false); setShowMap(true); }, label: "관내 여비 보조 닫기" }),
             React.createElement("div", { style: { background: "linear-gradient(180deg,#FFFFFF,#FAFAFA)", boxShadow: "0 25px 50px rgba(0,0,0,0.25)", borderRadius: 28, width: "100%", maxWidth: 360, overflow: "hidden" }, onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "관내 여비", subtitle: "근무지 내 출장 정액 지급", onConfirm: () => { setIntraCityOpen(false); setShowMap(true); } }),
                 React.createElement("div", { style: { padding: 20 } },
-                    React.createElement(PopupBodyCloseR104, { onClose: () => { setIntraCityOpen(false); setShowMap(true); }, label: "관내 여비 보조 닫기" }),
                     React.createElement("div", { style: { marginBottom: 16, padding: 12, background: "#F8F9FA", borderRadius: 12, border: "1px solid #E5E5EA", fontSize: 13, fontWeight: 500, color: "#374151", lineHeight: 1.6 } }, "\uADFC\uBB34\uC9C0 \uB0B4\uC758 \uCD9C\uC7A5\uC740 \uBCC4\uB3C4\uC758 \uC601\uC218\uC99D \uC99D\uBE59 \uC5C6\uC774 \uC815\uC561 \uC9C0\uAE09\uB429\uB2C8\uB2E4."),
                     React.createElement("div", { style: { borderTop: "1px solid #F2F2F7", borderBottom: "1px solid #F2F2F7", padding: "16px 0", display: "flex", flexDirection: "column", gap: 14 } },
                         React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
@@ -39111,6 +39193,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 setTimeout(() => performCalc(nextOrigin, nextDest, nextVia), 0);
             };
             return (React.createElement("div", { className: "d6-w33-tablet-overlay", style: { position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 14, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(6px)" }, onClick: closePopup },
+                React.createElement(OverlayCloseR108P2, { onClose: closePopup, label: "지역 선택 보조 닫기" }),
                 React.createElement("div", { className: "mascot-choice-modal", role: "dialog", "aria-modal": "true", "aria-label": title, onClick: e => e.stopPropagation() },
                     React.createElement(PopupHeaderR104, {
                         title,
@@ -39119,17 +39202,16 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         onConfirm: closePopup
                     }),
                     React.createElement("div", { className: "mascot-choice-body" },
-                        React.createElement(PopupBodyCloseR104, { onClose: closePopup, label: "지역 선택 보조 닫기" }),
                         React.createElement("div", { className: "mascot-choice-grid" }, cardList.map(name => (React.createElement("button", { key: name, className: `mascot-choice-card ${groupId === "wando" ? "wando-card" : "sinan-card"}`, onClick: () => selectPopupName(name) },
                             React.createElement("span", { className: "mascot-choice-img-frame" },
                                 React.createElement(MascotIcon, { mascotMap: mascotMap, name: name, size: 96, className: "mascot-choice-img" })),
                             React.createElement("span", { className: "mascot-choice-name" }, name)))))))));
         })(),
         tripTypeHelpOpen && React.createElement("div", { className: "modal-bg", onClick: () => setTripTypeHelpOpen(false) },
+            React.createElement(OverlayCloseR108P2, { onClose: () => setTripTypeHelpOpen(false), label: "출장조건 설명 보조 닫기" }),
             React.createElement("div", { className: "modal-box trip-help-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "출장조건 설명", onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "출장조건 설명", subtitle: "출장 유형·숙박 조건 안내", onConfirm: () => setTripTypeHelpOpen(false) }),
                 React.createElement("div", { className: "modal-body trip-help-modal-body r104-final-top-body" },
-                    React.createElement(PopupBodyCloseR104, { onClose: () => setTripTypeHelpOpen(false), label: "출장조건 설명 보조 닫기" }),
                     React.createElement("div", { className: "trip-help-title" }, "일반출장"),
                     React.createElement("div", { className: "trip-help-text" }, "회의·협의·현장방문·점검 등 일반적인 업무를 수행하기 위한 출장, 별도의 조정 사유가 없는 한 여비(운임·일비·식비·숙박비)가 감액 없이 정상 지급됩니다."),
                     React.createElement("div", { className: "trip-help-example" }, "예) 업무협의, 회의 참석, 현장점검, 자료 제출·업무처리 등"),
@@ -39145,10 +39227,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     React.createElement("div", { className: "trip-help-daily" }, "연수출장의 경우, 입교일과 수료일은 교육기관으로 가고 오는 이동일이므로 일비를 전액 지급합니다. 그러나 중간 교육일(기타일)에는 원내에서 숙식이 모두 무상으로 제공되므로, 개인의 추가적인 일비(교통비성 정액 지출) 소요가 발생하지 않는다고 판단하여 일비를 전혀 지급하지 않습니다."),
                     React.createElement("div", { className: "trip-help-example" }, "예) 연수원 기숙사, 교육기관 제공 숙소, 교육과정에 포함된 합숙시설 이용 등")))),
         trainingGroupScheduleOpen && React.createElement("div", { className: "modal-bg", onClick: () => setTrainingGroupScheduleOpen(false) },
+            React.createElement(OverlayCloseR108P2, { onClose: () => setTrainingGroupScheduleOpen(false), label: "합숙 적용일 지정 보조 닫기" }),
             React.createElement("div", { className: "modal-box training-schedule-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "합숙 적용일 지정", onClick: e => e.stopPropagation() },
                 React.createElement(PopupHeaderR104, { title: "합숙 적용일 지정", subtitle: `합숙제공 ${groupNights}박 · 날짜를 선택하세요.`, onConfirm: confirmTrainingScheduleR104 }),
                 React.createElement("div", { className: "modal-body training-schedule-body r104-final-top-body" },
-                    React.createElement(PopupBodyCloseR104, { onClose: () => setTrainingGroupScheduleOpen(false), label: "합숙 적용일 지정 보조 닫기" }),
                     React.createElement("div", { className: "training-schedule-lead" }, "교육·연수계획상 합숙이 적용된 교육일에 체크해 주세요."),
                     React.createElement("div", { className: "training-schedule-sub" }, "연수출장 일비는 첫날(입교일)과 마지막 날(수료일)에는 100% 전액이 자동 지급되며, 중간 교육일은 실제 숙소를 이용하신 합숙일만 선택(체크)해 주시면 됩니다. 합숙일을 체크하면 일비가 지급 제외(0%) 처리되고, 미체크 시에는 비합숙(출퇴근 등) 기준이 적용되어 일비의 50%가 자동 계산되니 실제 연수 계획서 상의 합숙 일수만 정확히 확인하여 체크해 주시기 바랍니다."),
                     React.createElement("div", { className: "training-schedule-counter" }, `합숙제공 ${groupNights}박 · 교육일 합숙 적용 ${trainingGroupDraftDays.length}/${trainingScheduleRequiredDays}일`),
@@ -39335,10 +39417,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     null);
             };
             return (React.createElement("div", { className: "modal-bg deduction-modal-bg", onClick: closeDeductionModal },
+                React.createElement(OverlayCloseR108P2, { onClose: closeDeductionModal, label: `${mc.title} 감액 보조 닫기` }),
                 React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? "transport-deduction-modal" : ""} r104-final-top-scope`, role: "dialog", "aria-modal": "true", "aria-label": `${mc.title} 감액`, onClick: e => e.stopPropagation() },
                     React.createElement(PopupHeaderR104, { title: mc.title, subtitle: mc.desc, unit: mc.unit, onConfirm: closeDeductionModal }),
                     React.createElement("div", { className: "modal-body r104-final-top-body" },
-                        React.createElement(PopupBodyCloseR104, { onClose: closeDeductionModal, label: `${mc.title} 감액 보조 닫기` }),
                         activeModal === "daily" && React.createElement(React.Fragment, null,
                             React.createElement("div", { className: "ded-section" },
                                 React.createElement("div", { className: "ded-toggle-row", style: { paddingTop: 0 } },
