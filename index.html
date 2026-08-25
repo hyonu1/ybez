@@ -24243,6 +24243,30 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-inline{
   margin:0 !important;
 }
 </style>
+<style id="ybez-patch4f-intra-mascot-20260825">
+/* Patch 4F-B: 관내출장에서는 지도 프레임 자체를 유지하고 마스코트를 세로 높이에 맞춰 확대한다.
+   정사각형 자산은 비율을 유지한 채 중앙정렬하며, 프레임보다 넓어진 좌우는 기존 overflow:hidden으로 자연스럽게 잘린다. */
+.ybez-intra-mascot-stage{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#F8FAFC;
+}
+.ybez-intra-mascot-img{
+  display:block;
+  height:100%;
+  width:auto;
+  max-width:none;
+  max-height:none;
+  flex:0 0 auto;
+  object-fit:contain;
+  object-position:center center;
+}
+</style>
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -24485,6 +24509,74 @@ function ybezRouteMapLayoutLabels(points, viewBox, segments = []) {
         if (Math.hypot(mixRaw.x,mixRaw.y) < .15) return b;
         return unit(mixRaw.x,mixRaw.y);
     };
+
+    /* Patch 4D display-only rule:
+       - region_role_index가 실제 LV4↔LV5 부모/자식 관계라고 확인한 연속 두 점만 대상.
+       - 지도 fit 후 사실상 같은 점으로 보이는 경우(정규화 좌표 약 2.8% 이내 ≈ 일반 패널 8px 전후)에만 적용.
+       - 3개 이상이 한곳에 모이는 cluster는 새 규칙을 만들지 않고 기존 4B fallback을 그대로 사용.
+       - LV4는 4B의 fit-frame 바깥쪽 직각을 사용하고, LV5는 그 정확한 반대 직각을 우선한다.
+       계산/요금/좌표/marker 위치는 바꾸지 않는다. */
+    const COLLAPSED_PAIR_LIMIT = 2.8;
+    const FRAME_MIN = 1.2, FRAME_MAX = 98.8;
+    const compactRoleName = v => String(v || "").replace(/\s+/g, "").trim();
+    const isConnectedPair = (a, b) => (Array.isArray(segments) ? segments : []).some(s => {
+        const sa = s && s.a && s.a.name, sb = s && s.b && s.b.name;
+        return (sa === a.name && sb === b.name) || (sa === b.name && sb === a.name);
+    });
+    const pointDistance = (a, b) => Math.hypot(a.left-b.left, a.top-b.top);
+    const rayToFrameDistanceAt = (point, normal) => {
+        const eps = 1e-9, hits = [];
+        if (normal.x > eps) hits.push((FRAME_MAX - point.left) / normal.x);
+        else if (normal.x < -eps) hits.push((FRAME_MIN - point.left) / normal.x);
+        if (normal.y > eps) hits.push((FRAME_MAX - point.top) / normal.y);
+        else if (normal.y < -eps) hits.push((FRAME_MIN - point.top) / normal.y);
+        const positive = hits.filter(v => Number.isFinite(v) && v >= 0);
+        return positive.length ? Math.min(...positive) : Number.POSITIVE_INFINITY;
+    };
+    const collapsedPairByIndex = new Map();
+    const usedCollapsed = new Set();
+
+    for (let i = 0; i < pp.length - 1; i++) {
+        if (usedCollapsed.has(i) || usedCollapsed.has(i + 1)) continue;
+        const a = pp[i], b = pp[i + 1];
+        if (!isConnectedPair(a, b) || pointDistance(a, b) > COLLAPSED_PAIR_LIMIT) continue;
+
+        let lv4Idx = -1, lv5Idx = -1;
+        const aRole = String(a.ybezMapRole || "").toUpperCase();
+        const bRole = String(b.ybezMapRole || "").toUpperCase();
+        const aName = compactRoleName(a.name), bName = compactRoleName(b.name);
+        const aLv4 = compactRoleName(a.ybezMapLv4), bLv4 = compactRoleName(b.ybezMapLv4);
+
+        if (aRole === "LV4" && bRole === "LV5" && bLv4 && bLv4 === aName) {
+            lv4Idx = i; lv5Idx = i + 1;
+        } else if (bRole === "LV4" && aRole === "LV5" && aLv4 && aLv4 === bName) {
+            lv4Idx = i + 1; lv5Idx = i;
+        } else {
+            continue;
+        }
+
+        // 3개 이상 근접 cluster는 Patch 4D 특례에서 제외.
+        const cluster = pp
+            .map((q, qi) => ({ qi, d4:pointDistance(q, pp[lv4Idx]), d5:pointDistance(q, pp[lv5Idx]) }))
+            .filter(x => x.d4 <= COLLAPSED_PAIR_LIMIT || x.d5 <= COLLAPSED_PAIR_LIMIT);
+        if (cluster.length !== 2) continue;
+
+        const lv4Point = pp[lv4Idx];
+        const lv4Tangent = tangentAt(lv4Idx);
+        const nA = { x:-lv4Tangent.y, y:lv4Tangent.x };
+        const nB = { x:-nA.x, y:-nA.y };
+        const dA = rayToFrameDistanceAt(lv4Point, nA);
+        const dB = rayToFrameDistanceAt(lv4Point, nB);
+        const lv4Normal = dA <= dB ? nA : nB;
+        const lv5Normal = { x:-lv4Normal.x, y:-lv4Normal.y };
+
+        const pairMeta = { lv4Idx, lv5Idx, lv4Normal, lv5Normal };
+        collapsedPairByIndex.set(lv4Idx, { ...pairMeta, side:"lv4" });
+        collapsedPairByIndex.set(lv5Idx, { ...pairMeta, side:"lv5" });
+        usedCollapsed.add(lv4Idx);
+        usedCollapsed.add(lv5Idx);
+    }
+
     return pp.map((p, idx) => {
         const tangent = tangentAt(idx);
 
@@ -24499,16 +24591,7 @@ function ybezRouteMapLayoutLabels(points, viewBox, segments = []) {
            No city-specific left/right exception is introduced here. */
         const nA = { x:-tangent.y, y:tangent.x };
         const nB = { x:-nA.x, y:-nA.y };
-        const FRAME_MIN = 1.2, FRAME_MAX = 98.8;
-        const rayToFrameDistance = (normal) => {
-            const eps = 1e-9, hits = [];
-            if (normal.x > eps) hits.push((FRAME_MAX - p.left) / normal.x);
-            else if (normal.x < -eps) hits.push((FRAME_MIN - p.left) / normal.x);
-            if (normal.y > eps) hits.push((FRAME_MAX - p.top) / normal.y);
-            else if (normal.y < -eps) hits.push((FRAME_MIN - p.top) / normal.y);
-            const positive = hits.filter(v => Number.isFinite(v) && v >= 0);
-            return positive.length ? Math.min(...positive) : Number.POSITIVE_INFINITY;
-        };
+        const rayToFrameDistance = (normal) => rayToFrameDistanceAt(p, normal);
 
         const estW = Math.min(30, Math.max(10, 5.8 + String(p.name || "").length * 2.35));
         const estH = 6.5;
@@ -24528,17 +24611,27 @@ function ybezRouteMapLayoutLabels(points, viewBox, segments = []) {
 
         const distA = rayToFrameDistance(nA);
         const distB = rayToFrameDistance(nB);
-        let primary = distA <= distB ? nA : nB;
-        let secondary = primary === nA ? nB : nA;
+        const collapsedMeta = collapsedPairByIndex.get(idx) || null;
+        let primary, secondary;
 
-        // Near-tie only: keep the fitted-frame rule, but use the less-conflicted rectangle
-        // as a deterministic geometry-only tie breaker.
-        if (Math.abs(distA - distB) < .75) {
-            const a0 = candidateFor(nA, 9.0);
-            const b0 = candidateFor(nB, 9.0);
-            if (conflictPenalty(b0) < conflictPenalty(a0)) {
-                primary = nB;
-                secondary = nA;
+        if (collapsedMeta) {
+            // LV4의 기준 직각을 pair 전체의 축으로 사용한다.
+            // LV5는 route 진행방향/순서와 무관하게 정확히 반대편 직각을 우선한다.
+            primary = collapsedMeta.side === "lv4" ? collapsedMeta.lv4Normal : collapsedMeta.lv5Normal;
+            secondary = { x:-primary.x, y:-primary.y };
+        } else {
+            primary = distA <= distB ? nA : nB;
+            secondary = primary === nA ? nB : nA;
+
+            // Near-tie only: keep the fitted-frame rule, but use the less-conflicted rectangle
+            // as a deterministic geometry-only tie breaker.
+            if (Math.abs(distA - distB) < .75) {
+                const a0 = candidateFor(nA, 9.0);
+                const b0 = candidateFor(nB, 9.0);
+                if (conflictPenalty(b0) < conflictPenalty(a0)) {
+                    primary = nB;
+                    secondary = nA;
+                }
             }
         }
 
@@ -24587,16 +24680,21 @@ function ybezRouteMapLayoutLabels(points, viewBox, segments = []) {
             labelLeft:chosen.cx,
             labelTop:chosen.cy,
             layoutIndex:idx,
-            ybezLabelLayout:"fit-frame-perpendicular"
+            ybezLabelLayout:"fit-frame-perpendicular",
+            ybezCollapsedLv4Lv5:!!collapsedMeta,
+            ybezCollapsedSide:collapsedMeta ? collapsedMeta.side : ""
         };
     });
 }
-const RouteMapPanel = (model = null) => {
+const RouteMapPanel = (model = null, mascotState = null, intraMascotName = "") => {
     const viewBox = model && Array.isArray(model.viewBox) ? model.viewBox : YBEZ_ROUTE_MAP_INITIAL_VIEWBOX;
     const bgSvg = ybezRouteMapBackgroundForViewBox(viewBox);
     const points = model && Array.isArray(model.points) ? model.points : [];
     const segments = model && Array.isArray(model.segments) ? model.segments : [];
     const labels = ybezRouteMapLayoutLabels(points, viewBox, segments);
+    // Patch 4F-B: 기존 endpoint 관내 판정이 참일 때만 지도 위에 해당 지역 마스코트를 세로 꽉차게 표시한다.
+    // 관내 판정 자체는 여기서 새로 만들지 않는다.
+    const intraMascotInfo = intraMascotName ? getMascotEntry(mascotState, intraMascotName) : null;
     const percentByName = new Map(labels.map(p => [p.name, p]));
     const routeSegments = segments.map((s, i) => {
         const a = percentByName.get(s.a.name) || { ...s.a, ...ybezRouteMapPercentPoint(s.a, viewBox) };
@@ -24622,7 +24720,15 @@ const RouteMapPanel = (model = null) => {
                     React.createElement("span", { className:"ybez-route-map-point-ui", style:pointPos }),
                     React.createElement("span", { className:`ybez-route-map-label region-${p.regionKey || "neutral"}`, style:labelPos }, p.name));
             }))) : null,
-        React.createElement("div", { className: "ybez-route-map-credit" }, "Map: StatGarten · Statistics Korea SGIS"));
+        intraMascotInfo && intraMascotInfo.image ? React.createElement("div", { className:"ybez-intra-mascot-stage", "aria-label":`${intraMascotInfo.label_ko || intraMascotName || "지역"} 관내 마스코트` },
+            React.createElement("img", {
+                className:"ybez-intra-mascot-img",
+                src:mascotAssetUrl(mascotState, intraMascotInfo.image),
+                alt:intraMascotInfo.alt || intraMascotName || "지역 마스코트",
+                loading:"eager",
+                onError:(e) => { const host = e.currentTarget && e.currentTarget.parentElement; if (host) host.style.display = "none"; }
+            })) : null,
+        !intraMascotInfo ? React.createElement("div", { className: "ybez-route-map-credit" }, "Map: StatGarten · Statistics Korea SGIS") : null);
 };
 
 /* ── 상수 ─────────────────────────────────────────────── */
@@ -24936,6 +25042,8 @@ const CANON_CITY_NODE_SUPPLEMENTS = Object.freeze({
     "평택": ["NODE_0033"],
     "인천": ["NODE_0038"],
     "담양": ["NODE_0176"],
+    // Patch 4E: 안양 대표 canonical은 범계공항리무진(NODE_0228)이 아니라 안양역(NODE_0230)으로 고정.
+    "안양": ["NODE_0230"],
     // Patch 4A: 영동/무주 대표 canonical node 고정.
     // 원본 alias/nodes/routes는 수정하지 않고 런타임 후보만 정합화한다.
     "영동": ["NODE_0390"],
@@ -24961,7 +25069,9 @@ const R5J_CANONICAL_PRIMARY = Object.freeze({
     // Patch 4A: 보옥영의 서울 NODE_0002 오염을 런타임 canonical 층에서 차단한다.
     "영동": "NODE_0390",
     // Patch 4A: 무주 대표는 무주공용버스터미널이다.
-    "무주": "NODE_0556"
+    "무주": "NODE_0556",
+    // Patch 4E: 안양 논리 대표는 안양역.
+    "안양": "NODE_0230"
 });
 const R5J_CANONICAL_BLOCKED = Object.freeze({
     "광주": Object.freeze(["NODE_0052", "NODE_0213"]),
@@ -24971,7 +25081,9 @@ const R5J_CANONICAL_BLOCKED = Object.freeze({
     // 영동 검색에서 서울고속(NODE_0002)·황간(NODE_0079)을 대표 후보로 사용하지 않는다.
     "영동": Object.freeze(["NODE_0002", "NODE_0079"]),
     // 무주 검색은 무주공용만 대표로 사용. 리조트/설천/무주안성은 개별 검색 identity로 남긴다.
-    "무주": Object.freeze(["NODE_0557", "NODE_0558", "NODE_0559"])
+    "무주": Object.freeze(["NODE_0557", "NODE_0558", "NODE_0559"]),
+    // Patch 4E: 범계공항리무진버스정류소는 개별 node로 보존하되 '안양' 대표 후보에서는 제외.
+    "안양": Object.freeze(["NODE_0228"])
 });
 const r5jFilterCanonicalNodes = (city, ids) => {
     const blocked = new Set(R5J_CANONICAL_BLOCKED[city] || []);
@@ -25000,11 +25112,22 @@ if (typeof window !== "undefined") {
     };
 }
 
-/* 사용자가 KOBUS에서 직접 확인한 canonical 직행. routesDB에서 같은 KOBUS 직행을 찾으면
-   DB 터미널정보를 우선 사용하고, 못 찾을 때만 이 값을 안전 fallback으로 쓴다. */
+/* 사용자 검증 canonical 직행.
+   routesDB 원자료는 보존하고, 사용자가 최종 확정한 쌍만 런타임 검증값으로 우선한다. */
 const F5F_VERIFIED_CANONICAL_DIRECTS = Object.freeze({
     "광주|청주": { gen: 22400, source: "kobus", fareGrade: "고속", detail: "광주↔청주 KOBUS 고속우등 사용자 확인값" },
-    "광주|울산": { gen: 33600, source: "kobus", fareGrade: "고속", detail: "광주↔울산 KOBUS 고속우등 사용자 확인값" }
+    "광주|울산": { gen: 33600, source: "kobus", fareGrade: "고속", detail: "광주↔울산 KOBUS 고속우등 사용자 확인값" },
+    // Patch 4C 남·임·순: 광주 축 검증값. 기존 routes.json은 직접 수정하지 않는다.
+    "광주|남원": {
+        gen: 6300, source: "NAVER", fareGrade: "단일시외",
+        terminalByCity: Object.freeze({ "광주": "광주유스퀘어", "남원": "남원공용버스터미널" }),
+        detail: "광주↔남원 단일시외 6,300원 · NAVER 사용자 확인값"
+    },
+    "광주|순창": {
+        gen: 5600, source: "NAVER", fareGrade: "단일시외",
+        terminalByCity: Object.freeze({ "광주": "광주유스퀘어", "순창": "순창공용버스터미널" }),
+        detail: "광주↔순창 단일시외 5,600원 · NAVER 사용자 확인값"
+    }
 });
 /* ── 동명이인 표시명 ── */
 const CITY_DISPLAY = {
@@ -25119,6 +25242,8 @@ const MAP_ANCHOR = {
     "제주": { name: "제주", lat: 33.49960000, lng: 126.53120000 }, // 수동 앵커
     "서울": { name: "서울", lat: 37.50606695, lng: 127.00705170 }, // 서울 대표좌표
     "창원": { name: "창원", lat: 35.23703294, lng: 128.64028120 }, // 창원종합터미널
+    // Patch 4E: 마산 복수 터미널 계산구조는 유지하고 지도 대표점만 NODE_0145 마산고속버스터미널로 연결.
+    "마산": { name: "마산", lat: 35.22302369, lng: 128.58812190 }, // NODE_0145 마산고속버스터미널
     "청주": { name: "청주", lat: 36.62532793, lng: 127.43169270 }, // 청주시외버스터미널
     "천안": { name: "천안", lat: 36.81933021, lng: 127.15784650 }, // 천안고속버스터미널
     "강릉": { name: "강릉", lat: 37.75464216, lng: 128.87979430 }, // 강릉시외고속터미널
@@ -25508,7 +25633,9 @@ const NATIONWIDE_MASCOT_REGION_GROUPS = Object.freeze({
     kr_gyeongbuk: new Set(["경산", "구미", "왜관(칠곡)", "북삼(칠곡)", "석적(칠곡)", "약목(칠곡)", "기산(칠곡)", "동명(칠곡)", "가산(칠곡)", "포항", "울릉", "안동", "예천", "김천", "성주", "경주", "영천", "영주", "봉화", "상주", "의성", "문경", "영덕", "울진", "고령", "청송", "청도", "영양"]),
     kr_busan: new Set(["부산", "부산서부사상"]),
     kr_ulsan: new Set(["울산"]),
-    kr_gyeongnam: new Set(["창원", "진주", "사천", "함양", "거창", "합천", "김해", "양산", "밀양", "통영", "거제", "고성(경남)"])
+    kr_gyeongnam: new Set(["창원", "진주", "사천", "함양", "거창", "합천", "김해", "양산", "밀양", "통영", "거제", "고성(경남)"]),
+    // Patch 4F-C: 제주 실자산 kr_jeju.webp 연결.
+    kr_jeju: new Set(["제주", "제주도", "제주특별자치도"])
 });
 const inferNationwideMascotAreaId = (name) => {
     const raw = normMascotKey(name);
@@ -25897,6 +26024,15 @@ const App = () => {
     // R10.3: value state stays shared, while each modal/editor open state stays independent.
     // Re-entering a deduction modal re-opens the currently applicable editor without resetting its value.
     const openDeductionModal = useCallback((type) => {
+        // Patch 4G-R1: 실제 관내출장에서 일비 '감액'을 눌렀을 때만
+        // 일반 일비 감액모달 대신 기존 관내 여비 팝업을 수동으로 다시 연다.
+        // 검색/계산 완료만으로는 팝업을 자동으로 열지 않는다.
+        if (type === "daily" && result && ybezIsEndpointIntraTrip(origin, dest)) {
+            setActiveModal(null);
+            setTravelScopeMode("intra");
+            setIntraCityOpen(true);
+            return;
+        }
         setDedAccordionOpen({ daily: false, transport: false, meal: false });
         setDedEditorOpen(prev => {
             if (type === "daily") return { ...prev, daily: true };
@@ -25910,7 +26046,7 @@ const App = () => {
             return prev;
         });
         setActiveModal(type);
-    }, []);
+    }, [result, origin, dest]);
     const closeDeductionModal = useCallback(() => setActiveModal(null), []);
     // R5-K4: 일반/연수는 단일선택, 현지숙박/합숙제공은 연수출장에서 복수선택 가능하게 분리한다.
     const [tripDays, setTripDays] = useState(1);
@@ -26488,7 +26624,19 @@ const App = () => {
     const [segmentChoiceModal, setSegmentChoiceModal] = useState(null);
     const gradeGuideRouteRef = useRef("");
     /* 감액 */
+    // Patch 4G-R1: 관내 선택값은 현재 입력이 유지되는 동안 공유한다.
+    // 출발지/도착지 중 하나라도 비는 순간에만 OFF/OFF로 초기화한다.
     const [intraDed, setIntraDed] = useState({ shortTime: false, govVehicle: false });
+    const intraDailyAmount = Math.max(0, 20000 - (intraDed.shortTime ? 10000 : 0) - (intraDed.govVehicle ? 10000 : 0));
+    const intraDailyDeductionAmount = Math.max(0, 20000 - intraDailyAmount);
+    useEffect(() => {
+        const hasOrigin = !!nz(origin);
+        const hasDest = !!nz(dest);
+        if (hasOrigin && hasDest) return;
+        setIntraDed(prev => (prev.shortTime || prev.govVehicle) ? { shortTime: false, govVehicle: false } : prev);
+        setIntraCityOpen(false);
+        setTravelScopeMode("extra");
+    }, [origin, dest]);
     const resetDed = () => setDed({ gov_vehicle_days: 0, meal_provided_count: 0, transport_proof: false, transport_proof_units: 0, transport_gov_vehicle: false, transport_passenger: false, transport_passenger_units: 0, transport_institution_paid: false, transport_institution_paid_units: 0 });
     const handleSwap = useCallback(() => {
         const o = nz(origin), d = nz(dest);
@@ -28070,7 +28218,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     /* ── 노드명 추적기 ── */
     // Patch 4A: 계산용 node identity는 유지하되 사용자 표시명만 정리한다.
     const RUNTIME_NODE_DISPLAY_OVERRIDES = Object.freeze({
-        "NODE_0390": "영동시외버스터미널"
+        "NODE_0390": "영동시외버스터미널",
+        // Patch 4E: 계산 node는 NODE_0230 그대로, 사용자 표시만 대표 터미널명으로 정리.
+        "NODE_0230": "안양역시외버스정류장"
     });
     const getNodeName = useCallback((nid, fallbackCity) => {
         if (!nid)
@@ -28291,7 +28441,12 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         "영동": Object.freeze(["NODE_0390"]),
         "영동시외버스터미널": Object.freeze(["NODE_0390"]),
         "무주": Object.freeze(["NODE_0556"]),
-        "무주공용버스터미널": Object.freeze(["NODE_0556"])
+        "무주공용버스터미널": Object.freeze(["NODE_0556"]),
+        // Patch 4E: '안양' 검색은 안양역 대표 node만 사용.
+        "안양": Object.freeze(["NODE_0230"]),
+        "안양역": Object.freeze(["NODE_0230"]),
+        "안양역시외버스정류장": Object.freeze(["NODE_0230"]),
+        "안양역시외버스터미널": Object.freeze(["NODE_0230"])
     });
     const exactTerminalNodeIds = useCallback((rawName) => {
         const raw = nz(rawName);
@@ -29818,9 +29973,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const fixed = F5F_VERIFIED_CANONICAL_DIRECTS[key];
         if (fixed && (!best || best._sourceRank > 0 || Number(best.gen || 0) !== Number(fixed.gen))) {
             best = {
-                gen: Number(fixed.gen), pre: null, depId: null, arrId: null, depName: from, arrName: to,
+                gen: Number(fixed.gen), pre: null, depId: null, arrId: null,
+                depName: (fixed.terminalByCity && fixed.terminalByCity[from]) || from,
+                arrName: (fixed.terminalByCity && fixed.terminalByCity[to]) || to,
                 sources: [fixed.source], all_sources: [fixed.source], dr: `${from}→${to}`,
-                gradeSelectable: false, gradeDefault: "gen", fareGrade: fixed.fareGrade || "고속", kobusUdeung: fixed.source === "kobus",
+                gradeSelectable: false, gradeDefault: "gen", fareGrade: fixed.fareGrade || "고속", kobusUdeung: String(fixed.source || "").toLowerCase() === "kobus",
                 _sourceRank: 0, _authorityRank: routeAuthorityPriority([fixed.source]), _megaCount: 0, f5fCanonicalDirect: true, verifiedCanonicalDetail: fixed.detail || ""
             };
         }
@@ -33331,7 +33488,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             "괴산": { anchors: ["청주"], suppressTarget: true },
             "옥천": { anchors: ["대전"], suppressTarget: true, fixed: "okcheon" },
             "영동": { anchors: ["광주"], suppressTarget: true, fixed: "yeongdong" },
+            // Patch 4C: 남원은 서부·중부 전남광주=광주축, 여수·순천·광양=순천축을 우선한다.
             "남원": { anchors: ["순천", "전주", "광양"] },
+            // 서부·중부의 순창은 남원 handoff보다 광주↔순창 검증 직행을 먼저 완주한다.
+            "순창": { anchors: ["광주"], suppressTarget: true, westOnly: true },
             "예산": { anchors: ["대전", "천안"], quality: true },
             "울산": { anchors: ["광양", "순천"], eastOnly: true },
             "창원": { anchors: ["광양", "순천"], eastOnly: true }
@@ -33341,6 +33501,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const [policyName, cfg] = policy;
         const eastJg = ["여수", "순천", "광양"].some(x => roleNorm(x) === roleNorm(jgRaw));
         if (cfg.eastOnly && !eastJg) return null;
+        if (cfg.westOnly && eastJg) return null;
+        const policyAnchors = roleNorm(policyName) === roleNorm("남원")
+            ? (eastJg ? ["순천", "광양", "광주", "전주"] : ["광주", "전주", "순천", "광양"])
+            : cfg.anchors;
 
         const feederTo = (hub, jgAtOrigin) => {
             if (roleNorm(jgRaw) === roleNorm(hub)) return [];
@@ -33393,7 +33557,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             return materialize(segs, "F5-F 영동 destination chain", `${jgRaw}↔광주 feeder + 광주↔무주 19,300(NAVER) + 무주↔영동 1,700(NAVER)`, { type: "anchor", target: policyName, anchor: "광주", suppressTarget: true });
         }
 
-        for (const anchor of cfg.anchors) {
+        for (const anchor of policyAnchors) {
             const feeder = feederTo(anchor, !targetAtOrigin);
             if (feeder == null) continue;
             const last = targetLeg(anchor, targetAtOrigin);
@@ -34884,6 +35048,40 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             setCalcSt("done");
             return;
         }
+        /* ── Patch 4C: 남·임·순 광주/순천 backbone 선행 ──
+           - raw 목적지가 남원이면 서부·중부는 광주축, 여수·순천·광양은 순천축을 먼저 완주한다.
+           - raw 목적지가 순창이면 서부·중부에서 광주↔순창 NAVER 5,600원 직행을 남원 LV4 handoff보다 먼저 쓴다.
+           - 동부 순창은 여기서 강제하지 않고 기존 남원 LV4 handoff로 넘겨 순천축을 보존한다. */
+        if (!nz(viaCity)) {
+            const p4cFr = resolveArea(rawFrom), p4cTr = resolveArea(rawTo);
+            const p4cFromJg = !!(p4cFr && !p4cFr.blocked && String(p4cFr.areaId || "").startsWith("jg_"));
+            const p4cToJg = !!(p4cTr && !p4cTr.blocked && String(p4cTr.areaId || "").startsWith("jg_"));
+            if (p4cFromJg !== p4cToJg) {
+                const p4cOutside = p4cFromJg ? rawTo : rawFrom;
+                const p4cTarget = roleNorm(p4cOutside);
+                const p4cBackboneTarget = [roleNorm("남원"), roleNorm("순창")].includes(p4cTarget);
+                if (p4cBackboneTarget) {
+                    const p4cEarly = buildF5FCommonRoutingRoute(rawFrom, rawTo);
+                    if (p4cEarly && !p4cEarly.blocked && !p4cEarly.partialRoute && !p4cEarly.needsManualFare) {
+                        const p4cFare = p4cEarly.gradeSelectable && p4cEarly.pre ? p4cEarly.pre : p4cEarly.gen;
+                        applyCalcResult(p4cEarly);
+                        setManualTransport(Number(p4cFare || 0) * 2);
+                        setShipFare(0);
+                        setAccessExtraFare(0);
+                        setAccessSelection("none");
+                        setSubResults({ depSubs: [], arrSubs: [], specialSubs: [] });
+                        setShowSubChoices(false);
+                        setAltRoutes([]);
+                        setSmartResult(null);
+                        setBypassInfo([`✓ Patch 4C 남·임·순 backbone 적용: ${p4cEarly.routeLabel} · 편도 ${fmt(p4cFare)}원`]);
+                        addHistory(o, d, Number(p4cFare || 0));
+                        setCalcSt("done");
+                        return;
+                    }
+                }
+            }
+        }
+
         // R5-D 준비: C2/C3.1 Shadow를 한 번만 계산하고 이후 실제 승격에서도 같은 결과를 사용한다.
         let r5ShadowResult = null;
         if (!nz(viaCity)) {
@@ -34917,18 +35115,36 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         const lv4D2 = normalizeCity(outsideRoleD2.lv4);
                         const mainFromD2 = fromIsJgD2 ? jgRawD2 : lv4D2;
                         const mainToD2 = fromIsJgD2 ? lv4D2 : jgRawD2;
-                        let mainShadowD2 = buildR5DualRouteShadow(mainFromD2, mainToD2);
+                        let mainShadowD2 = null;
                         let mainOptionsD2 = [];
-                        if (mainShadowD2 && mainShadowD2.status === "DIRECT_ONLY" && mainShadowD2._r5ActualResult) {
-                            mainOptionsD2 = [{
-                                hub: "DIRECT", fare: Number(mainShadowD2.fare || 0), routeLabel: mainShadowD2.routeLabel || `${mainFromD2} → ${mainToD2}`,
-                                pattern: "ENDPOINT_DIRECT", audit: "PASS", fareTrace: mainShadowD2.fareTrace || [], pairTotalAudit: mainShadowD2.pairTotalAudit || null,
-                                _r5ActualResult: mainShadowD2._r5ActualResult
-                            }];
-                        } else if (mainShadowD2 && Array.isArray(mainShadowD2.options)) {
-                            mainOptionsD2 = mainShadowD2.options.filter(Boolean);
+                        const p4cNamwonHandoff = roleNorm(lv4D2) === roleNorm("남원");
+
+                        // Patch 4C: 남·임·순 LV5 handoff는 남원 본선을 먼저 공통 resolver에 맡긴다.
+                        // 이 resolver가 서부·중부=광주축, 동부=순천축을 선택하므로 기존 순천 강제를 차단한다.
+                        if (p4cNamwonHandoff) {
+                            const commonD2 = buildF5FCommonRoutingRoute(mainFromD2, mainToD2);
+                            if (commonD2 && !commonD2.blocked && !commonD2.partialRoute && !commonD2.needsManualFare) {
+                                mainOptionsD2 = [{
+                                    hub: "COMMON", fare: Number(commonD2.gen || 0), routeLabel: commonD2.routeLabel || "",
+                                    pattern: "COMMON→LV4", audit: "PASS", fareTrace: [], pairTotalAudit: null, _r5ActualResult: commonD2
+                                }];
+                            }
                         }
-                        // 동부 R5가 적용되지 않는 권역도 기존 검증 공통경로가 있으면 같은 handoff 규칙을 재사용한다.
+
+                        if (!mainOptionsD2.length) {
+                            mainShadowD2 = buildR5DualRouteShadow(mainFromD2, mainToD2);
+                            if (mainShadowD2 && mainShadowD2.status === "DIRECT_ONLY" && mainShadowD2._r5ActualResult) {
+                                mainOptionsD2 = [{
+                                    hub: "DIRECT", fare: Number(mainShadowD2.fare || 0), routeLabel: mainShadowD2.routeLabel || `${mainFromD2} → ${mainToD2}`,
+                                    pattern: "ENDPOINT_DIRECT", audit: "PASS", fareTrace: mainShadowD2.fareTrace || [], pairTotalAudit: mainShadowD2.pairTotalAudit || null,
+                                    _r5ActualResult: mainShadowD2._r5ActualResult
+                                }];
+                            } else if (mainShadowD2 && Array.isArray(mainShadowD2.options)) {
+                                mainOptionsD2 = mainShadowD2.options.filter(Boolean);
+                            }
+                        }
+
+                        // 남원 외 권역 또는 공통 resolver 실패 시 기존 공통경로 fallback을 그대로 보존한다.
                         if (!mainOptionsD2.length) {
                             const commonD2 = buildF5FCommonRoutingRoute(mainFromD2, mainToD2);
                             if (commonD2 && !commonD2.blocked && !commonD2.partialRoute && !commonD2.needsManualFare) {
@@ -37089,15 +37305,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const dailyDeduction = trainingMultiCalcActive ? Math.min(trainingDailyBeforeVehicle, trainingVehicleDailyDeduction) : 12500 * vehicleDaysApplied;
         const transportDeduction = Math.max(0, transportGross - transport);
         const deductionTotal = dailyDeduction + mealDeduction + transportDeduction;
-        // 2Gen FINAL close: 관내출장은 여비계산에서 교통비 0원 · 일비 20,000원 · 식비 0원.
-        // 관외출장의 일부 LOCAL_WITHIN 접근구간은 travelScopeMode를 intra로 바꾸지 않으므로 이 분기에 들어오지 않는다.
+        // Patch 4G-R1: 실제 관내출장에서는 기존 관내팝업 선택값이 일비 최종값을 직접 결정한다.
+        // 일반 일비 감액 state는 이 분기에서 다시 적용하지 않아 중복 감액을 막는다.
         if (travelScopeMode === "intra") {
-            const intraDaily = 20000;
+            const intraDaily = intraDailyAmount;
             const intraMeal = 0;
             const intraTransport = 0;
             return {
                 daily: intraDaily, meal: intraMeal, lodging, transport: intraTransport, etc, otherLodging,
-                mealGross: 0, mealDeduction: 0, dailyDeduction: 0, transportDeduction: 0, deductionTotal: 0,
+                mealGross: 0, mealDeduction: 0,
+                dailyDeduction: intraDailyDeductionAmount,
+                transportDeduction: 0,
+                deductionTotal: intraDailyDeductionAmount,
                 total: intraDaily + lodging + etc + otherLodging
             };
         }
@@ -37106,7 +37325,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
             total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier, travelScopeMode]);
+    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier, travelScopeMode, intraDailyAmount, intraDailyDeductionAmount]);
     const dailyDeductionLabel = detailCost.dailyDeduction > 0 ? `-${fmt(detailCost.dailyDeduction)}원` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
@@ -37503,6 +37722,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             "순천북부": "순천", "순천북부정류소": "순천", "순천신대지구": "순천",
             "순천신대지구CGV": "순천", "순천신대지구정류소": "순천", "순천신대지구CGV정류소": "순천",
             "순천역": "순천",
+            // Patch 4F-A: 안양 실제 터미널 문자열은 중앙 경로/지도에서 행정지역 '안양'으로 환원한다.
+            // NODE_0230 및 터미널 세부정보 자체는 그대로 보존한다.
+            "안양역": "안양",
+            "안양역시외버스정류장": "안양",
+            "안양역시외버스터미널": "안양",
             "섬진강휴게소": "광양", "섬진강휴게소정류소부산방면": "광양",
             "섬진강휴게소고속버스환승정류소": "광양", "섬진강휴게소부산방향고속버스환승정류소": "광양",
             "섬진강휴게소순천방향고속버스환승정류소": "광양"
@@ -38982,7 +39206,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const xy = ybezRouteMapSvgXY(coord.lat, coord.lng);
             const regionLabel = typeof inputRegionLabelForName === "function" ? inputRegionLabelForName(name) : "";
             const regionKey = ybezRouteMapRegionKeyFromLabel(regionLabel);
-            return xy ? { name, x: xy.x, y: xy.y, lat: Number(coord.lat), lng: Number(coord.lng), regionKey } : null;
+            // Patch 4D display-only metadata: 같은/근접 좌표의 실제 LV4↔LV5 pair만 식별한다.
+            // 계산용 role/access 구조는 변경하지 않고 지도 라벨 배치에만 사용한다.
+            const mapRuntimeRole = typeof resolveRuntimeRole === "function" ? resolveRuntimeRole(name) : null;
+            return xy ? {
+                name, x: xy.x, y: xy.y, lat: Number(coord.lat), lng: Number(coord.lng), regionKey,
+                ybezMapRole: mapRuntimeRole ? String(mapRuntimeRole.role || "") : "",
+                ybezMapLv4: mapRuntimeRole ? String(mapRuntimeRole.lv4 || "") : "",
+                ybezMapLv5: mapRuntimeRole ? String(mapRuntimeRole.lv5 || "") : ""
+            } : null;
         };
         const resolvedPoints = path.map(resolvePoint);
         const points = resolvedPoints.filter(Boolean);
@@ -39012,7 +39244,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             segments.push({ a, b, kind: segmentKind(a.name, b.name) });
         }
         return { points, segments, viewBox: ybezRouteMapFitViewBox(points) };
-    }, [result, displayRouteLabel, verticalRouteRows, getCityCoord, compactPlaceName, inputRegionLabelForName]);
+    }, [result, displayRouteLabel, verticalRouteRows, getCityCoord, compactPlaceName, inputRegionLabelForName, resolveRuntimeRole]);
 
     const DesktopSourceLegend = () => React.createElement("div", { className: "ybez-left-source-legend-fixed", "aria-label": "교통요금 출처 색상" },
         [
@@ -39043,7 +39275,14 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         }
 
         const rows = verticalRouteRows;
-        if (!rows.length) return null;
+        const intraMascotName = ybezIsEndpointIntraTrip(origin, dest) ? (nz(dest) || nz(origin)) : "";
+        if (!rows.length) {
+            if (intraMascotName)
+                return React.createElement("div", { className: "vertical-route-card" },
+                    React.createElement("div", { className: "vroute-title" }, React.createElement("span", null, "경로 정보")),
+                    RouteMapPanel(null, mascotMap, intraMascotName));
+            return null;
+        }
         const { terminalRows = [] } = buildDetailRows(rows);
         let terminalBlock = null;
         if (terminalRows.length) {
@@ -39064,7 +39303,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
 
         return React.createElement("div", { className: "vertical-route-card" },
             React.createElement("div", { className: "vroute-title" }, React.createElement("span", null, "경로 정보")),
-            RouteMapPanel(routeMapModel),
+            RouteMapPanel(routeMapModel, mascotMap, intraMascotName),
             terminalBlock);
     };
     const MobileFareChoices = () => {
@@ -40467,7 +40706,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     React.createElement("div", { style: { marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center" } },
                         React.createElement("span", { style: { fontSize: 18, fontWeight: 700, color: "#1C1C1E" } }, "\uC9C0\uAE09\uC561"),
                         React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 24, fontWeight: 900, color: "var(--blue)" } },
-                            fmt(20000 - (intraDed.shortTime ? 10000 : 0) - (intraDed.govVehicle ? 10000 : 0)),
+                            fmt(intraDailyAmount),
                             "\uC6D0")),
                     null)))),
         MobileDetailSheet(),
@@ -41233,7 +41472,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     React.createElement("div", { className: "expense-main-row" },
                         React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "일비")),
                         React.createElement("div", { className: "expense-tag-cell" }),
-                        React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", { onClick: () => openDeductionModal("daily"), className: `deduct-btn ${vehicleDaysInput > 0 ? "active" : ""}` }, presentationDeductionButtonLabelD42(detailCost.dailyDeduction))),
+                        React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", {
+                            onClick: () => openDeductionModal("daily"),
+                            className: `deduct-btn ${(travelScopeMode === "intra" ? intraDailyDeductionAmount > 0 : vehicleDaysInput > 0) ? "active" : ""}`
+                        }, presentationDeductionButtonLabelD42(detailCost.dailyDeduction))),
                         React.createElement("div", null),
                         trainingDailyMixedNeedsManual
                             ? renderMoneyEntry(
