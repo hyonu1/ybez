@@ -39183,106 +39183,202 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     };
     const routeMapModel = useMemo(() => {
         if (!result) return null;
-        const cleanPathPart = v => String(v || "").replace(/\s+(기타교통비|왕복\s*교통비|실비\s*입력|실비정산).*$/g, "").trim();
-        const parseRouteMapPath = (value) => String(value || "")
-            .split(/\s*→\s*/).map(cleanPathPart).filter(Boolean);
-        let path = [];
-        if (result.p6dOrderedSpecialPath && result.multiHop && Array.isArray(result.multiHop.path) && result.multiHop.path.length) {
-            /* Patch 4L: ordered island/rural paths are the protected core, but endpoint plans are
-               applied later and can extend the final route on either side.  The old map path read
-               only multiHop.path, so the opposite LV4→LV5 leg disappeared although fare/result
-               labels were already correct.  Merge the protected ordered core into the final
-               mainRouteLabel/routeLabel instead of hard-coding Mokpo/Sinan or any region. */
-            const orderedCore = result.multiHop.path.map(cleanPathPart).filter(Boolean);
-            const finalPath = parseRouteMapPath(result.mainRouteLabel || result.routeLabel || displayRouteLabel || result.displayRouteLabel || "");
-            if (finalPath.length >= 2 && orderedCore.length) {
-                // Prefer the final path when it still contains every ordered-core node in order.
-                let cursor = 0;
-                for (const node of finalPath) {
-                    if (cursor < orderedCore.length && ybezRouteMapLabelsMatch(node, orderedCore[cursor])) cursor += 1;
+        /* Patch 4M · Structured Route Map
+           지도는 표시용 routeLabel/multiHop.path를 다시 해석하지 않고 실제 계산 구조를 source-of-truth로 사용한다.
+           - islandLegs: 신안/완도/울릉 등 도서·농어촌·선박 구간
+           - areaSegments (없을 때만 multiHop.segs): 실제 본선 구간
+           - ybezAccessPlans: LV5↔LV4 접근구간
+           문자열 경로는 구조화 세그먼트가 전혀 없는 결과에서만 보수적 fallback으로 사용한다.
+           좌표 미확인 구간은 다음 노드로 건너뛰지 않고 해당 실제 구간만 표시하지 않는다. */
+        const cleanName = v => String(v || "")
+            .replace(/\s+(기타교통비|왕복\s*교통비|실비\s*입력|실비정산).*$/g, "")
+            .trim();
+        const parseArrowPath = value => String(value || "")
+            .split(/\s*→\s*/).map(cleanName).filter(Boolean);
+        const nodeKey = value => {
+            const cleaned = cleanName(value);
+            if (!cleaned) return "";
+            const canonical = typeof canonicalEndpointName === "function" ? canonicalEndpointName(cleaned) : cleaned;
+            const normalized = typeof roleNorm === "function" ? roleNorm(canonical || cleaned) : String(canonical || cleaned).replace(/\s+/g, "");
+            return String(normalized || "").trim();
+        };
+        const sameNode = (a, b) => {
+            const ak = nodeKey(a), bk = nodeKey(b);
+            return !!ak && !!bk && ak === bk;
+        };
+        const userOriginName = cleanName(result.userOrigin || result.origin || origin || "");
+        const userDestName = cleanName(result.userDest || result.dest || dest || "");
+        const isNeutral = !!result.r108p6InternalFallback
+            || (!!result.needsManualFare && !!result.manualTransportOnly)
+            || /제주/.test(`${userOriginName} ${userDestName}`);
+        const mapKind = kind => {
+            if (isNeutral) return "neutral";
+            const k = String(kind || "").toLowerCase();
+            if (k === "ferry" || k === "ship") return "ferry";
+            if (k === "neutral") return "neutral";
+            return "land";
+        };
+
+        const rawSegments = [];
+        const pairIndex = new Map();
+        const orderedNodeNames = [];
+        const rememberNode = name => {
+            const n = cleanName(name), k = nodeKey(n);
+            if (!n || !k) return;
+            if (!orderedNodeNames.some(x => nodeKey(x) === k)) orderedNodeNames.push(n);
+        };
+        const pairKey = (a, b) => {
+            const ak = nodeKey(a), bk = nodeKey(b);
+            if (!ak || !bk || ak === bk) return "";
+            return [ak, bk].sort().join("||");
+        };
+        const pushStructuredSegment = (from, to, kind = "land", meta = {}) => {
+            const a = cleanName(from), b = cleanName(to);
+            const key = pairKey(a, b);
+            if (!a || !b || !key) return;
+            rememberNode(a); rememberNode(b);
+            const normalizedKind = mapKind(kind);
+            const prevIndex = pairIndex.get(key);
+            if (prevIndex != null) {
+                // 같은 물리구간이 access/main 양쪽에서 보이면 한 번만 그린다.
+                // ferry 정보가 뒤늦게 확인되면 육로보다 ferry를 우선한다.
+                const prev = rawSegments[prevIndex];
+                if (prev && prev.kind !== "ferry" && normalizedKind === "ferry") {
+                    rawSegments[prevIndex] = { ...prev, kind: "ferry", meta: { ...prev.meta, ...meta } };
                 }
-                if (cursor === orderedCore.length) {
-                    path = finalPath;
-                } else {
-                    // Conservative fallback: preserve the exact ordered core and attach only the
-                    // final path's verified prefix/suffix around matching core endpoints.
-                    const firstIdx = finalPath.findIndex(node => ybezRouteMapLabelsMatch(node, orderedCore[0]));
-                    let lastIdx = -1;
-                    if (firstIdx >= 0) {
-                        for (let i = finalPath.length - 1; i >= firstIdx; i -= 1) {
-                            if (ybezRouteMapLabelsMatch(finalPath[i], orderedCore[orderedCore.length - 1])) { lastIdx = i; break; }
-                        }
-                    }
-                    path = firstIdx >= 0 && lastIdx >= firstIdx
-                        ? [...finalPath.slice(0, firstIdx), ...orderedCore, ...finalPath.slice(lastIdx + 1)]
-                        : orderedCore;
-                }
-            } else {
-                path = orderedCore;
+                return;
             }
-        } else {
-            path = parseRouteMapPath(displayRouteLabel || result.displayRouteLabel || result.mainRouteLabel || result.routeLabel || "");
+            pairIndex.set(key, rawSegments.length);
+            rawSegments.push({ from: a, to: b, kind: normalizedKind, meta });
+        };
+        const orientLegParts = (parts, role) => {
+            const arr = Array.isArray(parts) ? parts.map(cleanName).filter(Boolean) : [];
+            if (arr.length < 2) return arr;
+            const r = String(role || "").toLowerCase();
+            if (r === "origin") {
+                if (!sameNode(arr[0], userOriginName) && sameNode(arr[arr.length - 1], userOriginName)) return [...arr].reverse();
+            } else if (r === "dest" || r === "destination") {
+                if (!sameNode(arr[arr.length - 1], userDestName) && sameNode(arr[0], userDestName)) return [...arr].reverse();
+            } else if (r === "internal") {
+                if (sameNode(arr[0], userDestName) && sameNode(arr[arr.length - 1], userOriginName)) return [...arr].reverse();
+            }
+            return arr;
+        };
+        const pushIslandLeg = leg => {
+            if (!leg) return;
+            const parts = orientLegParts(parseArrowPath(leg.route || ""), leg.role);
+            for (let i = 0; i < parts.length - 1; i += 1) {
+                pushStructuredSegment(parts[i], parts[i + 1], leg.kind, { source: "islandLeg", role: leg.role || "", leg });
+            }
+        };
+
+        const islandLegs = Array.isArray(result.islandLegs) ? result.islandLegs.filter(Boolean) : [];
+        const accessPlans = Array.isArray(result.ybezAccessPlans) && result.ybezAccessPlans.length
+            ? result.ybezAccessPlans.filter(Boolean)
+            : (result.ybezAccessPlan ? [result.ybezAccessPlan] : []);
+        const mainSegments = Array.isArray(result.areaSegments) && result.areaSegments.length
+            ? result.areaSegments.filter(Boolean)
+            : (result.multiHop && Array.isArray(result.multiHop.segs) ? result.multiHop.segs.filter(Boolean) : []);
+
+        // 실제 이동 순서에 맞춰 구조화 자료를 넣는다. 선 자체는 각 실제 from→to를 직접 사용하므로
+        // 중간 구조가 끊겨도 그 다음 점으로 가짜 직선을 만들지 않는다.
+        islandLegs.filter(x => String(x.role || "").toLowerCase() === "origin").forEach(pushIslandLeg);
+        accessPlans.filter(x => String(x.side || "").toLowerCase() === "origin").forEach(plan => {
+            pushStructuredSegment(plan.lv5, plan.lv4, "land", { source: "accessPlan", side: "origin", plan });
+        });
+        mainSegments.forEach((seg, index) => {
+            const from = seg && (seg.from || seg.origin || seg.depCity || seg.depName || seg.terminalFrom);
+            const to = seg && (seg.to || seg.destination || seg.arrCity || seg.arrName || seg.terminalTo);
+            pushStructuredSegment(from, to, seg && seg.kind, { source: "areaSegment", index, seg });
+        });
+        accessPlans.filter(x => ["destination", "dest"].includes(String(x.side || "").toLowerCase())).forEach(plan => {
+            pushStructuredSegment(plan.lv4, plan.lv5, "land", { source: "accessPlan", side: "destination", plan });
+        });
+        islandLegs.filter(x => ["destination", "dest"].includes(String(x.role || "").toLowerCase())).forEach(pushIslandLeg);
+        // 신안·완도 내부 ordered-path처럼 origin/destination 구분 없이 내부 연결만 있는 경우.
+        islandLegs.filter(x => {
+            const r = String(x.role || "").toLowerCase();
+            return !r || r === "internal";
+        }).forEach(pushIslandLeg);
+
+        // 구조화 자료 자체가 전혀 없는 결과만 표시 문자열을 최후 fallback으로 사용한다.
+        // 4L의 orderedCore/finalPath 병합은 더 이상 주경로가 아니다.
+        if (!rawSegments.length) {
+            const fallbackPath = parseArrowPath(displayRouteLabel || result.displayRouteLabel || result.mainRouteLabel || result.routeLabel || "");
+            for (let i = 0; i < fallbackPath.length - 1; i += 1) {
+                pushStructuredSegment(fallbackPath[i], fallbackPath[i + 1], isNeutral ? "neutral" : "land", { source: "labelFallback" });
+            }
         }
-        // Preserve ordered-path semantics, but drop only immediate duplicate labels.
-        path = path.filter((x, i) => i === 0 || !ybezRouteMapLabelsMatch(x, path[i - 1]));
-        if (path.length < 2) return null;
+        if (!rawSegments.length) return null;
+
+        const logicalVariants = name => {
+            const raw = cleanName(name);
+            const out = [];
+            const add = v => { const x = cleanName(v); if (x && !out.includes(x)) out.push(x); };
+            add(raw);
+            if (typeof canonicalEndpointName === "function") add(canonicalEndpointName(raw));
+            if (typeof compactPlaceName === "function") add(compactPlaceName(raw));
+            add(raw.replace(/\([^)]*\)/g, "").trim());
+            const par = raw.match(/\(([^)]*)\)/);
+            if (par) add(par[1]);
+            add(raw.replace(/(종합|공용|고속|시외)?버스터미널|버스터미널|터미널|정류소|정류장|여객선터미널|선착장/g, "").trim());
+            if (/유스퀘어|광주비아/.test(raw)) add("광주");
+            if (/동대구/.test(raw)) add("대구");
+            if (/동서울|센트럴시티|서울고속|서울남부/.test(raw)) add("서울");
+            if (/포항/.test(raw)) add("포항");
+            if (/원주/.test(raw)) add("원주");
+            return out;
+        };
         const resolvePoint = name => {
-            const direct = YBEZ_ROUTE_MAP_GATEWAY_LATLNG[name];
-            const variants = [name];
-            if (typeof compactPlaceName === "function") variants.push(compactPlaceName(name));
-            variants.push(String(name).replace(/\([^)]*\)/g, "").trim());
-            const par = String(name).match(/\(([^)]*)\)/);
-            if (par) variants.push(par[1]);
-            let coord = direct || null;
-            if (!coord) {
-                for (const v of variants.filter(Boolean)) {
-                    const c = getCityCoord(v);
-                    if (c && Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng))) { coord = c; break; }
+            const variants = logicalVariants(name);
+            let coord = null, resolvedName = cleanName(name);
+            for (const v of variants) {
+                const direct = YBEZ_ROUTE_MAP_GATEWAY_LATLNG[v];
+                if (direct) { coord = direct; resolvedName = v; break; }
+                const c = getCityCoord(v);
+                if (c && Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng))) {
+                    coord = c; resolvedName = v; break;
                 }
             }
             if (!coord) return null;
             const xy = ybezRouteMapSvgXY(coord.lat, coord.lng);
-            const regionLabel = typeof inputRegionLabelForName === "function" ? inputRegionLabelForName(name) : "";
+            if (!xy) return null;
+            const displayName = cleanName(name) || resolvedName;
+            const regionLabel = typeof inputRegionLabelForName === "function" ? inputRegionLabelForName(resolvedName || displayName) : "";
             const regionKey = ybezRouteMapRegionKeyFromLabel(regionLabel);
-            // Patch 4D display-only metadata: 같은/근접 좌표의 실제 LV4↔LV5 pair만 식별한다.
-            // 계산용 role/access 구조는 변경하지 않고 지도 라벨 배치에만 사용한다.
-            const mapRuntimeRole = typeof resolveRuntimeRole === "function" ? resolveRuntimeRole(name) : null;
-            return xy ? {
-                name, x: xy.x, y: xy.y, lat: Number(coord.lat), lng: Number(coord.lng), regionKey,
+            const mapRuntimeRole = typeof resolveRuntimeRole === "function" ? (resolveRuntimeRole(displayName) || resolveRuntimeRole(resolvedName)) : null;
+            return {
+                name: displayName, x: xy.x, y: xy.y, lat: Number(coord.lat), lng: Number(coord.lng), regionKey,
                 ybezMapRole: mapRuntimeRole ? String(mapRuntimeRole.role || "") : "",
                 ybezMapLv4: mapRuntimeRole ? String(mapRuntimeRole.lv4 || "") : "",
                 ybezMapLv5: mapRuntimeRole ? String(mapRuntimeRole.lv5 || "") : ""
-            } : null;
+            };
         };
-        const resolvedPoints = path.map(resolvePoint);
-        const points = resolvedPoints.filter(Boolean);
-        if (points.length < 2) return null;
-        const legs = Array.isArray(result.islandLegs) ? result.islandLegs.filter(Boolean) : [];
-        const ferryLegs = legs.filter(l => l.kind === "ferry");
-        const isNeutral = !!result.r108p6InternalFallback || (!!result.needsManualFare && !!result.manualTransportOnly) || path.some(x => /제주/.test(String(x)));
-        const segmentKind = (a, b) => {
-            if (isNeutral) return "neutral";
-            for (const leg of ferryLegs) {
-                const parts = String(leg.route || "").split(/\s*→\s*/).map(x => x.trim()).filter(Boolean);
-                const ai = parts.findIndex(x => ybezRouteMapLabelsMatch(a, x));
-                const bi = parts.findIndex(x => ybezRouteMapLabelsMatch(b, x));
-                if (ai >= 0 && bi >= 0) return "ferry";
-            }
-            const ferryRows = (verticalRouteRows || []).filter(r => r && r.kind === "ferry");
-            for (const r of ferryRows) {
-                const txt = [r.route, r.label, r.body, r.from, r.to].filter(Boolean).join("→");
-                if (ybezRouteMapLabelsMatch(a, txt) && ybezRouteMapLabelsMatch(b, txt)) return "ferry";
-            }
-            return "land";
+
+        const pointByKey = new Map();
+        const points = [];
+        const ensurePoint = name => {
+            const k = nodeKey(name);
+            if (!k) return null;
+            if (pointByKey.has(k)) return pointByKey.get(k);
+            const p = resolvePoint(name);
+            if (!p) { pointByKey.set(k, null); return null; }
+            pointByKey.set(k, p);
+            points.push(p);
+            return p;
         };
+        // 사용자 출발/도착은 구조화 edge와 같은 노드일 때 라벨 우선순위만 확보한다.
+        // 별도 선을 만들지는 않는다.
+        [userOriginName, ...orderedNodeNames, userDestName].filter(Boolean).forEach(ensurePoint);
         const segments = [];
-        for (let i = 0; i < resolvedPoints.length - 1; i++) {
-            const a = resolvedPoints[i], b = resolvedPoints[i + 1];
-            if (!a || !b) continue; // unresolved intermediate points must create a visual gap, never a fake shortcut
-            segments.push({ a, b, kind: segmentKind(a.name, b.name) });
-        }
-        return { points, segments, viewBox: ybezRouteMapFitViewBox(points) };
-    }, [result, displayRouteLabel, verticalRouteRows, getCityCoord, compactPlaceName, inputRegionLabelForName, resolveRuntimeRole]);
+        rawSegments.forEach((seg, i) => {
+            const a = ensurePoint(seg.from), b = ensurePoint(seg.to);
+            if (!a || !b) return; // 좌표 미확인 실제 구간만 생략. 다음 점으로 shortcut 금지.
+            segments.push({ a, b, kind: seg.kind || "land", structured: true, source: seg.meta && seg.meta.source, index: i });
+        });
+        if (points.length < 2 || !segments.length) return null;
+        return { points, segments, viewBox: ybezRouteMapFitViewBox(points), structured: true };
+    }, [result, displayRouteLabel, getCityCoord, compactPlaceName, inputRegionLabelForName, resolveRuntimeRole, canonicalEndpointName, roleNorm, origin, dest]);
 
     const DesktopSourceLegend = () => React.createElement("div", { className: "ybez-left-source-legend-fixed", "aria-label": "교통요금 출처 색상" },
         [
