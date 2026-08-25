@@ -1,6 +1,6 @@
 {
-  "version": "YBEZ_mascot_map_f5k_20260810_v2",
-  "updated_at": "2026-08-10 17:23:00",
+  "version": "YBEZ_mascot_map_f5k_20260825_patch4f_v1",
+  "updated_at": "2026-08-25 18:51:00",
   "default_format": "webp",
   "image_standard": {
     "ratio": "1:1",
@@ -942,6 +942,18 @@
         "reserve_asset",
         "stage2_ready"
       ]
+    },
+    "kr_jeju": {
+      "label_ko": "제주",
+      "mascot_id": "kr_jeju",
+      "image": "assets/mascots/kr_jeju.webp",
+      "alt": "제주 마스코트",
+      "concept": "제주 대표 마스코트",
+      "status": "ready",
+      "tags": [
+        "nationwide_mascot",
+        "stage2_ready"
+      ]
     }
   },
   "by_region_name": {
@@ -1065,7 +1077,10 @@
     "전남도교육청": "jg_jn_namak",
     "전라남도교육청": "jg_jn_namak",
     "전남교육청": "jg_jn_namak",
-    "삼향": "jg_mu"
+    "삼향": "jg_mu",
+    "제주": "kr_jeju",
+    "제주도": "kr_jeju",
+    "제주특별자치도": "kr_jeju"
   },
   "popup": {
     "columns": {
@@ -1133,5 +1148,6 @@
   "stage1_patch_note": "팝업 버튼형 UI, 신안/완도 순서, 압해 슬롯, 전국 풍경 심볼 슬롯, 검색 정책 정리 반영. 이미지 자산은 다음 단계에서 생성.",
   "stage2_asset_note": "전국 풍경 심볼, 남악 전프로 캐릭터, 신안 메인 여행자, 전프로 예비 캐릭터 3종을 512x512 WebP로 자산화하고 mascot_map에 연결함.",
   "stage2_shinan_asset_note": "신안 확정 시나리오 기반 512x512 WebP 자산 연결 v1",
-  "cache_policy": "F5-K: index.html appends ?v=<mascot_map.version> to mascot image URLs so same-name asset replacements refresh after deployment."
+  "cache_policy": "F5-K: index.html appends ?v=<mascot_map.version> to mascot image URLs so same-name asset replacements refresh after deployment.",
+  "patch4f_note": "관내 지도패널 마스코트 확대 표시용 기존 매핑 재사용 + 제주 kr_jeju 실자산 슬롯 등록"
 }
