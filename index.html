@@ -39184,12 +39184,44 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     const routeMapModel = useMemo(() => {
         if (!result) return null;
         const cleanPathPart = v => String(v || "").replace(/\s+(기타교통비|왕복\s*교통비|실비\s*입력|실비정산).*$/g, "").trim();
+        const parseRouteMapPath = (value) => String(value || "")
+            .split(/\s*→\s*/).map(cleanPathPart).filter(Boolean);
         let path = [];
         if (result.p6dOrderedSpecialPath && result.multiHop && Array.isArray(result.multiHop.path) && result.multiHop.path.length) {
-            path = result.multiHop.path.map(cleanPathPart).filter(Boolean);
+            /* Patch 4L: ordered island/rural paths are the protected core, but endpoint plans are
+               applied later and can extend the final route on either side.  The old map path read
+               only multiHop.path, so the opposite LV4→LV5 leg disappeared although fare/result
+               labels were already correct.  Merge the protected ordered core into the final
+               mainRouteLabel/routeLabel instead of hard-coding Mokpo/Sinan or any region. */
+            const orderedCore = result.multiHop.path.map(cleanPathPart).filter(Boolean);
+            const finalPath = parseRouteMapPath(result.mainRouteLabel || result.routeLabel || displayRouteLabel || result.displayRouteLabel || "");
+            if (finalPath.length >= 2 && orderedCore.length) {
+                // Prefer the final path when it still contains every ordered-core node in order.
+                let cursor = 0;
+                for (const node of finalPath) {
+                    if (cursor < orderedCore.length && ybezRouteMapLabelsMatch(node, orderedCore[cursor])) cursor += 1;
+                }
+                if (cursor === orderedCore.length) {
+                    path = finalPath;
+                } else {
+                    // Conservative fallback: preserve the exact ordered core and attach only the
+                    // final path's verified prefix/suffix around matching core endpoints.
+                    const firstIdx = finalPath.findIndex(node => ybezRouteMapLabelsMatch(node, orderedCore[0]));
+                    let lastIdx = -1;
+                    if (firstIdx >= 0) {
+                        for (let i = finalPath.length - 1; i >= firstIdx; i -= 1) {
+                            if (ybezRouteMapLabelsMatch(finalPath[i], orderedCore[orderedCore.length - 1])) { lastIdx = i; break; }
+                        }
+                    }
+                    path = firstIdx >= 0 && lastIdx >= firstIdx
+                        ? [...finalPath.slice(0, firstIdx), ...orderedCore, ...finalPath.slice(lastIdx + 1)]
+                        : orderedCore;
+                }
+            } else {
+                path = orderedCore;
+            }
         } else {
-            path = String(displayRouteLabel || result.displayRouteLabel || result.mainRouteLabel || result.routeLabel || "")
-                .split(/\s*→\s*/).map(cleanPathPart).filter(Boolean);
+            path = parseRouteMapPath(displayRouteLabel || result.displayRouteLabel || result.mainRouteLabel || result.routeLabel || "");
         }
         // Preserve ordered-path semantics, but drop only immediate duplicate labels.
         path = path.filter((x, i) => i === 0 || !ybezRouteMapLabelsMatch(x, path[i - 1]));
@@ -45450,5 +45482,31 @@ html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-c
 }
 </style>
 
+
+<style id="ybez-patch4l-route-map-compact-mascot-20260826">
+/* Patch 4L · signed hotfix only.
+   A) route-map final-path merge is in JS above.
+   B) Compact mascot: keep size/structure, move it slightly farther right and
+      halve the accepted 4K feather. No Tablet/Mobile/Mini/status changes. */
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .compact-choice-mascot-row4j{
+  padding:8px 4px 8px 8px!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j > .pc-center-mascot-card{
+  justify-self:end!important;
+  padding:2px!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-stage{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 2px,#000 calc(100% - 2px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 2px,#000 calc(100% - 2px),transparent 100%)!important;
+  -webkit-mask-composite:source-in!important;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 2px,#000 calc(100% - 2px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 2px,#000 calc(100% - 2px),transparent 100%)!important;
+  mask-composite:intersect!important;
+}
+</style>
 </body>
 </html>
