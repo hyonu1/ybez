@@ -26763,9 +26763,10 @@ const App = () => {
         closeMobileAuxSheets();
         setMobileDetailOpen(false);
         setMobileRouteMotion("");
-        // 홈 → 여비계산 : 두 화면이 함께 왼쪽으로 이동
-        setMobileHomeMotion("m55-exit-left");
-        setMobileExpenseMotion("m55-enter-right");
+        // Patch 4O: Mobile is a 2-surface cyclic pager. Every transition moves the screen to the right.
+        // Home -> Expense therefore uses the same rightward motion as Expense -> Home.
+        setMobileHomeMotion("m55-exit-right");
+        setMobileExpenseMotion("m55-enter-left");
         setShowDetail(true);
         finishMobileNavTransition(() => clearMobilePagerMotion());
     };
@@ -26886,13 +26887,12 @@ const App = () => {
         const ax = Math.abs(dx);
         const ay = Math.abs(dy);
         if (ax < 44 || ax < ay * 1.15 || Date.now() - swipe.startedAt > 1400 || !result) return;
-        // Patch 4I: Real Mobile is now a true 2-surface flow.
-        // Home -> Expense is a left swipe; Expense -> Home is a right swipe.
-        // Route information stays inside Home as an accordion and is no longer a swipe page.
-        if (dx > 0) {
-            if (swipe.mode === "expense") mobileExpenseToHome();
-        } else {
+        // Patch 4O: one-direction cyclic gesture for the two real-Mobile surfaces.
+        // A left finger swipe makes the screen move right and toggles Home <-> Expense forever.
+        // Route information remains inline on Home and is not a pager surface.
+        if (dx < 0) {
             if (swipe.mode === "home") mobileHomeToExpense();
+            else if (swipe.mode === "expense") mobileExpenseToHome();
         }
     };
     const mobileSwipeEnd = (e) => {
@@ -45678,5 +45678,50 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
   mask-composite:intersect!important;
 }
 </style>
+
+
+<style id="ybez-patch4o-mobile-fixed-nav-cyclic-swipe-20260826">
+/* Patch 4O · signed mobile-only finish
+   A) Fixed footer root-cause fix: stationary Mobile pager surfaces must not
+      establish a transform containing block via will-change:transform.
+      will-change is restored only while an M5.5 motion class is active.
+   B) Pager JS above is a 2-surface cyclic Home <-> Expense flow with one
+      rightward screen-motion direction. All non-Mobile modes remain frozen. */
+@media(max-width:699px){
+  /* Real Mobile only. Mini / Compact / Tablet retain their existing layer rules. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-mobile-shell > .col-center,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-sheet.d6-b17-expense-sheet{
+    will-change:auto!important;
+  }
+
+  /* Promote only during the 320ms pager animation. Once React clears the
+     motion class, the rule above returns fixed descendants to the viewport. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-mobile-shell > .col-center:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right),
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right) .travel-calc-sheet.d6-b17-expense-sheet{
+    will-change:transform!important;
+  }
+
+  /* Keep both four-button menus explicitly viewport-fixed after all legacy
+     Pager/B17 rules. Safe-area/content padding remains inherited from 4K. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet > .m5-context-nav{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    top:auto!important;
+    width:100%!important;
+    transform:none!important;
+    z-index:1200!important;
+  }
+}
+</style>
+
 </body>
 </html>
