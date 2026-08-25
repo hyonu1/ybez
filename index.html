@@ -26763,10 +26763,9 @@ const App = () => {
         closeMobileAuxSheets();
         setMobileDetailOpen(false);
         setMobileRouteMotion("");
-        // Patch 4O: Mobile is a 2-surface cyclic pager. Every transition moves the screen to the right.
-        // Home -> Expense therefore uses the same rightward motion as Expense -> Home.
-        setMobileHomeMotion("m55-exit-right");
-        setMobileExpenseMotion("m55-enter-left");
+        // 홈 → 여비계산 : 두 화면이 함께 왼쪽으로 이동
+        setMobileHomeMotion("m55-exit-left");
+        setMobileExpenseMotion("m55-enter-right");
         setShowDetail(true);
         finishMobileNavTransition(() => clearMobilePagerMotion());
     };
@@ -26817,6 +26816,36 @@ const App = () => {
         setMobileRouteMotion("");
         setMobileExpenseMotion("m55-exit-right");
         setMobileHomeMotion("m55-enter-left");
+        finishMobileNavTransition(() => {
+            setShowDetail(false);
+            clearMobilePagerMotion();
+        });
+    };
+    // Patch 4P: Real Mobile is a true two-surface cyclic pager.
+    // The gesture decides the physical motion direction; the destination is always
+    // the opposite surface. This helper is Real-Mobile-only at its call sites.
+    const mobileToggleSurface4P = (fromMode, direction = "left") => {
+        const from = fromMode === "expense" ? "expense" : "home";
+        if (from === "home" && !result) return;
+        if (!beginMobileNavTransition()) return;
+        closeMobileAuxSheets();
+        setMobileDetailOpen(false);
+        setMobileRouteMotion("");
+
+        const moveRight = direction === "right";
+        const exitMotion = moveRight ? "m55-exit-right" : "m55-exit-left";
+        const enterMotion = moveRight ? "m55-enter-left" : "m55-enter-right";
+
+        if (from === "home") {
+            setMobileHomeMotion(exitMotion);
+            setMobileExpenseMotion(enterMotion);
+            setShowDetail(true);
+            finishMobileNavTransition(() => clearMobilePagerMotion());
+            return;
+        }
+
+        setMobileExpenseMotion(exitMotion);
+        setMobileHomeMotion(enterMotion);
         finishMobileNavTransition(() => {
             setShowDetail(false);
             clearMobilePagerMotion();
@@ -26886,14 +26915,12 @@ const App = () => {
         const dy = Number(swipe.currentY || swipe.startY) - swipe.startY;
         const ax = Math.abs(dx);
         const ay = Math.abs(dy);
-        if (ax < 44 || ax < ay * 1.15 || Date.now() - swipe.startedAt > 1400 || !result) return;
-        // Patch 4O: one-direction cyclic gesture for the two real-Mobile surfaces.
-        // A left finger swipe makes the screen move right and toggles Home <-> Expense forever.
-        // Route information remains inline on Home and is not a pager surface.
-        if (dx < 0) {
-            if (swipe.mode === "home") mobileHomeToExpense();
-            else if (swipe.mode === "expense") mobileExpenseToHome();
-        }
+        if (ax < 44 || ax < ay * 1.15 || Date.now() - swipe.startedAt > 1400) return;
+        // Patch 4P: ... Home | Expense | Home | Expense ...
+        // Finger left  -> current screen exits left, opposite surface enters from right.
+        // Finger right -> current screen exits right, opposite surface enters from left.
+        // Home without a valid result remains protected inside mobileToggleSurface4P.
+        mobileToggleSurface4P(swipe.mode, dx > 0 ? "right" : "left");
     };
     const mobileSwipeEnd = (e) => {
         const swipe = { ...mobileSwipeRef.current };
@@ -40106,6 +40133,56 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 React.createElement("span", { className: "m3-nav-label" }, label))));
     };
 
+    // Patch 4P: Real Mobile gets one footer outside both swipe surfaces.
+    // ReactDOM portal makes the footer a direct body child, so Home/Expense scroll,
+    // transform, overflow and will-change can no longer redefine its fixed viewport.
+    const MobilePersistentFooter4P = () => {
+        if (!mobilePagerEnabledM6A2 || typeof document === "undefined") return null;
+
+        const closePopups = () => {
+            setShowFav(false);
+            setShowHist(false);
+            setShowProof(false);
+            setShowProofInfo(false);
+        };
+        const openFavorite = () => { setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(true); };
+        const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
+        const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
+
+        const onExpense = mobilePagerMode === "expense" || (showDetail && !mobileHomeMotion.includes("enter"));
+        const toggleSurface = () => {
+            closePopups();
+            if (onExpense) mobileToggleSurface4P("expense", "right");
+            else if (result) mobileToggleSurface4P("home", "left");
+        };
+
+        const buttons = [
+            ["favorite", "즐겨찾기", openFavorite, false],
+            ["history", "히스토리", openHistory, false],
+            ["proof", "증빙", openProof, false],
+            [onExpense ? "home" : "expense", onExpense ? "홈" : "여비계산", toggleSurface, !onExpense && !result]
+        ];
+
+        return ReactDOM.createPortal(
+            React.createElement("nav", {
+                className: "mobile-bottom-nav m3-bottom-nav mobile-persistent-footer4p",
+                "aria-label": "모바일 하단 메뉴",
+                "data-mobile-surface": onExpense ? "expense" : "home"
+            }, buttons.map(([type, label, handler, disabled]) => React.createElement("button", {
+                key: `persistent-${type}`,
+                type: "button",
+                disabled,
+                className: `m3-nav-item nav-${type} ${type === "expense" ? "d6-b17-expense-cta" : ""} ${type === "favorite" && showFav ? "active" : ""} ${type === "history" && showHist ? "active" : ""} ${type === "proof" && showProof ? "active" : ""}`,
+                onClick: handler,
+                title: label
+            },
+                React.createElement("span", { className: "m34-nav-circle" },
+                    React.createElement(R108CMenuGlyph, { type })),
+                React.createElement("span", { className: "m3-nav-label" }, label)))),
+            document.body
+        );
+    };
+
     // R9: Document PiP의 닫기/복귀를 "최소화"로 오인하지 않도록 가짜 최소화 버튼을 제거한다.
     const PiPMinimizeButtonW3 = () => null;
 
@@ -40856,7 +40933,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             React.createElement(MobileResultCard, null),
             React.createElement(MobileInlineRoute4I, null),
             React.createElement(NonDesktopRouteButtonB17, null),
-            React.createElement(MobileHomeBottomNavW3, null)),
+            !mobilePagerEnabledM6A2 && React.createElement(MobileHomeBottomNavW3, null)),
         React.createElement("div", { className: "col-right" },
             useTabletExpenseUi
                 ? TabletExpensePanelW32()
@@ -40950,6 +41027,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         MobileQuickSheets(),
         MobilePagerIndicator(),
         DesktopMiniPagerArrows(),
+        mobilePagerEnabledM6A2 && React.createElement(MobilePersistentFooter4P, null),
         showDetail && !isDesktopTablet && (React.createElement("div", { className: `travel-calc-overlay d6-b17-sheet-backdrop d6-b17-expense-backdrop ${mobilePagerEnabledM6A2 ? mobileExpenseMotion : ""}`.trim(), style: { position: "fixed", inset: 0, zIndex: 260, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end" }, onClick: mobilePagerEnabledM6A2 ? undefined : closeTravelCalcOnMobile },
             React.createElement("div", {
                 className: `travel-calc-sheet d6-b17-bottom-sheet d6-b17-expense-sheet ${mobilePagerEnabledM6A2 ? "m510-swipe-surface" : ""}`.trim(),
@@ -40972,8 +41050,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 React.createElement("div", { className: "travel-calc-body d6-b17-sheet-body" },
                     DetailContent(),
                     " "),
-                ExpenseFixedTotalW33(),
-                mobilePagerEnabledM6A2 && React.createElement(MobileContextNav, { mode: "expense" })))),
+                ExpenseFixedTotalW33()))),
         modalSt.type && (() => {
             var _a, _b, _c, _d;
             // 신안·완도 팝업은 지도형 미니맵을 호출하지 않고, 3열 마스코트 카드형으로만 표시한다.
@@ -45680,45 +45757,60 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
 </style>
 
 
-<style id="ybez-patch4o-mobile-fixed-nav-cyclic-swipe-20260826">
-/* Patch 4O · signed mobile-only finish
-   A) Fixed footer root-cause fix: stationary Mobile pager surfaces must not
-      establish a transform containing block via will-change:transform.
-      will-change is restored only while an M5.5 motion class is active.
-   B) Pager JS above is a 2-surface cyclic Home <-> Expense flow with one
-      rightward screen-motion direction. All non-Mobile modes remain frozen. */
+<style id="ybez-patch4p-mobile-persistent-footer-true-cyclic-swipe-20260826">
+/* Patch 4P · signed Real-Mobile-only finish
+   A) One body-level persistent footer outside Home/Expense surfaces.
+   B) Stationary pager surfaces do not retain will-change:transform.
+   C) Expense sheet reserves footer space so the fixed total remains visible above it.
+   Desktop / Compact / Tablet / Mini and all fare/route logic stay untouched. */
 @media(max-width:699px){
-  /* Real Mobile only. Mini / Compact / Tablet retain their existing layer rules. */
+  /* The portal footer is a direct body child: no scroll/transform ancestor can move it. */
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  body .dashboard.d51-mobile-shell > .col-center,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  body .travel-calc-sheet.d6-b17-expense-sheet{
-    will-change:auto!important;
-  }
-
-  /* Promote only during the 320ms pager animation. Once React clears the
-     motion class, the rule above returns fixed descendants to the viewport. */
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  body .dashboard.d51-mobile-shell > .col-center:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right),
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  body .travel-calc-overlay:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right) .travel-calc-sheet.d6-b17-expense-sheet{
-    will-change:transform!important;
-  }
-
-  /* Keep both four-button menus explicitly viewport-fixed after all legacy
-     Pager/B17 rules. Safe-area/content padding remains inherited from 4K. */
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  body .mobile-bottom-nav.m3-bottom-nav,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  body .d6-b17-expense-sheet > .m5-context-nav{
+  body > .mobile-persistent-footer4p{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
     position:fixed!important;
     left:0!important;
     right:0!important;
     bottom:0!important;
     top:auto!important;
-    width:100%!important;
+    width:100vw!important;
+    max-width:none!important;
+    margin:0!important;
     transform:none!important;
-    z-index:1200!important;
+    will-change:auto!important;
+    z-index:280!important;
+    pointer-events:auto!important;
+  }
+
+  /* Real Mobile has exactly one footer. Keep any legacy sheet-local nav inert if an
+     old state happens to materialize it during a transition. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .d6-b17-bottom-sheet > .m5-context-nav{
+    display:none!important;
+  }
+
+  /* Stop stationary Home/Expense surfaces from establishing a transform containing
+     block. Re-enable compositor promotion only for the 320ms moving surface. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-sheet.d6-b17-expense-sheet{
+    will-change:auto!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right),
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right) .travel-calc-sheet.d6-b17-expense-sheet{
+    will-change:transform!important;
+  }
+
+  /* Home already reserves footer space in 4K. Expense used to reserve it by keeping
+     its own context nav inside the sheet; now reserve the same space explicitly. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-sheet.d6-b17-expense-sheet{
+    padding-bottom:calc(var(--m3-nav-content-h,64px) + env(safe-area-inset-bottom,0px))!important;
+    box-sizing:border-box!important;
   }
 }
 </style>
