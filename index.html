@@ -26733,14 +26733,14 @@ const App = () => {
         revealMobilePagerHint(1500);
         return true;
     };
-    const finishMobileNavTransition = (fn) => {
+    const finishMobileNavTransition = (fn, duration = MOBILE_NAV_TRANSITION_MS) => {
         mobileNavTimerRef.current = setTimeout(() => {
             try { fn && fn(); }
             finally {
                 mobileNavTransitioningRef.current = false;
                 mobileNavTimerRef.current = null;
             }
-        }, MOBILE_NAV_TRANSITION_MS);
+        }, duration);
     };
     const clearMobilePagerMotion = () => {
         setMobileHomeMotion("");
@@ -26824,6 +26824,8 @@ const App = () => {
     // Patch 4P: Real Mobile is a true two-surface cyclic pager.
     // The gesture decides the physical motion direction; the destination is always
     // the opposite surface. This helper is Real-Mobile-only at its call sites.
+    // Patch 4R: cyclic Home/Expense motion gets a slightly slower 420ms cadence.
+    const MOBILE_CYCLIC_TRANSITION_MS_4R = 420;
     const mobileToggleSurface4P = (fromMode, direction = "left") => {
         const from = fromMode === "expense" ? "expense" : "home";
         if (from === "home" && !result) return;
@@ -26840,7 +26842,7 @@ const App = () => {
             setMobileHomeMotion(exitMotion);
             setMobileExpenseMotion(enterMotion);
             setShowDetail(true);
-            finishMobileNavTransition(() => clearMobilePagerMotion());
+            finishMobileNavTransition(() => clearMobilePagerMotion(), MOBILE_CYCLIC_TRANSITION_MS_4R);
             return;
         }
 
@@ -26849,7 +26851,7 @@ const App = () => {
         finishMobileNavTransition(() => {
             setShowDetail(false);
             clearMobilePagerMotion();
-        });
+        }, MOBILE_CYCLIC_TRANSITION_MS_4R);
     };
     // M5.10: 버튼 Pager의 순환 방향을 실제 터치 스와이프에도 그대로 사용한다.
     // touchmove에서 가로/세로 축을 먼저 판별하고, 가로 제스처만 앱이 받는다.
@@ -40152,8 +40154,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const onExpense = mobilePagerMode === "expense" || (showDetail && !mobileHomeMotion.includes("enter"));
         const toggleSurface = () => {
             closePopups();
-            if (onExpense) mobileToggleSurface4P("expense", "right");
-            else if (result) mobileToggleSurface4P("home", "right");
+            if (onExpense) mobileToggleSurface4P("expense", "left");
+            else if (result) mobileToggleSurface4P("home", "left");
         };
 
         const buttons = [
@@ -45811,6 +45813,51 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
   body .travel-calc-sheet.d6-b17-expense-sheet{
     padding-bottom:calc(var(--m3-nav-content-h,64px) + env(safe-area-inset-bottom,0px))!important;
     box-sizing:border-box!important;
+  }
+}
+</style>
+
+
+<style id="ybez-patch4r-mobile-left-swipe-button-420ms-seam-20260826">
+/* Patch 4R · signed Real-Mobile-only finish.
+   - Footer Home/Expense toggle reuses the exact finger-left swipe path.
+   - Only the Real-Mobile cyclic Home/Expense motion is lengthened to 420ms.
+   - A subtle 2px moving seam makes adjacent surfaces read as two panels.
+   Persistent Footer placement, swipe gesture decisions, route/fare logic and all non-Mobile modes stay untouched. */
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right),
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right) .travel-calc-sheet{
+    animation-duration:420ms!important;
+  }
+
+  /* Panel seam while moving left: outgoing right edge / incoming left edge. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center.m55-exit-left,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay.m55-exit-left .travel-calc-sheet{
+    box-shadow:2px 0 0 rgba(23,58,99,.15), 9px 0 16px rgba(23,58,99,.05)!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center.m55-enter-right,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay.m55-enter-right .travel-calc-sheet{
+    box-shadow:-2px 0 0 rgba(23,58,99,.15), -9px 0 16px rgba(23,58,99,.05)!important;
+  }
+
+  /* Preserve the same seam for the already-PASS opposite-direction swipe. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center.m55-exit-right,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay.m55-exit-right .travel-calc-sheet{
+    box-shadow:-2px 0 0 rgba(23,58,99,.15), -9px 0 16px rgba(23,58,99,.05)!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell > .col-center.m55-enter-left,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .travel-calc-overlay.m55-enter-left .travel-calc-sheet{
+    box-shadow:2px 0 0 rgba(23,58,99,.15), 9px 0 16px rgba(23,58,99,.05)!important;
   }
 }
 </style>
