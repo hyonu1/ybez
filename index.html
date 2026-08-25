@@ -39822,21 +39822,12 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             ["history", "히스토리", openHistory]
         ];
 
-        const mobileButtonsM6A2 = mode === "route"
-            ? [
-                ["expense", "여비계산", goExpense],
-                ["favorite", "즐겨찾기", openFavorite],
-                ["history", "히스토리", openHistory],
-                ["proof", "증빙", openProof],
-                ["home", "홈", goHome]
-            ]
-            : [
-                ["home", "홈", goHome],
-                ["favorite", "즐겨찾기", openFavorite],
-                ["history", "히스토리", openHistory],
-                ["proof", "증빙", openProof],
-                ["route", "경로정보", goRoute]
-            ];
+        const mobileButtonsM6A2 = [
+            ["favorite", "즐겨찾기", openFavorite],
+            ["history", "히스토리", openHistory],
+            ["proof", "증빙", openProof],
+            ["home", "홈", goHome]
+        ];
 
         const buttons = isDesktopMini
             ? miniButtons
@@ -39885,7 +39876,6 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         } else {
             buttons = mobilePagerEnabledM6A2
                 ? [
-                    ["route", "경로정보", () => { if (result) setMobileInlineRouteOpen4I(v => !v); }, !result],
                     ["favorite", "즐겨찾기", openFavorite, false],
                     ["history", "히스토리", openHistory, false],
                     ["proof", "증빙", openProof, false],
@@ -39905,7 +39895,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 key: `home-${type}`,
                 type: "button",
                 disabled,
-                className: `m3-nav-item nav-${type} ${type === "expense" ? "d6-b17-expense-cta" : ""} ${type === "route" && mobilePagerEnabledM6A2 && mobileInlineRouteOpen4I ? "active" : ""} ${type === "favorite" && showFav ? "active" : ""} ${type === "history" && showHist ? "active" : ""} ${type === "proof" && showProof ? "active" : ""}`,
+                className: `m3-nav-item nav-${type} ${type === "expense" ? "d6-b17-expense-cta" : ""} ${type === "favorite" && showFav ? "active" : ""} ${type === "history" && showHist ? "active" : ""} ${type === "proof" && showProof ? "active" : ""}`,
                 onClick: handler,
                 title: label
             },
@@ -40040,7 +40030,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     };
 
     const MobileInlineRoute4I = () => {
-        if (!mobilePagerEnabledM6A2 || !result || !mobileInlineRouteOpen4I) return null;
+        // Patch 4J: Real Mobile shows the proven route/map block automatically
+        // under the main result whenever a valid route result exists.
+        if (!mobilePagerEnabledM6A2 || !result) return null;
         return React.createElement("section", {
                 className: "ybez-final-mobile-route-inline",
                 "aria-label": "경로정보"
@@ -40484,15 +40476,20 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 useTabletExpenseUi
                     ? React.createElement("div", { className: "d6-w34-tablet-choice-only" },
                         React.createElement(MobileSelectionPanel, null))
-                    : React.createElement(React.Fragment, null,
-                        React.createElement("div", { className: "pc-choice-mascot-grid" },
-                            React.createElement("div", { className: "pc-choice-stack" },
-                                React.createElement(CenterGradeChoice, null),
-                                React.createElement("div", { className: "pc-access-selection" },
-                                    React.createElement(AccessCostDecisionCards, { compact: true }),
-                                    React.createElement(SameLivingDecisionCards, { compact: true }))),
-                            React.createElement(CenterMascotCard, null)),
-                        React.createElement(MobileSelectionPanel, null)),
+                    : isDesktopCompact
+                        ? React.createElement("div", { className: "compact-choice-mascot-row4j" },
+                            React.createElement("div", { className: "compact-choice-mobile-panel4j" },
+                                React.createElement(MobileSelectionPanel, null)),
+                            React.createElement(CenterMascotCard, null))
+                        : React.createElement(React.Fragment, null,
+                            React.createElement("div", { className: "pc-choice-mascot-grid" },
+                                React.createElement("div", { className: "pc-choice-stack" },
+                                    React.createElement(CenterGradeChoice, null),
+                                    React.createElement("div", { className: "pc-access-selection" },
+                                        React.createElement(AccessCostDecisionCards, { compact: true }),
+                                        React.createElement(SameLivingDecisionCards, { compact: true }))),
+                                React.createElement(CenterMascotCard, null)),
+                            React.createElement(MobileSelectionPanel, null)),
                 React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"} ${(calcSt === "error_scope" || statusMessages.length > 0) ? "status-tall" : ""} ${(calcSt === "working" || calcSt === "error_scope" || !!partialRouteNoticeText || statusMessages.length > 0) ? "mobile-status-important" : ""}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
@@ -45068,131 +45065,186 @@ html[data-ybez-ui-mode="mini"] .d31-mini-surface-switch:disabled{
   pointer-events:none!important;
 }
 
-/* D. Compact: use the existing Desktop center hierarchy already rendered in App,
-   but retain Compact's own pager/menu/window controls. */
+
+</style>
+
+<style id="ybez-patch4j-mobile-auto-route-compact-mascot-20260825">
+/* Patch 4J · Final UX polish
+   - Real Mobile: route/map auto-visible, 4-button fixed menu, structural terminal-header width fix.
+   - Compact: preserve original Compact UI; add only a 185px Desktop-style feathered mascot.
+   - Mini and all calculation/data logic remain untouched. */
+
+@media(max-width:699px){
+  /* Real Mobile only: 4-button footer on Home and Expense. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .m5-context-nav{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+
+  /* Main footer remains pinned to the actual viewport bottom. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100%!important;
+  }
+
+  /* Reserve exactly the footer height + iPhone safe-area.
+     The auto-expanded map/terminal block must be fully visible at scroll end. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .col-center{
+    padding-bottom:calc(var(--m3-nav-content-h,78px) + env(safe-area-inset-bottom,0px))!important;
+    scroll-padding-bottom:calc(var(--m3-nav-content-h,78px) + env(safe-area-inset-bottom,0px))!important;
+  }
+
+  /* Expense body gets the same bottom protection when its 4-button Home menu is visible. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet .travel-calc-body.d6-b17-sheet-body{
+    padding-bottom:calc(var(--m3-nav-content-h,78px) + env(safe-area-inset-bottom,0px))!important;
+    scroll-padding-bottom:calc(var(--m3-nav-content-h,78px) + env(safe-area-inset-bottom,0px))!important;
+  }
+
+  /* Mobile terminal information:
+     preserve the current blue header design but let it span the full section width.
+     Unlike failed 4H, the full-bleed is contained by the section's own border/radius. */
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .ybez-final-mobile-route-inline .vroute-terminal-section{
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:0 12px 12px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    border:1px solid #DCE4EC!important;
+    border-radius:12px!important;
+    background:#FFFFFF!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .ybez-final-mobile-route-inline .vroute-terminal-section .vroute-detail-title{
+    display:block!important;
+    width:calc(100% + 24px)!important;
+    max-width:none!important;
+    margin:0 -12px 8px!important;
+    padding:8px 12px!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+    border:0!important;
+    border-bottom:1px solid #C9DCEB!important;
+    border-radius:0!important;
+    background:#EAF3FB!important;
+    font-family:var(--gm)!important;
+    font-size:13px!important;
+    line-height:1.2!important;
+    font-weight:900!important;
+    color:#173A63!important;
+  }
+}
+
+/* Compact: keep the original mobile-style Compact layout.
+   Only the selection row gains the existing mascot component. */
 html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-choice-mascot-grid{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) 120px!important;
-  align-items:start!important;
-  gap:10px!important;
-  margin:8px 14px 8px!important;
-  padding:10px!important;
-  min-height:140px!important;
-  border:1px solid #D7E1EA!important;
-  border-radius:14px!important;
-  background:#FBFCFE!important;
-  box-shadow:0 2px 8px rgba(23,58,99,.035)!important;
-  box-sizing:border-box!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-choice-stack{
-  display:flex!important;
-  flex-direction:column!important;
-  gap:8px!important;
-  min-width:0!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-grade-wrap{
-  display:flex!important;
-  width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-grade-control{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  width:100%!important;
-  min-width:0!important;
-  gap:7px!important;
-  align-items:stretch!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-grade-option{
-  width:100%!important;
-  min-width:0!important;
-  height:56px!important;
-  padding:6px 7px!important;
-  border-radius:12px!important;
-  border:1.5px solid #DCE3EB!important;
-  background:#FFFFFF!important;
-  color:#65788B!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:3px!important;
-  font-family:var(--gm)!important;
-  box-sizing:border-box!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-grade-option.placeholder{
-  pointer-events:none!important;
-  opacity:.34!important;
-  background:#F1F4F7!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-choice-stack .pc-access-selection{
-  display:flex!important;
-  flex-direction:column!important;
-  gap:7px!important;
-  width:100%!important;
-  margin:0!important;
-  min-width:0!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-choice-stack .pc-access-selection .access-choice-wrap{
-  width:100%!important;
-  margin:0!important;
-  min-width:0!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-center-mascot-card{
-  display:flex!important;
-  width:120px!important;
-  height:120px!important;
-  min-width:120px!important;
-  max-width:120px!important;
-  min-height:120px!important;
-  max-height:120px!important;
-  margin:0!important;
-  padding:4px!important;
-  align-items:center!important;
-  justify-content:center!important;
-  border:1px solid #C9D6E3!important;
-  border-radius:12px!important;
-  background:#FFFFFF!important;
-  box-shadow:none!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-center-mascot-card .pc-center-mascot-stage,
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-center-mascot-card .mobile-rc-mascot-stage{
-  width:110px!important;
-  height:110px!important;
-  min-width:110px!important;
-  max-width:110px!important;
-  min-height:110px!important;
-  max-height:110px!important;
-  flex:0 0 110px!important;
-  border-radius:9px!important;
-  overflow:hidden!important;
-  -webkit-mask-image:none!important;
-  mask-image:none!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-center-mascot-card .mobile-rc-mascot-img{
-  inset:0!important;
-  width:110px!important;
-  height:110px!important;
-  max-width:110px!important;
-  max-height:110px!important;
-  padding:0!important;
-  object-fit:contain!important;
-  object-position:center bottom!important;
-  transform:none!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .mobile-selection-panel,
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .mobile-result-card{
   display:none!important;
 }
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .result-wrap{
-  display:block!important;
-}
-html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .status-bar{
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .mobile-selection-panel{
   display:flex!important;
 }
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .mobile-result-card{
+  display:block!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .result-wrap{
+  display:none!important;
+}
+
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .compact-choice-mascot-row4j{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 185px!important;
+  align-items:center!important;
+  gap:12px!important;
+  width:auto!important;
+  margin:8px 14px 8px!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .compact-choice-mobile-panel4j{
+  min-width:0!important;
+  width:100%!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mobile-panel4j > .mobile-selection-panel{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+}
+
+/* Compact mascot: Desktop D2-R2 visual treatment, scaled to 185px outer frame.
+   Image asset/color/composition is untouched; only CSS presentation changes. */
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j > .pc-center-mascot-card{
+  display:flex!important;
+  width:185px!important;
+  height:185px!important;
+  min-width:185px!important;
+  min-height:185px!important;
+  max-width:185px!important;
+  max-height:185px!important;
+  aspect-ratio:1/1!important;
+  margin:0!important;
+  padding:5px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid #DCE3EB!important;
+  border-radius:6px!important;
+  background:#F8FAFC!important;
+  box-shadow:0 4px 12px rgba(23,58,99,.085)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-stage,
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-stage{
+  width:175px!important;
+  height:175px!important;
+  min-width:175px!important;
+  min-height:175px!important;
+  max-width:175px!important;
+  max-height:175px!important;
+  flex:0 0 175px!important;
+  aspect-ratio:1/1!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+  background:#F8FAFC!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-stage{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 7px,#000 calc(100% - 7px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 7px,#000 calc(100% - 7px),transparent 100%)!important;
+  -webkit-mask-composite:source-in!important;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 7px,#000 calc(100% - 7px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 7px,#000 calc(100% - 7px),transparent 100%)!important;
+  mask-composite:intersect!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-img{
+  inset:0!important;
+  width:175px!important;
+  height:175px!important;
+  min-width:175px!important;
+  min-height:175px!important;
+  max-width:175px!important;
+  max-height:175px!important;
+  padding:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+}
 </style>
+
 </body>
 </html>
