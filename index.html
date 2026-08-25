@@ -24267,6 +24267,20 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-inline{
   object-position:center center;
 }
 </style>
+
+<style id="ybez-patch4h-mobile-terminal-header-width-20260825">
+/* Patch 4H: Mobile 경로정보 > 터미널 정보 헤더의 좌우 돌출만 보정.
+   높이/색상/폰트/패딩/본문/금액/출처/지도/하단영역은 변경하지 않는다.
+   기존 full-bleed(±12px)보다 좌우 1px씩 안쪽으로 넣어 카드 내부 경계에 정확히 맞춘다. */
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d6-b17-route-sheet .vroute-terminal-section .vroute-detail-title{
+    width:calc(100% + 22px) !important;
+    margin:0 -11px 8px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
