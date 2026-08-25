@@ -40474,8 +40474,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 React.createElement("path", { d: "M8 4v15m0 0-4-4m4 4 4-4" }),
                                 React.createElement("path", { d: "M16 20V5m0 0-4 4m4-4 4 4" }))))),
                 useTabletExpenseUi
-                    ? React.createElement("div", { className: "d6-w34-tablet-choice-only" },
-                        React.createElement(MobileSelectionPanel, null))
+                    ? React.createElement("div", { className: "d6-w34-tablet-choice-only tablet-choice-mascot-row4k" },
+                        React.createElement("div", { className: "tablet-choice-panel4k" },
+                            React.createElement(MobileSelectionPanel, null)),
+                        React.createElement(CenterMascotCard, null))
                     : isDesktopCompact
                         ? React.createElement("div", { className: "compact-choice-mascot-row4j" },
                             React.createElement("div", { className: "compact-choice-mobile-panel4j" },
@@ -45243,6 +45245,208 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
   object-fit:contain!important;
   object-position:center center!important;
   transform:none!important;
+}
+</style>
+
+
+<style id="ybez-patch4k-compact-tablet-mascot-mobile-nav-status-20260825">
+/* Patch 4K · signed final UI-only finish
+   Scope: Compact mascot feather/frame, Tablet choice+mascot card/button rhythm,
+   real-Mobile fixed bottom menus, Desktop status vertical alignment.
+   No fare/routing/access-cost/calculation/state logic changes. */
+
+/* A. Compact — preserve the accepted 185px mascot/layout, but make the whole
+   choice+mascot area one Desktop-style framed card and tighten the feather. */
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .compact-choice-mascot-row4j{
+  border:1px solid #DCE3EB!important;
+  border-radius:12px!important;
+  background:#FFFFFF!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.055)!important;
+  padding:8px!important;
+  gap:10px!important;
+  margin:8px 14px!important;
+  overflow:hidden!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j > .pc-center-mascot-card{
+  padding:3px!important;
+  border-color:#D6E0E9!important;
+  background:#F8FAFC!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.07)!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-stage,
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-stage{
+  width:179px!important;height:179px!important;min-width:179px!important;min-height:179px!important;
+  max-width:179px!important;max-height:179px!important;flex:0 0 179px!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-stage{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%)!important;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%)!important;
+}
+html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
+.compact-choice-mascot-row4j .pc-center-mascot-card .mobile-rc-mascot-img{
+  width:179px!important;height:179px!important;min-width:179px!important;min-height:179px!important;
+  max-width:179px!important;max-height:179px!important;
+}
+
+/* B. Tablet — Desktop grammar only: one outer frame, conditional choices on the left,
+   mascot on the right.  Button heights are normalized to the route-chip grammar
+   (e.g. 의정부→동두천), rather than shrinking type or widening the panel. */
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 154px!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:auto!important;
+  min-width:0!important;
+  margin:8px 12px!important;
+  padding:8px!important;
+  border:1px solid #DCE3EB!important;
+  border-radius:12px!important;
+  background:#FFFFFF!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.055)!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k{
+  min-width:0!important;width:100%!important;align-self:center!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k > .mobile-selection-panel,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k > .mobile-selection-panel{
+  display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important;
+  margin:0!important;padding:0!important;gap:6px!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-narrow-choice-block + .ybez-narrow-choice-block,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-narrow-choice-block + .ybez-narrow-choice-block{
+  margin-top:6px!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip-grid,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip-grid,
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-grid,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-grid{
+  gap:6px!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-grid,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-grid{
+  margin-top:6px!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip,
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-btn,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-btn{
+  height:34px!important;min-height:34px!important;max-height:34px!important;
+  padding:0 8px!important;border-radius:9px!important;box-sizing:border-box!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip-label,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip-label{
+  font-size:11.5px!important;line-height:1.15!important;-webkit-line-clamp:1!important;line-clamp:1!important;
+  white-space:nowrap!important;text-overflow:ellipsis!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-btn,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-btn{
+  font-size:13.5px!important;
+}
+
+/* Tablet mascot: square height tracks the maximum two-block button rhythm without
+   forcing the buttons narrower.  Presentation follows Desktop with a tight feather. */
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k > .pc-center-mascot-card,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k > .pc-center-mascot-card{
+  display:flex!important;
+  width:154px!important;height:154px!important;min-width:154px!important;min-height:154px!important;
+  max-width:154px!important;max-height:154px!important;aspect-ratio:1/1!important;
+  margin:0!important;padding:3px!important;align-items:center!important;justify-content:center!important;
+  border:1px solid #D6E0E9!important;border-radius:7px!important;background:#F8FAFC!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.07)!important;overflow:hidden!important;box-sizing:border-box!important;
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-stage,
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-card .mobile-rc-mascot-stage,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-stage,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-card .mobile-rc-mascot-stage{
+  width:148px!important;height:148px!important;min-width:148px!important;min-height:148px!important;
+  max-width:148px!important;max-height:148px!important;flex:0 0 148px!important;aspect-ratio:1/1!important;
+  border-radius:0!important;overflow:hidden!important;background:#F8FAFC!important;
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-card .mobile-rc-mascot-stage,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-card .mobile-rc-mascot-stage{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%)!important;
+  -webkit-mask-composite:source-in!important;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 4px,#000 calc(100% - 4px),transparent 100%)!important;
+  mask-composite:intersect!important;
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-card .mobile-rc-mascot-img,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-card .mobile-rc-mascot-img{
+  inset:0!important;width:148px!important;height:148px!important;min-width:148px!important;min-height:148px!important;
+  max-width:148px!important;max-height:148px!important;padding:0!important;object-fit:contain!important;
+  object-position:center center!important;transform:none!important;
+}
+
+/* C. Real Mobile — both Home and Expense menus are true viewport-fixed footers.
+   4J already fixed Home; 4K also wins over M6A2's position:relative on Expense. */
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet > .m5-context-nav{
+    position:fixed!important;
+    left:0!important;right:0!important;bottom:0!important;top:auto!important;
+    width:100%!important;max-width:none!important;margin:0!important;
+    z-index:1200!important;box-sizing:border-box!important;
+    transform:none!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet > .m5-context-nav{
+    height:calc(var(--m3-nav-content-h,64px) + env(safe-area-inset-bottom,0px))!important;
+    min-height:calc(var(--m3-nav-content-h,64px) + env(safe-area-inset-bottom,0px))!important;
+    padding-bottom:env(safe-area-inset-bottom,0px)!important;
+    background:rgba(255,255,255,.98)!important;
+    border-top:1px solid rgba(23,58,99,.10)!important;
+    box-shadow:0 -5px 18px rgba(30,41,59,.09)!important;
+    backdrop-filter:blur(14px)!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .col-center,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet .travel-calc-body.d6-b17-sheet-body{
+    padding-bottom:calc(var(--m3-nav-content-h,64px) + env(safe-area-inset-bottom,0px) + 24px)!important;
+    scroll-padding-bottom:calc(var(--m3-nav-content-h,64px) + env(safe-area-inset-bottom,0px) + 24px)!important;
+  }
+}
+
+/* D. Desktop — keep the signed left rail, but vertically center both single-line
+   and multi-line notices with symmetric padding.  Message text/state is untouched. */
+@media(min-width:1500px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-bar{
+    display:flex!important;height:auto!important;min-height:36px!important;
+    padding-top:6px!important;padding-bottom:6px!important;
+    align-items:center!important;justify-content:flex-start!important;
+    line-height:1.35!important;box-sizing:border-box!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-bar.status-tall{
+    min-height:40px!important;padding-top:6px!important;padding-bottom:6px!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .status-message-stack{
+    align-self:center!important;justify-content:center!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell :is(.status-message,.status-message-line,.d443-initial-status){
+    line-height:1.35!important;
+  }
 }
 </style>
 
