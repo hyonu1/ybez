@@ -24139,7 +24139,7 @@ html body .input-region-tag.region-gangwon,html body .sug-region-tag.region-gang
   box-shadow:0 6px 16px rgba(18,56,95,.17),inset 0 0 0 2px rgba(255,255,255,.82),inset 0 -4px 10px rgba(27,87,124,.10)!important;
 }
 .ybez-route-map-svg-wrap svg{outline:none!important;border:0!important;box-shadow:none!important;}
-.ybez-route-map-svg-wrap svg path{fill:url(#ybezLandGradient)!important;stroke:#98B8A7!important;stroke-width:.72!important;}
+.ybez-route-map-svg-wrap svg path{fill:#D6EBCF!important;stroke:#98B8A7!important;stroke-width:.72!important;}
 /* 전남·광주 통합 표시: 원본 geometry/DB는 유지하고 지도에서 광주 내부 경계선만 숨긴다. */
 .ybez-route-map-svg-wrap svg path#광주광역시{stroke:none!important;}
 /* 어떠한 SVG overlay에도 debug/bbox 사각형이 표시되지 않도록 보호. */
@@ -24186,6 +24186,62 @@ html body .input-region-tag.region-gangwon,html body .sug-region-tag.region-gang
 .ybez-left-source-legend-fixed{column-gap:10px!important;row-gap:5px!important;}
 .ybez-left-source-legend-item{font-size:9.5px!important;}
 .ybez-left-source-legend-item:last-child{flex-basis:auto;}
+</style>
+
+<style id="ybez-2gen-final-intra-scope-ux">
+/* 2Gen FINAL: automatic local-within result highlights only the 관내 half; popup remains user-triggered. */
+.r108p6c-scope-toggle .mode-txt{position:relative;border-radius:999px;cursor:pointer;outline:none;}
+.r108p6c-scope-toggle .mode-txt:focus-visible{box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(201,125,32,.34);}
+@keyframes ybezIntraScopePulseFinal{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,125,32,0),0 0 0 rgba(201,125,32,0);background:transparent;}
+  50%{box-shadow:0 0 0 4px rgba(201,125,32,.20),0 0 14px rgba(201,125,32,.28);background:rgba(201,125,32,.07);}
+}
+.r108p6c-scope-toggle .r108final-intra-auto-pulse{animation:ybezIntraScopePulseFinal .62s ease-in-out 3;}
+@media (prefers-reduced-motion:reduce){.r108p6c-scope-toggle .r108final-intra-auto-pulse{animation:none;box-shadow:0 0 0 3px rgba(201,125,32,.18);}}
+</style>
+
+
+
+
+<style id="ybez-patch1b-tablet-popup-terminal-header-20260825">
+/* Patch 1B: Tablet route-info popup uses the same terminal-card grammar as Mini.
+   Scope is intentionally limited to the d6-b17 route sheet in Tablet/PiP. */
+html.ybez-desktop-tablet .d6-b17-route-sheet .vroute-terminal-section,
+html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-section{
+  margin:0 !important;
+  padding:0 12px 12px !important;
+  overflow:hidden !important;
+  background:#FFFFFF !important;
+  border:1px solid #DCE4EC !important;
+  border-radius:12px !important;
+  box-shadow:none !important;
+  box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .d6-b17-route-sheet .vroute-terminal-section .vroute-detail-title,
+html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-section .vroute-detail-title{
+  display:block !important;
+  width:calc(100% + 24px) !important;
+  margin:0 -12px 8px !important;
+  padding:8px 12px !important;
+  border:0 !important;
+  border-bottom:0 !important;
+  border-radius:0 !important;
+  box-sizing:border-box !important;
+  background:#EAF3FB !important;
+  font-family:var(--gm) !important;
+  font-size:13px !important;
+  line-height:1.2 !important;
+  font-weight:900 !important;
+  color:#173A63 !important;
+}
+html.ybez-desktop-tablet .d6-b17-route-sheet .vroute-terminal-details > summary,
+html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-details > summary{
+  display:none !important;
+}
+html.ybez-desktop-tablet .d6-b17-route-sheet .vroute-terminal-inline,
+html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-inline{
+  margin:0 !important;
+}
 </style>
 </head>
 <body>
@@ -24315,10 +24371,7 @@ function ybezRouteMapFitViewBox(points) {
 function ybezRouteMapBackgroundForViewBox(vb) {
     const b = (vb || YBEZ_ROUTE_MAP_INITIAL_VIEWBOX).map(Number);
     const vbText = b.join(" ");
-    const defs = `<defs><linearGradient id="ybezLandGradient" x1="0" y1="0" x2="0.88" y2="1"><stop offset="0%" stop-color="#EAF6DF"/><stop offset="55%" stop-color="#D6EBCF"/><stop offset="100%" stop-color="#C6E1C1"/></linearGradient></defs>`;
-    return YBEZ_KR_MAP_SVG
-        .replace(/viewBox="[^"]+"/, `viewBox="${vbText}"`)
-        .replace(/(<svg\b[^>]*>)/, `$1${defs}`);
+    return YBEZ_KR_MAP_SVG.replace(/viewBox="[^"]+"/, `viewBox="${vbText}"`);
 }
 const YBEZ_ROUTE_MAP_REGION_LABELS = Object.freeze([
     { name:"서울특별시", x:259.26, y:144.59 },
@@ -24360,70 +24413,172 @@ function ybezRouteMapPercentPoint(p, viewBox) {
         top: Math.max(1.5, Math.min(98.5, ((Number(p.y) - y0) / vh) * 100))
     };
 }
-function ybezRouteMapLayoutLabels(points, viewBox) {
+function ybezRouteMapLayoutLabels(points, viewBox, segments = []) {
     const src = Array.isArray(points) ? points : [];
-    const pp = src.map(p => ({ ...p, ...ybezRouteMapPercentPoint(p, viewBox) }));
-    const placed = [];
-    const overlaps = (a,b) => !(a.r < b.l || a.l > b.r || a.b < b.t || a.t > b.b);
+    let pp = src.map(p => ({ ...p, ...ybezRouteMapPercentPoint(p, viewBox) }));
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const unit = (dx,dy) => {
         const d = Math.hypot(dx,dy) || 1;
         return { x:dx/d, y:dy/d };
     };
+    const rotate = (v, deg) => {
+        const r = deg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+        return { x:v.x*c-v.y*s, y:v.x*s+v.y*c };
+    };
+    const overlaps = (a,b) => !(a.r < b.l || a.l > b.r || a.b < b.t || a.t > b.b);
+    const pointInBox = (x, y, b, pad = 0) => x >= b.l-pad && x <= b.r+pad && y >= b.t-pad && y <= b.b+pad;
+    const segmentHitsBox = (a, b, box, pad = .55) => {
+        const l = box.l-pad, r = box.r+pad, t = box.t-pad, bot = box.b+pad;
+        if (Math.max(a.x,b.x) < l || Math.min(a.x,b.x) > r || Math.max(a.y,b.y) < t || Math.min(a.y,b.y) > bot) return false;
+        if (pointInBox(a.x,a.y,box,pad) || pointInBox(b.x,b.y,box,pad)) return true;
+        const dx = b.x-a.x, dy = b.y-a.y;
+        let t0 = 0, t1 = 1;
+        const clip = (p,q) => {
+            if (Math.abs(p) < 1e-9) return q >= 0;
+            const u = q/p;
+            if (p < 0) { if (u > t1) return false; if (u > t0) t0 = u; }
+            else { if (u < t0) return false; if (u < t1) t1 = u; }
+            return true;
+        };
+        return clip(-dx, a.x-l) && clip(dx, r-a.x) && clip(-dy, a.y-t) && clip(dy, bot-a.y) && t0 <= t1;
+    };
+
+    /* Patch 3 display-only rule:
+       Chilgok LV5 labels that reuse the Daegu metro anchor must remain a separate
+       visible point.  Do not alter route data/fees/anchors; only separate the
+       rendered point when it would otherwise collapse onto adjacent Daegu LV4. */
+    pp = pp.map((p, idx, arr) => {
+        if (!/\(칠곡\)/.test(String(p.name || ""))) return p;
+        const nearDaegu = [idx-1, idx+1]
+            .filter(i => i >= 0 && i < arr.length)
+            .map(i => arr[i])
+            .find(q => /^대구$/.test(String(q.name || "")) || /동대구/.test(String(q.name || "")));
+        if (!nearDaegu) return p;
+        const d = Math.hypot(p.left-nearDaegu.left, p.top-nearDaegu.top);
+        if (d >= 4.5) return p;
+        let dir = unit(p.left-nearDaegu.left, p.top-nearDaegu.top);
+        if (d < .8) dir = unit(-.72, -.69); // north-west display separation, matching Chilgok relation to Daegu
+        const sep = 6.4;
+        return {
+            ...p,
+            left:clamp(nearDaegu.left + dir.x*sep, 2.2, 97.8),
+            top:clamp(nearDaegu.top + dir.y*sep, 2.2, 97.8),
+            ybezDisplaySeparated:true
+        };
+    });
+
+    const pointByName = new Map(pp.map(p => [p.name, p]));
+    const routeLines = (Array.isArray(segments) ? segments : []).map(s => {
+        const a = pointByName.get(s && s.a && s.a.name);
+        const b = pointByName.get(s && s.b && s.b.name);
+        if (!a || !b) return null;
+        return { a:{x:a.left,y:a.top}, b:{x:b.left,y:b.top} };
+    }).filter(Boolean);
+    const placed = [];
     const tangentAt = (idx) => {
         if (pp.length <= 1) return { x:1, y:0 };
         if (idx === 0) return unit(pp[1].left-pp[0].left, pp[1].top-pp[0].top);
         if (idx === pp.length-1) return unit(pp[idx].left-pp[idx-1].left, pp[idx].top-pp[idx-1].top);
         const a = unit(pp[idx].left-pp[idx-1].left, pp[idx].top-pp[idx-1].top);
         const b = unit(pp[idx+1].left-pp[idx].left, pp[idx+1].top-pp[idx].top);
-        const mix = unit(a.x+b.x, a.y+b.y);
-        if (Math.hypot(a.x+b.x,a.y+b.y) < .15) return b;
-        return mix;
+        const mixRaw = { x:a.x+b.x, y:a.y+b.y };
+        if (Math.hypot(mixRaw.x,mixRaw.y) < .15) return b;
+        return unit(mixRaw.x,mixRaw.y);
     };
     return pp.map((p, idx) => {
         const tangent = tangentAt(idx);
-        // perpendicular normal. For each route point, alternate the visual side.
-        let n = { x:-tangent.y, y:tangent.x };
-        const parity = idx % 2; // 0 = upper/first side, 1 = lower/opposite side
-        if (Math.abs(n.y) >= .28) {
-            const wantedY = parity === 0 ? -1 : 1;
-            if (Math.sign(n.y || 1) !== wantedY) n = { x:-n.x, y:-n.y };
-        } else {
-            const wantedX = parity === 0 ? -1 : 1;
-            if (Math.sign(n.x || 1) !== wantedX) n = { x:-n.x, y:-n.y };
-        }
+
+        /* Patch 4B display-only rule:
+           - The fitted map frame (the same 0..100 viewport produced from viewBox fitting)
+             is the geometric reference for label direction.
+           - From the local route tangent, make the two exact perpendicular normals.
+           - Prefer the normal whose ray reaches the fitted-frame edge sooner.
+           - If that side cannot keep the label inside the viewport, use the opposite normal.
+           - On collision, do not rotate or scatter the label: extend only along that same
+             perpendicular axis until the nearest valid rectangle is found.
+           No city-specific left/right exception is introduced here. */
+        const nA = { x:-tangent.y, y:tangent.x };
+        const nB = { x:-nA.x, y:-nA.y };
+        const FRAME_MIN = 1.2, FRAME_MAX = 98.8;
+        const rayToFrameDistance = (normal) => {
+            const eps = 1e-9, hits = [];
+            if (normal.x > eps) hits.push((FRAME_MAX - p.left) / normal.x);
+            else if (normal.x < -eps) hits.push((FRAME_MIN - p.left) / normal.x);
+            if (normal.y > eps) hits.push((FRAME_MAX - p.top) / normal.y);
+            else if (normal.y < -eps) hits.push((FRAME_MIN - p.top) / normal.y);
+            const positive = hits.filter(v => Number.isFinite(v) && v >= 0);
+            return positive.length ? Math.min(...positive) : Number.POSITIVE_INFINITY;
+        };
+
         const estW = Math.min(30, Math.max(10, 5.8 + String(p.name || "").length * 2.35));
         const estH = 6.5;
         const candidateFor = (normal, dist) => {
             const cx = p.left + normal.x * dist;
             const cy = p.top + normal.y * dist;
             const box = { l:cx-estW/2, r:cx+estW/2, t:cy-estH/2, b:cy+estH/2 };
-            const out = box.l < 1.2 || box.r > 98.8 || box.t < 1.2 || box.b > 98.8;
-            const hit = placed.some(pb => overlaps(box,pb));
-            return { cx, cy, box, out, hit, dist };
+            const out = box.l < FRAME_MIN || box.r > FRAME_MAX || box.t < FRAME_MIN || box.b > FRAME_MAX;
+            const labelHit = placed.some(pb => overlaps(box,pb));
+            const routeHit = routeLines.some(seg => segmentHitsBox(seg.a, seg.b, box));
+            const markerHit = pp.some(q => pointInBox(q.left, q.top, box, .8));
+            return { cx, cy, box, out, labelHit, routeHit, markerHit, dist, normal };
         };
-        let chosen = null;
-        // SIGN rule: first extend on the alternating perpendicular side; flip only if needed.
-        for (const dist of [9.5, 12.5, 15.5]) {
-            const c = candidateFor(n, dist);
-            if (!c.out && !c.hit) { chosen = c; break; }
-        }
-        if (!chosen) {
-            const flipped = { x:-n.x, y:-n.y };
-            for (const dist of [9.5, 12.5, 15.5]) {
-                const c = candidateFor(flipped, dist);
-                if (!c.out && !c.hit) { chosen = c; break; }
+        const valid = c => !c.out && !c.labelHit && !c.routeHit && !c.markerHit;
+        const conflictPenalty = c =>
+            (c.out ? 1000 : 0) + (c.routeHit ? 200 : 0) + (c.labelHit ? 80 : 0) + (c.markerHit ? 80 : 0) + c.dist;
+
+        const distA = rayToFrameDistance(nA);
+        const distB = rayToFrameDistance(nB);
+        let primary = distA <= distB ? nA : nB;
+        let secondary = primary === nA ? nB : nA;
+
+        // Near-tie only: keep the fitted-frame rule, but use the less-conflicted rectangle
+        // as a deterministic geometry-only tie breaker.
+        if (Math.abs(distA - distB) < .75) {
+            const a0 = candidateFor(nA, 9.0);
+            const b0 = candidateFor(nB, 9.0);
+            if (conflictPenalty(b0) < conflictPenalty(a0)) {
+                primary = nB;
+                secondary = nA;
             }
         }
+
+        const distances = [9.0, 11.5, 14.0, 16.5, 19.0, 21.5, 24.0, 26.5];
+        const searchAlong = (normal) => {
+            for (const dist of distances) {
+                const c = candidateFor(normal, dist);
+                // Once the rectangle has crossed the fitted viewport boundary,
+                // farther candidates on the same outward ray cannot come back inside.
+                if (c.out) break;
+                if (valid(c)) return c;
+            }
+            return null;
+        };
+
+        // First use the closer fitted-frame side; collision expansion stays on that
+        // exact perpendicular ray.  Only viewport exhaustion/failure permits the opposite side.
+        let chosen = searchAlong(primary);
+        if (!chosen) chosen = searchAlong(secondary);
+
         if (!chosen) {
-            const c = candidateFor(n, 12.5);
+            // Defensive fallback remains axis-only: no angular deviations and no city exceptions.
+            // Choose the least-conflicting in-bounds rectangle from the two perpendicular rays.
+            const pool = [];
+            for (const normal of [primary, secondary]) {
+                for (const dist of distances) {
+                    const c = candidateFor(normal, dist);
+                    if (!c.out) pool.push(c);
+                }
+            }
+            pool.sort((a,b) => conflictPenalty(a) - conflictPenalty(b));
+            const c = pool[0] || candidateFor(secondary, 9.0);
             chosen = {
                 ...c,
-                cx:clamp(c.cx, 1.2+estW/2, 98.8-estW/2),
-                cy:clamp(c.cy, 1.2+estH/2, 98.8-estH/2)
+                cx:clamp(c.cx, FRAME_MIN+estW/2, FRAME_MAX-estW/2),
+                cy:clamp(c.cy, FRAME_MIN+estH/2, FRAME_MAX-estH/2)
             };
             chosen.box = { l:chosen.cx-estW/2, r:chosen.cx+estW/2, t:chosen.cy-estH/2, b:chosen.cy+estH/2 };
         }
+
         placed.push(chosen.box);
         return {
             ...p,
@@ -24431,7 +24586,8 @@ function ybezRouteMapLayoutLabels(points, viewBox) {
             pointTop:p.top,
             labelLeft:chosen.cx,
             labelTop:chosen.cy,
-            layoutIndex:idx
+            layoutIndex:idx,
+            ybezLabelLayout:"fit-frame-perpendicular"
         };
     });
 }
@@ -24440,7 +24596,7 @@ const RouteMapPanel = (model = null) => {
     const bgSvg = ybezRouteMapBackgroundForViewBox(viewBox);
     const points = model && Array.isArray(model.points) ? model.points : [];
     const segments = model && Array.isArray(model.segments) ? model.segments : [];
-    const labels = ybezRouteMapLayoutLabels(points, viewBox);
+    const labels = ybezRouteMapLayoutLabels(points, viewBox, segments);
     const percentByName = new Map(labels.map(p => [p.name, p]));
     const routeSegments = segments.map((s, i) => {
         const a = percentByName.get(s.a.name) || { ...s.a, ...ybezRouteMapPercentPoint(s.a, viewBox) };
@@ -24780,6 +24936,10 @@ const CANON_CITY_NODE_SUPPLEMENTS = Object.freeze({
     "평택": ["NODE_0033"],
     "인천": ["NODE_0038"],
     "담양": ["NODE_0176"],
+    // Patch 4A: 영동/무주 대표 canonical node 고정.
+    // 원본 alias/nodes/routes는 수정하지 않고 런타임 후보만 정합화한다.
+    "영동": ["NODE_0390"],
+    "무주": ["NODE_0556"],
     "사천": ["NODE_0501", "NODE_0502"],
     "화성": ["NODE_0263"], "향남": ["NODE_0263"], "동탄": ["NODE_0262"],
     "병점": ["NODE_0037"], "양평": ["NODE_0231"], "경기광주": ["NODE_0213"]
@@ -24797,13 +24957,21 @@ const R5J_CANONICAL_PRIMARY = Object.freeze({
     "광주": "NODE_0053",
     "천안": "NODE_0112",
     "청주": null,
-    "강릉": "NODE_0061"
+    "강릉": "NODE_0061",
+    // Patch 4A: 보옥영의 서울 NODE_0002 오염을 런타임 canonical 층에서 차단한다.
+    "영동": "NODE_0390",
+    // Patch 4A: 무주 대표는 무주공용버스터미널이다.
+    "무주": "NODE_0556"
 });
 const R5J_CANONICAL_BLOCKED = Object.freeze({
     "광주": Object.freeze(["NODE_0052", "NODE_0213"]),
     "천안": Object.freeze(["NODE_0028"]),
     "청주": Object.freeze(["NODE_0044"]),
-    "강릉": Object.freeze(["NODE_0065"])
+    "강릉": Object.freeze(["NODE_0065"]),
+    // 영동 검색에서 서울고속(NODE_0002)·황간(NODE_0079)을 대표 후보로 사용하지 않는다.
+    "영동": Object.freeze(["NODE_0002", "NODE_0079"]),
+    // 무주 검색은 무주공용만 대표로 사용. 리조트/설천/무주안성은 개별 검색 identity로 남긴다.
+    "무주": Object.freeze(["NODE_0557", "NODE_0558", "NODE_0559"])
 });
 const r5jFilterCanonicalNodes = (city, ids) => {
     const blocked = new Set(R5J_CANONICAL_BLOCKED[city] || []);
@@ -24928,6 +25096,9 @@ const MAP_ANCHOR = {
     "진안": { name: "진안", lat: 35.79211002, lng: 127.43096460 }, // 진안터미널
     "계룡": { name: "계룡", lat: 36.27252310, lng: 127.25289440 }, // 계룡정류소
     "옥천": { name: "옥천", lat: 36.30700525, lng: 127.56429460 }, // 옥천시외버스정류소
+    // Patch 4A: alias main_node 오염과 무관하게 실제 대표터미널 좌표를 지도에 사용한다.
+    "영동": { name: "영동", lat: 36.17541633, lng: 127.77597340 }, // NODE_0390 영동시장(표시명: 영동시외버스터미널)
+    "무주": { name: "무주", lat: 36.00469974, lng: 127.66436630 }, // NODE_0556 무주공용버스터미널
     "고성(강원)": { name: "고성(강원)", lat: 38.37913723, lng: 128.47242350 }, // 간성터미널
     "철원": { name: "철원", lat: 38.14539682, lng: 127.30814680 }, // 신철원터미널
     "달성": { name: "달성", lat: 35.69643508, lng: 128.44087950 }, // 현풍공영버스정류장
@@ -25070,6 +25241,43 @@ const SAME_AREA = [
     new Set(["압해", "자은", "팔금", "암태", "안좌", "임자", "지도", "증도"]),
     new Set(["군외", "완도", "고금", "약산", "신지"]),
 ];
+/* ── 2Gen FINAL Patch 2: 전체 관내출장 endpoint 전용 판정 ───────────
+   - 기존 SAME_AREA/result.sameArea는 접근비용·구간 [관내] 0원용으로 보존한다.
+   - 전체 출장 관내 여부는 최초 출발지와 최종 도착지만 본다. 경유지는 사용하지 않는다.
+   - 전남광주 육지는 동일 실제 행정단위, 신안·완도는 확정된 작은 생활권만 관내로 본다.
+   - 관외 endpoint에서 사용자가 관내 버튼을 눌러도 계산 상태는 관외를 유지하고 참고 팝업만 연다. */
+const YBEZ_INTRA_SINAN_GROUPS = Object.freeze([
+    Object.freeze(["지도", "증도", "임자"]),
+    Object.freeze(["압해", "암태", "자은", "팔금", "안좌"]),
+    Object.freeze(["비금", "도초"]),
+    Object.freeze(["하의", "신의"]),
+    Object.freeze(["장산"]), Object.freeze(["흑산"]), Object.freeze(["홍도"]),
+    Object.freeze(["가거도"]), Object.freeze(["만재도"])
+]);
+const YBEZ_INTRA_WANDO_GROUPS = Object.freeze([
+    Object.freeze(["완도", "군외", "신지", "고금", "약산"]),
+    Object.freeze(["노화", "보길"]),
+    Object.freeze(["소안"]), Object.freeze(["청산"]), Object.freeze(["여서", "여서도"]),
+    Object.freeze(["금일"]), Object.freeze(["생일"]), Object.freeze(["금당"])
+]);
+const ybezIntraGroupKey = (rawName) => {
+    const n = nz(rawName);
+    if (!n) return "";
+    for (let i = 0; i < YBEZ_INTRA_SINAN_GROUPS.length; i++)
+        if (YBEZ_INTRA_SINAN_GROUPS[i].includes(n)) return `sinan:${i}`;
+    for (let i = 0; i < YBEZ_INTRA_WANDO_GROUPS.length; i++)
+        if (YBEZ_INTRA_WANDO_GROUPS[i].includes(n)) return `wando:${i}`;
+    // 신안교육청은 기존 ISLAND_DB에서도 목포 관내로 명시되어 있으므로 실제 소재 행정단위(목포)로 본다.
+    const mainlandRaw = n === "신안교육청" ? "목포" : (n === "남악" ? "무안" : n);
+    const main = normalizeCity(mainlandRaw);
+    if (!JEONNAM_GWANGJU_MAIN_NAMES.has(main) || main === "신안" || main === "완도") return "";
+    return `jg:${main}`;
+};
+const ybezIsEndpointIntraTrip = (originName, destName) => {
+    const a = ybezIntraGroupKey(originName);
+    const b = ybezIntraGroupKey(destName);
+    return !!a && a === b;
+};
 /* ── R10.8P6D: 신안·완도 LV5 내부 ordered-path 특수규칙 ──────────────
    - 같은 군 내부는 LV5↔LV5 연결을 LV4보다 우선한다.
    - 메인경로(pathAB)와 세부 비용행(legsAB)을 별도로 보관하고 둘 다 실제 이동순서를 보존한다.
@@ -25676,6 +25884,11 @@ const App = () => {
     const mobileAutoOpenedKeyRef = useRef("");
     const [intraCityOpen, setIntraCityOpen] = useState(false);
     const [travelScopeMode, setTravelScopeMode] = useState("extra"); // R10.8P6C 관외/관내 토글, 팝업과 독립
+    // 2Gen FINAL: 자동 관내 판정은 팝업을 열지 않고 토글만 잠깐 강조한다.
+    const [intraScopePulse, setIntraScopePulse] = useState(false);
+    const [intraScopePulseSeq, setIntraScopePulseSeq] = useState(0);
+    const intraScopePulseTimerRef = useRef(null);
+    const intraScopePulseRouteRef = useRef("");
     const [activeModal, setActiveModal] = useState(null);
     // R5-K3B: 감액팝업은 핵심 입력만 기본 노출하고 증빙·근거는 필요할 때만 펼친다.
     const [dedAccordionOpen, setDedAccordionOpen] = useState({ daily: false, transport: false, meal: false });
@@ -26566,14 +26779,52 @@ const App = () => {
         // FREEZE-20260821: 출발지/도착지가 실제로 바뀌는 새 여정은 항상 제2호에서 시작한다.
         if (endpointChanged) setTravelExpenseClass(2);
     }, [origin, via, dest]);
-    // R10.8P6C: 자동 관내 판정은 태그/토글에만 반영하고 관내여비 팝업은 자동으로 열지 않는다.
+    // 2Gen FINAL Patch 2: 자동 관내는 result.sameArea가 아니라 최초 출발지↔최종 도착지 전용 규칙으로만 판정한다.
+    // 경유지와 접근비용 구간의 [관내] 0원은 전체 출장 토글/여비 계산에 영향을 주지 않는다.
     useEffect(() => {
-        if (!result) { setTravelScopeMode("extra"); return; }
-        const localByResult = result.r108p6InternalMode === "LOCAL_WITHIN"
-            || (result.ybezAccessPlan && result.ybezAccessPlan.mode === "LOCAL_WITHIN")
-            || !!result.sameArea;
-        setTravelScopeMode(localByResult ? "intra" : "extra");
-    }, [result]);
+        if (intraScopePulseTimerRef.current) {
+            clearTimeout(intraScopePulseTimerRef.current);
+            intraScopePulseTimerRef.current = null;
+        }
+        const routeKey = `${nz(origin)}|${nz(dest)}`;
+        const endpointIntra = !!result && ybezIsEndpointIntraTrip(origin, dest);
+        setTravelScopeMode(endpointIntra ? "intra" : "extra");
+        if (endpointIntra) {
+            if (routeKey && intraScopePulseRouteRef.current !== routeKey) {
+                intraScopePulseRouteRef.current = routeKey;
+                setIntraScopePulseSeq(v => v + 1);
+                setIntraScopePulse(true);
+                intraScopePulseTimerRef.current = setTimeout(() => {
+                    setIntraScopePulse(false);
+                    intraScopePulseTimerRef.current = null;
+                }, 1900);
+            }
+        } else {
+            intraScopePulseRouteRef.current = routeKey;
+            setIntraScopePulse(false);
+        }
+    }, [result, origin, dest]);
+    useEffect(() => () => {
+        if (intraScopePulseTimerRef.current) clearTimeout(intraScopePulseTimerRef.current);
+    }, []);
+    const selectTravelScopeExtra = useCallback(() => {
+        if (intraScopePulseTimerRef.current) {
+            clearTimeout(intraScopePulseTimerRef.current);
+            intraScopePulseTimerRef.current = null;
+        }
+        setIntraScopePulse(false);
+        setTravelScopeMode("extra");
+    }, []);
+    const selectTravelScopeIntra = useCallback(() => {
+        if (intraScopePulseTimerRef.current) {
+            clearTimeout(intraScopePulseTimerRef.current);
+            intraScopePulseTimerRef.current = null;
+        }
+        setIntraScopePulse(false);
+        // 실제 endpoint 관내일 때만 계산 mode를 intra로 유지한다. 관외 endpoint에서는 참고 팝업만 연다.
+        setTravelScopeMode(result && ybezIsEndpointIntraTrip(origin, dest) ? "intra" : "extra");
+        setIntraCityOpen(true);
+    }, [result, origin, dest]);
     // D6-W3: Desktop / Mini / Tablet을 하나의 React 상태로 관리한다.
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -27817,9 +28068,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         return () => { cancelled = true; };
     }, []);
     /* ── 노드명 추적기 ── */
+    // Patch 4A: 계산용 node identity는 유지하되 사용자 표시명만 정리한다.
+    const RUNTIME_NODE_DISPLAY_OVERRIDES = Object.freeze({
+        "NODE_0390": "영동시외버스터미널"
+    });
     const getNodeName = useCallback((nid, fallbackCity) => {
         if (!nid)
             return fallbackCity || "";
+        if (RUNTIME_NODE_DISPLAY_OVERRIDES[nid])
+            return RUNTIME_NODE_DISPLAY_OVERRIDES[nid];
         const n = nodesMap === null || nodesMap === void 0 ? void 0 : nodesMap[nid];
         if (n === null || n === void 0 ? void 0 : n.display_name)
             return n.display_name;
@@ -28029,8 +28286,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         });
         return idx;
     }, [nodesMap]);
+    // Patch 4A: 운영사 alias보다 확정 대표터미널을 우선한다.
+    const EXACT_TERMINAL_NODE_OVERRIDES = Object.freeze({
+        "영동": Object.freeze(["NODE_0390"]),
+        "영동시외버스터미널": Object.freeze(["NODE_0390"]),
+        "무주": Object.freeze(["NODE_0556"]),
+        "무주공용버스터미널": Object.freeze(["NODE_0556"])
+    });
     const exactTerminalNodeIds = useCallback((rawName) => {
-        const key = String(nz(rawName)).replace(/\s/g, "").toLowerCase();
+        const raw = nz(rawName);
+        if (EXACT_TERMINAL_NODE_OVERRIDES[raw])
+            return [...EXACT_TERMINAL_NODE_OVERRIDES[raw]];
+        const key = String(raw).replace(/\s/g, "").toLowerCase();
         return key && exactTerminalNodeIndex[key] ? exactTerminalNodeIndex[key] : [];
     }, [exactTerminalNodeIndex]);
     const exactTerminalFareCache = useMemo(() => new Map(), [routesDB, nodesMap, grade]);
@@ -35326,7 +35593,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (!hasIslandSpecialEndpoint) {
             for (const g of SAME_AREA)
                 if (g.has(from) && g.has(to)) {
-                    setIntraCityOpen(true);
+                    // Patch 2: SAME_AREA는 구간/접근비용용 레거시 규칙일 뿐 전체 관내출장 토글 근거로 사용하지 않는다.
                     setCalcSt("idle");
                     return;
                 }
@@ -36822,12 +37089,24 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const dailyDeduction = trainingMultiCalcActive ? Math.min(trainingDailyBeforeVehicle, trainingVehicleDailyDeduction) : 12500 * vehicleDaysApplied;
         const transportDeduction = Math.max(0, transportGross - transport);
         const deductionTotal = dailyDeduction + mealDeduction + transportDeduction;
+        // 2Gen FINAL close: 관내출장은 여비계산에서 교통비 0원 · 일비 20,000원 · 식비 0원.
+        // 관외출장의 일부 LOCAL_WITHIN 접근구간은 travelScopeMode를 intra로 바꾸지 않으므로 이 분기에 들어오지 않는다.
+        if (travelScopeMode === "intra") {
+            const intraDaily = 20000;
+            const intraMeal = 0;
+            const intraTransport = 0;
+            return {
+                daily: intraDaily, meal: intraMeal, lodging, transport: intraTransport, etc, otherLodging,
+                mealGross: 0, mealDeduction: 0, dailyDeduction: 0, transportDeduction: 0, deductionTotal: 0,
+                total: intraDaily + lodging + etc + otherLodging
+            };
+        }
         return {
             daily, meal, lodging, transport, etc, otherLodging,
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
             total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier]);
+    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier, travelScopeMode]);
     const dailyDeductionLabel = detailCost.dailyDeduction > 0 ? `-${fmt(detailCost.dailyDeduction)}원` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
@@ -39842,10 +40121,21 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 6 } },
                         React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 23, fontWeight: 900, color: "var(--blue)" } }, "여비이지 2nd")),
                     React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
-                React.createElement("div", { className: "mode-wrap r108p6c-scope-toggle", onClick: () => setTravelScopeMode(v => v === "intra" ? "extra" : "intra"), role: "switch", "aria-checked": travelScopeMode === "intra", title: "관외 / 관내" },
+                React.createElement("div", { className: "mode-wrap r108p6c-scope-toggle", role: "group", "aria-label": "관외 / 관내" },
                     React.createElement("div", { className: `mode-knob ${travelScopeMode}` }),
-                    React.createElement("div", { className: `mode-txt ${travelScopeMode === "extra" ? "on" : "off"}` }, "관외"),
-                    React.createElement("div", { className: `mode-txt ${travelScopeMode === "intra" ? "on" : "off"}` }, "관내"))),
+                    React.createElement("div", {
+                        className: `mode-txt ${travelScopeMode === "extra" ? "on" : "off"}`,
+                        role: "button", tabIndex: 0, "aria-pressed": travelScopeMode === "extra",
+                        onClick: selectTravelScopeExtra,
+                        onKeyDown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectTravelScopeExtra(); } }
+                    }, "관외"),
+                    React.createElement("div", {
+                        key: `intra-scope-${intraScopePulseSeq}`,
+                        className: `mode-txt ${travelScopeMode === "intra" ? "on" : "off"} ${intraScopePulse && travelScopeMode === "intra" ? "r108final-intra-auto-pulse" : ""}`.trim(),
+                        role: "button", tabIndex: 0, "aria-pressed": travelScopeMode === "intra",
+                        onClick: selectTravelScopeIntra,
+                        onKeyDown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectTravelScopeIntra(); } }
+                    }, "관내"))),
             React.createElement("div", { className: "search-wrap", style: { display: "flex", flexDirection: "column", gap: 8 } },
                 React.createElement("div", { className: `search-inputs-row d2-route-editor ${showVia ? "has-via" : "no-via"}` },
                     React.createElement("div", { className: "d2-route-row d2-route-origin" },
@@ -44387,5 +44677,35 @@ html body .r104-final-top-scope.deduction-modal .transport-proof-principle{
 <!-- R10.8A-Z2 20260823: endpoint forced-zero same-living shown as final-result tag only -->
 <!-- R10.8A-Z3 20260823: one-segment mirror JOINT dedup; first generated plan wins -->
 <!-- R10.8A-Z4 20260823: Mokpo-Namak only same-living + runtime search-list hard lock -->
+<style id="ybez-2gen-final-patch1-map-solid-tablet-header-20260825">
+/* 2Gen FINAL Patch 1 — signed visual scope only.
+   A) Route-map land fill is now owned by the SVG background layer itself (#D6EBCF),
+      so no mode/document selector or duplicate gradient id is required.
+   B) Tablet terminal header reuses the existing Desktop/Mini card grammar; no DOM/data changes. */
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-details > summary,
+html[data-ybez-ui-mode="tablet"] .d6-w32-route-body .vroute-terminal-details > summary{
+  display:none !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-details,
+html[data-ybez-ui-mode="tablet"] .d6-w32-route-body .vroute-terminal-details,
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-inline,
+html[data-ybez-ui-mode="tablet"] .d6-w32-route-body .vroute-terminal-inline,
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-inline-inner,
+html[data-ybez-ui-mode="tablet"] .d6-w32-route-body .vroute-terminal-inline-inner{
+  margin:0 !important;padding:0 !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-section,
+html[data-ybez-ui-mode="tablet"] .d6-w32-route-body .vroute-terminal-section{
+  padding:0 12px 12px !important;margin:0 !important;overflow:hidden !important;
+  border:1px solid #DCE4EC !important;border-radius:12px !important;background:#FFFFFF !important;box-sizing:border-box !important;
+}
+html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-section .vroute-detail-title,
+html[data-ybez-ui-mode="tablet"] .d6-w32-route-body .vroute-terminal-section .vroute-detail-title{
+  display:block !important;width:calc(100% + 24px) !important;margin:0 -12px 8px !important;padding:8px 12px !important;
+  border:0 !important;border-bottom:1px solid #C9DCEB !important;border-radius:0 !important;
+  background:#EAF3FB !important;box-sizing:border-box !important;
+  font-family:var(--gm) !important;font-size:13px !important;line-height:1.2 !important;font-weight:900 !important;color:#173A63 !important;
+}
+</style>
 </body>
 </html>
