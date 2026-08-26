@@ -40764,15 +40764,25 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             React.createElement("div", { className: "compact-choice-mobile-panel4j" },
                                 React.createElement(MobileSelectionPanel, null)),
                             React.createElement(CenterMascotCard, null))
-                        : React.createElement(React.Fragment, null,
-                            React.createElement("div", { className: "pc-choice-mascot-grid" },
-                                React.createElement("div", { className: "pc-choice-stack" },
-                                    React.createElement(CenterGradeChoice, null),
-                                    React.createElement("div", { className: "pc-access-selection" },
-                                        React.createElement(AccessCostDecisionCards, { compact: true }),
-                                        React.createElement(SameLivingDecisionCards, { compact: true }))),
-                                React.createElement(CenterMascotCard, null)),
-                            React.createElement(MobileSelectionPanel, null)),
+                        : isDesktopMini
+                            ? React.createElement("div", { className: "mini-choice-mascot-row4t" },
+                                React.createElement("div", { className: "mini-choice-panel4t" },
+                                    React.createElement(MobileSelectionPanel, null)),
+                                React.createElement(CenterMascotCard, null))
+                            : mobilePagerEnabledM6A2
+                                ? React.createElement("div", { className: "mobile-choice-mascot-row4t" },
+                                    React.createElement("div", { className: "mobile-choice-panel4t" },
+                                        React.createElement(MobileSelectionPanel, null)),
+                                    React.createElement(CenterMascotCard, null))
+                                : React.createElement(React.Fragment, null,
+                                    React.createElement("div", { className: "pc-choice-mascot-grid" },
+                                        React.createElement("div", { className: "pc-choice-stack" },
+                                            React.createElement(CenterGradeChoice, null),
+                                            React.createElement("div", { className: "pc-access-selection" },
+                                                React.createElement(AccessCostDecisionCards, { compact: true }),
+                                                React.createElement(SameLivingDecisionCards, { compact: true }))),
+                                        React.createElement(CenterMascotCard, null)),
+                                    React.createElement(MobileSelectionPanel, null)),
                 React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"} ${(calcSt === "error_scope" || statusMessages.length > 0) ? "status-tall" : ""} ${(calcSt === "working" || calcSt === "error_scope" || !!partialRouteNoticeText || statusMessages.length > 0) ? "mobile-status-important" : ""}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
@@ -45985,5 +45995,190 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
   transform:scale(1.06)!important;
 }
 </style>
+
+<style id="ybez-patch4t-multimode-mascot-unified-selection-20260826">
+/* Patch 4T · Tablet/Mobile/Mini only.
+   Bring the Desktop/Compact selection-card grammar to all narrow modes:
+   conditional selection controls on the left, mascot always on the right,
+   status strip immediately below. Calculation/routing/footer/swipe logic is untouched. */
+
+/* Tablet: trim vertical rhythm, keep generous text size, use a 136px Desktop-style mascot. */
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k{
+  grid-template-columns:minmax(0,1fr) 136px!important;
+  gap:8px!important;margin:7px 12px 0!important;padding:7px!important;
+  border:1px solid #DCE3EB!important;border-radius:12px!important;background:#FFFFFF!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.055)!important;overflow:hidden!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k > .mobile-selection-panel,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k > .mobile-selection-panel{
+  gap:0!important;justify-content:center!important;
+}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-narrow-choice-block + .ybez-narrow-choice-block,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-narrow-choice-block + .ybez-narrow-choice-block{margin-top:5px!important;}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip-grid,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip-grid,
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-grid,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-grid{gap:5px!important;}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-grid,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-grid{margin-top:4px!important;}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip{height:28px!important;min-height:28px!important;max-height:28px!important;padding:0 7px!important;}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-btn,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-btn{height:33px!important;min-height:33px!important;max-height:33px!important;padding:0 7px!important;font-size:12.5px!important;}
+html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip-label,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip-label{font-size:10.5px!important;line-height:1.05!important;-webkit-line-clamp:1!important;line-clamp:1!important;white-space:nowrap!important;}
+
+/* Mini: preserve width, compress only vertical spacing. */
+html.ybez-desktop-mini .mini-choice-mascot-row4t{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 112px!important;align-items:center!important;
+  gap:7px!important;margin:7px 12px 0!important;padding:7px!important;min-width:0!important;
+  border:1px solid #DCE3EB!important;border-radius:12px!important;background:#FFFFFF!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.055)!important;overflow:hidden!important;box-sizing:border-box!important;
+}
+html.ybez-desktop-mini .mini-choice-panel4t{min-width:0!important;width:100%!important;}
+html.ybez-desktop-mini .mini-choice-panel4t > .mobile-selection-panel{display:flex!important;flex-direction:column!important;width:100%!important;margin:0!important;padding:0!important;gap:0!important;justify-content:center!important;}
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-narrow-choice-block + .ybez-narrow-choice-block{margin-top:4px!important;}
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-segment-chip-grid,
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-batch-choice-grid{gap:4px!important;}
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-batch-choice-grid{margin-top:4px!important;}
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-segment-chip{height:27px!important;min-height:27px!important;max-height:27px!important;padding:0 6px!important;border-radius:8px!important;}
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-batch-choice-btn{height:32px!important;min-height:32px!important;max-height:32px!important;padding:0 6px!important;border-radius:9px!important;font-size:12px!important;}
+html.ybez-desktop-mini .mini-choice-panel4t .ybez-segment-chip-label{font-size:10px!important;line-height:1.05!important;-webkit-line-clamp:1!important;line-clamp:1!important;white-space:nowrap!important;}
+
+/* Real Mobile: same grammar, smaller square. Visual control height is compressed,
+   while buttons retain normal button semantics and full width inside the left column. */
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t{
+    display:grid!important;grid-template-columns:minmax(0,1fr) 98px!important;align-items:center!important;
+    gap:6px!important;margin:7px 12px 0!important;padding:6px!important;min-width:0!important;
+    border:1px solid #DCE3EB!important;border-radius:12px!important;background:#FFFFFF!important;
+    box-shadow:0 2px 8px rgba(23,58,99,.055)!important;overflow:hidden!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t{min-width:0!important;width:100%!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t > .mobile-selection-panel{display:flex!important;flex-direction:column!important;width:100%!important;margin:0!important;padding:0!important;gap:0!important;justify-content:center!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-narrow-choice-block + .ybez-narrow-choice-block{margin-top:4px!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-segment-chip-grid,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-batch-choice-grid{gap:4px!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-batch-choice-grid{margin-top:4px!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-segment-chip{height:26px!important;min-height:26px!important;max-height:26px!important;padding:0 5px!important;border-radius:8px!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-batch-choice-btn{height:31px!important;min-height:31px!important;max-height:31px!important;padding:0 5px!important;border-radius:9px!important;font-size:11.5px!important;}
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-segment-chip-label{font-size:9.5px!important;line-height:1.05!important;-webkit-line-clamp:1!important;line-clamp:1!important;white-space:nowrap!important;}
+}
+
+/* Desktop/4S mascot presentation formula, scaled per narrow mode. */
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k > .pc-center-mascot-card,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k > .pc-center-mascot-card,
+html.ybez-desktop-mini .mini-choice-mascot-row4t > .pc-center-mascot-card{
+  display:flex!important;margin:0!important;padding:2px!important;align-items:center!important;justify-content:center!important;
+  border:1px solid #D6E0E9!important;border-radius:7px!important;background:#F8FAFC!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.07)!important;overflow:hidden!important;box-sizing:border-box!important;
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k > .pc-center-mascot-card,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k > .pc-center-mascot-card{width:136px!important;height:136px!important;min-width:136px!important;min-height:136px!important;max-width:136px!important;max-height:136px!important;}
+html.ybez-desktop-mini .mini-choice-mascot-row4t > .pc-center-mascot-card{width:112px!important;height:112px!important;min-width:112px!important;min-height:112px!important;max-width:112px!important;max-height:112px!important;}
+
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t > .pc-center-mascot-card{
+    display:flex!important;width:98px!important;height:98px!important;min-width:98px!important;min-height:98px!important;max-width:98px!important;max-height:98px!important;
+    margin:0!important;padding:2px!important;align-items:center!important;justify-content:center!important;
+    border:1px solid #D6E0E9!important;border-radius:7px!important;background:#F8FAFC!important;
+    box-shadow:0 2px 8px rgba(23,58,99,.07)!important;overflow:hidden!important;box-sizing:border-box!important;
+  }
+}
+
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-stage,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-stage,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .pc-center-mascot-stage,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-stage{
+  border-radius:8px!important;overflow:hidden!important;background:#F8FAFC!important;aspect-ratio:1/1!important;
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-stage,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-stage{width:132px!important;height:132px!important;min-width:132px!important;min-height:132px!important;max-width:132px!important;max-height:132px!important;flex:0 0 132px!important;}
+html.ybez-desktop-mini .mini-choice-mascot-row4t .pc-center-mascot-stage,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-stage{width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;flex:0 0 108px!important;}
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .pc-center-mascot-stage,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-stage{
+    width:94px!important;height:94px!important;min-width:94px!important;min-height:94px!important;max-width:94px!important;max-height:94px!important;flex:0 0 94px!important;
+    border-radius:8px!important;overflow:hidden!important;background:#F8FAFC!important;aspect-ratio:1/1!important;
+  }
+}
+
+/* Progressive feather copied from the accepted Desktop/4S treatment. */
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-stage,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-stage,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-stage{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
+  -webkit-mask-composite:source-in!important;
+  mask-image:
+    linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
+    linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
+  mask-composite:intersect!important;
+}
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-stage{
+    -webkit-mask-image:
+      linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
+      linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
+    -webkit-mask-composite:source-in!important;
+    mask-image:
+      linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
+      linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
+    mask-composite:intersect!important;
+  }
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img{
+  inset:0!important;padding:0!important;border-radius:8px!important;object-fit:contain!important;object-position:center center!important;
+  transform:scale(1.06)!important;transform-origin:center center!important;filter:none!important;
+}
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img{width:132px!important;height:132px!important;min-width:132px!important;min-height:132px!important;max-width:132px!important;max-height:132px!important;}
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img{width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;}
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img{
+    inset:0!important;width:94px!important;height:94px!important;min-width:94px!important;min-height:94px!important;max-width:94px!important;max-height:94px!important;padding:0!important;
+    border-radius:8px!important;object-fit:contain!important;object-position:center center!important;transform:scale(1.06)!important;transform-origin:center center!important;filter:none!important;
+  }
+}
+/* Keep every transition layer on the same 1.06 scale. */
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base,
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base.dim,
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming,
+html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming.on,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base.dim,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming,
+html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming.on,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.base,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.base.dim,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.incoming,
+html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.incoming.on{transform:scale(1.06)!important;}
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.base,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.base.dim,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.incoming,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.incoming.on{transform:scale(1.06)!important;}
+}
+
+/* Revive the Desktop-style status strip directly below the new selection card. */
+html.ybez-desktop-tablet .status-bar,
+html[data-ybez-ui-mode="tablet"] .status-bar,
+html.ybez-desktop-mini .status-bar{display:flex!important;align-items:center!important;justify-content:flex-start!important;height:auto!important;min-height:30px!important;margin:6px 12px 0!important;padding:5px 8px!important;text-align:left!important;line-height:1.3!important;}
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .status-bar{display:flex!important;align-items:center!important;justify-content:flex-start!important;height:auto!important;min-height:30px!important;margin:6px 12px 0!important;padding:5px 8px!important;text-align:left!important;line-height:1.3!important;}
+}
+html.ybez-desktop-tablet .status-message-stack,
+html[data-ybez-ui-mode="tablet"] .status-message-stack,
+html.ybez-desktop-mini .status-message-stack{width:100%!important;}
+@media(max-width:699px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .status-message-stack{width:100%!important;}
+}
+</style>
+
 </body>
 </html>
