@@ -28521,8 +28521,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const picked = pickRouteFares(rt);
             const normal = Number(picked.gen || 0);
             const premium = Number(picked.pre || 0);
+            const jnInternalSegment = isJNE(normalizeCity(nz(fromRaw))) && isJNE(normalizeCity(nz(toRaw)));
             let selected = normal > 0 ? normal : premium;
-            if (picked.gradeSelectable && normal > 0 && premium > 0) selected = grade === "pre" ? premium : normal;
+            if (picked.gradeSelectable && normal > 0 && premium > 0)
+                selected = jnInternalSegment ? (grade === "pre" ? premium : normal) : premium;
             if (!(selected > 0)) continue;
             const source = [...srcs].sort((x, y) => sourceRank([x]) - sourceRank([y]))[0] || "routesDB";
             const cand = {
@@ -28533,7 +28535,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 sources: dispSrcs(srcs), all_sources: srcs,
                 source, sourceLabel: source,
                 dr: rt.display_route || `${fromRaw}→${toRaw}`,
-                gradeSelectable: false, gradeDefault: "gen", fareGrade: picked.fareGrade || "",
+                gradeSelectable: false, gradeDefault: "gen", fareGrade: (!jnInternalSegment && premium > 0) ? (hasSrc(srcs, "kobus") ? "고속우등" : "시외우등") : (picked.fareGrade || ""),
+                farePolicyRank: !jnInternalSegment ? (premium > 0 ? (hasSrc(srcs, "kobus") ? 0 : 1) : 2) : null,
+                nationwidePreferredFare: !jnInternalSegment, referenceGeneralFare: (!jnInternalSegment && premium > 0) ? normal : null,
                 exactRawTerminalRoute: true, _sourceRank: rank,
                 c3Trace: {
                     finalized: true, gradeMode: grade,
@@ -28637,8 +28641,28 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             return { ...ov, depId: null, arrId: null, depName: fc, arrName: tc };
         }
         const rt = lookupRoute(fromCity, toCity, prefOnly, minFare);
-        if (rt)
+        if (rt) {
+            // Patch 5A: 전국 main segment는 일반 최저가가 아니라 우등정책을 고정한다.
+            // 전남광주↔전남광주 내부만 기존 일반/우등 선택을 보존한다.
+            const jnInternalSegment = isJNE(normalizeCity(fc)) && isJNE(normalizeCity(tc));
+            if (!jnInternalSegment) {
+                const premiumFare = Number(rt.pre || 0);
+                const generalFare = Number(rt.gen || 0);
+                const srcs = (rt.all_sources || rt.sources || []).map(x => String(x || "").toLowerCase());
+                if (premiumFare > 0) {
+                    return { ...rt, gen: premiumFare, pre: null, referenceGeneralFare: generalFare || null,
+                        gradeSelectable: false, gradeDefault: "gen", fareGrade: srcs.includes("kobus") ? "고속우등" : "시외우등",
+                        farePolicyRank: srcs.includes("kobus") ? 0 : 1, nationwidePreferredFare: true };
+                }
+                if (generalFare > 0) {
+                    const isKobusUdeung = !!rt.kobusUdeung || (srcs.includes("kobus") && /우등/.test(String(rt.fareGrade || "")));
+                    return { ...rt, gen: generalFare, pre: null, gradeSelectable: false, gradeDefault: "gen",
+                        fareGrade: isKobusUdeung ? "고속우등" : (rt.fareGrade || "단일시외"),
+                        farePolicyRank: isKobusUdeung ? 0 : 2, nationwidePreferredFare: true };
+                }
+            }
             return rt;
+        }
         if (prefOnly)
             return null; // JNE는 우선소스 모드에서 제외
         if ((_a = JNE_FARES[fc]) === null || _a === void 0 ? void 0 : _a[tc])
@@ -28936,16 +28960,25 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     const rt = routesDB ? (routesDB[k1] || routesDB[k2]) : null;
                     if (rt && rt.fares) {
                         const picked = pickRouteFares(rt);
-                        const gen = picked.gen;
+                        const jnInternalSegment = isJNE(normalizeCity(a)) && isJNE(normalizeCity(b));
+                        const preferred = (!jnInternalSegment && Number(picked.pre || 0) > 0) ? Number(picked.pre) : Number(picked.gen || 0);
+                        const gen = preferred;
                         if (!gen) continue;
                         const isMegaDep = megaA && x === megaA;
                         const isMegaArr = megaB && y === megaB;
+                        const srcList = rt.sources || [];
+                        const hasKobus = srcList.some(s => String(s || "").toLowerCase() === "kobus");
                         const cand = {
-                            gen, pre: picked.pre,
-                            sources: rt.sources || [], dr: rt.display_route || a + "→" + b,
+                            gen, pre: jnInternalSegment ? picked.pre : null,
+                            referenceGeneralFare: (!jnInternalSegment && Number(picked.pre || 0) > 0) ? Number(picked.gen || 0) : null,
+                            farePolicyRank: !jnInternalSegment ? (Number(picked.pre || 0) > 0 ? (hasKobus ? 0 : 1) : (picked.kobusUdeung ? 0 : 2)) : null,
+                            nationwidePreferredFare: !jnInternalSegment,
+                            sources: srcList, dr: rt.display_route || a + "→" + b,
                             from: a, to: b, _dx: x, _dy: y, depId: x, arrId: y,
                             depName: getNodeName(x, a), arrName: getNodeName(y, b),
-                            gradeSelectable: picked.gradeSelectable, gradeDefault: picked.gradeDefault, fareGrade: picked.fareGrade, kobusUdeung: picked.kobusUdeung,
+                            gradeSelectable: jnInternalSegment ? picked.gradeSelectable : false, gradeDefault: jnInternalSegment ? picked.gradeDefault : "gen",
+                            fareGrade: !jnInternalSegment ? (Number(picked.pre || 0) > 0 ? (hasKobus ? "고속우등" : "시외우등") : (picked.kobusUdeung ? "고속우등" : (picked.fareGrade || "단일시외"))) : picked.fareGrade,
+                            kobusUdeung: picked.kobusUdeung,
                             _sourceRank: routeSourcePriority(rt.sources || []), _authorityRank: routeAuthorityPriority(rt.sources || []),
                             _megaCount: Number(isMegaDep) + Number(isMegaArr)
                         };
@@ -29710,11 +29743,18 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         from: displayCityName(seg.from),
         to: displayCityName(seg.to),
         gen: (seg.gen === null || seg.gen === undefined || seg.gen === "") ? null : Number(seg.gen),
+        pre: (seg.pre === null || seg.pre === undefined || seg.pre === "") ? null : Number(seg.pre),
         sources: seg.sources || ["area_graph"],
         source: seg.source || "",
         sourceLabel: seg.sourceLabel || seg.source || seg.source_name || "",
-        depName: displayCityName(seg.from),
-        arrName: displayCityName(seg.to),
+        depName: seg.depName || seg.terminalFrom || displayCityName(seg.from),
+        arrName: seg.arrName || seg.terminalTo || displayCityName(seg.to),
+        terminalFrom: seg.terminalFrom || seg.depName || null,
+        terminalTo: seg.terminalTo || seg.arrName || null,
+        fareType: seg.fareType || seg.fareGrade || "",
+        farePolicyRank: seg.farePolicyRank == null ? null : Number(seg.farePolicyRank),
+        nationwidePreferredFare: !!seg.nationwidePreferredFare,
+        referenceGeneralFare: seg.referenceGeneralFare == null ? null : Number(seg.referenceGeneralFare),
         note: seg.note || "",
         kind: seg.kind || "bus",
         recommendFare: seg.recommendFare == null ? null : Number(seg.recommendFare) || 0,
@@ -30763,7 +30803,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             isShipOnlyRoute: !!opts.isShipOnlyRoute, areaSpecial: !!opts.areaSpecial,
             userOrigin: opts.userOrigin || null, userDest: opts.userDest || null,
             mainOrigin: opts.mainOrigin || null, mainDest: opts.mainDest || null, mainRouteLabel: opts.mainRouteLabel || "",
-            accessExtraEnabled: !!opts.accessExtraEnabled, accessExtraHint: opts.accessExtraHint || "", islandLegs: opts.islandLegs || null, islandRouteLabel: opts.islandRouteLabel || ""
+            accessExtraEnabled: !!opts.accessExtraEnabled, accessExtraHint: opts.accessExtraHint || "", islandLegs: opts.islandLegs || null, islandRouteLabel: opts.islandRouteLabel || "",
+            hubTransfers: Array.isArray(opts.hubTransfers) ? opts.hubTransfers : []
         });
         const bidirectionalFix = findBidirectionalRouteCorrection(fr.areaId, tr.areaId, from, to);
         if (bidirectionalFix) {
@@ -30980,9 +31021,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         ── */
         const HUB_AREA_IDS = {
             "광주": "jg_gj", "광주유스퀘어": "jg_gj", "순천": "jg_sc", "목포": "jg_mp", "여수": "jg_ys", "광양": "jg_gy",
-            "서울": "metro_su", "동서울": "metro_su", "서울고속": "metro_su",
-            "대구": "tk_dgdc", "동대구": "tk_dgdc", "서대구": "tk_dgdc", "대구북부": "tk_dgdc", "대구서부": "tk_dgdc",
-            "부산서부": "pk_bs", "부산": "pk_bs", "사상": "pk_bs", "논산": "dsn_gbn", "진주": "pk_jj", "창원": "pk_cw", "김해": "pk_kh", "포항": "tk_pu", "구미": "tk_gc", "원주": "gw_hi", "강릉": "gw_gp"
+            "서울": "metro_su", "동서울": "metro_su", "서울고속": "metro_su", "센트럴시티": "metro_su", "서울남부": "metro_su",
+            "대구": "tk_dgdc", "동대구": "tk_dgdc", "서대구": "tk_dgdc", "서대구고속": "tk_dgdc", "대구북부": "tk_dgdc", "대구서부": "tk_dgdc",
+            "부산서부": "pk_bs", "부산서부사상": "pk_bs", "부산": "pk_bs", "사상": "pk_bs", "논산": "dsn_gbn", "진주": "pk_jj", "창원": "pk_cw", "김해": "pk_kh", "포항": "tk_pu", "구미": "tk_gc", "원주": "gw_hi", "강릉": "gw_gp"
         };
         const splitHubNames = (v) => String(v || "").split(/[\/·,]+/).map(x => x.replace(/병렬노드|지정허브|터미널/g, "").trim()).filter(Boolean);
         const hubAreaId = (hub) => HUB_AREA_IDS[hub] || HUB_AREA_IDS[hub.replace(/\s/g, "")] || null;
@@ -31034,34 +31075,143 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             }
             return null;
         };
+        /* ── Patch 5A: 전국 우등우선 + 멀티허브 동일터미널 우선 ──
+           원칙
+           1) 전국 main segment: 고속우등 > 시외우등 > 단일시외 > 일반 fallback
+           2) 서울/부산/대구 병렬허브: 같은 도착터미널에서 다음 노선이 있으면 그 체인을 우선
+           3) 같은 허브 연결이 없을 때만 도시 내부 다른 허브 이동을 허용하고, 비용은 합산하지 않으며 터미널정보에만 표시
+        */
         const manualHubFare = (aId, bId) => {
             const key = [aId, bId].sort().join("__");
             const map = {
-                "jg_gj__tk_dgdc": { gen: 22900, label: "광주 → 대구", segments: [{ from: "광주", to: "대구", gen: 22900, sourceLabel: "네이버지도" }], detail: "광주↔대구 병렬허브 수기확정 축" },
-                "jg_gj__metro_su": { gen: 23800, label: "광주 → 서울", segments: [{ from: "광주", to: "서울", gen: 23800, sourceLabel: "kobus", note: "광주유스퀘어↔센트럴시티터미널 고속 기준" }], detail: "광주↔서울 KOBUS 고속 기준" },
+                "jg_gj__tk_dgdc": { gen: 22900, label: "광주 → 대구", segments: [{ from: "광주", to: "대구", gen: 22900, terminalFrom: "광주유스퀘어", terminalTo: "동대구터미널", fareType: "고속우등", farePolicyRank: 0, sourceLabel: "네이버지도" }], detail: "광주↔대구 병렬허브 고속우등 확정 축" },
+                // 기존 23,800원 일반축은 폐기하고 R5-D2 검증값 33,300원(KOBUS 고속우등)을 사용한다.
+                "jg_gj__metro_su": { gen: 33300, label: "광주 → 서울", segments: [{ from: "광주", to: "서울", gen: 33300, terminalFrom: "광주유스퀘어", terminalTo: "센트럴시티터미널", fareType: "고속우등", farePolicyRank: 0, nationwidePreferredFare: true, sourceLabel: "KOBUS", note: "광주유스퀘어↔센트럴시티 고속우등 33,300원" }], detail: "광주↔서울 KOBUS 고속우등 33,300원" },
                 "jg_gj__pk_bs": { gen: 25900, label: "광주 → 부산서부", segments: [{ from: "광주", to: "부산서부", gen: 25900, sourceLabel: "네이버지도" }], detail: "광주↔부산서부 수기확정 축" },
                 "jg_gj__dsn_gbn": { gen: 15200, label: "광주 → 논산", segments: [{ from: "광주", to: "논산", gen: 15200, sourceLabel: "네이버지도" }], detail: "광주↔논산 수기확정 축" }
             };
             return map[key] || null;
         };
         const reverseSegs = (segs) => reverseVerifiedMainSegments(segs);
-        const fareBetweenAreas = (fromAreaId, toAreaId, destHint = "") => {
+        const PATCH5A_MULTI_HUBS = Object.freeze({
+            "서울": Object.freeze({ city: "서울", hubs: Object.freeze(["서울고속", "동서울", "서울남부"]) }),
+            "부산": Object.freeze({ city: "부산", hubs: Object.freeze(["부산", "부산서부"]) }),
+            "대구": Object.freeze({ city: "대구", hubs: Object.freeze(["동대구", "서대구", "대구서부"]) })
+        });
+        const patch5aHubCanonical = (hub) => {
+            const h = nz(hub).replace(/\s/g, "");
+            if (/센트럴시티|서울고속|서울경부/.test(h)) return "서울고속";
+            if (/동서울/.test(h)) return "동서울";
+            if (/서울남부/.test(h)) return "서울남부";
+            if (/부산서부|사상/.test(h)) return "부산서부";
+            if (/^부산$|부산종합/.test(h)) return "부산";
+            if (/동대구/.test(h)) return "동대구";
+            if (/서대구|대구북부/.test(h)) return "서대구";
+            if (/대구서부/.test(h)) return "대구서부";
+            if (/^대구$/.test(h)) return "동대구";
+            if (/^서울$/.test(h)) return "서울고속";
+            return nz(hub);
+        };
+        const patch5aHubGroup = (hub) => {
+            const h = patch5aHubCanonical(hub);
+            if (["서울고속", "동서울", "서울남부"].includes(h)) return PATCH5A_MULTI_HUBS["서울"];
+            if (["부산", "부산서부"].includes(h)) return PATCH5A_MULTI_HUBS["부산"];
+            if (["동대구", "서대구", "대구서부"].includes(h)) return PATCH5A_MULTI_HUBS["대구"];
+            return null;
+        };
+        const patch5aHubLookupName = (hub) => {
+            const h = patch5aHubCanonical(hub);
+            if (h === "서울고속") return "센트럴시티";
+            if (h === "부산서부") return "부산서부";
+            if (h === "서대구") return "서대구";
+            return h;
+        };
+        const patch5aHubTerminalLabel = (hub) => {
+            const h = patch5aHubCanonical(hub);
+            const labels = {
+                "서울고속": "센트럴시티/서울고속터미널", "동서울": "동서울터미널", "서울남부": "서울남부터미널",
+                "부산": "부산종합버스터미널", "부산서부": "부산서부(사상)터미널",
+                "동대구": "동대구터미널", "서대구": "서대구/대구북부터미널", "대구서부": "대구서부정류장"
+            };
+            return labels[h] || nz(hub);
+        };
+        const patch5aVerifiedTerminalFare = (fromName, toName) => {
+            const a = patch5aHubCanonical(fromName), b = patch5aHubCanonical(toName);
+            const af = normalizeCity(nz(fromName)), bf = normalizeCity(nz(toName));
+            const gwToSeoul = (af === "광주" && b === "서울고속") || (bf === "광주" && a === "서울고속");
+            if (!gwToSeoul) return null;
+            const reverse = bf === "광주";
+            const seg = reverse
+                ? { from: "서울고속", to: "광주", gen: 33300, terminalFrom: "센트럴시티터미널", terminalTo: "광주유스퀘어" }
+                : { from: "광주", to: "서울고속", gen: 33300, terminalFrom: "광주유스퀘어", terminalTo: "센트럴시티터미널" };
+            return { gen: 33300, label: `${seg.from} → ${seg.to}`, segments: [{ ...seg, fareType: "고속우등", farePolicyRank: 0, nationwidePreferredFare: true, sourceLabel: "KOBUS", sources: ["kobus"], note: "R5-D2 검증 KOBUS 고속우등" }], detail: "광주↔센트럴시티 KOBUS 고속우등 33,300원", method: "PATCH5A_VERIFIED_TERMINAL", actualDirect: true, farePolicyRank: 0 };
+        };
+        const patch5aPreferredTerminalFare = (fromName, toName) => {
+            const verified = patch5aVerifiedTerminalFare(fromName, toName);
+            if (verified) return verified;
+            const fLookup = patch5aHubLookupName(fromName), tLookup = patch5aHubLookupName(toName);
+            const hit = lookupFare(fLookup, tLookup, true, 1) || lookupFare(fLookup, tLookup, false, 1);
+            if (!hit || !(Number(hit.gen || 0) > 0)) return null;
+            const srcs = (hit.sources && hit.sources.length) ? hit.sources : (hit.all_sources || []);
+            const rank = hit.farePolicyRank == null ? (hit.kobusUdeung ? 0 : (hit.referenceGeneralFare ? 1 : 2)) : Number(hit.farePolicyRank);
+            const fareType = hit.fareGrade || (rank === 0 ? "고속우등" : (rank === 1 ? "시외우등" : "단일시외"));
+            return {
+                gen: Number(hit.gen) || 0,
+                label: `${patch5aHubCanonical(fromName)} → ${patch5aHubCanonical(toName)}`,
+                segments: [{
+                    from: patch5aHubCanonical(fromName), to: patch5aHubCanonical(toName), gen: Number(hit.gen) || 0,
+                    terminalFrom: hit.depName || patch5aHubTerminalLabel(fromName), terminalTo: hit.arrName || patch5aHubTerminalLabel(toName),
+                    sourceLabel: (srcs || [])[0] || "routes.json", sources: srcs, fareType, farePolicyRank: rank,
+                    nationwidePreferredFare: true, referenceGeneralFare: hit.referenceGeneralFare || null,
+                    note: "Patch 5A 전국 우등우선 실제노선"
+                }],
+                detail: `${patch5aHubCanonical(fromName)}↔${patch5aHubCanonical(toName)} 실제 터미널 노선 · ${fareType} 우선`,
+                method: "PATCH5A_PREFERRED_TERMINAL", actualDirect: true, farePolicyRank: rank
+            };
+        };
+        const patch5aUpgradeSegments = (segments) => (segments || []).map(seg => {
+            if (!seg || !(Number(seg.gen || 0) > 0) || ["access", "local", "ferry", "rural"].includes(seg.kind)) return seg;
+            const hit = patch5aPreferredTerminalFare(seg.from, seg.to);
+            if (!hit || !hit.segments || !hit.segments.length) return seg;
+            const hs = hit.segments[0];
+            return { ...seg, gen: Number(hit.gen) || Number(seg.gen) || 0, pre: null,
+                terminalFrom: hs.terminalFrom || seg.terminalFrom || null, terminalTo: hs.terminalTo || seg.terminalTo || null,
+                sourceLabel: hs.sourceLabel || seg.sourceLabel || "", sources: hs.sources || seg.sources || [],
+                fareType: hs.fareType || seg.fareType || "", farePolicyRank: hit.farePolicyRank,
+                nationwidePreferredFare: true, referenceGeneralFare: hs.referenceGeneralFare || null,
+                note: [seg.note, "Patch 5A 전국 우등우선"].filter(Boolean).join(" · ") };
+        });
+        const patch5aAggregateRank = (segments) => {
+            const vals = (segments || []).map(s => s && s.farePolicyRank).filter(v => v !== null && v !== undefined).map(Number);
+            return vals.length ? Math.max(...vals) : 3;
+        };
+        const fareBetweenAreas = (fromAreaId, toAreaId, destHint = "", fromHint = "", preferNationwide = false) => {
             var _a;
+            const fa = areaIndex.areaById[fromAreaId], ta = areaIndex.areaById[toAreaId];
+            const fn = areaDisplayName(fa, fromAreaId), tn = areaDisplayName(ta, toAreaId);
+            if (preferNationwide) {
+                const direct = patch5aPreferredTerminalFare(fromHint || fn, destHint || tn);
+                if (direct) return direct;
+            }
             const manual = findManualAreaFare(fromAreaId, toAreaId, destHint);
             if (manual) {
                 const reversed = !(manual.fromArea === fromAreaId && manual.toArea === toAreaId);
-                return { gen: Number(manual.fare) || 0, label: manual.label, segments: reversed ? reverseSegs(manual.segments) : manual.segments, detail: manual.detail || "수기요금 반영", method: manual.method || "MANUAL_AREA_FARES" };
+                let segments = reversed ? reverseSegs(manual.segments) : manual.segments;
+                if (preferNationwide) segments = patch5aUpgradeSegments(segments);
+                const selected = segments && segments.length ? segments.reduce((s, x) => s + (Number(x.gen) || 0), 0) : Number(manual.fare) || 0;
+                return { gen: selected, label: manual.label, segments, detail: manual.detail || "수기요금 반영", method: manual.method || "MANUAL_AREA_FARES", farePolicyRank: patch5aAggregateRank(segments), actualDirect: false };
             }
             const hubManual = manualHubFare(fromAreaId, toAreaId);
             if (hubManual) {
                 const reversed = hubManual.label.startsWith(displayCityName(((_a = areaIndex.areaById[toAreaId]) === null || _a === void 0 ? void 0 : _a.area_name) || ""));
-                return { ...hubManual, segments: reversed ? reverseSegs(hubManual.segments) : hubManual.segments, method: "중심허브 수기축" };
+                let segments = reversed ? reverseSegs(hubManual.segments) : hubManual.segments;
+                if (preferNationwide && !/metro_su/.test([fromAreaId, toAreaId].join("|"))) segments = patch5aUpgradeSegments(segments);
+                const selected = segments && segments.length ? segments.reduce((s, x) => s + (Number(x.gen) || 0), 0) : Number(hubManual.gen) || 0;
+                return { ...hubManual, gen: selected, segments, method: "중심허브 수기축", farePolicyRank: patch5aAggregateRank(segments), actualDirect: false };
             }
             const edge = findAreaEdge(fromAreaId, toAreaId);
             if (edge && edge.fare != null) {
-                const fa = areaIndex.areaById[fromAreaId], ta = areaIndex.areaById[toAreaId];
-                const fn = areaDisplayName(fa, fromAreaId), tn = areaDisplayName(ta, toAreaId);
-                return { gen: Number(edge.fare) || 0, label: `${fn} → ${tn}`, segments: [{ from: fn, to: tn, gen: Number(edge.fare) || 0, sourceLabel: edge.source || "권역자료" }], detail: edge.detail || "권역 edge", method: edge.method || "권역 edge" };
+                return { gen: Number(edge.fare) || 0, label: `${fn} → ${tn}`, segments: [{ from: fn, to: tn, gen: Number(edge.fare) || 0, sourceLabel: edge.source || "권역자료", farePolicyRank: 3 }], detail: edge.detail || "권역 edge", method: edge.method || "권역 edge", farePolicyRank: 3, actualDirect: false };
             }
             return null;
         };
@@ -31071,17 +31221,17 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             if (!hubId)
                 return null;
             if (jnAreaId === hubId)
-                return { gen: 0, segments: [], detail: `${hubName} 허브 직접 출발`, method: "중심허브 직접" };
+                return { gen: 0, segments: [], detail: `${hubName} 허브 직접 출발`, method: "중심허브 직접", farePolicyRank: 0 };
             // 완도 본권은 현재 그래프의 17,100원 병합 edge를 우선한다.
             if (jnAreaId === "jg_wd" && hubId === "jg_gj") {
-                const edgeFare = fareBetweenAreas(jnAreaId, hubId, hubName);
+                const edgeFare = fareBetweenAreas(jnAreaId, hubId, hubName, areaDisplayName(jnArea), false);
                 if (edgeFare)
                     return edgeFare;
             }
             const jne = lookupJneFare(areaJneKeys(jnArea), [hubName]);
             if (jne)
-                return { gen: jne.gen, segments: [{ from: areaDisplayName(jnArea, jne.from), to: hubName, gen: jne.gen, sourceLabel: jne.sourceLabel }], detail: `${areaDisplayName(jnArea, jne.from)}→${hubName} 전남권 접근요금`, method: "광주전남 접근요금" };
-            const edgeFare = fareBetweenAreas(jnAreaId, hubId, hubName);
+                return { gen: jne.gen, segments: [{ from: areaDisplayName(jnArea, jne.from), to: hubName, gen: jne.gen, sourceLabel: jne.sourceLabel }], detail: `${areaDisplayName(jnArea, jne.from)}→${hubName} 전남권 접근요금`, method: "광주전남 접근요금", farePolicyRank: 0 };
+            const edgeFare = fareBetweenAreas(jnAreaId, hubId, hubName, areaDisplayName(jnArea), false);
             if (edgeFare)
                 return edgeFare;
             return null;
@@ -31093,16 +31243,30 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 out.push("순천");
             return [...new Set(out)];
         };
-        const destinationHubCandidates = (area) => {
+        const destinationHubCandidates = (area, sourceHub = "") => {
             const raw = [...splitHubNames(area === null || area === void 0 ? void 0 : area.secondary_hub), ...splitHubNames(area === null || area === void 0 ? void 0 : area.primary_hub)];
-            return [...new Set(raw)].filter(h => hubAreaId(h));
+            const out = [];
+            const add = (h) => { const c = patch5aHubCanonical(h); if (c && hubAreaId(c) && !out.includes(c)) out.push(c); };
+            raw.forEach(h => {
+                const group = patch5aHubGroup(h);
+                if (!group) { add(h); return; }
+                let order = [patch5aHubCanonical(h), ...group.hubs];
+                // 전남광주→서울권의 기본 도착은 센트럴/서울고속권. 같은 허브에 다음 노선이 있으면 여기서 끝낸다.
+                if (group.city === "서울" && patch5aHubCanonical(sourceHub) === "광주") order = ["서울고속", "동서울", "서울남부"];
+                order.forEach(add);
+            });
+            return out;
         };
         const buildBridgeResult = (parts, methodLabel, detailLabel, altDetails = []) => {
             const segs = parts.flatMap(p => p.segments || []).filter(Boolean);
             const gen = parts.reduce((sum, p) => sum + (Number(p.gen) || 0), 0);
             const label = segs.length ? `${segs[0].from} → ${segs[segs.length - 1].to}` : `${from} → ${to}`;
             const path = segs.length ? [segs[0].from, ...segs.map(s => s.to)] : [from, to];
-            return manualResult(gen, path.join(" → "), segs, `${detailLabel}${altDetails.length ? ` / 다른 후보: ${altDetails.join(" | ")}` : ""}`, { method: methodLabel, score: 4.7, sources: ["area_bridge"] });
+            const hubTransfers = parts.flatMap(p => p.hubTransfers || []).filter(Boolean);
+            const out = manualResult(gen, path.join(" → "), segs, `${detailLabel}${altDetails.length ? ` / 다른 후보: ${altDetails.join(" | ")}` : ""}`, { method: methodLabel, score: 4.7, sources: ["area_bridge"], hubTransfers });
+            out.hubTransfers = hubTransfers;
+            out.patch5aFarePolicy = "고속우등>시외우등>단일시외>일반fallback";
+            return out;
         };
         // [신안/완도 특수지역 허브 재진입 보정]
         // lookupJneFare/fareBetweenAreas/buildBridgeResult 등 내부 helper 선언이 끝난 뒤 실행해야 한다.
@@ -31165,15 +31329,16 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const ext = fromIsJ ? tr : fr;
             if (areaIndex.specialByArea[jn.areaId])
                 return null;
-            // [직행 우선 가드] 전남권 → 관외권 산정 시 2차허브(순천/광주 등) 후보보다
-            // 출발권역↔목적권역 직접 대표요금을 먼저 확인한다.
-            // 기존 브릿지 로직은 삭제하지 않고, 직접값이 없을 때만 아래 후보 계산으로 넘어간다.
-            const directOut = fareBetweenAreas(jn.areaId, ext.areaId, fromIsJ ? to : from);
-            if (directOut && Number(directOut.gen) > 0) {
+            const endpointHint = fromIsJ ? to : from;
+
+            // 실제 직행 터미널이 확인되는 경우만 허브 브릿지보다 우선한다.
+            const directOut = fareBetweenAreas(jn.areaId, ext.areaId, endpointHint, areaDisplayName(jn.area), true);
+            if (directOut && directOut.actualDirect && Number(directOut.gen) > 0) {
                 const directPart = fromIsJ ? directOut : { ...directOut, segments: reverseSegs(directOut.segments) };
-                const detail = `전남권 관외 직접 대표요금 우선: ${areaDisplayName(jn.area)} → ${areaDisplayName(ext.area)}`;
-                return buildBridgeResult([directPart], "전남권 관외 직접요금 우선", detail, []);
+                const detail = `전남권 관외 실제 직행 우선: ${areaDisplayName(jn.area)} → ${areaDisplayName(ext.area)}`;
+                return buildBridgeResult([directPart], "Patch 5A 실제 직행 우선", detail, []);
             }
+
             const candidates = [];
             for (const hubName of getJeonnamHubs(jn.area)) {
                 const hId = hubAreaId(hubName);
@@ -31182,42 +31347,111 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 const access = accessToHub(jn.areaId, hubName);
                 if (!access)
                     continue;
-                let outward = fareBetweenAreas(hId, ext.areaId, fromIsJ ? to : from);
-                let parts = null;
-                let detail = `광주전남 중심허브 브릿지: ${areaDisplayName(jn.area)} → ${hubName} → ${areaDisplayName(ext.area)}`;
-                if (outward) {
-                    parts = [access, outward];
+
+                const fallbackOutward = fareBetweenAreas(hId, ext.areaId, endpointHint, hubName, true);
+                const sameHubOptions = [];
+                const hubCandidates = destinationHubCandidates(ext.area, hubName);
+
+                // 1순위: 병렬허브 도시를 포함해 같은 터미널에서 그대로 다음 노선을 탈 수 있는 체인.
+                for (let idx = 0; idx < hubCandidates.length; idx++) {
+                    const dh = hubCandidates[idx];
+                    const dhId = hubAreaId(dh);
+                    if (!dhId || dhId === hId)
+                        continue;
+                    const hToDh = fareBetweenAreas(hId, dhId, dh, hubName, true);
+                    const dhToDest = fareBetweenAreas(dhId, ext.areaId, endpointHint, dh, true);
+                    if (!(hToDh && dhToDest && hToDh.actualDirect && dhToDest.actualDirect))
+                        continue;
+                    const segs = [...(hToDh.segments || []), ...(dhToDest.segments || [])];
+                    sameHubOptions.push({
+                        dh, idx, gen: (Number(hToDh.gen) || 0) + (Number(dhToDest.gen) || 0),
+                        segments: segs,
+                        farePolicyRank: Math.max(Number(hToDh.farePolicyRank ?? 3), Number(dhToDest.farePolicyRank ?? 3)),
+                        method: "Patch 5A 동일허브 브릿지", detail: `${hubName} → ${dh} → ${areaDisplayName(ext.area)} 동일터미널 연결`,
+                        hubTransfers: [], sameHub: true
+                    });
                 }
-                else {
-                    for (const dh of destinationHubCandidates(ext.area)) {
-                        const dhId = hubAreaId(dh);
-                        if (!dhId || dhId === hId)
-                            continue;
-                        const hToDh = fareBetweenAreas(hId, dhId, dh);
-                        const dhToDest = fareBetweenAreas(dhId, ext.areaId, fromIsJ ? to : from);
-                        if (hToDh && dhToDest) {
-                            outward = { gen: (Number(hToDh.gen) || 0) + (Number(dhToDest.gen) || 0), segments: [...(hToDh.segments || []), ...(dhToDest.segments || [])], detail: `목적권역 2차허브 ${dh} 개입`, method: "목적권역 2차허브 브릿지" };
-                            parts = [access, outward];
-                            detail = `광주전남 중심허브 브릿지 + 목적권역 2차허브: ${areaDisplayName(jn.area)} → ${hubName} → ${dh} → ${areaDisplayName(ext.area)}`;
-                            break;
+
+                let outward = null;
+                if (sameHubOptions.length) {
+                    // 동일허브 체인끼리는 우등정책 등급을 먼저, 그 다음 도착허브 기본순서, 마지막에 금액을 본다.
+                    sameHubOptions.sort((a, b) => a.farePolicyRank - b.farePolicyRank || a.idx - b.idx || a.gen - b.gen);
+                    outward = sameHubOptions[0];
+                }
+
+                // 2순위: 동일허브 연결이 하나도 없을 때만 같은 도시의 다른 병렬허브 이동을 허용한다.
+                if (!outward) {
+                    const grouped = [];
+                    for (const seed of hubCandidates) {
+                        const group = patch5aHubGroup(seed);
+                        if (!group || grouped.some(g => g.city === group.city)) continue;
+                        grouped.push(group);
+                    }
+                    const transferOptions = [];
+                    for (const group of grouped) {
+                        const arrivalOrder = group.city === "서울" && patch5aHubCanonical(hubName) === "광주"
+                            ? ["서울고속", "동서울", "서울남부"] : [...group.hubs];
+                        for (let ai = 0; ai < arrivalOrder.length; ai++) {
+                            const arrHub = arrivalOrder[ai];
+                            const arrId = hubAreaId(arrHub);
+                            if (!arrId) continue;
+                            const hToArr = fareBetweenAreas(hId, arrId, arrHub, hubName, true);
+                            if (!(hToArr && hToArr.actualDirect)) continue;
+                            for (let di = 0; di < group.hubs.length; di++) {
+                                const depHub = group.hubs[di];
+                                if (patch5aHubCanonical(depHub) === patch5aHubCanonical(arrHub)) continue;
+                                const depId = hubAreaId(depHub);
+                                if (!depId) continue;
+                                const depToDest = fareBetweenAreas(depId, ext.areaId, endpointHint, depHub, true);
+                                if (!(depToDest && depToDest.actualDirect)) continue;
+                                const gen = (Number(hToArr.gen) || 0) + (Number(depToDest.gen) || 0);
+                                transferOptions.push({
+                                    gen, segments: [...(hToArr.segments || []), ...(depToDest.segments || [])],
+                                    farePolicyRank: Math.max(Number(hToArr.farePolicyRank ?? 3), Number(depToDest.farePolicyRank ?? 3)),
+                                    transferRank: ai * 10 + di,
+                                    method: "Patch 5A 관내허브 이동 fallback",
+                                    detail: `${group.city} 관내 허브 이동 필요: ${patch5aHubTerminalLabel(arrHub)} → ${patch5aHubTerminalLabel(depHub)}`,
+                                    hubTransfers: [{ city: group.city, from: patch5aHubCanonical(arrHub), to: patch5aHubCanonical(depHub), fromLabel: patch5aHubTerminalLabel(arrHub), toLabel: patch5aHubTerminalLabel(depHub) }],
+                                    sameHub: false
+                                });
+                            }
                         }
                     }
-                }
-                if (parts) {
-                    let finalParts = parts;
-                    if (!fromIsJ) {
-                        finalParts = parts.map(p => ({ ...p, segments: reverseSegs(p.segments) })).reverse();
+                    if (transferOptions.length) {
+                        transferOptions.sort((a, b) => a.farePolicyRank - b.farePolicyRank || a.transferRank - b.transferRank || a.gen - b.gen);
+                        outward = transferOptions[0];
                     }
-                    const total = finalParts.reduce((s, p) => s + (Number(p.gen) || 0), 0);
-                    candidates.push({ total, parts: finalParts, hubName, detail });
                 }
+
+                // 실제 터미널 체인이 전혀 확인되지 않을 때만 기존 area/manual fallback을 살린다.
+                if (!outward && fallbackOutward) {
+                    outward = { ...fallbackOutward, hubTransfers: [], sameHub: false, farePolicyRank: Number(fallbackOutward.farePolicyRank ?? 3) };
+                }
+                if (!outward)
+                    continue;
+
+                let finalParts = [access, outward];
+                let transfers = outward.hubTransfers || [];
+                if (!fromIsJ) {
+                    finalParts = finalParts.map(p => ({ ...p, segments: reverseSegs(p.segments) })).reverse();
+                    transfers = [...transfers].reverse().map(t => ({ ...t, from: t.to, to: t.from, fromLabel: t.toLabel, toLabel: t.fromLabel }));
+                    if (finalParts.length) finalParts = finalParts.map((p, i) => i === 0 ? { ...p, hubTransfers: transfers } : p);
+                } else if (finalParts.length) {
+                    finalParts = finalParts.map((p, i) => i === finalParts.length - 1 ? { ...p, hubTransfers: transfers } : p);
+                }
+                const total = finalParts.reduce((s, p) => s + (Number(p.gen) || 0), 0);
+                const detail = `${areaDisplayName(jn.area)} → ${hubName} → ${areaDisplayName(ext.area)} · ${outward.detail || outward.method || "허브 브릿지"}`;
+                candidates.push({ total, parts: finalParts, hubName, detail,
+                    continuityRank: outward.sameHub ? 0 : (transfers.length ? 1 : 2),
+                    farePolicyRank: Number(outward.farePolicyRank ?? 3) });
             }
             if (!candidates.length)
                 return null;
-            candidates.sort((a, b) => a.total - b.total);
+            // 동일허브 연속성 > 우등정책 > 기존 광주/순천 후보 순서 > 금액.
+            candidates.sort((a, b) => a.continuityRank - b.continuityRank || a.farePolicyRank - b.farePolicyRank || a.total - b.total);
             const best = candidates[0];
             const alt = candidates.slice(1).map(c => `${c.hubName} 경유 ${Number(c.total).toLocaleString()}원`);
-            return buildBridgeResult(best.parts, "광주전남 중심허브 브릿지", best.detail, alt);
+            return buildBridgeResult(best.parts, "Patch 5A 동일허브 우선 브릿지", best.detail, alt);
         };
         const internalResult = tryJeonnamInternalRoute();
         if (internalResult)
@@ -34892,6 +35126,64 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             }
         };
     }, [canonicalEndpointName, normalizeCity, resolveArea, displayCityName, grade]);
+    /* ── Patch 5A final fare guard ──
+       여러 세대의 수기/bridge/smart builder가 만들어낸 최종 areaSegments를 한 번 더 점검한다.
+       전남광주 내부 segment는 기존 일반/우등 선택을 보존하고, 그 밖의 전국 main bus segment만
+       lookupFare의 고속우등>시외우등>단일시외 정책으로 승격한다. 접근/도서/선박은 제외한다. */
+    const applyPatch5ANationwideFarePolicy = useCallback((value) => {
+        if (!value || typeof value !== "object") return value;
+        const rawSegs = Array.isArray(value.areaSegments) && value.areaSegments.length
+            ? value.areaSegments
+            : (value.multiHop && Array.isArray(value.multiHop.segs) ? value.multiHop.segs : []);
+        if (!rawSegs.length) return value;
+        const isJgPlace = (v) => {
+            const raw = nz(v);
+            const ar = resolveArea(raw);
+            return String((ar && ar.areaId) || "").startsWith("jg_") || isJNE(normalizeCity(raw));
+        };
+        let delta = 0;
+        const adjustments = [];
+        const segs = rawSegs.map((seg, index) => {
+            if (!seg || ["access", "local", "ferry", "rural", "missing"].includes(seg.kind)) return seg;
+            const fromName = nz(seg.from || seg.depName || seg.terminalFrom || "");
+            const toName = nz(seg.to || seg.arrName || seg.terminalTo || "");
+            if (!fromName || !toName || (isJgPlace(fromName) && isJgPlace(toName))) return seg;
+            const oldFare = Number(seg.gen || 0);
+            if (!(oldFare > 0)) return seg;
+            const hit = lookupFare(fromName, toName, true, 1) || lookupFare(fromName, toName, false, 1);
+            if (!hit || !(Number(hit.gen || 0) > 0) || !hit.nationwidePreferredFare) return seg;
+            const newFare = Number(hit.gen || 0);
+            if (newFare === oldFare && seg.nationwidePreferredFare) return seg;
+            delta += newFare - oldFare;
+            adjustments.push({ index, from: fromName, to: toName, oldFare, newFare,
+                fareGrade: hit.fareGrade || "단일시외", source: (hit.sources || [])[0] || "routes.json" });
+            return { ...seg, gen: newFare, pre: null,
+                terminalFrom: hit.depName || seg.terminalFrom || seg.depName || null,
+                terminalTo: hit.arrName || seg.terminalTo || seg.arrName || null,
+                depName: hit.depName || seg.depName || seg.terminalFrom || fromName,
+                arrName: hit.arrName || seg.arrName || seg.terminalTo || toName,
+                sources: hit.sources || seg.sources || [], sourceLabel: (hit.sources || [])[0] || seg.sourceLabel || "routes.json",
+                fareType: hit.fareGrade || seg.fareType || "단일시외", farePolicyRank: hit.farePolicyRank == null ? 2 : Number(hit.farePolicyRank),
+                nationwidePreferredFare: true, referenceGeneralFare: hit.referenceGeneralFare || null,
+                note: [seg.note, "Patch 5A 전국 우등우선 최종검수"].filter(Boolean).join(" · ") };
+        });
+        if (!adjustments.length) return value;
+        const next = { ...value, areaSegments: Array.isArray(value.areaSegments) && value.areaSegments.length ? segs : value.areaSegments,
+            gen: Math.max(0, Number(value.gen || 0) + delta),
+            cost: Math.max(0, Number(value.cost != null ? value.cost : value.gen || 0) + delta),
+            __patch5aFareDelta: delta, patch5aFareAdjustments: adjustments,
+            patch5aFarePolicy: "고속우등>시외우등>단일시외>일반fallback" };
+        if (value.multiHop && Array.isArray(value.multiHop.segs)) next.multiHop = { ...value.multiHop, segs };
+        const hasJgDual = segs.some(seg => seg && isJgPlace(seg.from) && isJgPlace(seg.to) && Number(seg.pre || 0) > 0);
+        if (!hasJgDual) {
+            next.pre = null;
+            next.gradeSelectable = false;
+            next.gradeDefault = "gen";
+        } else if (Number(next.pre || 0) > 0) {
+            next.pre = Math.max(0, Number(next.pre || 0) + delta);
+        }
+        return next;
+    }, [lookupFare, resolveArea]);
     const performCalc = useCallback((o = origin, d = dest, viaCity = via) => {
         // R5-D2.1: 이 호출을 현재 계산 세대로 지정한다. 이후 호출이 오면 아래 비동기 결과는 폐기된다.
         const calcGeneration = ++calcGenerationRef.current;
@@ -34939,7 +35231,14 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 return false;
             if (value && typeof value === "object") {
                 value = sanitizeR5ICityIdentity(value);
+                const patch5aValue = applyPatch5ANationwideFarePolicy(value);
+                if (patch5aValue && patch5aValue !== value) {
+                    Object.assign(value, patch5aValue);
+                    value = patch5aValue;
+                }
                 value = { ...value, __ybezCalcKey: calcKey, __ybezCalcGeneration: calcGeneration };
+                if (Number(value.__patch5aFareDelta || 0) !== 0 && !value.needsManualFare)
+                    setManualTransport(Number(value.gen || 0) * 2);
             }
             setResult(value);
             return true;
@@ -36619,7 +36918,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 setCalcSt("error_no_route");
             }
         }, 50);
-    }, [calcSegment, findSubResults, buildMokpoMuanSameLivingChoices, buildSameAreaZeroChoices, findSmartRoute, lookupRouteWithAlternatives, findAreaRoute, findNationwideExperimentalRoute, addHistory, modalSt, origin, dest, via, resolveArea, displayCityName, buildEndpointPlan, applyEndpointPlans, findGwangjuExactOverride, findSuncheonExactOverride, applyRuntimeFareOverride, inheritSingleIslandMainGrade, findForcedContinuityRoute, auditRouteContinuity, findNamakExactRoute, lookupF5FCanonicalDirect, canonicalEndpointName, normalizeCity, buildGwangjuHubInheritedRoute, resolveGwangjuRouteForInheritance, buildF5APinpointRoute, buildF5JGwangjuSurveyRepairRoute, buildF5FCommonRoutingRoute, buildF5DDestinationHubRoute, buildF5ECommonCapturedRepairRoute, buildF5C1YeongdongRoute, buildF5CTargetedBridgeRoute, buildF5LR2PinpointGate, buildF5LRDestinationBackboneRoute, buildDirectionalJgSmartRoute, buildSmartVerifiedFallbackRoute, preferSmartQualityResult, inheritSingleMainGrade, normalizeExactForwardSegments, buildR5DualRouteShadow, buildR5D2CuratedRoute, buildR5HResidualVerifiedRoute, buildR5IWandoMainlandRoute, buildR5IJincheonCanonicalRoute, buildR5ISubordinateOsanCanonicalRoute, sanitizeR5ICityIdentity, resolveRuntimeRole, decorateViaGradeChoices, grade, cityList]);
+    }, [calcSegment, findSubResults, buildMokpoMuanSameLivingChoices, buildSameAreaZeroChoices, findSmartRoute, lookupRouteWithAlternatives, findAreaRoute, findNationwideExperimentalRoute, addHistory, modalSt, origin, dest, via, resolveArea, displayCityName, buildEndpointPlan, applyEndpointPlans, findGwangjuExactOverride, findSuncheonExactOverride, applyRuntimeFareOverride, inheritSingleIslandMainGrade, findForcedContinuityRoute, auditRouteContinuity, findNamakExactRoute, lookupF5FCanonicalDirect, canonicalEndpointName, normalizeCity, buildGwangjuHubInheritedRoute, resolveGwangjuRouteForInheritance, buildF5APinpointRoute, buildF5JGwangjuSurveyRepairRoute, buildF5FCommonRoutingRoute, buildF5DDestinationHubRoute, buildF5ECommonCapturedRepairRoute, buildF5C1YeongdongRoute, buildF5CTargetedBridgeRoute, buildF5LR2PinpointGate, buildF5LRDestinationBackboneRoute, buildDirectionalJgSmartRoute, buildSmartVerifiedFallbackRoute, preferSmartQualityResult, inheritSingleMainGrade, normalizeExactForwardSegments, buildR5DualRouteShadow, buildR5D2CuratedRoute, buildR5HResidualVerifiedRoute, buildR5IWandoMainlandRoute, buildR5IJincheonCanonicalRoute, buildR5ISubordinateOsanCanonicalRoute, sanitizeR5ICityIdentity, applyPatch5ANationwideFarePolicy, resolveRuntimeRole, decorateViaGradeChoices, grade, cityList]);
+    /* Patch 5A audit marker: nationwide preferred fare + same-hub-first multihub policy. */
+    if (typeof window !== "undefined") {
+        window.__YBEZ_PATCH5A_POLICY__ = Object.freeze({
+            farePriority: ["고속우등", "시외우등", "단일시외", "일반fallback"],
+            multiHubPriority: ["same_terminal", "same_complex", "intra_city_transfer_fallback"],
+            intraHubTransferFareIncluded: false, mapTransferDisplayed: false
+        });
+    }
     // R5-D2.2: 최종 화면 결과 공통 audit fallback.
     // R5 승격/Scope Guard가 이미 더 상세한 audit를 기록했다면 덮어쓰지 않고,
     // 광주→서울처럼 기존 보호/legacy 조기-return 경로도 동일 명령으로 확인 가능하게 한다.
@@ -38864,9 +39171,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 return true;
             });
 
+        const transferRows = Array.isArray(result && result.hubTransfers) ? result.hubTransfers.map((t, idx) => ({
+            key: `hub-transfer-${idx}-${t.city}-${t.from}-${t.to}`,
+            line: `${t.city} 관내 이동 · ${t.fromLabel || t.from} → ${t.toLabel || t.to}`,
+            source: "", sourceClass: "manual", hubTransfer: true
+        })) : [];
+        // Patch 5A: 관내 허브 이동은 요금/지도에는 넣지 않고 터미널정보에 한 줄만 표시한다.
         const livingZones = []; // D-stage: 왼쪽 경로정보에서는 광역생활권 설명을 표시하지 않는다.
-        return { terminalRows, livingZones };
-    }, [terminalNameFor]);
+        return { terminalRows: [...terminalRows, ...transferRows], livingZones };
+    }, [terminalNameFor, result]);
     const routeFareText = useCallback((r) => {
         if (r.kind === "missing")
             return "미확인";
@@ -40764,25 +41077,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             React.createElement("div", { className: "compact-choice-mobile-panel4j" },
                                 React.createElement(MobileSelectionPanel, null)),
                             React.createElement(CenterMascotCard, null))
-                        : isDesktopMini
-                            ? React.createElement("div", { className: "mini-choice-mascot-row4t" },
-                                React.createElement("div", { className: "mini-choice-panel4t" },
-                                    React.createElement(MobileSelectionPanel, null)),
-                                React.createElement(CenterMascotCard, null))
-                            : mobilePagerEnabledM6A2
-                                ? React.createElement("div", { className: "mobile-choice-mascot-row4t" },
-                                    React.createElement("div", { className: "mobile-choice-panel4t" },
-                                        React.createElement(MobileSelectionPanel, null)),
-                                    React.createElement(CenterMascotCard, null))
-                                : React.createElement(React.Fragment, null,
-                                    React.createElement("div", { className: "pc-choice-mascot-grid" },
-                                        React.createElement("div", { className: "pc-choice-stack" },
-                                            React.createElement(CenterGradeChoice, null),
-                                            React.createElement("div", { className: "pc-access-selection" },
-                                                React.createElement(AccessCostDecisionCards, { compact: true }),
-                                                React.createElement(SameLivingDecisionCards, { compact: true }))),
-                                        React.createElement(CenterMascotCard, null)),
-                                    React.createElement(MobileSelectionPanel, null)),
+                        : React.createElement(React.Fragment, null,
+                            React.createElement("div", { className: "pc-choice-mascot-grid" },
+                                React.createElement("div", { className: "pc-choice-stack" },
+                                    React.createElement(CenterGradeChoice, null),
+                                    React.createElement("div", { className: "pc-access-selection" },
+                                        React.createElement(AccessCostDecisionCards, { compact: true }),
+                                        React.createElement(SameLivingDecisionCards, { compact: true }))),
+                                React.createElement(CenterMascotCard, null)),
+                            React.createElement(MobileSelectionPanel, null)),
                 React.createElement("div", { className: `status-bar ${calcSt === "working" ? "sb-idle" : "sb-done"} ${(calcSt === "error_scope" || statusMessages.length > 0) ? "status-tall" : ""} ${(calcSt === "working" || calcSt === "error_scope" || !!partialRouteNoticeText || statusMessages.length > 0) ? "mobile-status-important" : ""}` }, calcSt === "working" ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "dot-pulse flex gap-1" }, [0, 1, 2].map(i => React.createElement("span", { key: i, style: { animationDelay: `${i * .2}s` } }))),
                     React.createElement("span", null, "노선 탐색 중..."))) : calcSt === "error_scope" ? (React.createElement("span", { className: "status-message scope" },
@@ -45995,190 +46298,5 @@ html.ybez-desktop-compact:not(.ybez-desktop-mini):not(.ybez-desktop-tablet)
   transform:scale(1.06)!important;
 }
 </style>
-
-<style id="ybez-patch4t-multimode-mascot-unified-selection-20260826">
-/* Patch 4T · Tablet/Mobile/Mini only.
-   Bring the Desktop/Compact selection-card grammar to all narrow modes:
-   conditional selection controls on the left, mascot always on the right,
-   status strip immediately below. Calculation/routing/footer/swipe logic is untouched. */
-
-/* Tablet: trim vertical rhythm, keep generous text size, use a 136px Desktop-style mascot. */
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k{
-  grid-template-columns:minmax(0,1fr) 136px!important;
-  gap:8px!important;margin:7px 12px 0!important;padding:7px!important;
-  border:1px solid #DCE3EB!important;border-radius:12px!important;background:#FFFFFF!important;
-  box-shadow:0 2px 8px rgba(23,58,99,.055)!important;overflow:hidden!important;
-}
-html.ybez-desktop-tablet .tablet-choice-panel4k > .mobile-selection-panel,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k > .mobile-selection-panel{
-  gap:0!important;justify-content:center!important;
-}
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-narrow-choice-block + .ybez-narrow-choice-block,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-narrow-choice-block + .ybez-narrow-choice-block{margin-top:5px!important;}
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip-grid,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip-grid,
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-grid,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-grid{gap:5px!important;}
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-grid,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-grid{margin-top:4px!important;}
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip{height:28px!important;min-height:28px!important;max-height:28px!important;padding:0 7px!important;}
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-batch-choice-btn,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-batch-choice-btn{height:33px!important;min-height:33px!important;max-height:33px!important;padding:0 7px!important;font-size:12.5px!important;}
-html.ybez-desktop-tablet .tablet-choice-panel4k .ybez-segment-chip-label,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-panel4k .ybez-segment-chip-label{font-size:10.5px!important;line-height:1.05!important;-webkit-line-clamp:1!important;line-clamp:1!important;white-space:nowrap!important;}
-
-/* Mini: preserve width, compress only vertical spacing. */
-html.ybez-desktop-mini .mini-choice-mascot-row4t{
-  display:grid!important;grid-template-columns:minmax(0,1fr) 112px!important;align-items:center!important;
-  gap:7px!important;margin:7px 12px 0!important;padding:7px!important;min-width:0!important;
-  border:1px solid #DCE3EB!important;border-radius:12px!important;background:#FFFFFF!important;
-  box-shadow:0 2px 8px rgba(23,58,99,.055)!important;overflow:hidden!important;box-sizing:border-box!important;
-}
-html.ybez-desktop-mini .mini-choice-panel4t{min-width:0!important;width:100%!important;}
-html.ybez-desktop-mini .mini-choice-panel4t > .mobile-selection-panel{display:flex!important;flex-direction:column!important;width:100%!important;margin:0!important;padding:0!important;gap:0!important;justify-content:center!important;}
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-narrow-choice-block + .ybez-narrow-choice-block{margin-top:4px!important;}
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-segment-chip-grid,
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-batch-choice-grid{gap:4px!important;}
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-batch-choice-grid{margin-top:4px!important;}
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-segment-chip{height:27px!important;min-height:27px!important;max-height:27px!important;padding:0 6px!important;border-radius:8px!important;}
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-batch-choice-btn{height:32px!important;min-height:32px!important;max-height:32px!important;padding:0 6px!important;border-radius:9px!important;font-size:12px!important;}
-html.ybez-desktop-mini .mini-choice-panel4t .ybez-segment-chip-label{font-size:10px!important;line-height:1.05!important;-webkit-line-clamp:1!important;line-clamp:1!important;white-space:nowrap!important;}
-
-/* Real Mobile: same grammar, smaller square. Visual control height is compressed,
-   while buttons retain normal button semantics and full width inside the left column. */
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t{
-    display:grid!important;grid-template-columns:minmax(0,1fr) 98px!important;align-items:center!important;
-    gap:6px!important;margin:7px 12px 0!important;padding:6px!important;min-width:0!important;
-    border:1px solid #DCE3EB!important;border-radius:12px!important;background:#FFFFFF!important;
-    box-shadow:0 2px 8px rgba(23,58,99,.055)!important;overflow:hidden!important;
-  }
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t{min-width:0!important;width:100%!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t > .mobile-selection-panel{display:flex!important;flex-direction:column!important;width:100%!important;margin:0!important;padding:0!important;gap:0!important;justify-content:center!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-narrow-choice-block + .ybez-narrow-choice-block{margin-top:4px!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-segment-chip-grid,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-batch-choice-grid{gap:4px!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-batch-choice-grid{margin-top:4px!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-segment-chip{height:26px!important;min-height:26px!important;max-height:26px!important;padding:0 5px!important;border-radius:8px!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-batch-choice-btn{height:31px!important;min-height:31px!important;max-height:31px!important;padding:0 5px!important;border-radius:9px!important;font-size:11.5px!important;}
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-panel4t .ybez-segment-chip-label{font-size:9.5px!important;line-height:1.05!important;-webkit-line-clamp:1!important;line-clamp:1!important;white-space:nowrap!important;}
-}
-
-/* Desktop/4S mascot presentation formula, scaled per narrow mode. */
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k > .pc-center-mascot-card,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k > .pc-center-mascot-card,
-html.ybez-desktop-mini .mini-choice-mascot-row4t > .pc-center-mascot-card{
-  display:flex!important;margin:0!important;padding:2px!important;align-items:center!important;justify-content:center!important;
-  border:1px solid #D6E0E9!important;border-radius:7px!important;background:#F8FAFC!important;
-  box-shadow:0 2px 8px rgba(23,58,99,.07)!important;overflow:hidden!important;box-sizing:border-box!important;
-}
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k > .pc-center-mascot-card,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k > .pc-center-mascot-card{width:136px!important;height:136px!important;min-width:136px!important;min-height:136px!important;max-width:136px!important;max-height:136px!important;}
-html.ybez-desktop-mini .mini-choice-mascot-row4t > .pc-center-mascot-card{width:112px!important;height:112px!important;min-width:112px!important;min-height:112px!important;max-width:112px!important;max-height:112px!important;}
-
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t > .pc-center-mascot-card{
-    display:flex!important;width:98px!important;height:98px!important;min-width:98px!important;min-height:98px!important;max-width:98px!important;max-height:98px!important;
-    margin:0!important;padding:2px!important;align-items:center!important;justify-content:center!important;
-    border:1px solid #D6E0E9!important;border-radius:7px!important;background:#F8FAFC!important;
-    box-shadow:0 2px 8px rgba(23,58,99,.07)!important;overflow:hidden!important;box-sizing:border-box!important;
-  }
-}
-
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-stage,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-stage,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .pc-center-mascot-stage,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-stage{
-  border-radius:8px!important;overflow:hidden!important;background:#F8FAFC!important;aspect-ratio:1/1!important;
-}
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .pc-center-mascot-stage,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .pc-center-mascot-stage{width:132px!important;height:132px!important;min-width:132px!important;min-height:132px!important;max-width:132px!important;max-height:132px!important;flex:0 0 132px!important;}
-html.ybez-desktop-mini .mini-choice-mascot-row4t .pc-center-mascot-stage,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-stage{width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;flex:0 0 108px!important;}
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .pc-center-mascot-stage,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-stage{
-    width:94px!important;height:94px!important;min-width:94px!important;min-height:94px!important;max-width:94px!important;max-height:94px!important;flex:0 0 94px!important;
-    border-radius:8px!important;overflow:hidden!important;background:#F8FAFC!important;aspect-ratio:1/1!important;
-  }
-}
-
-/* Progressive feather copied from the accepted Desktop/4S treatment. */
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-stage,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-stage,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-stage{
-  -webkit-mask-image:
-    linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
-    linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
-  -webkit-mask-composite:source-in!important;
-  mask-image:
-    linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
-    linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
-  mask-composite:intersect!important;
-}
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-stage{
-    -webkit-mask-image:
-      linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
-      linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
-    -webkit-mask-composite:source-in!important;
-    mask-image:
-      linear-gradient(to right,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%),
-      linear-gradient(to bottom,transparent 0,rgba(0,0,0,.30) 3px,rgba(0,0,0,.82) 7px,#000 10px,#000 calc(100% - 10px),rgba(0,0,0,.82) calc(100% - 7px),rgba(0,0,0,.30) calc(100% - 3px),transparent 100%)!important;
-    mask-composite:intersect!important;
-  }
-}
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img{
-  inset:0!important;padding:0!important;border-radius:8px!important;object-fit:contain!important;object-position:center center!important;
-  transform:scale(1.06)!important;transform-origin:center center!important;filter:none!important;
-}
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img{width:132px!important;height:132px!important;min-width:132px!important;min-height:132px!important;max-width:132px!important;max-height:132px!important;}
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img{width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;}
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img{
-    inset:0!important;width:94px!important;height:94px!important;min-width:94px!important;min-height:94px!important;max-width:94px!important;max-height:94px!important;padding:0!important;
-    border-radius:8px!important;object-fit:contain!important;object-position:center center!important;transform:scale(1.06)!important;transform-origin:center center!important;filter:none!important;
-  }
-}
-/* Keep every transition layer on the same 1.06 scale. */
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base,
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base.dim,
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming,
-html.ybez-desktop-tablet .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming.on,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.base.dim,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming,
-html[data-ybez-ui-mode="tablet"] .tablet-choice-mascot-row4k .mobile-rc-mascot-img.incoming.on,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.base,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.base.dim,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.incoming,
-html.ybez-desktop-mini .mini-choice-mascot-row4t .mobile-rc-mascot-img.incoming.on{transform:scale(1.06)!important;}
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.base,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.base.dim,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.incoming,
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .mobile-choice-mascot-row4t .mobile-rc-mascot-img.incoming.on{transform:scale(1.06)!important;}
-}
-
-/* Revive the Desktop-style status strip directly below the new selection card. */
-html.ybez-desktop-tablet .status-bar,
-html[data-ybez-ui-mode="tablet"] .status-bar,
-html.ybez-desktop-mini .status-bar{display:flex!important;align-items:center!important;justify-content:flex-start!important;height:auto!important;min-height:30px!important;margin:6px 12px 0!important;padding:5px 8px!important;text-align:left!important;line-height:1.3!important;}
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .status-bar{display:flex!important;align-items:center!important;justify-content:flex-start!important;height:auto!important;min-height:30px!important;margin:6px 12px 0!important;padding:5px 8px!important;text-align:left!important;line-height:1.3!important;}
-}
-html.ybez-desktop-tablet .status-message-stack,
-html[data-ybez-ui-mode="tablet"] .status-message-stack,
-html.ybez-desktop-mini .status-message-stack{width:100%!important;}
-@media(max-width:699px){
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) .status-message-stack{width:100%!important;}
-}
-</style>
-
 </body>
 </html>
