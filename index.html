@@ -28671,6 +28671,115 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             return { ...JNE_FARES[tc][fc], depId: null, arrId: null, depName: fc, arrName: tc, sources: ["JNE2026"], all_sources: ["JNE2026"], dr: `${tc}→${fc}` };
         return null;
     }, [lookupRoute]);
+
+    /* ── Patch 5B: 전국 main-route 요금등급 우선 lookup ──
+       - 경로/동일허브 후보가 정해진 범위 안에서 fare class를 source보다 먼저 본다.
+       - 고속우등 > 시외우등 > 단일시외 > 일반 fallback.
+       - 프리미엄 좌석은 자동 선택하지 않는다.
+       - 멀티허브의 명시 허브명은 manual_bridge alias가 섞이지 않도록 실제 터미널 node를 우선한다. */
+    const patch5bStrictHubNodes = useCallback((rawName) => {
+        const raw = nz(rawName).replace(/\s/g, "");
+        let rx = null;
+        if (raw === "광주" || /광주유스퀘어/.test(raw)) rx = /광주유스퀘어/;
+        else if (/센트럴시티|서울고속|서울경부/.test(raw)) rx = /서울고속버스터미널/;
+        else if (/동서울/.test(raw)) rx = /동서울종합터미널/;
+        else if (/서울남부/.test(raw)) rx = /서울남부터미널/;
+        else if (/부산서부|사상/.test(raw)) rx = /부산서부시외버스터미널/;
+        else if (/부산종합/.test(raw)) rx = /부산종합버스터미널/;
+        else if (/동대구/.test(raw)) rx = /동대구터미널/;
+        else if (/대구서부/.test(raw)) rx = /대구서부정류장/;
+        else if (/서대구/.test(raw)) rx = /서대구고속버스터미널/;
+        else if (raw === "순천" || /순천종합/.test(raw)) rx = /순천종합버스터미널/;
+        if (!rx) return null;
+        const ids = Object.values(nodesMap || {}).filter(n => n && n.node_id && rx.test(String(n.display_name || ""))).map(n => n.node_id);
+        return ids.length ? ids : null;
+    }, [nodesMap]);
+    const patch5bFareClassInfo = (rt) => {
+        const fares = (rt && rt.fares) || {};
+        const srcs = (rt && rt.sources) || [];
+        const udeung = Number(fares["우등"] || 0);
+        const expressNormal = Number(fares["고속"] || 0);
+        const general = Number(fares["일반"] || 0);
+        const hasKobus = srcs.some(s => String(s || "").toLowerCase() === "kobus");
+        // 프리미엄은 의도적으로 후보에 넣지 않는다.
+        if (udeung > 0) {
+            const isExpressUdeung = hasKobus || expressNormal > 0;
+            return {
+                fare: udeung,
+                rank: isExpressUdeung ? 0 : 1,
+                fareGrade: isExpressUdeung ? "고속우등" : "시외우등",
+                referenceGeneralFare: general || expressNormal || null
+            };
+        }
+        const singles = [...new Set([general, expressNormal].filter(v => Number(v) > 0).map(Number))];
+        if (singles.length === 1) {
+            return { fare: singles[0], rank: 2, fareGrade: "단일시외", referenceGeneralFare: null };
+        }
+        if (singles.length > 1) {
+            return { fare: general || expressNormal, rank: 3, fareGrade: "일반", referenceGeneralFare: null };
+        }
+        return null;
+    };
+    const lookupNationwidePreferredFare5B = useCallback((fromCity, toCity, minFare = 0) => {
+        if (!routesDB) return null;
+        const fc = nz(fromCity), tc = nz(toCity);
+        const fn = normalizeCity(fc), tn = normalizeCity(tc);
+        // 5A에서 이미 검증된 광주↔서울 대표 도착축은 그대로 최상위 보호한다.
+        if ((fn === "광주" && tn === "서울") || (fn === "서울" && tn === "광주")) {
+            const reverse = fn === "서울";
+            return {
+                gen: 33300, pre: null,
+                depId: reverse ? "NODE_0002" : "NODE_0053", arrId: reverse ? "NODE_0053" : "NODE_0002",
+                depName: reverse ? "센트럴시티터미널" : "광주유스퀘어",
+                arrName: reverse ? "광주유스퀘어" : "센트럴시티터미널",
+                sources: ["kobus"], all_sources: ["kobus"], source: "kobus", sourceLabel: "KOBUS",
+                dr: reverse ? "센트럴시티터미널→광주유스퀘어" : "광주유스퀘어→센트럴시티터미널",
+                gradeSelectable: false, gradeDefault: "gen", fareGrade: "고속우등",
+                farePolicyRank: 0, nationwidePreferredFare: true, referenceGeneralFare: null,
+                patch5bVerifiedFare: true
+            };
+        }
+        const fStrict = patch5bStrictHubNodes(fc);
+        const tStrict = patch5bStrictHubNodes(tc);
+        const fNodes = fStrict && fStrict.length ? fStrict : resolveNodes(fc);
+        const tNodes = tStrict && tStrict.length ? tStrict : resolveNodes(tc);
+        if (!fNodes.length || !tNodes.length) return null;
+        let best = null;
+        for (let fi = 0; fi < fNodes.length; fi++) {
+            const dep = fNodes[fi];
+            for (let ti = 0; ti < tNodes.length; ti++) {
+                const arr = tNodes[ti];
+                if (!dep || !arr || dep === arr) continue;
+                const [a, b] = [dep, arr].sort();
+                const rt = routesDB[`${a}_${b}`];
+                if (!(rt && rt.fares)) continue;
+                const info = patch5bFareClassInfo(rt);
+                if (!info || !(Number(info.fare) >= Number(minFare || 0)) || !(Number(info.fare) > 0)) continue;
+                const srcs = rt.sources || [];
+                const sourceRank = routeSourcePriority(srcs);
+                const source = [...srcs].sort((x, y) => routeSourcePriority([x]) - routeSourcePriority([y]))[0] || "routesDB";
+                const cand = {
+                    gen: Number(info.fare), pre: null,
+                    depId: dep, arrId: arr,
+                    depName: getNodeName(dep, fc), arrName: getNodeName(arr, tc),
+                    sources: dispSrcs(srcs), all_sources: srcs,
+                    source, sourceLabel: source,
+                    dr: rt.display_route || `${fc}→${tc}`,
+                    gradeSelectable: false, gradeDefault: "gen", fareGrade: info.fareGrade,
+                    farePolicyRank: Number(info.rank), nationwidePreferredFare: true,
+                    referenceGeneralFare: info.referenceGeneralFare || null,
+                    _sourceRank: sourceRank, _canonicalOrder: fi + ti
+                };
+                const better = !best
+                    || cand.farePolicyRank < best.farePolicyRank
+                    || (cand.farePolicyRank === best.farePolicyRank && cand._sourceRank < best._sourceRank)
+                    || (cand.farePolicyRank === best.farePolicyRank && cand._sourceRank === best._sourceRank && cand._canonicalOrder < best._canonicalOrder)
+                    || (cand.farePolicyRank === best.farePolicyRank && cand._sourceRank === best._sourceRank && cand._canonicalOrder === best._canonicalOrder && cand.gen < best.gen);
+                if (better) best = cand;
+            }
+        }
+        return best;
+    }, [routesDB, patch5bStrictHubNodes, resolveNodes, getNodeName]);
     // 2R6B7C-1B: 남악 독립노드·독립운임 전용 결과. 기존 routes/JNE 원자료는 수정하지 않는다.
     const findNamakExactRoute = useCallback((fromRaw, toRaw) => {
         const from = normalizeCity(nz(fromRaw));
@@ -31042,7 +31151,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const fromIsJ = isJeonnamArea(fr.areaId), toIsJ = isJeonnamArea(tr.areaId);
             if (fromIsJ === toIsJ)
                 return null;
-            const direct = lookupFare(from, to, false, 0);
+            const direct = lookupNationwidePreferredFare5B(from, to, 0);
             if (!direct || !Number(direct.gen))
                 return null;
             const depName = direct.depName || displayCityName(from);
@@ -31096,7 +31205,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const PATCH5A_MULTI_HUBS = Object.freeze({
             "서울": Object.freeze({ city: "서울", hubs: Object.freeze(["서울고속", "동서울", "서울남부"]) }),
             "부산": Object.freeze({ city: "부산", hubs: Object.freeze(["부산", "부산서부"]) }),
-            "대구": Object.freeze({ city: "대구", hubs: Object.freeze(["동대구", "서대구", "대구서부"]) })
+            "대구": Object.freeze({ city: "대구", hubs: Object.freeze(["동대구", "서대구", "대구북부", "대구서부"]) })
         });
         const patch5aHubCanonical = (hub) => {
             const h = nz(hub).replace(/\s/g, "");
@@ -31106,7 +31215,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             if (/부산서부|사상/.test(h)) return "부산서부";
             if (/^부산$|부산종합/.test(h)) return "부산";
             if (/동대구/.test(h)) return "동대구";
-            if (/서대구|대구북부/.test(h)) return "서대구";
+            if (/대구북부/.test(h)) return "대구북부";
+            if (/서대구/.test(h)) return "서대구";
             if (/대구서부/.test(h)) return "대구서부";
             if (/^대구$/.test(h)) return "동대구";
             if (/^서울$/.test(h)) return "서울고속";
@@ -31116,7 +31226,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const h = patch5aHubCanonical(hub);
             if (["서울고속", "동서울", "서울남부"].includes(h)) return PATCH5A_MULTI_HUBS["서울"];
             if (["부산", "부산서부"].includes(h)) return PATCH5A_MULTI_HUBS["부산"];
-            if (["동대구", "서대구", "대구서부"].includes(h)) return PATCH5A_MULTI_HUBS["대구"];
+            if (["동대구", "서대구", "대구북부", "대구서부"].includes(h)) return PATCH5A_MULTI_HUBS["대구"];
             return null;
         };
         const patch5aHubLookupName = (hub) => {
@@ -31131,9 +31241,21 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const labels = {
                 "서울고속": "센트럴시티/서울고속터미널", "동서울": "동서울터미널", "서울남부": "서울남부터미널",
                 "부산": "부산종합버스터미널", "부산서부": "부산서부(사상)터미널",
-                "동대구": "동대구터미널", "서대구": "서대구/대구북부터미널", "대구서부": "대구서부정류장"
+                "동대구": "동대구터미널", "서대구": "서대구고속버스터미널", "대구북부": "대구북부시외버스터미널", "대구서부": "대구서부정류장"
             };
             return labels[h] || nz(hub);
+        };
+        const patch5bTerminalKey = (value) => {
+            const raw = nz(value).replace(/\s/g, "");
+            if (!raw) return "";
+            if (/센트럴시티|서울고속|서울경부/.test(raw)) return "SEOUL_EXPRESS_COMPLEX";
+            return raw
+                .replace(/종합여객터미널|종합버스터미널|고속버스터미널|시외버스공용터미널|시외버스터미널|버스터미널|여객터미널|터미널|정류장/g, "")
+                .replace(/[()·,./\\-]/g, "");
+        };
+        const patch5bSameTerminalOrComplex = (a, b) => {
+            const ak = patch5bTerminalKey(a), bk = patch5bTerminalKey(b);
+            return !!ak && !!bk && ak === bk;
         };
         const patch5aVerifiedTerminalFare = (fromName, toName) => {
             const a = patch5aHubCanonical(fromName), b = patch5aHubCanonical(toName);
@@ -31150,7 +31272,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const verified = patch5aVerifiedTerminalFare(fromName, toName);
             if (verified) return verified;
             const fLookup = patch5aHubLookupName(fromName), tLookup = patch5aHubLookupName(toName);
-            const hit = lookupFare(fLookup, tLookup, true, 1) || lookupFare(fLookup, tLookup, false, 1);
+            const hit = lookupNationwidePreferredFare5B(fLookup, tLookup, 1);
             if (!hit || !(Number(hit.gen || 0) > 0)) return null;
             const srcs = (hit.sources && hit.sources.length) ? hit.sources : (hit.all_sources || []);
             const rank = hit.farePolicyRank == null ? (hit.kobusUdeung ? 0 : (hit.referenceGeneralFare ? 1 : 2)) : Number(hit.farePolicyRank);
@@ -31174,6 +31296,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const hit = patch5aPreferredTerminalFare(seg.from, seg.to);
             if (!hit || !hit.segments || !hit.segments.length) return seg;
             const hs = hit.segments[0];
+            const oldRank = seg.farePolicyRank != null ? Number(seg.farePolicyRank)
+                : (/고속우등/.test(String(seg.fareType || "")) ? 0 : (/시외우등|우등/.test(String(seg.fareType || "")) ? 1 : null));
+            if (seg.nationwidePreferredFare && oldRank != null && oldRank <= Number(hit.farePolicyRank ?? 3)) return seg;
             return { ...seg, gen: Number(hit.gen) || Number(seg.gen) || 0, pre: null,
                 terminalFrom: hs.terminalFrom || seg.terminalFrom || null, terminalTo: hs.terminalTo || seg.terminalTo || null,
                 sourceLabel: hs.sourceLabel || seg.sourceLabel || "", sources: hs.sources || seg.sources || [],
@@ -31362,7 +31487,16 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     const dhToDest = fareBetweenAreas(dhId, ext.areaId, endpointHint, dh, true);
                     if (!(hToDh && dhToDest && hToDh.actualDirect && dhToDest.actualDirect))
                         continue;
-                    const segs = [...(hToDh.segments || []), ...(dhToDest.segments || [])];
+                    const leftSegs = hToDh.segments || [], rightSegs = dhToDest.segments || [];
+                    const leftLast = leftSegs.length ? leftSegs[leftSegs.length - 1] : null;
+                    const rightFirst = rightSegs.length ? rightSegs[0] : null;
+                    const arrivalTerminal = leftLast && (leftLast.terminalTo || leftLast.arrName);
+                    const departureTerminal = rightFirst && (rightFirst.terminalFrom || rightFirst.depName);
+                    // Patch 5B: Area ID가 같다는 이유만으로 same-hub로 인정하지 않는다.
+                    // 실제 terminalTo↔terminalFrom 또는 승인된 센트럴/서울고속 복합권만 PASS.
+                    if (!patch5bSameTerminalOrComplex(arrivalTerminal, departureTerminal))
+                        continue;
+                    const segs = [...leftSegs, ...rightSegs];
                     sameHubOptions.push({
                         dh, idx, gen: (Number(hToDh.gen) || 0) + (Number(dhToDest.gen) || 0),
                         segments: segs,
@@ -31500,7 +31634,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (edge)
             return buildAreaResult(edge, from, to, fr, tr, { score: edge.method === "RULE_DERIVED_EDGE" ? 4.5 : 5 });
         return { blocked: true, message: "권역-권역 산정 기준에 맞는 edge가 없습니다. 기존 전체 노드 자동탐색은 차단되었습니다." };
-    }, [areaGraph, areaIndex, resolveArea, findAreaEdge, buildAreaResult, displayCityName, areaDisplayName, makeAreaSegments, findManualAreaFare, findBidirectionalRouteCorrection, lookupFare, buildSameLivingAccessInfo, getCityCoord, calcStraightKm, macroCodeForArea, getAccessFareRecommendation]);
+    }, [areaGraph, areaIndex, resolveArea, findAreaEdge, buildAreaResult, displayCityName, areaDisplayName, makeAreaSegments, findManualAreaFare, findBidirectionalRouteCorrection, lookupFare, lookupNationwidePreferredFare5B, buildSameLivingAccessInfo, getCityCoord, calcStraightKm, macroCodeForArea, getAccessFareRecommendation]);
     /* ── 패치 2R: XLSX 역할판정 및 LV4/LV5 끝구간 계획 ── */
     const roleNorm = useCallback((v) => String(v || "").replace(/\s/g, "").replace(/[()\[\]{}·,./\\-]/g, "").toLowerCase(), []);
     const runtimeRoleById = useMemo(() => {
@@ -35126,7 +35260,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             }
         };
     }, [canonicalEndpointName, normalizeCity, resolveArea, displayCityName, grade]);
-    /* ── Patch 5A final fare guard ──
+    /* ── Patch 5B final fare/continuity guard (5A function name retained for compatibility) ──
        여러 세대의 수기/bridge/smart builder가 만들어낸 최종 areaSegments를 한 번 더 점검한다.
        전남광주 내부 segment는 기존 일반/우등 선택을 보존하고, 그 밖의 전국 main bus segment만
        lookupFare의 고속우등>시외우등>단일시외 정책으로 승격한다. 접근/도서/선박은 제외한다. */
@@ -35150,9 +35284,13 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             if (!fromName || !toName || (isJgPlace(fromName) && isJgPlace(toName))) return seg;
             const oldFare = Number(seg.gen || 0);
             if (!(oldFare > 0)) return seg;
-            const hit = lookupFare(fromName, toName, true, 1) || lookupFare(fromName, toName, false, 1);
+            const hit = lookupNationwidePreferredFare5B(fromName, toName, 1);
             if (!hit || !(Number(hit.gen || 0) > 0) || !hit.nationwidePreferredFare) return seg;
             const newFare = Number(hit.gen || 0);
+            const oldRank = seg.farePolicyRank != null ? Number(seg.farePolicyRank)
+                : (/고속우등/.test(String(seg.fareType || "")) ? 0 : (/시외우등|우등/.test(String(seg.fareType || "")) ? 1 : null));
+            if (seg.nationwidePreferredFare && oldRank != null && oldRank <= Number(hit.farePolicyRank ?? 3))
+                return seg;
             if (newFare === oldFare && seg.nationwidePreferredFare) return seg;
             delta += newFare - oldFare;
             adjustments.push({ index, from: fromName, to: toName, oldFare, newFare,
@@ -35167,23 +35305,73 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 nationwidePreferredFare: true, referenceGeneralFare: hit.referenceGeneralFare || null,
                 note: [seg.note, "Patch 5A 전국 우등우선 최종검수"].filter(Boolean).join(" · ") };
         });
-        if (!adjustments.length) return value;
-        const next = { ...value, areaSegments: Array.isArray(value.areaSegments) && value.areaSegments.length ? segs : value.areaSegments,
-            gen: Math.max(0, Number(value.gen || 0) + delta),
-            cost: Math.max(0, Number(value.cost != null ? value.cost : value.gen || 0) + delta),
-            __patch5aFareDelta: delta, patch5aFareAdjustments: adjustments,
-            patch5aFarePolicy: "고속우등>시외우등>단일시외>일반fallback" };
-        if (value.multiHop && Array.isArray(value.multiHop.segs)) next.multiHop = { ...value.multiHop, segs };
-        const hasJgDual = segs.some(seg => seg && isJgPlace(seg.from) && isJgPlace(seg.to) && Number(seg.pre || 0) > 0);
-        if (!hasJgDual) {
-            next.pre = null;
-            next.gradeSelectable = false;
-            next.gradeDefault = "gen";
-        } else if (Number(next.pre || 0) > 0) {
-            next.pre = Math.max(0, Number(next.pre || 0) + delta);
+        let next = value;
+        if (adjustments.length) {
+            next = { ...value, areaSegments: Array.isArray(value.areaSegments) && value.areaSegments.length ? segs : value.areaSegments,
+                gen: Math.max(0, Number(value.gen || 0) + delta),
+                cost: Math.max(0, Number(value.cost != null ? value.cost : value.gen || 0) + delta),
+                __patch5aFareDelta: delta, patch5aFareAdjustments: adjustments,
+                patch5aFarePolicy: "고속우등>시외우등>단일시외>일반fallback",
+                patch5bFarePolicyApplied: true };
+            if (value.multiHop && Array.isArray(value.multiHop.segs)) next.multiHop = { ...value.multiHop, segs };
+            const hasJgDual = segs.some(seg => seg && isJgPlace(seg.from) && isJgPlace(seg.to) && Number(seg.pre || 0) > 0);
+            if (!hasJgDual) {
+                next.pre = null;
+                next.gradeSelectable = false;
+                next.gradeDefault = "gen";
+            } else if (Number(next.pre || 0) > 0) {
+                next.pre = Math.max(0, Number(next.pre || 0) + delta);
+            }
         }
+
+        // Patch 5B final continuity audit:
+        // 같은 도시의 서로 다른 병렬허브를 실제로 사용한 경우에만 터미널정보용 관내이동 한 줄을 생성한다.
+        // 지도/요금/access_cost에는 반영하지 않는다.
+        const auditSegs = Array.isArray(next.areaSegments) && next.areaSegments.length
+            ? next.areaSegments
+            : (next.multiHop && Array.isArray(next.multiHop.segs) ? next.multiHop.segs : segs);
+        const terminalKey = (value) => {
+            const raw = nz(value).replace(/\s/g, "");
+            if (!raw) return "";
+            if (/센트럴시티|서울고속|서울경부/.test(raw)) return "SEOUL_EXPRESS_COMPLEX";
+            return raw
+                .replace(/종합여객터미널|종합버스터미널|고속버스터미널|시외버스공용터미널|시외버스터미널|버스터미널|여객터미널|터미널|정류장/g, "")
+                .replace(/[()·,./\\-]/g, "");
+        };
+        const hubCity = (value) => {
+            const raw = nz(value).replace(/\s/g, "");
+            if (/센트럴시티|서울고속|서울경부|동서울|서울남부/.test(raw)) return "서울";
+            if (/부산종합|부산서부|사상/.test(raw)) return "부산";
+            if (/동대구|서대구|대구북부|대구서부/.test(raw)) return "대구";
+            return "";
+        };
+        const transfers = Array.isArray(next.hubTransfers) ? [...next.hubTransfers] : [];
+        const transferKeys = new Set(transfers.map(t => `${t.city}|${terminalKey(t.fromLabel || t.from)}|${terminalKey(t.toLabel || t.to)}`));
+        for (let i = 0; i + 1 < auditSegs.length; i++) {
+            const a = auditSegs[i], b = auditSegs[i + 1];
+            if (!a || !b) continue;
+            const aTo = nz(a.terminalTo || a.arrName || "");
+            const bFrom = nz(b.terminalFrom || b.depName || "");
+            if (!aTo || !bFrom) continue;
+            const ak = terminalKey(aTo), bk = terminalKey(bFrom);
+            if (!ak || !bk || ak === bk) continue;
+            const ac = hubCity(aTo), bc = hubCity(bFrom);
+            if (!ac || ac !== bc) continue;
+            const tk = `${ac}|${ak}|${bk}`;
+            if (transferKeys.has(tk)) continue;
+            transferKeys.add(tk);
+            transfers.push({
+                city: ac, from: ak, to: bk,
+                fromLabel: aTo, toLabel: bFrom,
+                note: "Patch 5B 동일허브 불가 시 관내 병렬허브 이동 안내"
+            });
+        }
+        const originalTransfers = Array.isArray(value.hubTransfers) ? value.hubTransfers : [];
+        const transferChanged = transfers.length !== originalTransfers.length;
+        if (transferChanged) next = { ...next, hubTransfers: transfers, patch5bContinuityAudit: true };
+        if (!adjustments.length && !transferChanged) return value;
         return next;
-    }, [lookupFare, resolveArea]);
+    }, [lookupNationwidePreferredFare5B, resolveArea]);
     const performCalc = useCallback((o = origin, d = dest, viaCity = via) => {
         // R5-D2.1: 이 호출을 현재 계산 세대로 지정한다. 이후 호출이 오면 아래 비동기 결과는 폐기된다.
         const calcGeneration = ++calcGenerationRef.current;
@@ -36925,6 +37113,19 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             farePriority: ["고속우등", "시외우등", "단일시외", "일반fallback"],
             multiHubPriority: ["same_terminal", "same_complex", "intra_city_transfer_fallback"],
             intraHubTransferFareIncluded: false, mapTransferDisplayed: false
+        });
+    }
+    /* Patch 5B audit marker: fare-class-first + strict terminal continuity.
+       5A 함수명/결과 필드는 하위호환을 위해 일부 유지한다. */
+    if (typeof window !== "undefined") {
+        window.__YBEZ_PATCH5B_POLICY__ = Object.freeze({
+            base: "PATCH5A",
+            farePriority: ["고속우등", "시외우등", "단일시외", "일반fallback"],
+            premiumAutoSelect: false,
+            comparator: ["route_continuity", "fare_class", "source", "canonical_terminal", "fare"],
+            sameHubPass: ["terminalTo==terminalFrom", "SEOUL_EXPRESS_COMPLEX"],
+            intraHubTransfer: "terminal_info_only",
+            graphBlockedAffectsFareLookup: false
         });
     }
     // R5-D2.2: 최종 화면 결과 공통 audit fallback.
