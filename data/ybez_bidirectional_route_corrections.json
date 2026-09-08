@@ -198,20 +198,13 @@
       "segments_forward": [
         {
           "from": "광주",
-          "to": "서대구",
+          "to": "서대구고속버스터미널",
           "gen": 22900,
           "sourceLabel": "기존 확인 수기요금",
-          "note": "광주→서대구"
+          "note": "광주→서대구고속버스터미널"
         },
         {
-          "from": "서대구",
-          "to": "대구북부",
-          "gen": 0,
-          "sourceLabel": "YBEZ 병렬허브",
-          "note": "대구 병렬허브 내부 이동 0원"
-        },
-        {
-          "from": "대구북부",
+          "from": "대구북부시외버스터미널",
           "to": "영양",
           "gen": 18100,
           "sourceLabel": "기존 확인 수기요금",
@@ -219,7 +212,7 @@
         }
       ],
       "method": "YBEZ 2Gen 양방향 노선보정",
-      "reason": "41,000원 수기요금 양방향 통일 및 대구 병렬허브 구간 명시",
+      "reason": "41,000원 수기요금 양방향 통일 및 대구 병렬허브 구간 명시 · 5C: 물리 허브 이동 0원 segment 제거, hubTransfers 안내로 이관",
       "evidence": [
         {
           "type": "existing_confirmed_manual",
