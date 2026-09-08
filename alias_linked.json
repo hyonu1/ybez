@@ -1788,5 +1788,35 @@
     ],
     "main_node": "NODE_0039",
     "unmatched": []
+  },
+  "대구북부": {
+    "node_ids": [
+      "NODE_0650"
+    ],
+    "terminals": [
+      "대구북부"
+    ],
+    "main_node": "NODE_0650",
+    "unmatched": []
+  },
+  "북부정류장": {
+    "node_ids": [
+      "NODE_0650"
+    ],
+    "terminals": [
+      "대구북부"
+    ],
+    "main_node": "NODE_0650",
+    "unmatched": []
+  },
+  "대구북부시외버스터미널": {
+    "node_ids": [
+      "NODE_0650"
+    ],
+    "terminals": [
+      "대구북부"
+    ],
+    "main_node": "NODE_0650",
+    "unmatched": []
   }
 }
