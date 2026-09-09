@@ -31236,6 +31236,9 @@ const App = () => {
     const intraScopePulseTimerRef = useRef(null);
     const intraScopePulseRouteRef = useRef("");
     const [activeModal, setActiveModal] = useState(null);
+    // TP3-20260909: 교통비 Quick 종합편집과 여비계산의 빨간 감액 전용 팝업을 분리한다.
+    // quick = 종합 교통비 편집 / deduction = 감액 전용. 감액 state 자체는 두 팝업이 공유한다.
+    const [transportModalMode, setTransportModalMode] = useState("deduction");
     // TP1-20260909: 교통비 Quick 팝업 전용 기타교통비는 draft/committed를 분리한다.
     // 농어촌버스·선박·감액은 기존 shared state를 그대로 즉시 반영하고,
     // 이 기타교통비만 확인/바깥닫기 시 한 번에 반영한다.
@@ -31248,7 +31251,7 @@ const App = () => {
     const [dedEditorOpen, setDedEditorOpen] = useState({});
     // R10.3: value state stays shared, while each modal/editor open state stays independent.
     // Re-entering a deduction modal re-opens the currently applicable editor without resetting its value.
-    const openDeductionModal = useCallback((type) => {
+    const openDeductionModal = useCallback((type, transportMode = "deduction") => {
         // Patch 4G-R1: 실제 관내출장에서 일비 '감액'을 눌렀을 때만
         // 일반 일비 감액모달 대신 기존 관내 여비 팝업을 수동으로 다시 연다.
         // 검색/계산 완료만으로는 팝업을 자동으로 열지 않는다.
@@ -31271,28 +31274,32 @@ const App = () => {
             return prev;
         });
         if (type === "transport") {
-            const committed = Math.max(0, Number(otherTransportFare) || 0);
-            transportPopupOriginalOtherRef.current = committed;
-            setOtherTransportDraft(committed > 0 ? String(committed) : "");
+            const mode = transportMode === "quick" ? "quick" : "deduction";
+            setTransportModalMode(mode);
+            if (mode === "quick") {
+                const committed = Math.max(0, Number(otherTransportFare) || 0);
+                transportPopupOriginalOtherRef.current = committed;
+                setOtherTransportDraft(committed > 0 ? String(committed) : "");
+            }
         }
         setActiveModal(type);
     }, [result, origin, dest, otherTransportFare]);
     // 확인/팝업 바깥 클릭: 기타교통비 draft를 교체 방식으로 commit 후 닫는다.
     const closeDeductionModal = useCallback(() => {
-        if (activeModal === "transport") {
+        if (activeModal === "transport" && transportModalMode === "quick") {
             const raw = String(otherTransportDraft == null ? "" : otherTransportDraft).replace(/[^0-9]/g, "");
             setOtherTransportFare(raw === "" ? 0 : Number(raw));
         }
         setActiveModal(null);
-    }, [activeModal, otherTransportDraft]);
+    }, [activeModal, otherTransportDraft, transportModalMode]);
     // X/Esc: draft 기타교통비만 취소한다. 농어촌버스·선박·감액은 기존 즉시반영 로직을 유지한다.
     const cancelDeductionModal = useCallback(() => {
-        if (activeModal === "transport") {
+        if (activeModal === "transport" && transportModalMode === "quick") {
             const original = Math.max(0, Number(transportPopupOriginalOtherRef.current) || 0);
             setOtherTransportDraft(original > 0 ? String(original) : "");
         }
         setActiveModal(null);
-    }, [activeModal]);
+    }, [activeModal, transportModalMode]);
     useEffect(() => {
         if (activeModal !== "transport" || typeof window === "undefined") return;
         const onKey = (e) => { if (e.key === "Escape") { e.preventDefault(); cancelDeductionModal(); } };
@@ -32340,6 +32347,25 @@ const App = () => {
         };
     }, [desktopUiMode]);
 
+    // UI-FRAME-C1: 기존 모바일 시험 실행기의 승인 크기(430×932)를 index에서도 보조 복구한다.
+    // --app/--window-size가 브라우저에 의해 재사용될 때도 모바일 테스트 창이 Desktop 비율로 남지 않게 한다.
+    useEffect(() => {
+        if (!mobileTestModeM6A2 || typeof window === "undefined") return;
+        const restoreMobileTestFrame = () => {
+            try {
+                const targetW = 430;
+                const targetH = 932;
+                if (Math.abs(Number(window.outerWidth || 0) - targetW) > 12 ||
+                    Math.abs(Number(window.outerHeight || 0) - targetH) > 18) {
+                    window.resizeTo(targetW, targetH);
+                }
+            } catch (_) {}
+        };
+        restoreMobileTestFrame();
+        const t = window.setTimeout(restoreMobileTestFrame, 120);
+        return () => window.clearTimeout(t);
+    }, [mobileTestModeM6A2]);
+
     // D36 Mini: every fresh Mini entry starts on Home.
     useEffect(() => {
         if (desktopUiMode !== "mini") return;
@@ -33100,7 +33126,34 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const nextMode = initialMode === "tablet" ? "tablet" : "mini";
         const existing = window.__YBEZ_PIP_W3_WINDOW__;
         if (existing && !existing.closed) {
-            return applyPiPModeW3(existing, nextMode);
+            const currentMode = (() => {
+                try { return existing.document.documentElement.getAttribute("data-ybez-ui-mode") || ""; }
+                catch (_) { return ""; }
+            })();
+            if (currentMode === nextMode) return applyPiPModeW3(existing, nextMode);
+
+            // UI-FRAME-C1: Mini ↔ Tablet 전환 시 기존 PiP 프레임 비율을 그대로 재사용하지 않는다.
+            // live React root를 opener로 잠깐 돌린 뒤 현재 PiP를 닫고, 대상 모드의 승인된 초기 크기로 즉시 다시 연다.
+            window.__YBEZ_PIP_W3_RETURNING__ = true;
+            try {
+                const root = existing.document && existing.document.getElementById("root");
+                const anchor = document.getElementById("ybez-pip-root-anchor-w3");
+                if (root) {
+                    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(root, anchor.nextSibling);
+                    else document.body.insertBefore(root, document.body.firstChild);
+                }
+            } catch (_) {}
+            detachTabletScaleW32(existing);
+            detachTabletFrameLockW36A(existing);
+            try {
+                const exitHandler = window.__YBEZ_PIP_W3_PAGEHIDE__;
+                if (exitHandler) existing.removeEventListener("pagehide", exitHandler);
+            } catch (_) {}
+            window.__YBEZ_PIP_W3_PAGEHIDE__ = null;
+            window.__YBEZ_PIP_W3_ACTIVE__ = false;
+            window.__YBEZ_PIP_W3_WINDOW__ = null;
+            try { existing.close(); } catch (_) {}
+            window.__YBEZ_PIP_W3_RETURNING__ = false;
         }
 
         let pipWindow;
@@ -33181,7 +33234,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
          "ybez-qr26-c4r-tablet-special-finish",
          "ybez-qr26-c4r2-tablet-included-tag-lane-fix",
          "ybez-tp1-transport-expense-popup-20260909",
-         "ybez-tp2-transport-popup-refine-20260909"].forEach(id => {
+         "ybez-tp2-transport-popup-refine-20260909",
+         "ybez-tablet-tripdays-stepper-restore-20260909"].forEach(id => {
             if (pipDoc.getElementById(id)) return; // 중복 clone 방지
             const src = document.getElementById(id);
             if (src) { try { pipDoc.head.appendChild(src.cloneNode(true)); } catch (_) {} }
@@ -47099,7 +47153,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
     const qe4Open = (key) => {
         if (!result) return;
 
-        if (key === "transport" || key === "daily" || key === "meal") {
+        if (key === "transport") {
+            openDeductionModal("transport", "quick");
+            return;
+        }
+        if (key === "daily" || key === "meal") {
             openDeductionModal(key);
             return;
         }
@@ -48357,6 +48415,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             const mc = modalContent(activeModal);
             if (!mc)
                 return null;
+            const transportQuickMode = activeModal === "transport" && transportModalMode === "quick";
+            const transportDeductionOnlyMode = activeModal === "transport" && !transportQuickMode;
             const originName = nz(origin) || "출발지";
             const destinationName = nz(dest) || "도착지";
             const maxVehicleDays = Math.max(1, tripDays);
@@ -48525,10 +48585,52 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         })),
                     null);
             };
+            const renderTransportDeductionSection = () => React.createElement("div", { className: "ded-section transport-expense-deduction-section" },
+                React.createElement("div", { className: "ded-section-title ded-section-heading" },
+                    DedInfoIcon("choice"),
+                    React.createElement("span", null, "감액 사유")),
+                React.createElement("div", null, transportReasons.map(renderTransportReason)),
+                React.createElement("div", { className: "ded-compact-audit transport-two-line" },
+                    React.createElement("div", { className: "ded-info-heading" },
+                        DedInfoIcon("audit"),
+                        React.createElement("span", null, "감사 유의")),
+                    React.createElement("div", { className: "ded-info-copy" },
+                        React.createElement("div", null, "기관이 이미 부담한 교통비를 출장자에게 중복 지급하거나,"),
+                        React.createElement("div", null, "출장일, 출장지와 관련된 기록이 없어 출장의 이행을 확인할 수 없는 자료로는 교통비가 지급이 안됩니다."))),
+                React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, transport: !prev.transport })) }, dedAccordionOpen.transport ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
+                dedAccordionOpen.transport && React.createElement("div", { className: "ded-accordion-panel" },
+                    React.createElement("div", { className: "ded-panel-heading evidence" },
+                        DedInfoIcon("evidence"),
+                        React.createElement("span", null, "확인 자료")),
+                    React.createElement("div", { className: "ded-evidence-item", style: { marginTop: 0 } },
+                        React.createElement("div", { className: "ded-evidence-name" }, "관용차량"),
+                        React.createElement("div", { className: "ded-evidence-text" }, "출장 기안문, 여비정산신청서, 공용차량배차신청내역, 차량운행일지 등으로 실제 이용을 확인")),
+                    React.createElement("div", { className: "ded-evidence-item" },
+                        React.createElement("div", { className: "ded-evidence-name" }, "임차차량"),
+                        React.createElement("div", { className: "ded-evidence-text" }, "해당 출장의 지출품의, 전세버스임차용역 계약서(원인행위목록), 세금계산서 등으로 확인")),
+                    React.createElement("div", { className: "ded-evidence-principle transport-proof-principle" }, "출장일에 출장지까지 실제로 이동했다는 사실을 누가 보더라도 확인할 수 있는 객관적인 자료여야 합니다."),
+                    React.createElement("div", { className: "ded-destination transport-route-proof" }, `${originName} → ${destinationName} 출장의 실제 이동과 출장일의 관련성을 확인할 수 있어야 합니다.`),
+                    React.createElement("div", { className: "ded-evidence-item" },
+                        React.createElement("div", { className: "ded-evidence-name" }, "하이패스·고속도로 통행내역"),
+                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${originName} → ${destinationName} 이동 또는 ${destinationName} 방향 이동을 확인할 수 있는 통행내역`)),
+                    React.createElement("div", { className: "ded-evidence-item" },
+                        React.createElement("div", { className: "ded-evidence-name" }, "주유영수증"),
+                        React.createElement("div", { className: "ded-evidence-text" }, `원칙적으로 출장일에 출장지인 ${destinationName} 소재 주유소에서 결제한 영수증을 확인합니다.`)),
+                    React.createElement("div", { className: "ded-evidence-item" },
+                        React.createElement("div", { className: "ded-evidence-name" }, "주차영수증"),
+                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${destinationName} 출장 기관 또는 ${destinationName} 주차장에서 결제한 영수증`)),
+                    React.createElement("div", { className: "ded-note-box transport-alt-proof" },
+                        React.createElement("strong", null, "통상적인 증빙 확보가 어려운 경우"),
+                        React.createElement("div", null, "이동경로·결제시간·주유소 위치·출장자·출장차량·출장지가 함께 확인되는 현장사진 등 실제 출장 이동을 객관적으로 확인할 수 있는 자료를 다른 추가 증빙과 함께 검토할 수 있습니다."),
+                        React.createElement("div", { style: { marginTop: 4 } }, "최종 인정 여부는 제출자료 전체를 토대로 소속기관에서 판단합니다.")),
+                    React.createElement("div", { className: "ded-panel-heading legal" },
+                        DedInfoIcon("legal"),
+                        React.createElement("span", null, "법적 근거")),
+                    React.createElement("div", { className: "ded-source" }, "근거: 「공무원보수 등의 업무지침」 제9장 공무원여비업무 처리기준 - 국내자동차운임")));
             return (React.createElement("div", { className: "modal-bg deduction-modal-bg", onClick: closeDeductionModal },
-                React.createElement(OverlayCloseR108P2, { onClose: activeModal === "transport" ? cancelDeductionModal : closeDeductionModal, label: activeModal === "transport" ? "교통비 편집 취소" : `${mc.title} 감액 보조 닫기` }),
-                React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? "transport-deduction-modal transport-expense-popup-v1" : ""} r104-final-top-scope`, role: "dialog", "aria-modal": "true", "aria-label": activeModal === "transport" ? "교통비 편집" : `${mc.title} 감액`, onClick: e => e.stopPropagation() },
-                    React.createElement(PopupHeaderR104, { title: mc.title, subtitle: mc.desc, unit: mc.unit, onConfirm: closeDeductionModal }),
+                React.createElement(OverlayCloseR108P2, { onClose: activeModal === "transport" && transportQuickMode ? cancelDeductionModal : closeDeductionModal, label: activeModal === "transport" ? (transportQuickMode ? "교통비 편집 취소" : "교통비 감액 닫기") : `${mc.title} 감액 보조 닫기` }),
+                React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? `transport-deduction-modal ${transportQuickMode ? "transport-expense-popup-v1" : "transport-deduction-only-v1"}` : ""} r104-final-top-scope`, role: "dialog", "aria-modal": "true", "aria-label": activeModal === "transport" ? (transportQuickMode ? "교통비 편집" : "교통비 감액") : `${mc.title} 감액`, onClick: e => e.stopPropagation() },
+                    React.createElement(PopupHeaderR104, { title: mc.title, subtitle: transportDeductionOnlyMode ? "감액 사유" : mc.desc, unit: mc.unit, onConfirm: closeDeductionModal }),
                     React.createElement("div", { className: "modal-body r104-final-top-body" },
                         activeModal === "daily" && React.createElement(React.Fragment, null,
                             React.createElement("div", { className: "ded-section" },
@@ -48601,7 +48703,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                         DedInfoIcon("legal"),
                                         React.createElement("span", null, "법적 근거")),
                                     React.createElement("div", { className: "ded-source" }, "근거: 「공무원 여비 규정」 제16조제5항 · 「지방공무원 교육훈련 운영지침」 교육훈련여비 지급기준")))),
-                        activeModal === "transport" && React.createElement(React.Fragment, null,
+                        activeModal === "transport" && (transportQuickMode ? React.createElement(React.Fragment, null,
                             React.createElement("section", { className: "transport-expense-section transport-expense-main-section" },
                                 React.createElement("div", { className: "transport-expense-main-row" },
                                     React.createElement("div", { className: "transport-expense-route-main" },
@@ -48650,49 +48752,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                     React.createElement("div", { className: "transport-expense-extra-edit" },
                                         transportPopupMoneyInput(otherTransportDraft, v => setOtherTransportDraft(v), "기타교통비"), transportPopupTag("round"))),
                                 null),
-                            React.createElement("div", { className: "ded-section transport-expense-deduction-section" },
-                                React.createElement("div", { className: "ded-section-title ded-section-heading" },
-                                    DedInfoIcon("choice"),
-                                    React.createElement("span", null, "감액 사유")),
-                                React.createElement("div", null, transportReasons.map(renderTransportReason)),
-                                React.createElement("div", { className: "ded-compact-audit transport-two-line" },
-                                    React.createElement("div", { className: "ded-info-heading" },
-                                        DedInfoIcon("audit"),
-                                        React.createElement("span", null, "감사 유의")),
-                                    React.createElement("div", { className: "ded-info-copy" },
-                                        React.createElement("div", null, "기관이 이미 부담한 교통비를 출장자에게 중복 지급하거나,"),
-                                        React.createElement("div", null, "출장일, 출장지와 관련된 기록이 없어 출장의 이행을 확인할 수 없는 자료로는 교통비가 지급이 안됩니다."))),
-                                React.createElement("button", { type: "button", className: "ded-accordion-toggle", onClick: () => setDedAccordionOpen(prev => ({ ...prev, transport: !prev.transport })) }, dedAccordionOpen.transport ? "증빙·근거 접기 ▴" : "증빙·근거 보기 ▾"),
-                                dedAccordionOpen.transport && React.createElement("div", { className: "ded-accordion-panel" },
-                                    React.createElement("div", { className: "ded-panel-heading evidence" },
-                                        DedInfoIcon("evidence"),
-                                        React.createElement("span", null, "확인 자료")),
-                                    React.createElement("div", { className: "ded-evidence-item", style: { marginTop: 0 } },
-                                        React.createElement("div", { className: "ded-evidence-name" }, "관용차량"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, "출장 기안문, 여비정산신청서, 공용차량배차신청내역, 차량운행일지 등으로 실제 이용을 확인")),
-                                    React.createElement("div", { className: "ded-evidence-item" },
-                                        React.createElement("div", { className: "ded-evidence-name" }, "임차차량"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, "해당 출장의 지출품의, 전세버스임차용역 계약서(원인행위목록), 세금계산서 등으로 확인")),
-                                    React.createElement("div", { className: "ded-evidence-principle transport-proof-principle" }, "출장일에 출장지까지 실제로 이동했다는 사실을 누가 보더라도 확인할 수 있는 객관적인 자료여야 합니다."),
-                                    React.createElement("div", { className: "ded-destination transport-route-proof" }, `${originName} → ${destinationName} 출장의 실제 이동과 출장일의 관련성을 확인할 수 있어야 합니다.`),
-                                    React.createElement("div", { className: "ded-evidence-item" },
-                                        React.createElement("div", { className: "ded-evidence-name" }, "하이패스·고속도로 통행내역"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${originName} → ${destinationName} 이동 또는 ${destinationName} 방향 이동을 확인할 수 있는 통행내역`)),
-                                    React.createElement("div", { className: "ded-evidence-item" },
-                                        React.createElement("div", { className: "ded-evidence-name" }, "주유영수증"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, `원칙적으로 출장일에 출장지인 ${destinationName} 소재 주유소에서 결제한 영수증을 확인합니다.`)),
-                                    React.createElement("div", { className: "ded-evidence-item" },
-                                        React.createElement("div", { className: "ded-evidence-name" }, "주차영수증"),
-                                        React.createElement("div", { className: "ded-evidence-text" }, `출장일에 ${destinationName} 출장 기관 또는 ${destinationName} 주차장에서 결제한 영수증`)),
-                                    React.createElement("div", { className: "ded-note-box transport-alt-proof" },
-                                        React.createElement("strong", null, "통상적인 증빙 확보가 어려운 경우"),
-                                        React.createElement("div", null, "이동경로·결제시간·주유소 위치·출장자·출장차량·출장지가 함께 확인되는 현장사진 등 실제 출장 이동을 객관적으로 확인할 수 있는 자료를 다른 추가 증빙과 함께 검토할 수 있습니다."),
-                                        React.createElement("div", { style: { marginTop: 4 } }, "최종 인정 여부는 제출자료 전체를 토대로 소속기관에서 판단합니다.")),
-                                    React.createElement("div", { className: "ded-panel-heading legal" },
-                                        DedInfoIcon("legal"),
-                                        React.createElement("span", null, "법적 근거")),
-                                    React.createElement("div", { className: "ded-source" }, "근거: 「공무원보수 등의 업무지침」 제9장 공무원여비업무 처리기준 - 국내자동차운임")))),
-                        null))));
+                            renderTransportDeductionSection(),
+                        null) : renderTransportDeductionSection())))));
         })()));
     /* DetailContent - 여비계산 패널 */
     function DetailContent() {
@@ -49161,9 +49222,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.meal), React.createElement("span", { className: "expense-result-unit" }, "원")))),
                     !(presentationTabletUiD42 || showDetail) && mealProvidedCount > 0 && React.createElement("div", { className: "expense-note-row deduction" }, `-${fmt(detailCost.mealDeduction)}원`)),
 
-                !useTabletExpenseUi && React.createElement("div", { className: "expense-other-toggle-row" },
-                    React.createElement("button", { type: "button", className: "expense-other-toggle", onClick: () => setOtherCostsOpen(v => !v) }, otherCostsOpen ? "기타비용 접기 ▲" : "기타비용 펼치기 ▼")),
-                (useTabletExpenseUi || otherCostsOpen) && React.createElement("div", { className: "expense-other-group" },
+                /* UI-FRAME-C1: 기타비용은 전 모드에서 항상 노출한다. 접기/펼치기 버튼은 제거. */
+                React.createElement("div", { className: "expense-other-group" },
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
                             React.createElement("div", { className: "expense-label-cell" },
@@ -55400,6 +55460,32 @@ html body .r108p6c-round-tag{
 }
 </style>
 <!-- YBEZ TP2 2026-09-09: transport popup refinement candidate. -->
+<style id="ybez-tp3-transport-quick-deduction-split-20260909">
+/* TP3 2026-09-09 · Quick 교통비=종합편집 / 빨간 감액=감액전용. 계산 state는 공유. */
+.transport-deduction-only-v1 .transport-expense-section,
+.transport-deduction-only-v1 .transport-expense-main-section,
+.transport-deduction-only-v1 .transport-expense-extra-section{display:none!important;}
+</style>
+<!-- YBEZ TP3 2026-09-09: Quick transport popup and red deduction popup split across all modes. -->
+
+<style id="ybez-tablet-tripdays-stepper-restore-20260909">
+/* 2026-09-09 · Tablet-only hotfix: restore the existing 출장일수 − / + controls.
+   The global M5.10 baseline hides .m510-step-btn; Tablet already preserves sizing/colors
+   but needs display restored. No calculation/state/other-mode changes. */
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-days-control .m510-step-btn,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-days-control .m510-step-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+}
+html.ybez-desktop-tablet body .d6-w32-expense-body .trip-days-control .m510-step-btn:disabled,
+html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .trip-days-control .m510-step-btn:disabled{
+  opacity:.35!important;
+  cursor:not-allowed!important;
+}
+</style>
+<!-- YBEZ 2026-09-09: Tablet 출장일수 − / + visibility restore only; PiP-cloned. -->
 </body>
 </html>
 
