@@ -31236,6 +31236,12 @@ const App = () => {
     const intraScopePulseTimerRef = useRef(null);
     const intraScopePulseRouteRef = useRef("");
     const [activeModal, setActiveModal] = useState(null);
+    // TP1-20260909: 교통비 Quick 팝업 전용 기타교통비는 draft/committed를 분리한다.
+    // 농어촌버스·선박·감액은 기존 shared state를 그대로 즉시 반영하고,
+    // 이 기타교통비만 확인/바깥닫기 시 한 번에 반영한다.
+    const [otherTransportFare, setOtherTransportFare] = useState(0);
+    const [otherTransportDraft, setOtherTransportDraft] = useState("");
+    const transportPopupOriginalOtherRef = useRef(0);
     // R5-K3B: 감액팝업은 핵심 입력만 기본 노출하고 증빙·근거는 필요할 때만 펼친다.
     const [dedAccordionOpen, setDedAccordionOpen] = useState({ daily: false, transport: false, meal: false });
     // R10.2: 감액 입력창은 토글 아래 한 곳에서만 열리고 ✓로 접는다.
@@ -31264,9 +31270,35 @@ const App = () => {
             };
             return prev;
         });
+        if (type === "transport") {
+            const committed = Math.max(0, Number(otherTransportFare) || 0);
+            transportPopupOriginalOtherRef.current = committed;
+            setOtherTransportDraft(committed > 0 ? String(committed) : "");
+        }
         setActiveModal(type);
-    }, [result, origin, dest]);
-    const closeDeductionModal = useCallback(() => setActiveModal(null), []);
+    }, [result, origin, dest, otherTransportFare]);
+    // 확인/팝업 바깥 클릭: 기타교통비 draft를 교체 방식으로 commit 후 닫는다.
+    const closeDeductionModal = useCallback(() => {
+        if (activeModal === "transport") {
+            const raw = String(otherTransportDraft == null ? "" : otherTransportDraft).replace(/[^0-9]/g, "");
+            setOtherTransportFare(raw === "" ? 0 : Number(raw));
+        }
+        setActiveModal(null);
+    }, [activeModal, otherTransportDraft]);
+    // X/Esc: draft 기타교통비만 취소한다. 농어촌버스·선박·감액은 기존 즉시반영 로직을 유지한다.
+    const cancelDeductionModal = useCallback(() => {
+        if (activeModal === "transport") {
+            const original = Math.max(0, Number(transportPopupOriginalOtherRef.current) || 0);
+            setOtherTransportDraft(original > 0 ? String(original) : "");
+        }
+        setActiveModal(null);
+    }, [activeModal]);
+    useEffect(() => {
+        if (activeModal !== "transport" || typeof window === "undefined") return;
+        const onKey = (e) => { if (e.key === "Escape") { e.preventDefault(); cancelDeductionModal(); } };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [activeModal, cancelDeductionModal]);
     // R5-K4: 일반/연수는 단일선택, 현지숙박/합숙제공은 연수출장에서 복수선택 가능하게 분리한다.
     const [tripDays, setTripDays] = useState(1);
     const [tripType, setTripType] = useState("general"); // general | training
@@ -31787,6 +31819,11 @@ const App = () => {
     useEffect(() => {
         setOtherLodgingFare(0);
         if (!otherLodgingFocused.current) setOtherLodgingInput("");
+        // TP1: 일반 기타교통비는 새 출장 endpoint로 넘어갈 때만 초기화한다.
+        // 접근비용/항구축 선택 같은 동일 endpoint 내부 재계산에는 유지한다.
+        setOtherTransportFare(0);
+        setOtherTransportDraft("");
+        transportPopupOriginalOtherRef.current = 0;
     }, [origin, dest]);
     useEffect(() => {
         setRuralManualFare(0);
@@ -31935,6 +31972,9 @@ const App = () => {
         setAltRoutes([]);
         setCalcSt("idle");
         setShipFare(0);
+        setOtherTransportFare(0);
+        setOtherTransportDraft("");
+        transportPopupOriginalOtherRef.current = 0;
         setOtherLodgingFare(0);
         setOtherLodgingInput("");
         setOtherCostsOpen(false);
@@ -33139,7 +33179,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
          "ybez-qr26-c2-tablet-mini-mirror",
          "ybez-qr26-c3r-tablet-main-special-fare-left-align",
          "ybez-qr26-c4r-tablet-special-finish",
-         "ybez-qr26-c4r2-tablet-included-tag-lane-fix"].forEach(id => {
+         "ybez-qr26-c4r2-tablet-included-tag-lane-fix",
+         "ybez-tp1-transport-expense-popup-20260909",
+         "ybez-tp2-transport-popup-refine-20260909"].forEach(id => {
             if (pipDoc.getElementById(id)) return; // 중복 clone 방지
             const src = document.getElementById(id);
             if (src) { try { pipDoc.head.appendChild(src.cloneNode(true)); } catch (_) {} }
@@ -43618,7 +43660,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const transportGross = Math.round(baseTransport * transportTripMultiplier);
         const vehicleAdjustedTransport = Math.round(baseTransport * payableTransportTripMultiplier);
         const transport = govVehicleFullyCoversTrip ? 0 : vehicleAdjustedTransport;
-        const etc = Number(shipFare) || 0;
+        // TP1: 기타교통비 = 기존 선박/도선 합계 + 팝업에서 확정한 일반 기타교통비.
+        const etc = (Number(shipFare) || 0) + (Number(otherTransportFare) || 0);
         const otherLodging = Number(otherLodgingFare) || 0;
         const lodging = recognizedLodging;
         const trainingDailyBeforeVehicle = trainingDailyMixedNeedsManual
@@ -43651,7 +43694,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             mealGross, mealDeduction, dailyDeduction, transportDeduction, deductionTotal,
             total: daily + meal + lodging + transport + etc + otherLodging
         };
-    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier, travelScopeMode, intraDailyAmount, intraDailyDeductionAmount]);
+    }, [ded, manualTransport, expenseTransportOneWay, ruralManualRoundTrip, shipFare, otherTransportFare, otherLodgingFare, generalMultiCalcActive, trainingMultiCalcActive, trainingDailyMixedNeedsManual, trainingDailyManual, tripDays, transportTripMultiplier, effectiveTransportTripMultiplier, recognizedLodging, vehicleDaysApplied, trainingVehicleDailyDeduction, trainingDailyBase, mealNet, mealGross, mealDeduction, govVehicleFullyCoversTrip, payableTransportTripMultiplier, travelScopeMode, intraDailyAmount, intraDailyDeductionAmount]);
     const dailyDeductionLabel = detailCost.dailyDeduction > 0 ? `-${fmt(detailCost.dailyDeduction)}원` : "";
     const modalContent = (key) => {
         const dName = nz(dest) || "도착지";
@@ -43660,7 +43703,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (key === "meal")
             return { title: "식비", desc: "제공받은 식사 수", unit: "식" };
         if (key === "transport")
-            return { title: "교통비", desc: "편도 0.5 / 왕복 1.0", unit: "일" };
+            return { title: "교통비", desc: "편도 0.5일 적용\n왕복 1.0일 적용", unit: "일" };
         return null;
     };
     const gradeBase = selSub || result;
@@ -48324,6 +48367,23 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                 { id: "transport_passenger", label: "다른 차량에 동승한 경우", sub: "다른 출장자의 차량 등에 함께 타고 이동하여 본인이 별도 운임을 부담하지 않은 경우입니다." },
                 { id: "transport_institution_paid", label: "기관이 버스·철도·항공 운임을 직접 결제한 경우", sub: "기관에서 버스·철도·항공 등의 운임을 직접 결제하여 본인이 별도 부담하지 않은 경우입니다. 예) 기관 법인카드로 KTX·고속버스·항공권을 일괄 결제한 경우" }
             ];
+            // TP1: 기존 교통비/농어촌버스/선박 state를 그대로 읽어 한 팝업에 모은다.
+            const transportPopupLandRoute = String((centralIslandDisplay && centralIslandDisplay.landRoute) || displayRouteLabel || `${nz(origin)} → ${nz(dest)}`)
+                .replace(/\s*→\s*/g, " → ").trim();
+            const transportPopupMainOneWay = Math.max(0, Number(expenseTransportOneWay || 0));
+            const transportPopupMainRoundTrip = transportPopupMainOneWay * 2;
+            const transportPopupAutoRuralLegs = (result && Array.isArray(result.islandLegs) ? result.islandLegs : [])
+                .filter(x => x && x.kind === "rural" && !x.manualCost);
+            const transportPopupTag = (type) => React.createElement("span", { className: `transport-expense-tag ${type === "oneway" ? "oneway" : "round"}` }, type === "oneway" ? "편도" : "왕복");
+            const transportPopupMoneyInput = (rawValue, onChange, ariaLabel, placeholder = "") => React.createElement("div", { className: "transport-expense-money-wrap" },
+                React.createElement("input", {
+                    type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
+                    className: "transport-expense-money-input",
+                    value: rawValue === "" ? "" : fmt(Number(onlyDigits(rawValue) || 0)),
+                    placeholder, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey,
+                    onChange: e => onChange(onlyDigits(e.target.value)), "aria-label": ariaLabel
+                }),
+                React.createElement("span", { className: "transport-expense-money-unit" }, "원"));
             const DedInfoIcon = (type) => {
                 const common = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" };
                 let body = null;
@@ -48466,8 +48526,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     null);
             };
             return (React.createElement("div", { className: "modal-bg deduction-modal-bg", onClick: closeDeductionModal },
-                React.createElement(OverlayCloseR108P2, { onClose: closeDeductionModal, label: `${mc.title} 감액 보조 닫기` }),
-                React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? "transport-deduction-modal" : ""} r104-final-top-scope`, role: "dialog", "aria-modal": "true", "aria-label": `${mc.title} 감액`, onClick: e => e.stopPropagation() },
+                React.createElement(OverlayCloseR108P2, { onClose: activeModal === "transport" ? cancelDeductionModal : closeDeductionModal, label: activeModal === "transport" ? "교통비 편집 취소" : `${mc.title} 감액 보조 닫기` }),
+                React.createElement("div", { className: `modal-box deduction-modal deduction-${activeModal} ${activeModal === "transport" ? "transport-deduction-modal transport-expense-popup-v1" : ""} r104-final-top-scope`, role: "dialog", "aria-modal": "true", "aria-label": activeModal === "transport" ? "교통비 편집" : `${mc.title} 감액`, onClick: e => e.stopPropagation() },
                     React.createElement(PopupHeaderR104, { title: mc.title, subtitle: mc.desc, unit: mc.unit, onConfirm: closeDeductionModal }),
                     React.createElement("div", { className: "modal-body r104-final-top-body" },
                         activeModal === "daily" && React.createElement(React.Fragment, null,
@@ -48542,7 +48602,55 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                         React.createElement("span", null, "법적 근거")),
                                     React.createElement("div", { className: "ded-source" }, "근거: 「공무원 여비 규정」 제16조제5항 · 「지방공무원 교육훈련 운영지침」 교육훈련여비 지급기준")))),
                         activeModal === "transport" && React.createElement(React.Fragment, null,
-                            React.createElement("div", { className: "ded-section" },
+                            React.createElement("section", { className: "transport-expense-section transport-expense-main-section" },
+                                React.createElement("div", { className: "transport-expense-main-row" },
+                                    React.createElement("div", { className: "transport-expense-route-main" },
+                                        React.createElement("span", { className: "transport-expense-radio" }, "●"),
+                                        React.createElement("span", null, transportPopupLandRoute || "메인 육지구간")),
+                                    result && result.manualTransportOnly
+                                        ? React.createElement("div", { className: "transport-expense-main-values manual" },
+                                            transportPopupMoneyInput(manualTransportInput, v => {
+                                                setManualTransportInput(v);
+                                                const paid = v === "" ? null : Number(v) / Math.max(0.5, payableTransportTripMultiplier);
+                                                setManualTransport(paid == null ? null : Math.max(0, paid - Number(ruralManualRoundTrip || 0)));
+                                            }, "메인 왕복 교통비 실비"),
+                                            transportPopupTag("round"))
+                                        : React.createElement("div", { className: "transport-expense-main-values" },
+                                            React.createElement("div", { className: "transport-expense-fare-line" }, React.createElement("strong", null, fmt(transportPopupMainOneWay)), React.createElement("span", null, "원"), transportPopupTag("oneway")),
+                                            React.createElement("div", { className: "transport-expense-fare-line secondary" }, React.createElement("strong", null, fmt(transportPopupMainRoundTrip)), React.createElement("span", null, "원"), transportPopupTag("round"))))),
+                            React.createElement("section", { className: "transport-expense-section transport-expense-extra-section" },
+                                r108p6eManualRuralLegs.map((leg, idx) => {
+                                    const raw = r108p6eLegRaw("rural", leg);
+                                    const route = String(leg.route || "농어촌버스 구간").replace(/\s*→\s*/g, " → ");
+                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-rural-${r108p6eLegKey("rural", leg)}` },
+                                        React.createElement("div", { className: "transport-expense-extra-label" }, `◎ ${route} 농어촌버스 요금${r108p6eManualRuralLegs.length > 1 ? ` ${idx + 1}` : ""}`),
+                                        React.createElement("div", { className: "transport-expense-extra-edit" },
+                                            transportPopupMoneyInput(raw, v => r108p6eSetLegRaw("rural", leg, v), "농어촌버스 왕복 실비"), transportPopupTag("round")));
+                                }),
+                                transportPopupAutoRuralLegs.map((leg, idx) => {
+                                    const fare = Math.max(0, Number(leg.fare || 0));
+                                    const route = String(leg.route || "농어촌버스 구간").replace(/\s*→\s*/g, " → ");
+                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-rural-auto-${route}-${idx}` },
+                                        React.createElement("div", { className: "transport-expense-extra-label" }, `◎ ${route} 농어촌버스`),
+                                        React.createElement("div", { className: "transport-expense-extra-readonly" }, fare > 0 ? `${fmt(fare * 2)}원` : "무료", fare > 0 ? transportPopupTag("round") : null));
+                                }),
+                                r108p6eManualFerryLegs.map((leg, idx) => {
+                                    const raw = r108p6eLegRaw("ferry", leg);
+                                    const route = String(leg.route || "승선 구간").replace(/\s*→\s*/g, " → ");
+                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-ferry-${r108p6eLegKey("ferry", leg)}` },
+                                        React.createElement("div", { className: "transport-expense-extra-label" }, `◎ ${route} 승선요금${r108p6eManualFerryLegs.length > 1 ? ` ${idx + 1}` : ""}`),
+                                        React.createElement("div", { className: "transport-expense-extra-edit" },
+                                            transportPopupMoneyInput(raw, v => r108p6eSetLegRaw("ferry", leg, v), "승선 왕복 실비"), transportPopupTag("round")));
+                                }),
+                                shipAutoSummary.parts.map((part, idx) => React.createElement("div", { className: "transport-expense-extra-row", key: `tp-ferry-auto-${idx}` },
+                                    React.createElement("div", { className: "transport-expense-extra-label" }, `◎ ${part.route} 승선요금`),
+                                    React.createElement("div", { className: "transport-expense-extra-readonly" }, `${fmt(part.round)}원`, transportPopupTag("round")))),
+                                React.createElement("div", { className: "transport-expense-extra-row always" },
+                                    React.createElement("div", { className: "transport-expense-extra-label" }, "◎ 기타교통비"),
+                                    React.createElement("div", { className: "transport-expense-extra-edit" },
+                                        transportPopupMoneyInput(otherTransportDraft, v => setOtherTransportDraft(v), "기타교통비"), transportPopupTag("round"))),
+                                null),
+                            React.createElement("div", { className: "ded-section transport-expense-deduction-section" },
                                 React.createElement("div", { className: "ded-section-title ded-section-heading" },
                                     DedInfoIcon("choice"),
                                     React.createElement("span", null, "감액 사유")),
@@ -49065,10 +49173,12 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             React.createElement("div", null),
                             React.createElement("div", null),
                             r108p6eManualFerryLegs.length > 1
-                                ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(shipFare), React.createElement("span", { className: "expense-result-unit" }, "원")))
+                                ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
                                 : r108p6eManualFerryLegs.length === 1
                                     ? (() => { const leg = r108p6eManualFerryLegs[0]; const raw = r108p6eLegRaw("ferry", leg); return renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "선박 왕복요금", false, ""); })()
-                                    : renderMoneyEntry(shipFareInput === "" ? "" : fmt(Number(onlyDigits(shipFareInput) || 0)), e => { shipFareFocused.current = true; e.target.select(); }, () => { shipFareFocused.current = false; setShipFareInput(shipFare === 0 ? "" : String(shipFare)); }, e => { const v = onlyDigits(e.target.value); setShipFareInput(v); setShipFare(v === "" ? 0 : Number(v)); }, hasRealCostFerry ? "선박 왕복요금" : "기타교통비", false, "")),
+                                    : shipAutoSummary.total > 0
+                                        ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
+                                        : renderMoneyEntry(otherTransportFare === 0 ? "" : fmt(otherTransportFare), e => e.target.select(), () => {}, e => { const v = onlyDigits(e.target.value); setOtherTransportFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, "")),
                         r108p6eManualFerryLegs.length > 1 && r108p6eManualFerryLegs.map((leg, idx) => {
                             const raw = r108p6eLegRaw("ferry", leg);
                             const route = String(leg.route || "여객선 구간").replace(/\s*→\s*/g, " → ");
@@ -49080,7 +49190,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                     renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "승선요금 왕복 실비", false, "")),
                                 React.createElement("div", { className: "expense-note-row right" }, route));
                         }),
-                        shipFareHint && React.createElement("div", { className: "expense-note-row right" }, shipFareHint)),
+                        shipFareHint && React.createElement("div", { className: "expense-note-row right" }, shipFareHint),
+                        otherTransportFare > 0 && Number(shipFare || 0) > 0 && React.createElement("div", { className: "expense-note-row right tp-other-transport-total-note" }, `기타교통비 추가 ${fmt(otherTransportFare)}원 · 기타교통비 합계 ${fmt(detailCost.etc)}원`)),
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
                             React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "기타숙박비")),
@@ -55197,6 +55308,98 @@ html[data-ybez-ui-mode="tablet"] body .d6-w32-expense-body .expense-ledger > .ex
 }
 </style>
 <!-- YBEZ QR26-C4R2 2026-09-09: Tablet rural included-tag lane specificity fix only. -->
+
+<style id="ybez-tp1-transport-expense-popup-20260909">
+/* TP1 2026-09-09 · Quick 교통비 통합 팝업. 기존 계산/농어촌버스/선박/감액 state를 재사용한다. */
+.transport-expense-popup-v1{width:min(680px,calc(100vw - 28px))!important;max-width:680px!important;max-height:min(88dvh,820px)!important;}
+.transport-expense-popup-v1 .r104-final-top-body{overflow-y:auto!important;padding:12px 16px 18px!important;}
+.transport-expense-popup-v1 .ded-section::before{display:none!important;content:none!important;}
+.transport-expense-section{border-bottom:1px solid #DCE4EC;padding:10px 2px 12px;margin:0 0 10px;}
+.transport-expense-main-section{padding-top:2px;}
+.transport-expense-rule-lines{display:flex;flex-direction:column;gap:2px;margin:0 0 10px;color:#203A57;font-size:13px;font-weight:800;}
+.transport-expense-main-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:10px 9px;border:1px solid #D6E0EA;border-radius:12px;background:#F9FBFD;}
+.transport-expense-route-main{display:flex;align-items:center;gap:8px;min-width:0;color:#132B45;font-size:18px;font-weight:900;line-height:1.35;}
+.transport-expense-route-main span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.transport-expense-radio{font-size:16px;color:#173A63;flex:0 0 auto;}
+.transport-expense-main-values{display:flex;flex-direction:column;gap:5px;align-items:flex-end;min-width:154px;}
+.transport-expense-main-values.manual{flex-direction:row;align-items:center;justify-content:flex-end;}
+.transport-expense-fare-line{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:#172A43;font-size:13px;line-height:1;}
+.transport-expense-fare-line strong{font-family:var(--gm);font-size:22px;font-weight:950;letter-spacing:-.3px;}
+.transport-expense-fare-line.secondary{color:#536579;}
+.transport-expense-fare-line.secondary strong{font-size:17px;}
+.transport-expense-tag{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:20px;padding:0 6px;border-radius:4px;color:#FFF!important;font-size:10px;font-weight:900;line-height:1;box-sizing:border-box;box-shadow:none!important;}
+.transport-expense-tag.oneway{background:#FF6B00!important;}
+.transport-expense-tag.round{background:#0052CC!important;}
+.transport-expense-extra-section{display:flex;flex-direction:column;gap:7px;}
+.transport-expense-extra-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;min-height:35px;padding:3px 4px;}
+.transport-expense-extra-row.always{margin-top:2px;padding-top:7px;border-top:1px dashed #D7E0E8;}
+.transport-expense-extra-label{min-width:0;color:#203247;font-size:13px;font-weight:800;line-height:1.35;}
+.transport-expense-extra-edit,.transport-expense-extra-readonly{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap;}
+.transport-expense-extra-readonly{color:#334B63;font-size:14px;font-weight:900;}
+.transport-expense-money-wrap{display:flex;align-items:center;gap:4px;}
+.transport-expense-money-input{width:108px;height:30px;padding:0 8px;border:1px solid #B9C8D7;border-radius:7px;background:#FFF;color:#172A43;font-family:var(--gm);font-size:16px;font-weight:900;text-align:right;box-sizing:border-box;outline:none;}
+.transport-expense-money-input:focus{border-color:#557A9E;box-shadow:0 0 0 2px rgba(85,122,158,.12);}
+.transport-expense-money-unit{color:#516477;font-size:12px;font-weight:800;}
+.transport-expense-draft-note{margin:1px 4px 0;text-align:right;color:#6A7B8D;font-size:10px;font-weight:700;}
+.transport-expense-deduction-section{padding-top:2px!important;}
+.transport-expense-popup-v1 .ded-section-heading{margin-top:0!important;}
+.tp-other-transport-total-note{color:#355B7A!important;font-weight:800!important;}
+@media (max-width:699px){
+  .transport-expense-popup-v1{width:min(94vw,560px)!important;max-height:84dvh!important;border-radius:18px!important;}
+  .transport-expense-popup-v1 .r104-final-top-body{padding:10px 12px 16px!important;}
+  .transport-expense-main-row{grid-template-columns:1fr;gap:8px;padding:9px;}
+  .transport-expense-route-main{font-size:15px;}
+  .transport-expense-main-values{min-width:0;width:100%;align-items:flex-end;}
+  .transport-expense-main-values.manual{justify-content:flex-end;}
+  .transport-expense-extra-row{grid-template-columns:1fr auto;gap:8px;}
+  .transport-expense-extra-label{font-size:12px;}
+  .transport-expense-money-input{width:96px;height:30px;font-size:15px;}
+}
+html.ybez-desktop-mini .transport-expense-popup-v1,
+html.ybez-desktop-tablet .transport-expense-popup-v1,
+html[data-ybez-ui-mode="tablet"] .transport-expense-popup-v1{width:min(620px,calc(100vw - 24px))!important;max-height:84dvh!important;}
+</style>
+<!-- YBEZ TP1 2026-09-09: Quick 교통비 통합 팝업 candidate. -->
+
+<style id="ybez-tp2-transport-popup-refine-20260909">
+/* TP2 2026-09-09 · 교통비 팝업 C2: 사족 제거, 4모드 통일, 편도/왕복 태그 전역 통일. */
+.transport-expense-popup-v1 .r104-popup-subtitle{
+  white-space:pre-line!important;
+  line-height:1.45!important;
+}
+.transport-expense-popup-v1 .transport-expense-rule-lines,
+.transport-expense-popup-v1 .transport-expense-draft-note{display:none!important;}
+
+/* Mini / Tablet / Mobile 교통비 팝업에서는 '감사 유의' 박스를 숨긴다. */
+html.ybez-desktop-mini body .transport-expense-popup-v1 .transport-two-line,
+html.ybez-desktop-tablet body .transport-expense-popup-v1 .transport-two-line,
+html[data-ybez-ui-mode="tablet"] body .transport-expense-popup-v1 .transport-two-line{display:none!important;}
+@media (max-width:699px){
+  html body .transport-expense-popup-v1 .transport-two-line{display:none!important;}
+}
+
+/* 편도/왕복 status chip — 메인화면까지 동일 색상 체계. */
+html body .final-fare-tag.oneway{
+  background:#FF6B00!important;color:#FFF!important;border-color:#FF6B00!important;box-shadow:none!important;
+}
+html body .final-fare-tag.round{
+  background:#0052CC!important;color:#FFF!important;border-color:#0052CC!important;box-shadow:none!important;
+}
+html body .m34-result-card .m34-fare-pill:not(.muted),
+html.ybez-desktop-tablet body .m34-result-card .m34-fare-pill:not(.muted),
+html[data-ybez-ui-mode="tablet"] body .m34-result-card .m34-fare-pill:not(.muted){
+  background:#FF6B00!important;color:#FFF!important;border-color:#FF6B00!important;box-shadow:none!important;
+}
+html body .m34-result-card .m34-fare-pill.muted,
+html.ybez-desktop-tablet body .m34-result-card .m34-fare-pill.muted,
+html[data-ybez-ui-mode="tablet"] body .m34-result-card .m34-fare-pill.muted{
+  background:#0052CC!important;color:#FFF!important;border-color:#0052CC!important;box-shadow:none!important;
+}
+html body .r108p6c-round-tag{
+  background:#0052CC!important;color:#FFF!important;border-color:#0052CC!important;box-shadow:none!important;
+}
+</style>
+<!-- YBEZ TP2 2026-09-09: transport popup refinement candidate. -->
 </body>
 </html>
 
