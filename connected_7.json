@@ -1,7 +1,7 @@
 {
   "version": "connected_7_core_1",
   "apply": true,
-  "generated_at": "2026-09-09T21:25:45+09:00",
+  "generated_at": "2026-09-09T21:56:00+09:00",
   "connected_scope_id": 7,
   "connected_scope_label": "전남광주",
   "fare_authority": "routes.json",
@@ -67665,9 +67665,7 @@
         "fare_snapshot": 47600,
         "grade_snapshot": "시외우등 + 단일시외",
         "direct": false,
-        "transfers": 1,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 1
       },
       "alternates": []
     },
@@ -68386,9 +68384,7 @@
         "fare_snapshot": 35500,
         "grade_snapshot": "시외우등 + 단일시외",
         "direct": false,
-        "transfers": 1,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 1
       },
       "alternates": []
     },
@@ -68876,9 +68872,7 @@
         "fare_snapshot": 37300,
         "grade_snapshot": "시외우등 + 단일시외",
         "direct": false,
-        "transfers": 1,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 1
       },
       "alternates": []
     },
@@ -69391,9 +69385,7 @@
         "fare_snapshot": 66900,
         "grade_snapshot": "시외우등 + 단일시외",
         "direct": false,
-        "transfers": 1,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 1
       },
       "alternates": []
     },
@@ -69458,9 +69450,7 @@
         "fare_snapshot": 54400,
         "grade_snapshot": "시외우등 + 단일시외",
         "direct": false,
-        "transfers": 1,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 1
       },
       "alternates": []
     },
@@ -69569,9 +69559,7 @@
         "grade_snapshot": "고속우등 + 단일시외",
         "direct": false,
         "transfers": 1,
-        "hub_transfer": true,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "hub_transfer": true
       },
       "alternates": []
     },
@@ -69906,9 +69894,7 @@
         "fare_snapshot": 45900,
         "grade_snapshot": "시외일반 + 고속우등 + 단일시외",
         "direct": false,
-        "transfers": 2,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 2
       },
       "alternates": [
         {
@@ -69936,9 +69922,7 @@
           "fare_snapshot": 48800,
           "grade_snapshot": "시외우등 + 고속우등 + 단일시외",
           "direct": false,
-          "transfers": 2,
-          "review_status": "REVIEW_ROUTE_SIM",
-          "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+          "transfers": 2
         }
       ]
     },
@@ -70628,9 +70612,7 @@
         "fare_snapshot": 59000,
         "grade_snapshot": "시외일반 + 단일시외 + 시외일반",
         "direct": false,
-        "transfers": 2,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 2
       },
       "alternates": []
     },
@@ -71113,11 +71095,11 @@
       "destination": "밀양",
       "status": "APPROVED",
       "primary": {
-        "route_key": "34f0688c9a37a624036f",
+        "route_key": "1f844507e0149f8ed12a",
         "node_path": [
           "NODE_0197",
           "NODE_0184",
-          "NODE_0526",
+          "NODE_0525",
           "NODE_0140"
         ],
         "segments": [
@@ -71127,19 +71109,17 @@
           ],
           [
             "NODE_0184",
-            "NODE_0526"
+            "NODE_0525"
           ],
           [
-            "NODE_0526",
+            "NODE_0525",
             "NODE_0140"
           ]
         ],
         "fare_snapshot": 30300,
-        "grade_snapshot": "시외일반 + 단일시외 + 단일시외",
+        "grade_snapshot": "시외일반 + 시외일반 + 시외일반",
         "direct": false,
-        "transfers": 2,
-        "review_status": "REVIEW_ROUTE_SIM",
-        "review_reason": "FARE_REVIEW_OR_GROSS_LOW"
+        "transfers": 2
       },
       "alternates": []
     },

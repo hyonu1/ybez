@@ -29828,6 +29828,34 @@ html[data-ybez-ui-mode="mini"] .qe4-narrow .qe4-circle:active{
 .c6-gov-training-note{margin-top:7px;color:#6B7D90;font-size:10px;line-height:1.45;font-weight:750;}
 @media(max-width:699px){.lodging-quick-modal{width:calc(100vw - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:20px!important}.lodging-quick-body{padding:10px 12px 16px!important}.lodging-quick-stay-row{grid-template-columns:minmax(128px,1fr) auto;gap:6px}.lodging-quick-money-row{grid-template-columns:minmax(128px,1fr) minmax(130px,160px);gap:6px}.lodging-quick-money-input{width:130px;font-size:16px}.lodging-quick-money-value strong{min-width:102px;font-size:16px}.c6-gov-training-grid{grid-template-columns:62px minmax(138px,1fr) 62px;gap:5px}.c6-gov-middle{font-size:9.5px}}
 </style>
+
+<style id="ybez-c6b-popup-anchor-20260909">
+/* C6B popup anchor: desktop/tablet/mini dialogs share one stable top line.
+   Content expansion grows downward; once the viewport limit is reached, the existing modal body scrolls. */
+@media (min-width:700px){
+  html body .modal-bg{
+    align-items:flex-start!important;
+    justify-content:center!important;
+    padding-top:clamp(92px,16vh,150px)!important;
+    padding-bottom:18px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  html body .modal-bg > .modal-box,
+  html body .modal-bg > .m5-proof-info-modal,
+  html body .modal-bg > .d443-feedback-modal{
+    margin-top:0!important;
+    margin-bottom:0!important;
+    max-height:calc(100dvh - clamp(110px,16vh,168px))!important;
+  }
+  html body .modal-bg > .modal-box.r104-final-top-scope > .r104-final-top-body,
+  html body .modal-bg > .m5-proof-info-modal.r104-final-top-scope > .r104-final-top-body{
+    overflow-y:auto!important;
+    min-height:0!important;
+  }
+}
+</style>
+<!-- C6B 2026-09-09: C6A TDZ repair + stable common popup top anchor. -->
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -32068,7 +32096,7 @@ const App = () => {
             setTabletLodgingPopoverOpen(false);
             setFriendLodgingNights(0);
             setFriendLodgingPopoverOpen(false);
-            setTabletTravelLodgingNights(0);
+            // C6A: 이동일 숙박은 출장 전·후의 별도 여행숙박이므로 1일 출장에서도 0~2박을 유지할 수 있다.
             setTabletTravelLodgingPopoverOpen(false);
             setTrainingGovVehicleAlloc({ entry:false, middle:0, exit:false, forDays:0 });
             setTripTypeHelpOpen(false);
@@ -32100,8 +32128,8 @@ const App = () => {
         const nextFriendNights = Math.min(Math.max(0, Number(friendLodgingNights) || 0), nextFriendCeiling);
         const nextGroupCeiling = Math.max(0, nextMaxNights - nextLodgingNights - nextFriendNights);
         const nextGroupNights = Math.min(Math.max(0, Number(groupNights) || 0), nextGroupCeiling);
-        const nextTravelCeiling = Math.min(2, Math.max(0, nextMaxNights - nextLodgingNights - nextFriendNights - nextGroupNights));
-        const nextTravelNights = Math.min(Math.max(0, Number(tabletTravelLodgingNights) || 0), nextTravelCeiling);
+        // C6A: 이동일 숙박은 기본 N-1박 예산과 분리하고 YBEZ 실무상한 2박만 적용한다.
+        const nextTravelNights = Math.min(2, Math.max(0, Number(tabletTravelLodgingNights) || 0));
         setLodgingNights(nextLodgingNights);
         setFriendLodgingNights(nextFriendNights);
         setGroupNights(nextGroupNights);
@@ -32179,8 +32207,8 @@ const App = () => {
     const handleLodgingNightsChange = useCallback((raw) => {
         if ((!isMultiDayTrip && !useTabletExpenseUi) || !lodgingSelected) return;
         const n = Number(String(raw == null ? "" : raw).replace(/[^0-9]/g, ""));
-        // C6 physical-night guard: 현지+합숙+친지집+이동일은 전체 숙박 가능박수를 넘지 않는다.
-        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0) - Math.max(0, Number(tabletTravelLodgingNights) || 0));
+        // C6A: 출장기간 내 기본 숙박(현지+합숙+친지집)만 N-1박 예산을 공유한다. 이동일 숙박은 별도다.
+        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0));
         const next = !Number.isFinite(n) ? 0 : Math.min(Math.max(0, Math.floor(n || 0)), ceiling);
         setLodgingNights(next);
     }, [isMultiDayTrip, useTabletExpenseUi, tripDays, lodgingSelected, maxLodgingNights, groupNights, friendLodgingNights, tabletTravelLodgingNights]);
@@ -32188,14 +32216,14 @@ const App = () => {
         if (!isMultiDayTrip || tripType !== "training" || !groupSelected) return;
         const n = Number(String(raw == null ? "" : raw).replace(/[^0-9]/g, ""));
         // D44.5A2 common: preserve current local lodging and use only the remaining stay-night capacity.
-        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0) - Math.max(0, Number(tabletTravelLodgingNights) || 0));
+        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0));
         const next = !Number.isFinite(n) ? 0 : Math.min(Math.max(0, Math.floor(n || 0)), ceiling);
         setGroupNights(next);
     }, [isMultiDayTrip, tripType, groupSelected, maxLodgingNights, lodgingNights, friendLodgingNights, tabletTravelLodgingNights]);
     const handleFriendLodgingNightsChange = useCallback((raw) => {
         if (!isMultiDayTrip) return;
         const n = Number(String(raw == null ? "" : raw).replace(/[^0-9]/g, ""));
-        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(tabletTravelLodgingNights) || 0));
+        const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0));
         const next = !Number.isFinite(n) ? 0 : Math.min(Math.max(0, Math.floor(n || 0)), ceiling);
         setFriendLodgingNights(next);
     }, [isMultiDayTrip, maxLodgingNights, lodgingNights, groupNights, tabletTravelLodgingNights]);
@@ -32286,15 +32314,15 @@ const App = () => {
         if (!(useTabletExpenseUi || desktopRouteHeaderD431 || mobileStayPopoverModeM || isDesktopCompact) || !isMultiDayTrip || tripType !== "training" || !groupSelected) setTabletGroupPopoverOpen(false);
     }, [useTabletExpenseUi, desktopRouteHeaderD431, mobileStayPopoverModeM, isDesktopCompact, isMultiDayTrip, tripType, groupSelected]);
     useEffect(() => {
-        // C6 hard guard: 어떤 팝업에서 수정해도 물리적 숙박박수는 출장일수-1을 넘지 않는다.
+        // C6A hard guard: 출장기간 내 기본 숙박만 N-1박을 공유한다.
+        // 이동일 숙박은 섬·선박시간 등 부득이한 전일 이동/익일 귀임을 위해 별도 0~2박으로 둔다.
         const local = Math.max(0, Number(lodgingNights) || 0);
         const friend = Math.max(0, Number(friendLodgingNights) || 0);
         const group = Math.max(0, Number(groupNights) || 0);
-        const travel = Math.min(2, Math.max(0, Number(tabletTravelLodgingNights) || 0));
-        if (local + friend + group + travel <= maxLodgingNights) return;
+        const travel = Math.max(0, Number(tabletTravelLodgingNights) || 0);
         const nextFriend = Math.min(friend, Math.max(0, maxLodgingNights - local));
         const nextGroup = Math.min(group, Math.max(0, maxLodgingNights - local - nextFriend));
-        const nextTravel = Math.min(travel, Math.max(0, maxLodgingNights - local - nextFriend - nextGroup));
+        const nextTravel = Math.min(2, travel);
         if (nextFriend !== friend) setFriendLodgingNights(nextFriend);
         if (nextGroup !== group) setGroupNights(nextGroup);
         if (nextTravel !== travel) setTabletTravelLodgingNights(nextTravel);
@@ -44738,6 +44766,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         return (result.islandLegs || []).some(x => x && x.kind === "ferry" && (x.role === "dest" || String(x.route || "").includes(d)));
     }, [result, dest]);
     const autoOpenOtherCosts = !!(result && (islandExpenseDestination || hasRealCostFerry || shipAutoSummary.total > 0));
+    // C6B: visibility is derived only after autoOpenOtherCosts is initialized (TDZ-safe).
+    const otherCostsHaveValue = Math.max(0, Number(shipFare) || 0) > 0 || Math.max(0, Number(otherTransportFare) || 0) > 0 || Math.max(0, Number(otherLodgingFare) || 0) > 0;
+    const otherCostsVisible = !!(otherCostsOpen || autoOpenOtherCosts || otherCostsHaveValue);
     useEffect(() => {
         if (!result) { setOtherCostsOpen(false); return; }
         setOtherCostsOpen(autoOpenOtherCosts);
@@ -47915,7 +47946,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         if (typeof document === "undefined") return;
         const selector = key === "trip"
             ? ".trip-days-input"
-            : ".lodging-main-row .expense-money-input, .lodging-main-row input";
+            : ".lodging-receipt-row .expense-money-input, .lodging-receipt-row input";
         setTimeout(() => {
             const el = document.querySelector(selector);
             if (!el) return;
@@ -47924,11 +47955,11 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         }, delay);
     };
 
-    const tripQuickTravelNights = Math.max(0, Number(tabletTravelLodgingNights) || 0);
-    const tripQuickLodgingCeiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0) - tripQuickTravelNights);
-    const tripQuickGroupCeiling = Math.max(0, Math.min(maxLodgingNights, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0) - tripQuickTravelNights));
-    const tripQuickFriendCeiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0) - tripQuickTravelNights);
-    const tripQuickTravelCeiling = Math.min(2, Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0)));
+    const tripQuickTravelNights = Math.min(2, Math.max(0, Number(tabletTravelLodgingNights) || 0));
+    const tripQuickLodgingCeiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0));
+    const tripQuickGroupCeiling = Math.max(0, Math.min(maxLodgingNights, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0)));
+    const tripQuickFriendCeiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0));
+    const tripQuickTravelCeiling = 2;
 
     const tripQuickChangeTravelNights = (raw) => {
         const n = Number(String(raw == null ? "" : raw).replace(/[^0-9]/g, ""));
@@ -49258,8 +49289,8 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             onClick:() => setTravelExpenseClass(2), "aria-pressed":travelExpenseClass === 2
                         }, "2호")),
                     React.createElement("div", { className:"lodging-quick-trip-summary" },
-                        React.createElement("strong", null, `${Math.max(0, Number(lodgingNights)||0) + Math.max(0, Number(groupNights)||0) + Math.max(0, Number(friendLodgingNights)||0) + Math.max(0, Number(tabletTravelLodgingNights)||0)}박 ${tripDays}일`),
-                        React.createElement("span", null, tripType === "training" ? `연수출장 · 최대 ${maxLodgingNights}박` : `일반출장 · 최대 ${maxLodgingNights}박`)),
+                        React.createElement("strong", null, `${Math.max(0, Number(lodgingNights)||0) + Math.max(0, Number(groupNights)||0) + Math.max(0, Number(friendLodgingNights)||0) + tripQuickTravelNights}박 ${tripDays}일`),
+                        React.createElement("span", null, `${tripType === "training" ? "연수출장" : "일반출장"} · 기본 최대 ${maxLodgingNights}박 · 이동일 최대 2박`)),
                     React.createElement("div", { className:"lodging-quick-type-row" },
                         React.createElement("div", { className:`lodging-quick-type-card ${tripType === "general" ? "selected" : ""}`.trim() }, `일반출장 ${tripType === "general" ? maxLodgingNights : 0}박`),
                         React.createElement("div", { className:`lodging-quick-type-card ${tripType === "training" ? "selected" : ""}`.trim() }, `연수출장 ${tripType === "training" ? maxLodgingNights : 0}박`)),
@@ -49313,7 +49344,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         React.createElement("div", { className:"trip-help-text" }, "현지숙박과 실제 이동일 숙박만 숙박영수증 인정 박수에 포함합니다. 합숙제공은 제외하고 친지집 숙박은 영수증과 별도로 1박당 20,000원을 합산합니다."),
                         React.createElement("div", { className:"trip-help-example" }, `현재 영수증 인정 박수 ${effectiveLodgingNightsForCap}박 · 친지집 ${effectiveFriendLodgingNightsForPay}박`),
                         React.createElement("div", { className:"trip-help-title" }, "숙박박수 Guard"),
-                        React.createElement("div", { className:"trip-help-text" }, `현지숙박 + 합숙제공 + 친지집 + 이동일은 합계 ${maxLodgingNights}박을 넘을 수 없고, 이동일은 최대 2박입니다.`)
+                        React.createElement("div", { className:"trip-help-text" }, `현지숙박 + 합숙제공 + 친지집은 출장기간 기본 숙박 ${maxLodgingNights}박을 넘을 수 없습니다. 이동일 숙박은 출장 전·후 별도 항목으로 최대 2박입니다.`)
                     ) : null))
         ),
         tripQuickOpen && React.createElement("div", {
@@ -49879,10 +49910,10 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         // D29 common: 숙박비 총액 입력과 이동일 숙박 0~2박 컨트롤은 모든 UI 모드에서 사용한다.
         const showLodging = true;
         const tabletTravelLodgingMode = true;
-        const tabletTravelLodgingDisplayNights = Math.max(0, Number(tabletTravelLodgingNights) || 0);
-        const tabletTravelLodgingCeiling = Math.min(2, Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0) - Math.max(0, Number(friendLodgingNights) || 0)));
+        const tabletTravelLodgingDisplayNights = Math.min(2, Math.max(0, Number(tabletTravelLodgingNights) || 0));
+        const tabletTravelLodgingCeiling = 2;
         const friendLodgingDisplayNights = Math.max(0, Number(friendLodgingNights) || 0);
-        const friendLodgingCeiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0) - tabletTravelLodgingDisplayNights);
+        const friendLodgingCeiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0) - Math.max(0, Number(groupNights) || 0));
         const changeTabletTravelLodgingNights = (raw) => {
             const n = Number(String(raw == null ? "" : raw).replace(/[^0-9]/g, ""));
             const next = Math.min(tabletTravelLodgingCeiling, Math.max(0, Number.isFinite(n) ? Math.floor(n || 0) : 0));
@@ -50266,9 +50297,15 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                     trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "expense-note-row right" }, "합숙이 일부 날짜에 포함되어 날짜별 체재순서 확인 필요"),
                     !(presentationTabletUiD42 || showDetail) && dailyDeductionLabel && React.createElement("div", { className: "expense-note-row deduction" }, dailyDeductionLabel)),
 
-                React.createElement("div", { className: "expense-item" },
-                    React.createElement("div", { className: "expense-main-row lodging-main-row" },
+                React.createElement("div", { className: "expense-item lodging-expense-item" },
+                    React.createElement("div", { className: "expense-main-row lodging-main-row lodging-final-row" },
                         React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "숙박비")),
+                        React.createElement("div", { className: "expense-tag-cell" }),
+                        React.createElement("div", null),
+                        React.createElement("div", null),
+                        React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
+                    React.createElement("div", { className: "expense-main-row lodging-receipt-row" },
+                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label lodging-receipt-label" }, "숙박영수증")),
                         React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "총액")),
                         React.createElement("div", { className: "expense-lodging-entry" },
                             renderMoneyEntry(showLodging && lodgingTotalInput !== "" ? fmt(Number(onlyDigits(lodgingTotalInput) || 0)) : "", e => { if (!showLodging) return; lodgingFocused.current = true; e.target.select(); }, () => { if (!showLodging) return; lodgingFocused.current = false; setLodgingTotalInput(lodgingTotal > 0 ? String(lodgingTotal) : ""); }, e => {
@@ -50277,10 +50314,14 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                                 const amount = v === "" ? 0 : Number(v);
                                 setLodgingTotalInput(v);
                                 setLodgingTotal(amount);
-                                if (amount <= 0 && !lodgingSelected) setTabletTravelLodgingPopoverOpen(false);
-                            }, "숙박비 총액", !showLodging, ""),
-                            React.createElement("span", { className: "lodging-arrow" }, "→")),
-                        React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount", style: { color: lodgingCalcActive ? "#0F766E" : "#A0A4AA" } }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
+                            }, "숙박영수증 총액", !showLodging, ""))),
+                    (friendLodgingDisplayNights > 0 || tabletTravelLodgingDisplayNights > 0) && React.createElement("div", { className: "lodging-main-breakdown", "aria-label": "숙박비 자동 반영 내역" },
+                        friendLodgingDisplayNights > 0 && React.createElement("div", { className: "lodging-main-breakdown-line friend" },
+                            React.createElement("span", { className: "lodging-main-breakdown-amount" }, `+${fmt(friendLodgingDisplayNights * 20000)}원`),
+                            React.createElement("span", { className: "lodging-main-breakdown-label" }, `친지집 ${friendLodgingDisplayNights}박`)),
+                        tabletTravelLodgingDisplayNights > 0 && React.createElement("div", { className: "lodging-main-breakdown-line travel" },
+                            React.createElement("span", { className: "lodging-main-breakdown-amount muted" }, ""),
+                            React.createElement("span", { className: "lodging-main-breakdown-label" }, `이동일 숙박 ${tabletTravelLodgingDisplayNights}박`))),
                     React.createElement("div", { className: "expense-note-row travel-class-moving-row" },
                         React.createElement("div", { className: "travel-class-control", role: "group", "aria-label": "여비 지급구분" },
                             React.createElement("div", { className: "travel-class-segment" },
@@ -50289,84 +50330,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                             React.createElement("button", {
                                 type: "button", className: "travel-class-info-btn", title: "제1호 적용 대상 안내", "aria-label": "제1호 적용 대상 안내",
                                 onClick: () => setTravelClassInfoOpen(true)
-                            }, "i")),
-                        tabletTravelLodgingMode && React.createElement("div", { className: "ybez-lodging-side-stack" },
-                            React.createElement("div", { className: `d6-d26-travel-lodging-wrap d6-r9-travel-lodging-wrap ybez-friend-lodging-wrap ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-option" : ""}`.trim() },
-                                React.createElement("button", {
-                                    type: "button",
-                                    disabled: !isMultiDayTrip,
-                                    className: `d6-d26-travel-lodging-btn ybez-friend-lodging-btn ${friendLodgingDisplayNights > 0 ? "has-nights" : ""} ${friendLodgingPopoverOpen ? "adjusting" : ""}`,
-                                    onClick: () => {
-                                        if (!isMultiDayTrip) return;
-                                        setTabletTravelLodgingPopoverOpen(false);
-                                        setFriendLodgingPopoverOpen(v => !v);
-                                    },
-                                    "aria-label": "친지집 숙박 박수 조정"
-                                }, friendLodgingDisplayNights > 0 ? `친지집 ${friendLodgingDisplayNights}박` : "친지집"),
-                                friendLodgingPopoverOpen && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ybez-friend-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""}`.trim(), role: "dialog", "aria-label": "친지집 숙박 박수 조정" },
-                                    React.createElement("button", {
-                                        type: "button", className: "d6-d10-night-step", "aria-label": "친지집 숙박 1박 줄이기",
-                                        disabled: friendLodgingDisplayNights <= 0,
-                                        onClick: () => handleFriendLodgingNightsChange(friendLodgingDisplayNights - 1)
-                                    }, "−"),
-                                    sharedMobileStayPresentationR108A
-                                        ? React.createElement("input", {
-                                            type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
-                                            className: "d6-d10-night-count m-touch-night-input",
-                                            value: friendLodgingDisplayNights,
-                                            onFocus: e => e.target.select(),
-                                            onKeyDown: mobileNumericDoneKey,
-                                            onChange: e => handleFriendLodgingNightsChange(e.target.value),
-                                            autoComplete: "off", spellCheck: false,
-                                            "aria-label": "친지집 숙박 박수 직접 입력"
-                                        })
-                                        : React.createElement("span", { className: "d6-d10-night-count" }, `${friendLodgingDisplayNights}`),
-                                    React.createElement("button", {
-                                        type: "button", className: "d6-d10-night-step", "aria-label": "친지집 숙박 1박 늘리기",
-                                        disabled: friendLodgingDisplayNights >= friendLodgingCeiling,
-                                        onClick: () => handleFriendLodgingNightsChange(friendLodgingDisplayNights + 1)
-                                    }, "+"),
-                                    React.createElement("button", {
-                                        type: "button", className: "d6-d21-night-confirm", "aria-label": "친지집 숙박 박수 확인",
-                                        onClick: e => { e.stopPropagation(); setFriendLodgingPopoverOpen(false); }
-                                    }, "✓"))),
-                            React.createElement("div", { className: `d6-d26-travel-lodging-wrap d6-r9-travel-lodging-wrap ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-option" : ""}`.trim() },
-                                React.createElement("button", {
-                                    type: "button",
-                                    className: `d6-d26-travel-lodging-btn ${tabletTravelLodgingDisplayNights > 0 ? "has-nights" : ""} ${tabletTravelLodgingPopoverOpen ? "adjusting" : ""}`,
-                                    onClick: () => { setFriendLodgingPopoverOpen(false); setTabletTravelLodgingPopoverOpen(v => !v); },
-                                    "aria-label": "이동일 숙박 박수 조정"
-                                }, tabletTravelLodgingDisplayNights > 0 ? `이동일 ${tabletTravelLodgingDisplayNights}박` : "이동일"),
-                                tabletTravelLodgingPopoverOpen && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""}`.trim(), role: "dialog", "aria-label": "이동일 숙박 박수 조정" },
-                                    React.createElement("button", {
-                                        type: "button", className: "d6-d10-night-step", "aria-label": "이동일 숙박 1박 줄이기",
-                                        disabled: tabletTravelLodgingDisplayNights <= 0,
-                                        onClick: () => changeTabletTravelLodgingNights(tabletTravelLodgingDisplayNights - 1)
-                                    }, "−"),
-                                    sharedMobileStayPresentationR108A
-                                        ? React.createElement("input", {
-                                            type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*",
-                                            className: "d6-d10-night-count m-touch-night-input",
-                                            value: tabletTravelLodgingDisplayNights,
-                                            onFocus: e => e.target.select(),
-                                            onKeyDown: mobileNumericDoneKey,
-                                            onChange: e => changeTabletTravelLodgingNights(e.target.value),
-                                            autoComplete: "off", spellCheck: false,
-                                            "aria-label": "이동일 숙박 박수 직접 입력"
-                                        })
-                                        : React.createElement("span", { className: "d6-d10-night-count" }, `${tabletTravelLodgingDisplayNights}`),
-                                    React.createElement("button", {
-                                        type: "button", className: "d6-d10-night-step", "aria-label": "이동일 숙박 1박 늘리기",
-                                        disabled: tabletTravelLodgingDisplayNights >= tabletTravelLodgingCeiling,
-                                        onClick: () => changeTabletTravelLodgingNights(tabletTravelLodgingDisplayNights + 1)
-                                    }, "+"),
-                                    React.createElement("button", {
-                                        type: "button", className: "d6-d21-night-confirm", "aria-label": "이동일 숙박 박수 확인",
-                                        onClick: e => { e.stopPropagation(); setTabletTravelLodgingPopoverOpen(false); }
-                                    }, "✓"))))),
-                    lodgingCalcActive && React.createElement("div", { className: "expense-note-row lodging-short-note" },
-                        React.createElement("div", null, "친지집 숙박: 1박당 20,000원까지 지급 가능"),
-                        React.createElement("div", null, "자기집 숙박: 숙박비가 지급되지 않음"))),
+                            }, "i")))),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
@@ -50377,8 +50341,14 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.meal), React.createElement("span", { className: "expense-result-unit" }, "원")))),
                     !(presentationTabletUiD42 || showDetail) && mealProvidedCount > 0 && React.createElement("div", { className: "expense-note-row deduction" }, `-${fmt(detailCost.mealDeduction)}원`)),
 
-                /* UI-FRAME-C1: 기타비용은 전 모드에서 항상 노출한다. 접기/펼치기 버튼은 제거. */
-                React.createElement("div", { className: "expense-other-group" },
+                /* C6A: 기타비용은 기본 접힘, 필요/값 발생 시 자동 펼침. */
+                React.createElement("div", { className: "expense-other-toggle-row" },
+                    React.createElement("button", {
+                        type:"button", className:"expense-other-toggle",
+                        onClick:() => setOtherCostsOpen(v => !v),
+                        "aria-expanded":otherCostsVisible
+                    }, otherCostsVisible ? "기타비용 ▴" : "기타비용 입력 ▾")),
+                otherCostsVisible && React.createElement("div", { className: "expense-other-group" },
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
                             React.createElement("div", { className: "expense-label-cell" },
@@ -56955,6 +56925,82 @@ html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact
 <!-- YBEZ STABILITY-C1 2026-09-09 -->
 <!-- TRIP-QUICK-C2 2026-09-09: rebuilt from PASS BASE; shared-state trip/stay quick editor. -->
 <!-- TRIP-QUICK-C5 2026-09-09: prepared mascot crossfade; destination reset; 1-day training; button-width stay editor; unit restored. -->
+
+<style id="ybez-c6a-main-lodging-and-cool-buttons-20260909">
+/* C6A: main lodging hierarchy + cool white button restoration. Geometry is otherwise preserved. */
+.lodging-expense-item .lodging-final-row{margin-bottom:2px!important;}
+.lodging-expense-item .lodging-receipt-row{margin-top:2px!important;min-height:34px!important;}
+.lodging-expense-item .lodging-receipt-label{font-size:.88em!important;white-space:nowrap!important;}
+.lodging-expense-item .lodging-receipt-row .expense-money-input.ledger-money-input{font-size:20px!important;}
+.lodging-main-breakdown{
+  margin:3px 0 1px 136px; padding-right:1px; display:grid; gap:2px;
+}
+.lodging-main-breakdown-line{
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;min-height:20px;
+  color:#516173;font-size:10.5px;font-weight:800;line-height:1.35;
+}
+.lodging-main-breakdown-amount{
+  min-width:82px;text-align:right;color:#173A63;font-family:var(--gm);font-weight:900;font-variant-numeric:tabular-nums;
+}
+.lodging-main-breakdown-amount.muted{color:transparent;}
+.lodging-main-breakdown-label{min-width:88px;text-align:left;color:#5F6F80;}
+@media (max-width:699px){
+  .lodging-main-breakdown{margin-left:0!important;padding-left:0!important;}
+  .lodging-main-breakdown-line{font-size:10px!important;}
+}
+
+/* Remove the warm/cream paper tint from Quick, steppers and deduction buttons. */
+.qe4-circle,
+.m510-step-btn,
+.trip-quick-step-btn,
+.d6-d10-night-step{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F5F8FB 100%)!important;
+  border-color:#C9D6E3!important;
+  color:#173A63!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 1px 2px rgba(23,58,99,.08)!important;
+  text-shadow:none!important;filter:none!important;
+}
+@media (hover:hover) and (pointer:fine){
+  .qe4-circle:hover,
+  .m510-step-btn:hover:not(:disabled),
+  .trip-quick-step-btn:hover:not(:disabled),
+  .d6-d10-night-step:hover:not(:disabled){
+    background:linear-gradient(180deg,#FFFFFF 0%,#EEF4F9 100%)!important;
+    border-color:#91A9BF!important;color:#123A63!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,1),0 2px 4px rgba(23,58,99,.12)!important;
+  }
+}
+.qe4-circle:active,
+.m510-step-btn:active:not(:disabled),
+.trip-quick-step-btn:active:not(:disabled),
+.d6-d10-night-step:active:not(:disabled){
+  background:linear-gradient(180deg,#EAF1F7 0%,#F7FAFC 100%)!important;
+  border-color:#7F9AB3!important;
+  box-shadow:inset 0 2px 3px rgba(23,58,99,.13)!important;
+}
+.m510-step-btn:disabled,.trip-quick-step-btn:disabled,.d6-d10-night-step:disabled{
+  opacity:.34!important;color:#7D8B98!important;border-color:#D8E0E7!important;
+}
+body .deduct-btn, body .deduct-btn.active{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F7F9FB 100%)!important;
+  border:1px solid #D9AEB5!important;color:#AC3F4D!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 1px 2px rgba(120,42,55,.07)!important;
+  text-shadow:none!important;filter:none!important;
+}
+body .deduct-btn.active{border-color:#C96975!important;color:#9D3241!important;box-shadow:0 0 0 2px rgba(179,77,88,.08),0 1px 2px rgba(120,42,55,.07)!important;}
+@media (hover:hover) and (pointer:fine){
+  body .deduct-btn:hover, body .deduct-btn.active:hover{
+    background:linear-gradient(180deg,#FFFFFF 0%,#F8F2F3 100%)!important;
+    border-color:#C96E79!important;color:#9E3543!important;
+    box-shadow:0 2px 4px rgba(179,77,88,.11)!important;
+  }
+}
+body .deduct-btn:active, body .deduct-btn.active:active{
+  background:linear-gradient(180deg,#F2EDEF 0%,#FAF8F8 100%)!important;
+  box-shadow:inset 0 2px 3px rgba(157,57,70,.12)!important;
+}
+</style>
+<!-- C6A 2026-09-09: travel-day lodging separate 0-2 budget; main lodging hierarchy; collapsible other costs; cool-white buttons. -->
 </body>
 </html>
 
