@@ -2211,7 +2211,7 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     padding:0 !important;
     object-fit:contain !important;
     object-position:center bottom !important;
-    transition:opacity .72s ease !important;
+    transition:opacity .22s ease !important;
     transform:none !important;
   }
   .pc-center-mascot-card .mobile-rc-mascot-img.base{opacity:1 !important;transform:none !important;}
@@ -24638,7 +24638,7 @@ html[data-ybez-ui-mode="tablet"] .d6-b17-route-sheet .vroute-terminal-inline{
     padding:0 !important;
     object-fit:contain !important;
     object-position:center bottom !important;
-    transition:opacity .72s ease !important;
+    transition:opacity .22s ease !important;
     transform:none !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .pc-center-mascot-card .mobile-rc-mascot-img.base{opacity:1 !important;transform:none !important;}
@@ -31745,38 +31745,74 @@ const YbezStableMascotImage = ({ dmn, mascotMap, transitionMs = 220 }) => {
     const [entry, setEntry] = React.useState(null);
     const [incoming, setIncoming] = React.useState(null);
     const [incomingOn, setIncomingOn] = React.useState(false);
+    // MASCOT-FADE-PATCH 2026-09-10 (handback re-fade fix, rev. 2 per review):
+    // base's own hidden/visible state is now tracked separately from
+    // `incomingOn`, so it can be un-hidden WHILE `incoming` still fully covers
+    // it (see beginSwap below) instead of being un-hidden at the exact moment
+    // `incoming` is removed.
+    const [baseDim, setBaseDim] = React.useState(false);
+    // Track the currently-shown image via a ref instead of effect-dependency
+    // on `entry`, so setEntry() inside this effect does not retrigger/cancel it.
+    const entryImageRef = React.useRef(null);
     React.useEffect(() => {
         if (!dmn || !mascotMap) return;
         const next = getMascotEntry(mascotMap, dmn);
         if (!(next && next.image)) return;
-        if (!entry) {
+        if (!entryImageRef.current) {
             setEntry(next);
+            entryImageRef.current = next.image;
             return;
         }
-        if (entry.image === next.image) return;
+        if (entryImageRef.current === next.image) return;
 
         let cancelled = false;
         let raf1 = 0;
         let raf2 = 0;
-        let timer = 0;
+        let raf3 = 0;
+        let raf4 = 0;
+        let timer1 = 0;
+        let timer2 = 0;
+        const fadeMs = Math.max(160, Number(transitionMs) || 220);
         const src = mascotAssetUrl(mascotMap, next.image);
         const preloader = typeof Image !== "undefined" ? new Image() : null;
 
         const beginSwap = () => {
             if (cancelled) return;
+            // Phase 1 (unchanged): incoming fades in over `fadeMs` while base
+            // fades out (dim) underneath it — this is the visible crossfade.
             setIncoming(next);
             setIncomingOn(false);
             raf1 = requestAnimationFrame(() => {
                 raf2 = requestAnimationFrame(() => {
-                    if (!cancelled) setIncomingOn(true);
+                    if (cancelled) return;
+                    setIncomingOn(true);
+                    setBaseDim(true);
                 });
             });
-            timer = setTimeout(() => {
+            timer1 = setTimeout(() => {
                 if (cancelled) return;
+                // Phase 2 (handback, rev. 2): incoming is now fully opaque and
+                // covers the whole stage. Swap base's src to the new image —
+                // still hidden (baseDim stays true for one more frame), so no
+                // visible change — then let base silently re-fade to opaque
+                // WHILE incoming still covers it. Only once that re-fade has
+                // had time to finish do we remove incoming: by then base and
+                // incoming show the identical image at the identical opacity,
+                // so nothing is uncovered and nothing flashes.
                 setEntry(next);
-                setIncoming(null);
-                setIncomingOn(false);
-            }, Math.max(160, Number(transitionMs) || 220));
+                entryImageRef.current = next.image;
+                raf3 = requestAnimationFrame(() => {
+                    raf4 = requestAnimationFrame(() => {
+                        if (cancelled) return;
+                        setBaseDim(false);
+                        timer2 = setTimeout(() => {
+                            if (cancelled) return;
+                            setIncoming(null);
+                            setIncomingOn(false);
+                        }, fadeMs);
+                    });
+                });
+            }, fadeMs);
         };
 
         if (!preloader) {
@@ -31802,18 +31838,21 @@ const YbezStableMascotImage = ({ dmn, mascotMap, transitionMs = 220 }) => {
             cancelled = true;
             if (raf1) cancelAnimationFrame(raf1);
             if (raf2) cancelAnimationFrame(raf2);
-            if (timer) clearTimeout(timer);
+            if (raf3) cancelAnimationFrame(raf3);
+            if (raf4) cancelAnimationFrame(raf4);
+            if (timer1) clearTimeout(timer1);
+            if (timer2) clearTimeout(timer2);
             if (preloader) {
                 preloader.onload = null;
                 preloader.onerror = null;
             }
         };
-    }, [dmn, mascotMap, entry && entry.image, transitionMs]);
+    }, [dmn, mascotMap, transitionMs]);
     if (!entry && !incoming)
         return React.createElement("div", { className: "mobile-rc-mascot-fallback" }, "\u00B7");
     return React.createElement("div", { className: "mobile-rc-mascot-stage" },
         entry && React.createElement("img", {
-            className: `mobile-rc-mascot-img base ${incomingOn ? "dim" : ""}`,
+            className: `mobile-rc-mascot-img base ${baseDim ? "dim" : ""}`,
             src: mascotAssetUrl(mascotMap, entry.image),
             alt: entry.alt || dmn || "마스코트",
             loading: "eager",
@@ -46430,7 +46469,7 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         const dmn = activeName || (storyKeys.length ? storyKeys[storyIdx % storyKeys.length] : initialMascot);
         return React.createElement("div", { className: "pc-center-mascot-card", "aria-label": dmn ? `${dmn} 사진` : "지역 사진" },
             React.createElement("div", { className: "pc-center-mascot-stage" },
-                React.createElement(YbezStableMascotImage, { dmn: dmn, mascotMap: mascotMap, transitionMs: 220 })));
+                React.createElement(YbezStableMascotImage, { dmn: dmn, mascotMap: mascotMap, transitionMs: 265 })));
     })();
     const selectRuntimeGrade = (nextGrade) => {
         const safe = nextGrade === "gen" ? "gen" : "pre";
@@ -57143,6 +57182,21 @@ html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact
   }
 }
 </style>
+
+<style id="ybez-mascot-fade-patch-20260910">
+/* MASCOT-FADE-PATCH 2026-09-10: Desktop 중앙 지역 마스코트(.pc-center-mascot-card)의
+   crossfade blink 수정. 기존 이미지(.base.dim) fade-out을 새 이미지(.incoming.on)
+   fade-in보다 아주 살짝 늦게 시작시켜, 전환 중간 지점에서 두 이미지 투명도가
+   동시에 낮아지며 생기던 미세한 blink를 제거한다.
+   범위: .pc-center-mascot-card 내부로만 스코프. JS(YbezStableMascotImage) 로직,
+   관내모드 오른쪽 마스코트(.ybez-intra-right-mascot-stage)는 변경하지 않는다. */
+.pc-center-mascot-card .mobile-rc-mascot-img.incoming.on{
+  transition-delay:0s!important;
+}
+.pc-center-mascot-card .mobile-rc-mascot-img.base.dim{
+  transition-delay:.045s!important;
+}
+</style>
 <!-- YBEZ STABILITY-C1 2026-09-09 -->
 <!-- TRIP-QUICK-C2 2026-09-09: rebuilt from PASS BASE; shared-state trip/stay quick editor. -->
 <!-- TRIP-QUICK-C5 2026-09-09: prepared mascot crossfade; destination reset; 1-day training; button-width stay editor; unit restored. -->
@@ -57310,6 +57364,178 @@ body .deduct-btn:active, body .deduct-btn.active:active{
 }
 </style>
 <!-- C6C 2026-09-10: friend/travel controls restored; cream control skin removed; round=total visual token. -->
+
+
+<style id="ybez-c6e-popup-center-freeze-20260910">
+/* C6E · 팝업은 열리는 순간 화면 중앙. 이후 펼침은 처음 top을 고정하고 아래로만 성장한다.
+   Scope: 출장일수/숙박비 Quick + 교통비/일비/식비 deduction family only. */
+html body .modal-bg.ybez-c6e-pending{
+  align-items:center!important;
+  justify-content:center!important;
+  padding:16px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html body .modal-bg.ybez-c6e-pending > .r104-final-top-scope{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  max-height:calc(100dvh - 32px)!important;
+}
+html body .modal-bg.ybez-c6e-anchored{
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding-top:var(--ybez-c6e-top,16px)!important;
+  padding-right:16px!important;
+  padding-bottom:16px!important;
+  padding-left:16px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  max-height:calc(100dvh - var(--ybez-c6e-top,16px) - 16px)!important;
+}
+html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-body{
+  min-height:0!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+@media(max-width:699px){
+  html body .modal-bg.ybez-c6e-pending{padding:10px!important;}
+  html body .modal-bg.ybez-c6e-pending > .r104-final-top-scope{max-height:calc(100dvh - 20px)!important;}
+  html body .modal-bg.ybez-c6e-anchored{
+    padding-right:10px!important;
+    padding-bottom:10px!important;
+    padding-left:10px!important;
+  }
+  html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope{
+    max-height:calc(100dvh - var(--ybez-c6e-top,10px) - 10px)!important;
+  }
+}
+</style>
+<script id="ybez-c6e-popup-center-freeze-script-20260910">
+(function(){
+  'use strict';
+  if (window.__YBEZ_C6E_POPUP_CENTER_FREEZE__) return;
+  window.__YBEZ_C6E_POPUP_CENTER_FREEZE__ = true;
+
+  function isTargetOverlay(el){
+    if (!(el instanceof Element) || !el.classList.contains('modal-bg')) return false;
+    return el.classList.contains('trip-quick-overlay') ||
+           el.classList.contains('lodging-quick-overlay') ||
+           el.classList.contains('deduction-modal-bg');
+  }
+
+  function getDialog(overlay){
+    if (!overlay || !overlay.children) return null;
+    for (const child of overlay.children){
+      if (child.classList && child.classList.contains('r104-final-top-scope')) return child;
+    }
+    return null;
+  }
+
+  function anchorOverlay(overlay){
+    if (!isTargetOverlay(overlay) || overlay.dataset.ybezC6eAnchored === '1') return;
+    const dialog = getDialog(overlay);
+    if (!dialog) return;
+
+    overlay.dataset.ybezC6eAnchored = 'pending';
+    overlay.classList.remove('ybez-c6e-anchored');
+    overlay.classList.add('ybez-c6e-pending');
+    overlay.style.removeProperty('--ybez-c6e-top');
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if (!overlay.isConnected || !dialog.isConnected) return;
+        const rect = dialog.getBoundingClientRect();
+        const mobile = window.matchMedia && window.matchMedia('(max-width:699px)').matches;
+        const safe = mobile ? 10 : 16;
+        const viewportH = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+        const measuredTop = Number.isFinite(rect.top) ? rect.top : safe;
+        const top = Math.max(safe, Math.min(measuredTop, Math.max(safe, viewportH - safe - 40)));
+        overlay.style.setProperty('--ybez-c6e-top', top.toFixed(2) + 'px');
+        overlay.classList.remove('ybez-c6e-pending');
+        overlay.classList.add('ybez-c6e-anchored');
+        overlay.dataset.ybezC6eAnchored = '1';
+      });
+    });
+  }
+
+  function scan(root){
+    if (!root) return;
+    if (isTargetOverlay(root)) anchorOverlay(root);
+    if (root.querySelectorAll){
+      root.querySelectorAll('.modal-bg.trip-quick-overlay, .modal-bg.lodging-quick-overlay, .modal-bg.deduction-modal-bg').forEach(anchorOverlay);
+    }
+  }
+
+  const observer = new MutationObserver(function(records){
+    for (const rec of records){
+      for (const node of rec.addedNodes){
+        if (node && node.nodeType === 1) scan(node);
+      }
+    }
+  });
+
+  function start(){
+    scan(document.body);
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
+  else start();
+})();
+</script>
+<!-- C6E 2026-09-10: center on open; freeze initial top; expansion grows downward. -->
+
+
+
+<style id="ybez-lodging-final-desktop-20260910">
+/* LODGING-FINAL 2026-09-10 · Desktop-only micro finish.
+   Signed scope only:
+   - hide the duplicate "친지집 N박" text beside the +amount breakdown;
+   - keep the +amount and align it under the lodging receipt money entry;
+   - place 친지집 / 이동일 trigger buttons on one baseline;
+   - no state, calculation, Quick, popup, responsive-mode or routing changes. */
+@media (min-width:1100px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-breakdown-line.friend .lodging-main-breakdown-label{
+    display:none!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-breakdown-line.friend{
+    justify-content:flex-start!important;
+    gap:0!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-main-breakdown-line.friend .lodging-main-breakdown-amount{
+    width:121px!important;
+    min-width:121px!important;
+    text-align:right!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .travel-class-moving-row .ybez-lodging-side-stack{
+    flex-direction:row!important;
+    align-items:flex-start!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .travel-class-moving-row .ybez-lodging-side-stack > .d6-r9-travel-lodging-wrap{
+    margin-left:0!important;
+  }
+}
+</style>
+<!-- LODGING-FINAL 2026-09-10: Desktop lodging display alignment only. -->
 
 </body>
 </html>
