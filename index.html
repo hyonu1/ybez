@@ -29856,6 +29856,75 @@ html[data-ybez-ui-mode="mini"] .qe4-narrow .qe4-circle:active{
 }
 </style>
 <!-- C6B 2026-09-09: C6A TDZ repair + stable common popup top anchor. -->
+
+<style id="ybez-c6dr-intra-mode-20260910">
+/* C6D-R · 관내 전용 presentation. C6C 관외 DOM/state는 그대로 보존한다. */
+#root .ybez-intra-main-fare-wrap{margin-top:0!important;}
+#root .ybez-intra-main-fare-card{
+  display:grid!important;grid-template-columns:minmax(92px,1fr) auto minmax(108px,.7fr)!important;
+  align-items:center!important;gap:18px!important;min-height:68px!important;
+  padding:12px 16px!important;cursor:default!important;
+  background:#FFFFFF!important;border-color:#173A63!important;
+  box-shadow:0 2px 8px rgba(23,58,99,.08)!important;
+}
+#root .ybez-intra-main-fare-card:hover{background:#FFFFFF!important;border-color:#173A63!important;}
+#root .ybez-intra-main-label{display:flex;align-items:center;gap:9px;min-width:0;color:#25384D;font-family:var(--gm);font-size:14px;font-weight:900;white-space:nowrap;}
+#root .ybez-intra-main-actions{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;}
+#root .ybez-intra-main-chip{
+  appearance:none;-webkit-appearance:none;height:30px;padding:0 12px;border-radius:7px;
+  border:1px solid #C6D3DF;background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);
+  color:#173A63;font-family:var(--gm);font-size:10.5px;font-weight:850;white-space:nowrap;cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 1px 2px rgba(23,58,99,.08);
+}
+#root .ybez-intra-main-chip:hover{background:linear-gradient(180deg,#FFFFFF 0%,#EEF4F9 100%);border-color:#91A9BF;}
+#root .ybez-intra-main-chip:active{transform:translateY(1px);box-shadow:inset 0 2px 3px rgba(23,58,99,.13);}
+#root .ybez-intra-main-chip.selected{background:#EEF4F9;border-color:#173A63;color:#173A63;box-shadow:0 0 0 2px rgba(23,58,99,.07),inset 0 1px 0 rgba(255,255,255,.95);}
+#root .ybez-intra-main-amount{display:flex;align-items:baseline;justify-content:flex-end;gap:3px;white-space:nowrap;color:#173A63;}
+#root .ybez-intra-main-amount strong{font-family:var(--gm);font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;}
+#root .ybez-intra-main-amount span{font-family:var(--gm);font-size:12px;font-weight:850;color:#6D7E8E;}
+
+/* Quick은 관내에서 기능을 만들지 않는다. 기존 strip footprint만 남겨 관외↔관내 전환 때 레이아웃이 튀지 않게 한다. */
+#root .qe4-intra-footprint{pointer-events:none!important;}
+@media(min-width:1200px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact) #root .qe4-desktop.qe4-intra-footprint{display:grid!important;min-height:67px!important;}
+}
+html.ybez-desktop-tablet #root .qe4-narrow.qe4-intra-footprint,
+html[data-ybez-ui-mode="tablet"] #root .qe4-narrow.qe4-intra-footprint,
+html.ybez-desktop-mini #root .qe4-narrow.qe4-intra-footprint,
+html[data-ybez-ui-mode="mini"] #root .qe4-narrow.qe4-intra-footprint{display:grid!important;min-height:26px!important;}
+@media(max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact) #root .qe4-mobile.qe4-intra-footprint{display:grid!important;min-height:26px!important;}
+}
+
+/* 왼쪽은 관내 지역지도 자체를 유지한다. */
+#root .ybez-intra-region-route-card .ybez-route-map-frame{margin-top:0!important;}
+#root .ybez-intra-region-route-card .ybez-route-map-label{font-weight:900!important;}
+
+/* C6D-R1: 관내 우측은 여비계산 헤더/하단 합계축을 그대로 살리고, 마스코트는 내부 카드에만 표시한다. */
+#root .col-right.ybez-intra-right-active{overflow:hidden!important;background:#F7F9FB!important;}
+#root .ybez-intra-right-shell{width:100%!important;height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+#root .ybez-intra-right-scroll{flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;}
+#root .ybez-intra-right-mascot-shell{position:relative;flex:0 0 auto;width:calc(100% - 20px);aspect-ratio:5 / 6;margin:12px 10px 0;padding:8px;box-sizing:border-box;overflow:hidden;background:#FFFFFF;border:1px solid #D7E1EA;border-radius:14px;box-shadow:0 2px 8px rgba(23,58,99,.035);}
+#root .ybez-intra-right-mascot-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:11px;}
+#root .ybez-intra-right-mascot-stage>.mobile-rc-mascot-stage{width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;}
+#root .ybez-intra-right-mascot-stage .mobile-rc-mascot-img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;max-width:none!important;max-height:none!important;padding:0!important;}
+
+@media(max-width:1199px){
+  #root .ybez-intra-main-fare-card{grid-template-columns:minmax(76px,.8fr) auto minmax(90px,.65fr)!important;gap:9px!important;padding:9px 10px!important;}
+  #root .ybez-intra-main-actions{gap:5px!important;}
+  #root .ybez-intra-main-chip{height:28px;padding:0 8px;font-size:9.5px;}
+  #root .ybez-intra-main-amount strong{font-size:20px;}
+}
+@media(max-width:699px){
+  #root .ybez-intra-main-fare-card{grid-template-columns:auto 1fr auto!important;gap:7px!important;min-height:58px!important;}
+  #root .ybez-intra-main-label{font-size:12px;}
+  #root .ybez-intra-main-actions{justify-content:flex-start!important;}
+  #root .ybez-intra-main-chip{height:27px;padding:0 7px;font-size:9px;}
+  #root .ybez-intra-main-amount strong{font-size:18px;}
+}
+</style>
+<!-- C6D-R 2026-09-10: intra mode = regional map + simple main fare row + Quick footprint + right mascot; C6C extra mode protected. -->
+
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -32699,6 +32768,9 @@ const App = () => {
     const [intraDed, setIntraDed] = useState({ shortTime: false, govVehicle: false });
     const intraDailyAmount = Math.max(0, 20000 - (intraDed.shortTime ? 10000 : 0) - (intraDed.govVehicle ? 10000 : 0));
     const intraDailyDeductionAmount = Math.max(0, 20000 - intraDailyAmount);
+    // C6D-R: 관내 presentation은 실제 endpoint 관내 + 관내 scope일 때만 켠다.
+    // 관외 계산 state/DOM은 삭제하지 않고 관외 복귀 시 그대로 다시 렌더한다.
+    const endpointIntraMode = travelScopeMode === "intra" && !!result && ybezIsEndpointIntraTrip(origin, dest);
     useEffect(() => {
         const hasOrigin = !!nz(origin);
         const hasDest = !!nz(dest);
@@ -33084,9 +33156,10 @@ const App = () => {
             intraScopePulseTimerRef.current = null;
         }
         setIntraScopePulse(false);
-        // 실제 endpoint 관내일 때만 계산 mode를 intra로 유지한다. 관외 endpoint에서는 참고 팝업만 연다.
+        // C6D-R: 실제 endpoint 관내일 때만 관내 mode로 전환한다.
+        // 메인 요금창이 관내 직접조작 UI이므로 토글 자체는 기존 관내 팝업을 자동으로 열지 않는다.
         setTravelScopeMode(result && ybezIsEndpointIntraTrip(origin, dest) ? "intra" : "extra");
-        setIntraCityOpen(true);
+        setIntraCityOpen(false);
     }, [result, origin, dest]);
     // D6-W3: Desktop / Mini / Tablet을 하나의 React 상태로 관리한다.
     useEffect(() => {
@@ -47385,6 +47458,39 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         return { points, segments, viewBox: ybezRouteMapFitViewBox(points), structured: true };
     }, [result, displayRouteLabel, getCityCoord, compactPlaceName, inputRegionLabelForName, resolveRuntimeRole, canonicalEndpointName, roleNorm, resolveArea, routeRegionDisplayName, isSpecialRouteFacility, origin, dest]);
 
+    // C6D-R: 관내에서는 경로선을 만드는 대신 현재 행정지역을 지도 중심에 한 점으로 표시한다.
+    // 지도 원본/좌표 DB는 변경하지 않고 표시 model만 별도로 만든다.
+    const intraRegionMapModel = useMemo(() => {
+        if (!endpointIntraMode) return null;
+        const rawName = nz(dest) || nz(origin);
+        if (!rawName) return null;
+        const candidates = [];
+        const add = v => { const x = String(v || "").trim(); if (x && !candidates.includes(x)) candidates.push(x); };
+        add(rawName);
+        if (typeof canonicalEndpointName === "function") add(canonicalEndpointName(rawName));
+        if (typeof compactPlaceName === "function") add(compactPlaceName(rawName));
+        if (typeof routeRegionDisplayName === "function") add(routeRegionDisplayName(rawName));
+        let coord = null, resolvedName = rawName;
+        for (const name of candidates) {
+            const c = typeof getCityCoord === "function" ? getCityCoord(name) : null;
+            if (c && Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng))) { coord = c; resolvedName = name; break; }
+        }
+        if (!coord) return null;
+        const xy = ybezRouteMapSvgXY(coord.lat, coord.lng);
+        if (!xy) return null;
+        const w = 245, h = 282;
+        const x = Math.max(0, Math.min(800 - w, Number(xy.x) - w / 2));
+        const y = Math.max(0, Math.min(760 - h, Number(xy.y) - h / 2));
+        const regionLabel = typeof inputRegionLabelForName === "function" ? inputRegionLabelForName(resolvedName || rawName) : "";
+        const regionKey = ybezRouteMapRegionKeyFromLabel(regionLabel);
+        return {
+            points:[{ name:rawName, x:Number(xy.x), y:Number(xy.y), lat:Number(coord.lat), lng:Number(coord.lng), regionKey }],
+            segments:[],
+            viewBox:[Number(x.toFixed(2)), Number(y.toFixed(2)), w, h],
+            structured:true, intraRegion:true
+        };
+    }, [endpointIntraMode, origin, dest, getCityCoord, compactPlaceName, canonicalEndpointName, routeRegionDisplayName, inputRegionLabelForName]);
+
     const DesktopSourceLegend = () => React.createElement("div", { className: "ybez-left-source-legend-fixed", "aria-label": "교통요금 출처 색상" },
         [
             { label:"BUSTAGO", cls:"bustago" },
@@ -47417,6 +47523,12 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
 
         const rows = verticalRouteRows;
         const intraMascotName = ybezIsEndpointIntraTrip(origin, dest) ? (nz(dest) || nz(origin)) : "";
+        if (endpointIntraMode)
+            return React.createElement("div", { className: "vertical-route-card ybez-intra-region-route-card" },
+                React.createElement("div", { className: "vroute-title" },
+                    React.createElement("span", null, "경로 정보"),
+                    React.createElement("small", null, `${nz(dest) || nz(origin)} 관내`)),
+                RouteMapPanel(intraRegionMapModel, null, ""));
         if (!rows.length) {
             if (intraMascotName)
                 return React.createElement("div", { className: "vertical-route-card" },
@@ -48087,10 +48199,31 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
         qe4FocusExpenseControl(key, 60);
     };
 
+    const IntraMainFareCardC6DR = () => React.createElement("div", { className:"fare-choice-wrap ybez-intra-main-fare-wrap" },
+        React.createElement("div", { className:"fare-option-card final-result-card selected ybez-intra-main-fare-card", "aria-label":"관내 여비 직접 조정" },
+            React.createElement("div", { className:"ybez-intra-main-label" },
+                React.createElement("span", { className:"fare-radio", "aria-hidden":"true" }),
+                React.createElement("span", null, "관내")),
+            React.createElement("div", { className:"ybez-intra-main-actions", role:"group", "aria-label":"관내 여비 감액 조건" },
+                React.createElement("button", {
+                    type:"button", className:`ybez-intra-main-chip ${intraDed.shortTime ? "selected" : ""}`.trim(),
+                    "aria-pressed":!!intraDed.shortTime,
+                    onClick:e => { e.stopPropagation(); setIntraDed(p => ({ ...p, shortTime:!p.shortTime })); }
+                }, "4시간 미만"),
+                React.createElement("button", {
+                    type:"button", className:`ybez-intra-main-chip ${intraDed.govVehicle ? "selected" : ""}`.trim(),
+                    "aria-pressed":!!intraDed.govVehicle,
+                    onClick:e => { e.stopPropagation(); setIntraDed(p => ({ ...p, govVehicle:!p.govVehicle })); }
+                }, "관용차 이용")),
+            React.createElement("div", { className:"ybez-intra-main-amount", "aria-live":"polite" },
+                React.createElement("strong", null, fmt(intraDailyAmount)),
+                React.createElement("span", null, "원"))));
+
     const QuickExpenseStripQE4 = ({ variant }) => React.createElement("div", {
-        className:`qe4-strip qe4-${variant}`,
-        "aria-label":"여비 빠른 조정"
-    }, qe4Items.map(item => React.createElement("div", {
+        className:`qe4-strip qe4-${variant} ${endpointIntraMode ? "qe4-intra-footprint" : ""}`.trim(),
+        "aria-label":endpointIntraMode ? "관내 모드 빠른조정 자리" : "여비 빠른 조정",
+        "aria-hidden":endpointIntraMode ? "true" : undefined
+    }, endpointIntraMode ? null : qe4Items.map(item => React.createElement("div", {
         className:`qe4-item qe4-item-${item.key}`,
         key:`qe4-${variant}-${item.key}`
     },
@@ -48907,7 +49040,9 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
                         : React.createElement(FeedbackCreditD443, null))),
             React.createElement("div", { className: "result-wrap" },
                 result && (React.createElement(React.Fragment, null,
-                    (() => {
+                    endpointIntraMode
+                        ? React.createElement(IntraMainFareCardC6DR, null)
+                        : (() => {
                         const { depSubs = [], arrSubs = [], specialSubs = [] } = subResults || {};
                         // 경유지 검색 시에는 후보 선택을 단순화한다.
                         const showSubs = !(nz(via) || result.via);
@@ -49098,8 +49233,20 @@ html[data-ybez-ui-mode="tablet"].ybez-desktop-tablet body .d6-w32-expense-body :
             React.createElement(MobileInlineRoute4I, null),
             React.createElement(NonDesktopRouteButtonB17, null),
             !mobilePagerEnabledM6A2 && React.createElement(MobileHomeBottomNavW3, null)),
-        React.createElement("div", { className: "col-right" },
-            useTabletExpenseUi
+        React.createElement("div", { className: `col-right ${endpointIntraMode ? "ybez-intra-right-active" : ""}`.trim() },
+            endpointIntraMode
+                ? React.createElement("div", { className:"d6-w34-desktop-expense-shell ybez-intra-right-shell" },
+                    React.createElement("div", { className:"d6-w34-desktop-expense-scroll ybez-intra-right-scroll" },
+                        React.createElement("div", { className:"sec-hdr d39-desktop-expense-head d6-r9-expense-main-head" },
+                            React.createElement("div", { className:"d39-expense-head-copy" },
+                                React.createElement("div", { className:"d6-r9-expense-title-line" },
+                                    React.createElement(M5NavGlyph, { type:"expense", className:"d6-r9-expense-head-icon" }),
+                                    React.createElement("span", { className:"d39-expense-head-title" }, "여비계산")))),
+                        React.createElement("div", { className:"ybez-intra-right-mascot-shell", "aria-label":`${nz(dest) || nz(origin) || "지역"} 관내 마스코트` },
+                            React.createElement("div", { className:"ybez-intra-right-mascot-stage" },
+                                React.createElement(YbezStableMascotImage, { dmn:nz(dest) || nz(origin), mascotMap:mascotMap, transitionMs:220 })))),
+                    React.createElement(ExpenseFixedTotalW33, null))
+                : useTabletExpenseUi
                 ? TabletExpensePanelW32()
                 : React.createElement("div", { className: "d6-w34-desktop-expense-shell" },
                     React.createElement("div", { className: "d6-w34-desktop-expense-scroll" },
