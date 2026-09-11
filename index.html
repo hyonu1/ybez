@@ -45500,7 +45500,8 @@ const App = () => {
                     isMultiDayTrip && (((useTabletExpenseUi || showDetail) && !desktopTabletPresentationD42) || isDesktopCompact) && React.createElement("button", { type: "button", className: "trip-help-toggle trip-help-inline", onClick: () => setTripTypeHelpOpen(true) }, mobilePagerEnabledM6A2 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기")),
                 (isMultiDayTrip || useTabletExpenseUi || desktopD39Layout || mobilePagerEnabledM6A2 || isDesktopCompact) && React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "trip-condition-box" },
-                        React.createElement("div", { className: `trip-condition-grid ${presentationTabletUiD42 ? "d6-d10-trip-condition-grid" : ""} ${desktopTabletPresentationD42 ? "d42-desktop-condition-grid" : ""} ${mobilePagerEnabledM6A2 ? "m5-mobile-condition-grid" : ""} ${mobilePagerEnabledM6A2 && trainingMixedScheduleRequired ? "has-schedule" : ""}`.trim() },
+                        React.createElement("div", { className: "m5-mobile-condition-slot-shell" },
+                            React.createElement("div", { className: `trip-condition-grid ${presentationTabletUiD42 ? "d6-d10-trip-condition-grid" : ""} ${desktopTabletPresentationD42 ? "d42-desktop-condition-grid" : ""} ${mobilePagerEnabledM6A2 ? "m5-mobile-condition-grid" : ""} ${mobilePagerEnabledM6A2 && trainingMixedScheduleRequired ? "has-schedule" : ""}`.trim() },
                             mobilePagerEnabledM6A2
                                 ? React.createElement(React.Fragment, null,
                                     React.createElement("button", {
@@ -45738,6 +45739,7 @@ const App = () => {
                                                 React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
                                                 React.createElement("span", { className: "trip-unit" }, "박")),
                                             React.createElement("button", { type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 늘리기", disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)), onClick: () => handleGroupNightsChange(groupNights + 1) }, "+"))))),
+                            mobilePagerEnabledM6A2 && React.createElement("div", { className: "m5-mobile-condition-rail-slot", "aria-hidden": "true" })),
                         (((desktopTabletPresentationD42 && !isDesktopCompact) || !(useTabletExpenseUi || showDetail) || (!desktopTabletPresentationD42 && trainingMixedScheduleRequired))) && React.createElement("div", { className: `trip-help-wrap ${desktopTabletPresentationD42 ? "d42-desktop-help-wrap" : ""}`.trim() },
                             React.createElement("div", { className: `trip-help-toggle-row ${(!desktopTabletPresentationD42 && trainingMixedScheduleRequired) ? "k5g-actions" : ""}` },
                                 (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail)) && React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(true) }, desktopTabletPresentationD42 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기"),
@@ -45772,7 +45774,7 @@ const App = () => {
                                 React.createElement(YbezClassToggleR2, { ariaLabel: "교통비 여비 지급구분", extraClass: "main" }),
                                 React.createElement("button", { type:"button", className:"travel-class-info-btn ybez-class-info-r2", title:"여비 지급구분 안내", "aria-label":"여비 지급구분 안내", onClick:() => { setTravelClassInfoKind("transport"); setTravelClassInfoOpen(true); } }, "i"))),
                         React.createElement("div", { className: "expense-tag-cell" },
-                            React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복"),
+                            !mobilePagerEnabledM6A2 && React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복"),
                             (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
                         React.createElement("div", { className: "expense-action-cell" },
                             React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${(transportReasonDeductionUnits > 0 || vehicleDaysInput > 0) ? "active" : ""}` }, isDesktopMini ? "감액" : presentationDeductionButtonLabelD42(detailCost.transportDeduction))),
@@ -45871,8 +45873,8 @@ const App = () => {
                         React.createElement("div", null),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
                     React.createElement("div", { className: "expense-main-row lodging-receipt-row" },
-                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label lodging-receipt-label" }, "숙박영수증")),
-                        React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: `tag-side expense-tag-compact ybez-total-tag ${tagStyle("왕복")}` }, "총액")),
+                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label lodging-receipt-label" }, "영수증 총액")),
+                        React.createElement("div", { className: "expense-tag-cell" }),
                         React.createElement("div", { className: "expense-lodging-entry" },
                             renderMoneyEntry(showLodging && lodgingTotalInput !== "" ? fmt(Number(onlyDigits(lodgingTotalInput) || 0)) : "", e => { if (!showLodging) return; lodgingFocused.current = true; e.target.select(); }, () => { if (!showLodging) return; lodgingFocused.current = false; setLodgingTotalInput(lodgingTotal > 0 ? String(lodgingTotal) : ""); }, e => {
                                 if (!showLodging) return;
@@ -46676,6 +46678,32 @@ html.ybez-desktop-mini .d31-mini-footer::after{
     height:28px !important;
     min-height:28px !important;
     font-size:13px !important;
+  }
+
+  /* CONDITION SLOT STEP 1:
+     existing 2x2 remains the main slot; the empty right rail is reserved without changing row heights. */
+  .m5-mobile-condition-slot-shell{display:contents;}
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-slot-shell{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 76px;
+    column-gap:6px;
+    align-items:start;
+    width:100%;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-slot-shell > .m5-mobile-condition-grid{
+    grid-column:1;
+    grid-row:1;
+    min-width:0;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-rail-slot{
+    grid-column:2;
+    grid-row:1;
+    min-width:0;
+    align-self:stretch;
   }
 
   /* Trip condition buttons: width/order unchanged; touch height only. */
