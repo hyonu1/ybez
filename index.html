@@ -3719,9 +3719,9 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
   .m34-fare-row.primary .m34-fare-value{color:#C97D20 !important;font-size:28px !important;}
   .m34-fare-row.secondary .m34-fare-value{color:#6F6B67 !important;font-size:17px !important;}
   .m34-fare-pill{
-    min-width:42px !important;height:30px !important;padding:0 9px !important;border-radius:10px !important;
+    min-width:30px !important;height:20px !important;padding:0 6px !important;border-radius:6px !important;
     border:1px solid #EBCB9A !important;background:#FFF8E9 !important;color:#B36B17 !important;
-    display:inline-flex !important;align-items:center !important;justify-content:center !important;font-size:10px !important;font-weight:900 !important;
+    display:inline-flex !important;align-items:center !important;justify-content:center !important;font-size:9px !important;font-weight:900 !important;
   }
   .m34-fare-pill.muted{border-color:#E0E1E4 !important;background:#F5F5F6 !important;color:#76787D !important;}
   .m34-result-placeholder{
@@ -4201,6 +4201,15 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     border-color:#D8E0E9 !important;
     background:#FFFFFF !important;
     color:#637184 !important;
+  }
+  .travel-calc-body .trip-choice-btn:disabled,
+  .travel-calc-body .trip-choice-btn.disabled{
+    border-color:#D8E0E7 !important;
+    background:#F4F6F8 !important;
+    color:#708091 !important;
+    box-shadow:none !important;
+    opacity:.46 !important;
+    cursor:default !important;
   }
   .travel-calc-body .trip-choice-btn.sel,
   .travel-calc-body .trip-choice-btn.check-sel,
@@ -10522,6 +10531,15 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     border-color:#D8E0E9 !important;
     background:#FFFFFF !important;
     color:#637184 !important;
+  }
+  .travel-calc-body .trip-choice-btn:disabled,
+  .travel-calc-body .trip-choice-btn.disabled{
+    border-color:#D8E0E7 !important;
+    background:#F4F6F8 !important;
+    color:#708091 !important;
+    box-shadow:none !important;
+    opacity:.46 !important;
+    cursor:default !important;
   }
   .travel-calc-body .trip-choice-btn.sel,
   .travel-calc-body .trip-choice-btn.check-sel,
@@ -18527,8 +18545,8 @@ html.ybez-desktop-tablet .d6-w32-route-body .vroute-terminal-section .vroute-det
 
 /* Expense: m510-swipe-surface exists only on the real Mobile pager expense sheet. */
 .d6-b17-expense-sheet.m510-swipe-surface .d6-b17-sheet-header{
-  flex:0 0 64px !important;
-  min-height:64px !important;
+  flex:0 0 54px !important;
+  min-height:54px !important;
   padding-left:18px !important;
 }
 .d6-b17-expense-sheet.m510-swipe-surface .d6-m3-expense-heading{
@@ -25902,6 +25920,26 @@ html[data-ybez-ui-mode="mini"] #root .qe4-narrow.qe4-intra-footprint{display:gri
 </style>
 <!-- C6D-R 2026-09-10: intra mode = regional map + simple main fare row + Quick footprint + right mascot; C6C extra mode protected. -->
 
+
+<style id="ybez-mobile-pip-preview-20260911">
+/* Mobile PiP launcher only. No route/fare/expense calculation changes. */
+.ybez-mobile-pip-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+.ybez-mobile-pip-launch{
+  display:none;
+  width:28px;height:28px;min-width:28px;
+  padding:0;border:1px solid #DCE3EB;border-radius:8px;
+  background:#FFFFFF;color:#667386;
+  align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 1px 3px rgba(21,43,70,.06);
+  transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease;
+}
+.ybez-mobile-pip-launch:hover{background:#F4F7FA;border-color:#BFCBD7;color:#173A63;}
+.ybez-mobile-pip-launch:active{transform:scale(.94);}
+.ybez-mobile-pip-launch img{width:17px;height:17px;display:block;object-fit:contain;pointer-events:none;}
+@media(min-width:700px){
+  html:not(.ybez-mobile-test) .ybez-mobile-pip-launch{display:inline-flex;}
+}
+</style>
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -27931,6 +27969,54 @@ const App = () => {
         try { return new URLSearchParams(window.location.search).get("ybez_mobile_test") === "1"; }
         catch (_) { return false; }
     })();
+    // Mobile PiP child only. Keyboard pager is deliberately scoped here so Desktop
+    // arrow keys keep their existing behavior and real phones are unaffected.
+    const mobilePipChildModeM6A2 = typeof window !== "undefined" && (() => {
+        try { return new URLSearchParams(window.location.search).get("ybez_mobile_pip_child") === "1"; }
+        catch (_) { return false; }
+    })();
+    // 2026-09-11 Mobile PiP: run_mobile 대체용 실제 Mobile viewport.
+    // Document Picture-in-Picture만 사용해 항상 위 특성을 보장하고, 미지원 환경은 일반 popup으로 fallback하지 않는다.
+    const mobilePipWindowRef = useRef(null);
+    const openMobilePipPreview = useCallback(async () => {
+        if (typeof window === "undefined" || !window.documentPictureInPicture ||
+            typeof window.documentPictureInPicture.requestWindow !== "function") {
+            window.alert("이 환경에서는 항상 위 mobile(Document Picture-in-Picture)을 지원하지 않습니다.");
+            return;
+        }
+        try {
+            const oldWin = mobilePipWindowRef.current;
+            if (oldWin && !oldWin.closed) {
+                try { oldWin.close(); } catch (_) {}
+            }
+            const pipWin = await window.documentPictureInPicture.requestWindow({ width: 390, height: 844 });
+            mobilePipWindowRef.current = pipWin;
+            const pipDoc = pipWin.document;
+            pipDoc.title = "여비이지 · mobile";
+            pipDoc.documentElement.style.cssText = "margin:0;width:100%;height:100%;background:#fff;";
+            pipDoc.body.style.cssText = "margin:0;width:100%;height:100%;overflow:hidden;background:#fff;position:relative;";
+
+            const previewUrl = new URL(window.location.href);
+            previewUrl.searchParams.set("ybez_mobile_test", "1");
+            previewUrl.searchParams.set("ybez_mobile_pip_child", "1");
+
+            const frame = pipDoc.createElement("iframe");
+            frame.src = previewUrl.toString();
+            frame.title = "여비이지 mobile";
+            frame.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:0;margin:0;padding:0;background:#fff;display:block;";
+            frame.setAttribute("aria-label", "여비이지 mobile");
+            pipDoc.body.appendChild(frame);
+
+
+            pipWin.addEventListener("pagehide", () => {
+                if (mobilePipWindowRef.current === pipWin) mobilePipWindowRef.current = null;
+                try { window.focus(); } catch (_) {}
+            }, { once:true });
+        } catch (err) {
+            console.error("YBEZ Mobile PiP failed", err);
+            window.alert("mobile 항상 위 창을 열지 못했습니다. Chrome/Edge의 Document Picture-in-Picture 지원 상태를 확인해 주세요.");
+        }
+    }, []);
     // D5.2: 폭만으로 모바일/PC를 구분하지 않는다.
     // Desktop/마우스 환경은 1500px 미만이면 가장 좁은 창에서도 Mobile UI + PC Pager를 사용한다.
     const isDesktopLikeEnvironment = () => {
@@ -42842,6 +42928,53 @@ const App = () => {
     const mobilePagerEnabledM6A2 = typeof window !== "undefined" && window.innerWidth <= 699 &&
         !isDesktopMini && !isDesktopCompact && !isDesktopTablet;
 
+    // Mobile PiP QA keyboard pager: ArrowLeft / ArrowRight use the same two-surface
+    // cyclic Home <-> Expense transition as touch swipe. The arrow decides motion
+    // direction only; the destination is always the opposite surface.
+    useEffect(() => {
+        if (!mobilePipChildModeM6A2 || !mobilePagerEnabledM6A2 || typeof window === "undefined") return;
+
+        const isEditableTarget = (target) => {
+            if (!target || typeof target.closest !== "function") return false;
+            return !!target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"], [role="spinbutton"], [role="slider"]');
+        };
+
+        const onMobilePipArrowKey = (e) => {
+            if (!e || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+            if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+
+            const activeEl = document.activeElement;
+            if (isEditableTarget(e.target) || isEditableTarget(activeEl)) return;
+
+            // Never steal arrows while a quick editor, deduction/help modal, proof/favorite/history
+            // sheet, lodging popover, training schedule or other auxiliary interaction is open.
+            if (modalSt.type || activeModal || tripQuickOpen || lodgingQuickOpen ||
+                showFav || showHist || showProof || showProofInfo || tripTypeHelpOpen ||
+                stayHelpOpen || trainingGroupScheduleOpen || intraCityOpen ||
+                tabletLodgingPopoverOpen || tabletGroupPopoverOpen || tabletTravelLodgingPopoverOpen) return;
+
+            // Route is a separate surface; the QA arrows intentionally test only the
+            // cyclic Home/Expense pair requested for the Mobile preview.
+            if (mobilePagerMode === "route") return;
+            if (mobilePagerMode === "home" && !result) return;
+            if (mobileNavTransitioningRef.current) return;
+
+            e.preventDefault();
+            mobileToggleSurface4P(
+                mobilePagerMode === "expense" ? "expense" : "home",
+                e.key === "ArrowRight" ? "right" : "left"
+            );
+        };
+
+        window.addEventListener("keydown", onMobilePipArrowKey, true);
+        return () => window.removeEventListener("keydown", onMobilePipArrowKey, true);
+    }, [
+        mobilePipChildModeM6A2, mobilePagerEnabledM6A2, mobilePagerMode, result,
+        modalSt.type, activeModal, tripQuickOpen, lodgingQuickOpen, showFav, showHist,
+        showProof, showProofInfo, tripTypeHelpOpen, stayHelpOpen, trainingGroupScheduleOpen,
+        intraCityOpen, tabletLodgingPopoverOpen, tabletGroupPopoverOpen, tabletTravelLodgingPopoverOpen
+    ]);
+
     useEffect(() => {
         if (!result) setMobileInlineRouteOpen4I(false);
     }, [result]);
@@ -44046,26 +44179,45 @@ const App = () => {
             onTouchEnd: mobilePagerEnabledM6A2 ? mobileSwipeEnd : undefined,
             onTouchCancel: mobilePagerEnabledM6A2 ? mobileSwipeCancel : undefined
         },
-            React.createElement("div", { style: { padding: "14px 16px 10px", borderBottom: "1px solid var(--sep)", background: "rgba(255,255,255,0.95)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 } },
-                React.createElement("div", { style: { marginLeft: 9 } },
+            React.createElement("div", {
+                className: mobilePagerEnabledM6A2 ? "ybez-mobile-home-header" : "",
+                style: mobilePagerEnabledM6A2
+                    ? { height: "54px", minHeight: "54px", flex: "0 0 54px", boxSizing: "border-box", padding: "0 12px 0 18px", borderBottom: "1px solid #E6EBF0", background: "rgba(255,255,255,.99)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 }
+                    : { padding: "14px 16px 10px", borderBottom: "1px solid var(--sep)", background: "rgba(255,255,255,0.95)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 }
+            },
+                React.createElement("div", { style: mobilePagerEnabledM6A2 ? { marginLeft: 0, display: "flex", alignItems: "center" } : { marginLeft: 9 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 7 } },
-                        React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: 23, fontWeight: 900, color: "var(--blue)" } }, "여비이지")),
-                    React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
-                React.createElement("div", { className: "mode-wrap r108p6c-scope-toggle", role: "group", "aria-label": "관외 / 관내" },
-                    React.createElement("div", { className: `mode-knob ${travelScopeMode}` }),
+                        React.createElement("span", { style: { fontFamily: "var(--gm)", fontSize: mobilePagerEnabledM6A2 ? 16 : 23, fontWeight: mobilePagerEnabledM6A2 ? 950 : 900, lineHeight: 1, color: "var(--blue)" } }, "여비이지")),
+                    !mobilePagerEnabledM6A2 && React.createElement("div", { style: { fontSize: 12.5, fontWeight: 800, color: "#7A6548", marginTop: 2 } }, "기획·제작: 전현우@우수영초등학교")),
+                React.createElement("div", { className: `ybez-mobile-pip-tools ${mobilePagerEnabledM6A2 ? "ybez-mobile-home-meta" : ""}`.trim(), style: mobilePagerEnabledM6A2 ? { height: "42px", display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "center", gap: "5px" } : undefined },
+                    React.createElement("button", {
+                        type: "button", className: "ybez-mobile-pip-launch",
+                        onClick: openMobilePipPreview,
+                        "aria-label": "mobile"
+                    }, React.createElement("img", { src: "data:image/png;base64,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", alt: "", "aria-hidden": "true" })),
+                    mobilePagerEnabledM6A2 && React.createElement("div", { className: "ybez-mobile-home-credit", style: { fontSize: 9.5, lineHeight: 1, fontWeight: 800, color: "#56677A", whiteSpace: "nowrap" } }, "기획·제작: 전현우@우수영초등학교"),
                     React.createElement("div", {
-                        className: `mode-txt ${travelScopeMode === "extra" ? "on" : "off"}`,
-                        role: "button", tabIndex: 0, "aria-pressed": travelScopeMode === "extra",
-                        onClick: selectTravelScopeExtra,
-                        onKeyDown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectTravelScopeExtra(); } }
-                    }, "관외"),
-                    React.createElement("div", {
-                        key: `intra-scope-${intraScopePulseSeq}`,
-                        className: `mode-txt ${travelScopeMode === "intra" ? "on" : "off"} ${intraScopePulse && travelScopeMode === "intra" ? "r108final-intra-auto-pulse" : ""}`.trim(),
-                        role: "button", tabIndex: 0, "aria-pressed": travelScopeMode === "intra",
-                        onClick: selectTravelScopeIntra,
-                        onKeyDown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectTravelScopeIntra(); } }
-                    }, "관내"))),
+                        className: "mode-wrap r108p6c-scope-toggle",
+                        role: mobilePagerEnabledM6A2 ? "status" : "group",
+                        "aria-label": "관외 / 관내",
+                        style: mobilePagerEnabledM6A2 ? { width: 66, height: 18, padding: 2, cursor: "default", marginRight: 0 } : undefined
+                    },
+                        React.createElement("div", { className: `mode-knob ${travelScopeMode}`, style: mobilePagerEnabledM6A2 ? { top: 2, bottom: 2, width: "calc(50% - 2px)", left: travelScopeMode === "extra" ? 2 : "50%" } : undefined }),
+                        React.createElement("div", {
+                            className: `mode-txt ${travelScopeMode === "extra" ? "on" : "off"}`,
+                            role: mobilePagerEnabledM6A2 ? undefined : "button", tabIndex: mobilePagerEnabledM6A2 ? -1 : 0, "aria-pressed": travelScopeMode === "extra",
+                            style: mobilePagerEnabledM6A2 ? { fontSize: 8, lineHeight: "14px", cursor: "default" } : undefined,
+                            onClick: mobilePagerEnabledM6A2 ? undefined : selectTravelScopeExtra,
+                            onKeyDown: mobilePagerEnabledM6A2 ? undefined : (e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectTravelScopeExtra(); } })
+                        }, "관외"),
+                        React.createElement("div", {
+                            key: `intra-scope-${intraScopePulseSeq}`,
+                            className: `mode-txt ${travelScopeMode === "intra" ? "on" : "off"} ${intraScopePulse && travelScopeMode === "intra" ? "r108final-intra-auto-pulse" : ""}`.trim(),
+                            role: mobilePagerEnabledM6A2 ? undefined : "button", tabIndex: mobilePagerEnabledM6A2 ? -1 : 0, "aria-pressed": travelScopeMode === "intra",
+                            style: mobilePagerEnabledM6A2 ? { fontSize: 8, lineHeight: "14px", cursor: "default" } : undefined,
+                            onClick: mobilePagerEnabledM6A2 ? undefined : selectTravelScopeIntra,
+                            onKeyDown: mobilePagerEnabledM6A2 ? undefined : (e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectTravelScopeIntra(); } })
+                        }, "관내")))),
             React.createElement("div", { className: "search-wrap", style: { display: "flex", flexDirection: "column", gap: 8 } },
                 React.createElement("div", { className: `search-inputs-row d2-route-editor ${showVia ? "has-via" : "no-via"}` },
                     React.createElement("div", { className: "d2-route-row d2-route-origin" },
@@ -44558,8 +44710,7 @@ const App = () => {
                 React.createElement("div", { className: "travel-calc-header d6-b17-sheet-header" },
                     mobilePagerEnabledM6A2
                         ? React.createElement("div", { className: "d6-m3-expense-heading" },
-                            React.createElement("span", { className: "d6-b17-sheet-title" }, "여비계산"),
-                            React.createElement("span", { className: "d6-m3-expense-subtitle" }, tripSummaryLabel))
+                            React.createElement("span", { className: "d6-b17-sheet-title" }, "여비계산"))
                         : React.createElement("span", { className: "d6-b17-sheet-title" }, "여비계산"),
                     React.createElement("div", { className: "d6-b17-sheet-actions" },
                         React.createElement("button", { type: "button", className: "d6-b17-sheet-confirm", onClick: closeTravelCalcOnMobile }, "확인"),
@@ -45362,18 +45513,20 @@ const App = () => {
                                         className: `trip-choice-btn m5-mobile-trip-type ${tripType === "training" ? "sel" : ""}`,
                                         onClick: () => handleTripTypeChange("training")
                                     }, "연수출장"),
-                                    isMultiDayTrip && React.createElement("div", { className: "trip-stay-option d6-d10-lodging-wrap m5-mobile-lodging-option ybez-shared-mobile-stay-option" },
+                                    React.createElement("div", { className: "trip-stay-option d6-d10-lodging-wrap m5-mobile-lodging-option ybez-shared-mobile-stay-option" },
                                         React.createElement("button", {
                                             type: "button",
-                                            className: `trip-choice-btn d6-d10-lodging-btn ${(lodgingSelected && lodgingNights > 0 && !tabletLodgingPopoverOpen) ? "check-sel" : ""} ${tabletLodgingPopoverOpen ? "d6-d21-adjusting" : ""}`,
+                                            disabled: !isMultiDayTrip,
+                                            className: `trip-choice-btn d6-d10-lodging-btn ${(isMultiDayTrip && lodgingSelected && lodgingNights > 0 && !tabletLodgingPopoverOpen) ? "check-sel" : ""} ${(isMultiDayTrip && tabletLodgingPopoverOpen) ? "d6-d21-adjusting" : ""} ${!isMultiDayTrip ? "disabled" : ""}`,
                                             onClick: () => {
+                                                if (!isMultiDayTrip) return;
                                                 const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(groupNights) || 0));
                                                 if (ceiling <= 0 && !lodgingSelected) return;
                                                 if (!lodgingSelected) setLodgingSelected(true);
                                                 setTabletGroupPopoverOpen(false); setTabletLodgingPopoverOpen(v => !v);
                                             }
-                                        }, `현지숙박${(lodgingSelected && lodgingNights > 0) ? ` ${lodgingNights}박` : ""}`),
-                                        tabletLodgingPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover ybez-shared-mobile-stay-popover", role: "dialog", "aria-label": "현지숙박 박수 조정" },
+                                        }, `현지숙박${(isMultiDayTrip && lodgingSelected && lodgingNights > 0) ? ` ${lodgingNights}박` : ""}`),
+                                        isMultiDayTrip && tabletLodgingPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover ybez-shared-mobile-stay-popover", role: "dialog", "aria-label": "현지숙박 박수 조정" },
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 줄이기",
                                                 disabled: lodgingNights <= 0,
@@ -45402,18 +45555,20 @@ const App = () => {
                                                     setTabletLodgingPopoverOpen(false);
                                                 }
                                             }, "✓"))),
-                                    isMultiDayTrip && tripType === "training" && React.createElement("div", { className: "trip-stay-option d6-d10-group-option m5-mobile-group-option ybez-shared-mobile-stay-option" },
+                                    React.createElement("div", { className: "trip-stay-option d6-d10-group-option m5-mobile-group-option ybez-shared-mobile-stay-option" },
                                         React.createElement("button", {
                                             type: "button",
-                                            className: `trip-choice-btn ${(groupSelected && groupNights > 0 && !tabletGroupPopoverOpen) ? "check-sel" : ""} ${tabletGroupPopoverOpen ? "d6-d21-adjusting" : ""}`,
+                                            disabled: !isMultiDayTrip || tripType !== "training",
+                                            className: `trip-choice-btn ${(isMultiDayTrip && tripType === "training" && groupSelected && groupNights > 0 && !tabletGroupPopoverOpen) ? "check-sel" : ""} ${(isMultiDayTrip && tripType === "training" && tabletGroupPopoverOpen) ? "d6-d21-adjusting" : ""} ${(!isMultiDayTrip || tripType !== "training") ? "disabled" : ""}`,
                                             onClick: () => {
+                                                if (!isMultiDayTrip || tripType !== "training") return;
                                                 const ceiling = Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0));
                                                 if (ceiling <= 0 && !groupSelected) return;
                                                 if (!groupSelected) setGroupSelected(true);
                                                 setTabletLodgingPopoverOpen(false); setTabletGroupPopoverOpen(v => !v);
                                             }
-                                        }, (groupSelected && groupNights > 0) ? `합숙제공 ${groupNights}박` : "합숙제공"),
-                                        tabletGroupPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover ybez-shared-mobile-stay-popover", role: "dialog", "aria-label": "합숙제공 박수 조정" },
+                                        }, (isMultiDayTrip && tripType === "training" && groupSelected && groupNights > 0) ? `합숙제공 ${groupNights}박` : "합숙제공"),
+                                        isMultiDayTrip && tripType === "training" && tabletGroupPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover ybez-shared-mobile-stay-popover", role: "dialog", "aria-label": "합숙제공 박수 조정" },
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 줄이기",
                                                 disabled: groupNights <= 0,
@@ -45618,7 +45773,7 @@ const App = () => {
                                 React.createElement("button", { type:"button", className:"travel-class-info-btn ybez-class-info-r2", title:"여비 지급구분 안내", "aria-label":"여비 지급구분 안내", onClick:() => { setTravelClassInfoKind("transport"); setTravelClassInfoOpen(true); } }, "i"))),
                         React.createElement("div", { className: "expense-tag-cell" },
                             React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복"),
-                            desktopD39Layout && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
+                            (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
                         React.createElement("div", { className: "expense-action-cell" },
                             React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${(transportReasonDeductionUnits > 0 || vehicleDaysInput > 0) ? "active" : ""}` }, isDesktopMini ? "감액" : presentationDeductionButtonLabelD42(detailCost.transportDeduction))),
                         React.createElement("div", null),
@@ -45654,7 +45809,7 @@ const App = () => {
                     React.createElement("div", { className: "expense-main-row" },
                         React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "일비")),
                         React.createElement("div", { className: "expense-tag-cell" },
-                            desktopD39Layout && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "기본지급")),
+                            (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "기본지급")),
                         React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", {
                             onClick: () => openDeductionModal("daily"),
                             className: `deduct-btn ${(travelScopeMode === "intra" ? intraDailyDeductionAmount > 0 : vehicleDaysInput > 0) ? "active" : ""}`
@@ -45711,7 +45866,7 @@ const App = () => {
                                     onClick: () => { setTravelClassInfoKind("lodging"); setTravelClassInfoOpen(true); }
                                 }, "i"))),
                         React.createElement("div", { className: "expense-tag-cell" },
-                            desktopD39Layout && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
+                            (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
                         React.createElement("div", null),
                         React.createElement("div", null),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.lodging), React.createElement("span", { className: "expense-result-unit" }, "원")))),
@@ -45813,7 +45968,7 @@ const App = () => {
                     React.createElement("div", { className: "expense-main-row" },
                         React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "식비")),
                         React.createElement("div", { className: "expense-tag-cell" },
-                            desktopD39Layout && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "기본지급")),
+                            (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "기본지급")),
                         React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", { onClick: () => openDeductionModal("meal"), className: `deduct-btn ${mealProvidedCount > 0 ? "active" : ""}` }, presentationDeductionButtonLabelD42(detailCost.mealDeduction))),
                         React.createElement("div", null),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.meal), React.createElement("span", { className: "expense-result-unit" }, "원")))),
@@ -47253,7 +47408,7 @@ html[data-ybez-ui-mode="mini"] .d6-r9-side-head-icon{width:16px !important;heigh
     padding:0 4px !important;margin-top:4px !important;align-items:flex-start !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .travel-class-info-btn{
-    width:20px !important;height:20px !important;min-width:20px !important;min-height:20px !important;font-size:12px !important;
+    width:16px !important;height:16px !important;min-width:16px !important;min-height:16px !important;font-size:9px !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .travel-class-moving-row button.d6-d26-travel-lodging-btn{
     width:82px !important;min-width:82px !important;max-width:82px !important;height:26px !important;min-height:26px !important;max-height:26px !important;font-size:11px !important;
@@ -51008,6 +51163,47 @@ html body .final-fare-tag.oneway{
 html body .final-fare-tag.round{
   background:#0052CC!important;color:#FFF!important;border-color:#0052CC!important;box-shadow:none!important;
 }
+
+/* Mobile TAG-SYNC 1: compact status chips only; row/grid geometry is untouched. */
+@media (max-width:699px){
+  html body .final-fare-tag{
+    min-width:30px!important;
+    padding:1px 5px!important;
+    border-radius:5px!important;
+    font-size:8px!important;
+    line-height:1!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d6-b17-expense-sheet .expense-tag-compact{
+    min-width:0!important;
+    min-height:18px!important;
+    padding:2px 5px!important;
+    border-radius:4px!important;
+    font-size:9px!important;
+    line-height:1!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+    box-shadow:none!important;
+    text-shadow:none!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d6-b17-expense-sheet .expense-tag-compact:not(.c9-payment-tag){
+    background:#0052CC!important;
+    color:#FFF!important;
+    border-color:#0052CC!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d6-b17-expense-sheet .expense-tag-compact.c9-payment-tag{
+    background:#FF6B00!important;
+    color:#FFF!important;
+    border-color:#FF6B00!important;
+  }
+}
 html body .m34-result-card .m34-fare-pill:not(.muted),
 html.ybez-desktop-tablet body .m34-result-card .m34-fare-pill:not(.muted),
 html[data-ybez-ui-mode="tablet"] body .m34-result-card .m34-fare-pill:not(.muted){
@@ -51366,7 +51562,12 @@ html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact
 .lodging-expense-item .lodging-final-row{margin-bottom:2px!important;}
 .lodging-expense-item .lodging-receipt-row{margin-top:2px!important;min-height:34px!important;}
 .lodging-expense-item .lodging-receipt-label{font-size:.88em!important;white-space:nowrap!important;}
-.lodging-expense-item .lodging-receipt-row .expense-money-input.ledger-money-input{font-size:20px!important;}
+@media(min-width:700px){
+  .lodging-expense-item .lodging-receipt-row .expense-money-input.ledger-money-input{font-size:20px!important;}
+}
+@media(max-width:699px){
+  .lodging-expense-item .lodging-receipt-row .expense-money-input.ledger-money-input{font-size:15px!important;width:82px!important;min-width:82px!important;max-width:82px!important;padding:0 6px!important;}
+}
 .lodging-main-breakdown{
   margin:3px 0 1px 136px; padding-right:1px; display:grid; gap:2px;
 }
@@ -52195,6 +52396,11 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
     min-height:14px!important;
   }
   .d6-b17-expense-sheet .ybez-class-under-title{gap:2px!important;}
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d6-b17-expense-sheet .expense-label-cell.ybez-class-label-stack{
+    transform:translateY(5px);
+  }
 }
 
 /* Popup header titles stay white. */
