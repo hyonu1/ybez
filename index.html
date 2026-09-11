@@ -45585,13 +45585,7 @@ const App = () => {
                                             React.createElement("button", { type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 늘리기", disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)), onClick: () => handleGroupNightsChange(groupNights + 1) }, "+"))))),
                         (((desktopTabletPresentationD42 && !isDesktopCompact) || !(useTabletExpenseUi || showDetail) || (!desktopTabletPresentationD42 && trainingMixedScheduleRequired))) && React.createElement("div", { className: `trip-help-wrap ${desktopTabletPresentationD42 ? "d42-desktop-help-wrap" : ""}`.trim() },
                             React.createElement("div", { className: `trip-help-toggle-row ${(!desktopTabletPresentationD42 && trainingMixedScheduleRequired) ? "k5g-actions" : ""}` },
-                                (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail)) && React.createElement("button", {
-                                    type:"button",
-                                    className:`trip-help-toggle ${desktopD39Layout ? "c9-desktop-info" : ""}`.trim(),
-                                    title:desktopD39Layout ? "설명보기" : undefined,
-                                    "aria-label":"출장조건 설명보기",
-                                    onClick:() => setTripTypeHelpOpen(true)
-                                }, desktopD39Layout ? "i" : (desktopTabletPresentationD42 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기")),
+                                (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail)) && React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(true) }, desktopTabletPresentationD42 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기"),
                                 desktopD39Layout && trainingMixedScheduleRequired && React.createElement("button", {
                                     type:"button",
                                     className:`training-schedule-btn c9-desktop-schedule ${trainingGroupScheduleComplete ? "complete" : "required"}`,
@@ -45731,10 +45725,8 @@ const App = () => {
                                 const amount = v === "" ? 0 : Number(v);
                                 setLodgingTotalInput(v);
                                 setLodgingTotal(amount);
-                            }, "숙박영수증 총액", !showLodging, "")),
-                        desktopD39Layout && friendLodgingDisplayNights > 0 && React.createElement("div", { className:"lodging-friend-inline-amount" },
-                            React.createElement("span", null, `+${fmt(friendLodgingDisplayNights * 20000)}원`))),
-                    !desktopD39Layout && (friendLodgingDisplayNights > 0 || tabletTravelLodgingDisplayNights > 0) && React.createElement("div", { className: "lodging-main-breakdown", "aria-label": "숙박비 자동 반영 내역" },
+                            }, "숙박영수증 총액", !showLodging, ""))),
+                    (friendLodgingDisplayNights > 0 || tabletTravelLodgingDisplayNights > 0) && React.createElement("div", { className: "lodging-main-breakdown", "aria-label": "숙박비 자동 반영 내역" },
                         friendLodgingDisplayNights > 0 && React.createElement("div", { className: "lodging-main-breakdown-line friend" },
                             React.createElement("span", { className: "lodging-main-breakdown-amount" }, `+${fmt(friendLodgingDisplayNights * 20000)}원`),
                             React.createElement("span", { className: "lodging-main-breakdown-label" }, `친지집 ${friendLodgingDisplayNights}박`)),
@@ -51722,10 +51714,8 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
   .travel-class-moving-row .ybez-lodging-side-stack{
-    flex-direction:row!important;
-    align-items:flex-start!important;
-    justify-content:flex-end!important;
-    gap:6px!important;
+    
+    
   }
 
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
@@ -51800,13 +51790,25 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
     margin:46px 0 2px!important;
   }
 
-  /* 왕복/총액 use one visual token in the Desktop expense ledger. */
+  /* Desktop expense tag semantics:
+     왕복/총액 = blue, 영수증처리/기본지급 = same orange token as 편도. */
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
-  .expense-ledger .expense-tag-compact{
+  .expense-ledger .expense-tag-compact:not(.c9-payment-tag){
     background:#0052CC!important;
     color:#FFFFFF!important;
     border-color:#0052CC!important;
+    border-radius:4px!important;
+    box-shadow:none!important;
+    text-shadow:none!important;
+  }
+
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .expense-ledger .expense-tag-compact.c9-payment-tag{
+    background:#FF6B00!important;
+    color:#FFFFFF!important;
+    border-color:#FF6B00!important;
     border-radius:4px!important;
     box-shadow:none!important;
     text-shadow:none!important;
@@ -52275,58 +52277,28 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
     margin:0!important;
   }
 
-  /* Desktop condition utility: the same two-row rhythm as the fixed 2x2 condition frame.
-     Row 1 = always-on info, Row 2 = conditional training schedule. */
+  /* 설명보기 + 합숙일: 출장조건 카드 오른쪽 utility 축에 고정. */
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .d42-desktop-help-wrap{
     position:absolute!important;
     top:53px!important;
     right:9px!important;
-    width:58px!important;
-    height:76px!important;
+    width:auto!important;
+    height:34px!important;
     margin:0!important;
     padding:0!important;
     z-index:8!important;
     overflow:visible!important;
-    pointer-events:none!important;
   }
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .d42-desktop-help-wrap .trip-help-toggle-row{
-    display:grid!important;
-    grid-template-columns:58px!important;
-    grid-template-rows:35px 35px!important;
-    row-gap:6px!important;
-    align-items:center!important;
-    justify-items:end!important;
-    width:58px!important;
-    height:76px!important;
-    margin:0!important;
-    pointer-events:auto!important;
-  }
-  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  .d42-desktop-tablet-presentation .d42-desktop-help-wrap .c9-desktop-info{
-    grid-row:1!important;
-    align-self:center!important;
-    justify-self:end!important;
     display:flex!important;
     align-items:center!important;
-    justify-content:center!important;
-    width:20px!important;
-    min-width:20px!important;
-    max-width:20px!important;
-    height:20px!important;
-    min-height:20px!important;
-    max-height:20px!important;
-    margin:0 2px 0 0!important;
-    padding:0!important;
-    border:1px solid #C8D5E1!important;
-    border-radius:50%!important;
-    background:#FFFFFF!important;
-    color:#667A8E!important;
-    box-shadow:none!important;
-    font-size:11px!important;
-    font-weight:900!important;
-    line-height:1!important;
+    justify-content:flex-end!important;
+    width:auto!important;
+    height:34px!important;
+    margin:0!important;
+    gap:6px!important;
   }
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .c9-desktop-schedule{
@@ -52334,15 +52306,10 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
     flex-direction:column!important;
     align-items:center!important;
     justify-content:center!important;
-    grid-row:2!important;
-    align-self:center!important;
-    justify-self:end!important;
     width:54px!important;
     min-width:54px!important;
-    max-width:54px!important;
     height:34px!important;
     min-height:34px!important;
-    max-height:34px!important;
     margin:0!important;
     padding:2px 4px!important;
     border-radius:8px!important;
@@ -52373,53 +52340,52 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
   }
   .c9-payment-tag{white-space:nowrap!important;}
 
-  /* Desktop lodging explanation cluster:
-     receipt input + friend adjustment on the same row;
-     friend/travel guide buttons reserve real vertical space below, so meal moves down instead of being overlapped. */
+  /* Lodging: receipt line + friend allowance share one horizontal axis. */
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .lodging-expense-item{
     position:relative!important;
-    min-height:188px!important;
+    min-height:150px!important;
   }
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .lodging-receipt-row{
-    margin-top:2px!important;
-    min-height:36px!important;
+    margin-top:10px!important;
   }
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  .d42-desktop-tablet-presentation .lodging-receipt-row .expense-lodging-entry{
-    grid-column:3/5!important;
+  .d42-desktop-tablet-presentation .lodging-main-breakdown{
+    position:relative!important;
+    height:0!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
   }
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
-  .d42-desktop-tablet-presentation .lodging-friend-inline-amount{
-    grid-column:5!important;
-    justify-self:end!important;
-    align-self:center!important;
-    min-width:92px!important;
-    text-align:right!important;
-    color:#173A63!important;
-    font-family:var(--gm)!important;
+  .d42-desktop-tablet-presentation .lodging-main-breakdown-line.friend{
+    position:absolute!important;
+    top:-31px!important;
+    right:3px!important;
+    min-height:22px!important;
+    z-index:4!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .lodging-main-breakdown-line.friend .lodging-main-breakdown-amount{
     font-size:15px!important;
     font-weight:950!important;
-    font-variant-numeric:tabular-nums!important;
-    line-height:1!important;
-    white-space:nowrap!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .lodging-main-breakdown-line.friend .lodging-main-breakdown-label,
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .lodging-main-breakdown-line.travel{
+    display:none!important;
   }
 
-  /* Real flow lane: these two buttons are part of lodging height, never floating over meal. */
+  /* Buttons stay fixed on the right; 친지집 first row, 이동일 second row.
+     The two rows reserve real lodging height so the meal row follows below naturally. */
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .travel-class-moving-row{
-    display:flex!important;
-    align-items:flex-start!important;
-    justify-content:flex-end!important;
-    width:100%!important;
+    margin:9px 0 2px!important;
     min-height:64px!important;
-    margin:3px 0 7px!important;
-    padding:0 3px 0 0!important;
-    box-sizing:border-box!important;
     overflow:visible!important;
-    background:transparent!important;
-    border:0!important;
   }
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .travel-class-moving-row .ybez-lodging-side-stack{
@@ -52438,7 +52404,6 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
     display:inline-flex!important;
     flex-direction:row!important;
     align-items:center!important;
-    justify-content:flex-end!important;
     margin:0!important;
     overflow:visible!important;
   }
@@ -52447,15 +52412,14 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .ybez-lodging-side-stack > .d6-r9-travel-lodging-wrap:not(.ybez-friend-lodging-wrap){order:2!important;}
 
-  /* Editors open to the left of the guide button and do not change the reserved lane height. */
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .ybez-lodging-side-stack .d6-d26-travel-night-popover,
   html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
   .d42-desktop-tablet-presentation .ybez-lodging-side-stack .ybez-friend-night-popover{
     position:absolute!important;
-    top:0!important;
+    top:calc(100% + 4px)!important;
     bottom:auto!important;
-    right:calc(100% + 6px)!important;
+    right:0!important;
     left:auto!important;
     transform:none!important;
     z-index:780!important;
