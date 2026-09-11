@@ -45598,15 +45598,7 @@ const App = () => {
                                                     setTabletGroupPopoverOpen(false);
                                                 }
                                             }, "✓"))),
-                                    trainingMixedScheduleRequired && React.createElement("button", {
-                                        type: "button",
-                                        className: `training-schedule-btn m5-mobile-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
-                                        onClick: () => {
-                                            setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
-                                            setTrainingGroupScheduleError("");
-                                            setTrainingGroupScheduleOpen(true);
-                                        }
-                                    }, trainingGroupScheduleComplete ? "합숙일 지정완료" : "합숙일 미지정"))
+                                    null)
                                 : presentationTabletUiD42
                                 ? React.createElement(React.Fragment, null,
                                     React.createElement("button", {
@@ -45739,7 +45731,18 @@ const App = () => {
                                                 React.createElement("input", { type: "tel", inputMode: "numeric", enterKeyHint: "done", pattern: "[0-9]*", className: "trip-nights-input", value: groupNights, onFocus: e => e.target.select(), onKeyDown: mobileNumericDoneKey, onChange: e => handleGroupNightsChange(e.target.value), "aria-label": "합숙제공 박수" }),
                                                 React.createElement("span", { className: "trip-unit" }, "박")),
                                             React.createElement("button", { type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 늘리기", disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)), onClick: () => handleGroupNightsChange(groupNights + 1) }, "+"))))),
-                            mobilePagerEnabledM6A2 && React.createElement("div", { className: "m5-mobile-condition-rail-slot", "aria-hidden": "true" })),
+                            mobilePagerEnabledM6A2 && React.createElement("div", { className: "m5-mobile-condition-rail-slot" },
+                                trainingMixedScheduleRequired && React.createElement("button", {
+                                    type: "button",
+                                    className: `training-schedule-btn m5-mobile-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
+                                    onClick: () => {
+                                        setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
+                                        setTrainingGroupScheduleError("");
+                                        setTrainingGroupScheduleOpen(true);
+                                    }
+                                },
+                                    React.createElement("span", { className: "c9-schedule-line c9-schedule-title" }, "합숙일"),
+                                    React.createElement("span", { className: "c9-schedule-line c9-schedule-state" }, trainingGroupScheduleComplete ? "지정완료" : "미지정")))),
                         (((desktopTabletPresentationD42 && !isDesktopCompact) || !(useTabletExpenseUi || showDetail) || (!desktopTabletPresentationD42 && trainingMixedScheduleRequired))) && React.createElement("div", { className: `trip-help-wrap ${desktopTabletPresentationD42 ? "d42-desktop-help-wrap" : ""}`.trim() },
                             React.createElement("div", { className: `trip-help-toggle-row ${(!desktopTabletPresentationD42 && trainingMixedScheduleRequired) ? "k5g-actions" : ""}` },
                                 (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail)) && React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(true) }, desktopTabletPresentationD42 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기"),
@@ -46351,7 +46354,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(
      2x2 아래 새 3번째 행에 전체폭 얇은 버튼으로 배치한다 (Tablet/Mini 방식과 동일한
      "2x2 아래" 배치 원칙 재사용, 새 컴포넌트/핸들러 없음 - 위치만 이동). */
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-grid.has-schedule{
-    grid-template-rows:32px 32px auto !important;
+    grid-template-rows:32px 32px !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-trip-type,
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option,
@@ -46380,23 +46383,26 @@ ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option{grid-column:1 !important;grid-row:2 !important;position:relative !important;overflow:visible !important;}
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-group-option{grid-column:2 !important;grid-row:2 !important;position:relative !important;overflow:visible !important;}
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-schedule-btn{
-    grid-column:1 / -1 !important;
-    grid-row:3 !important;
+    grid-column:1 !important;
+    grid-row:2 !important;
     width:100% !important;
     min-width:0 !important;
     max-width:none !important;
-    height:28px !important;
-    min-height:28px !important;
-    margin:4px 0 0 !important;
-    padding:2px 8px !important;
+    height:32px !important;
+    min-height:32px !important;
+    margin:0 !important;
+    padding:2px 4px !important;
     display:flex !important;
+    flex-direction:column !important;
+    gap:1px !important;
     align-items:center !important;
     justify-content:center !important;
+    align-self:center !important;
     text-align:center !important;
-    white-space:nowrap !important;
-    font-size:11px !important;
+    white-space:normal !important;
+    font-size:10px !important;
     font-weight:900 !important;
-    line-height:1.05 !important;
+    line-height:1.02 !important;
     border-radius:7px !important;
   }
 
@@ -46704,6 +46710,10 @@ html.ybez-desktop-mini .d31-mini-footer::after{
     grid-row:1;
     min-width:0;
     align-self:stretch;
+    display:grid;
+    grid-template-rows:42px 42px;
+    row-gap:5px;
+    align-items:center;
   }
 
   /* Trip condition buttons: width/order unchanged; touch height only. */
@@ -46711,7 +46721,7 @@ html.ybez-desktop-mini .d31-mini-footer::after{
     grid-auto-rows:42px !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-condition-grid.has-schedule{
-    grid-template-rows:42px 42px auto !important;
+    grid-template-rows:42px 42px !important;
   }
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-trip-type,
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) .d6-b17-expense-sheet.m510-swipe-surface .m5-mobile-lodging-option,
