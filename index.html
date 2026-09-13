@@ -25776,6 +25776,10 @@ html[data-ybez-ui-mode="mini"] .qe4-narrow .qe4-circle:active{
 .lodging-quick-stay-row.has-schedule{margin-bottom:31px;}
 .lodging-quick-stay-group-side{min-width:0;display:block;position:relative;}
 .lodging-quick-stay-group-side .lodging-quick-stay-control{width:100%;}
+/* LODGING-01: 이동일 박수 바로 아래에 별도 이동일 숙박 실비 입력을 둔다. */
+.lodging-quick-travel-amount-inline{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:8px;margin-top:-4px;margin-bottom:2px;}
+.lodging-quick-travel-amount-inline .lodging-quick-money-control{justify-content:flex-end;}
+.lodging-quick-travel-amount-inline .lodging-quick-money-input{width:150px;}
 .lodging-quick-schedule-slot{
   position:absolute;
   top:calc(100% + 4px);
@@ -25823,7 +25827,7 @@ html[data-ybez-ui-mode="mini"] .qe4-narrow .qe4-circle:active{
 .c6-gov-middle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;font-weight:800;color:#536A81;}
 .c6-gov-middle .ded-stepper{flex:0 0 auto;}
 .c6-gov-training-note{margin-top:7px;color:#6B7D90;font-size:10px;line-height:1.45;font-weight:750;}
-@media(max-width:699px){.lodging-quick-modal{width:calc(100vw - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:20px!important}.lodging-quick-body{padding:10px 12px 16px!important}.lodging-quick-stay-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}.lodging-quick-stay-control{gap:5px}.lodging-quick-stay-count{flex-basis:24px;font-size:9.5px}.lodging-quick-stay-row.has-schedule{margin-bottom:30px}.lodging-quick-schedule-slot{right:4px}.lodging-quick-schedule{height:25px!important;min-height:25px!important;padding:0 7px!important;font-size:9.5px!important}.lodging-quick-money-row{grid-template-columns:minmax(128px,1fr) minmax(130px,160px);gap:6px}.lodging-quick-money-input{width:130px;font-size:16px}.lodging-quick-money-value strong{min-width:102px;font-size:16px}.c6-gov-training-grid{grid-template-columns:62px minmax(138px,1fr) 62px;gap:5px}.c6-gov-middle{font-size:9.5px}}
+@media(max-width:699px){.lodging-quick-modal{width:calc(100vw - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:20px!important}.lodging-quick-body{padding:10px 12px 16px!important}.lodging-quick-stay-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}.lodging-quick-stay-control{gap:5px}.lodging-quick-stay-count{flex-basis:24px;font-size:9.5px}.lodging-quick-stay-row.has-schedule{margin-bottom:30px}.lodging-quick-travel-amount-inline{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}.lodging-quick-travel-amount-inline .lodging-quick-money-input{width:130px}.lodging-quick-schedule-slot{right:4px}.lodging-quick-schedule{height:25px!important;min-height:25px!important;padding:0 7px!important;font-size:9.5px!important}.lodging-quick-money-row{grid-template-columns:minmax(128px,1fr) minmax(130px,160px);gap:6px}.lodging-quick-money-input{width:130px;font-size:16px}.lodging-quick-money-value strong{min-width:102px;font-size:16px}.c6-gov-training-grid{grid-template-columns:62px minmax(138px,1fr) 62px;gap:5px}.c6-gov-middle{font-size:9.5px}}
 </style>
 
 <style id="ybez-c6b-popup-anchor-20260909">
@@ -25940,6 +25944,209 @@ html[data-ybez-ui-mode="mini"] #root .qe4-narrow.qe4-intra-footprint{display:gri
 .ybez-mobile-pip-launch img{width:17px;height:17px;display:block;object-fit:contain;pointer-events:none;}
 @media(min-width:700px){
   html:not(.ybez-mobile-test) .ybez-mobile-pip-launch{display:inline-flex;}
+}
+</style>
+
+<style id="ybez-ui09-special-quick-entry-20260913">
+/* UI-09 · Desktop + Mobile: 특수교통비는 메인에서 버튼만, 실제 편집은 기존 교통비 Quick에서 한다. */
+.ui09-special-quick-row{
+  display:flex!important;
+  grid-template-columns:none!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  width:100%!important;
+  min-width:0!important;
+  gap:0!important;
+}
+.ui09-special-quick-inline{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  width:auto!important;
+  max-width:100%!important;
+}
+.ui09-special-quick-btn{
+  min-height:38px!important;
+  height:auto!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  padding:7px 12px!important;
+  border:1px solid #C9D5E2!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#FBF9F4 56%,#F4EFE6 100%)!important;
+  color:#244B70!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 1px 3px rgba(23,58,99,.08)!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  font-family:var(--gm)!important;
+  font-size:11.5px!important;
+  font-weight:900!important;
+  line-height:1.22!important;
+  text-align:center!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  cursor:pointer!important;
+}
+.ui09-special-quick-btn.has-value{
+  min-width:112px!important;
+  white-space:nowrap!important;
+  font-size:13px!important;
+}
+.ui09-special-quick-btn.rural.has-value{border-color:#BFD2C5!important;color:#285C3B!important;}
+.ui09-special-quick-btn.ferry.has-value{border-color:#C5D5E3!important;color:#244B70!important;}
+.ui09-special-quick-btn .m510-ship-icon{
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 18px!important;
+}
+.ui09-special-quick-btn:active{
+  transform:translateY(1px)!important;
+  background:linear-gradient(180deg,#F3EEE5 0%,#FBF8F2 100%)!important;
+  box-shadow:inset 0 2px 3px rgba(74,58,37,.12)!important;
+}
+.ui09-expense-special-row .ui09-special-quick-btn{
+  justify-self:end!important;
+  align-self:center!important;
+}
+@media(max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact) .ui09-special-quick-btn{
+    min-height:38px!important;
+    padding:7px 10px!important;
+    font-size:11px!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact) .ui09-special-quick-btn.has-value{
+    min-width:108px!important;
+    font-size:12.5px!important;
+  }
+}
+@media(min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact) .ui09-special-quick-btn{
+    min-height:38px!important;
+  }
+}
+/* UI-09B: 금액 외 귀속 문구는 버튼 안의 작은 tag로만 표시한다. */
+.ui09-inclusion-tag{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:20px!important;
+  padding:2px 6px!important;
+  border-radius:5px!important;
+  border:1px solid #C9D8E7!important;
+  background:#EEF5FC!important;
+  color:#244B70!important;
+  font-family:var(--gm)!important;
+  font-size:9.5px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+.ui09-special-quick-btn.rural .ui09-inclusion-tag{
+  background:#EEF7F0!important;
+  border-color:#C4D9CA!important;
+  color:#285C3B!important;
+}
+.ui09-special-quick-btn.ferry .ui09-inclusion-tag{
+  background:#EEF5FC!important;
+  border-color:#C9D8E7!important;
+  color:#244B70!important;
+}
+.ui09-special-quick-amount{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  white-space:nowrap!important;
+}
+/* 실제 Mobile 메인 결과카드: 기존 장문 설명 대신 Quick 진입 버튼만 쌓는다. */
+.ui09-mobile-main-special{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-width:0!important;
+}
+.ui09-mobile-main-special .ui09-special-quick-btn{
+  width:100%!important;
+  margin-left:0!important;
+}
+/* Desktop 메인 결과카드: Quick 전용 묶음은 편도/왕복 금액축 바로 아래 오른쪽에 붙인다. */
+@media(min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .fare-option-card.final-result-card > .r108p6c-main-special-wrap.ui09-main-quick-wrap{
+    width:min(300px,68%)!important;
+    margin-left:auto!important;
+    margin-right:0!important;
+    align-self:flex-end!important;
+    border-top:0!important;
+    padding-top:0!important;
+    gap:5px!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .fare-option-card.final-result-card > .r108p6c-main-special-wrap.ui09-main-quick-wrap .ui09-special-quick-btn{
+    width:100%!important;
+    margin-left:0!important;
+  }
+}
+</style>
+
+<style id="ybez-ui09c-labels-align-20260913">
+/* UI-09C · text/axis alignment only. Calculation, Quick state and Mobile positions are untouched. */
+@media (min-width:1200px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .fare-option-card.final-result-card > .r108p6c-main-special-wrap.ui09-main-quick-wrap{
+    width:min(190px,44%)!important;
+    margin-left:auto!important;
+    margin-right:0!important;
+    align-self:flex-end!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .fare-option-card.final-result-card > .r108p6c-main-special-wrap.ui09-main-quick-wrap .ui09-special-quick-btn{
+    width:100%!important;
+    min-width:0!important;
+    margin-left:0!important;
+    padding-left:9px!important;
+    padding-right:9px!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .expense-main-row{
+    grid-template-columns:116px 42px max-content minmax(90px,1fr)!important;
+  }
+}
+</style>
+
+<style id="ybez-ui09e-desktop-subrow-axis-20260913">
+/* UI-09E · recovery + Desktop-only axis correction.
+   Mobile intentionally falls back to the UI-09C/B17/B18D owners.
+   Main expense grids, calculation, Quick, daily and lodging logic remain untouched. */
+@media (min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .ui09-expense-special-row > .ui09-special-quick-btn,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .ui09-other-transport-manual-row > .expense-entry-cell{
+    grid-column:4!important;
+    justify-self:end!important;
+    align-self:center!important;
+    margin-left:0!important;
+    max-width:100%!important;
+  }
+}
+</style>
+
+
+<style id="ybez-lodging02-main-amount-buttons-20260913">
+/* LODGING-02: Desktop + real Mobile의 친지집/이동일 활성 버튼은 아이콘+반영금액만 표시한다. */
+html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation button.d6-d26-travel-lodging-btn.lodging02-amount-btn{
+  width:auto!important;min-width:88px!important;max-width:none!important;padding:0 9px!important;white-space:nowrap!important;
+}
+@media(max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d6-b17-expense-sheet.m510-swipe-surface button.d6-d26-travel-lodging-btn.lodging02-amount-btn{
+    width:auto!important;min-width:94px!important;max-width:none!important;padding:0 9px!important;white-space:nowrap!important;
+  }
 }
 </style>
 </head>
@@ -28058,6 +28265,8 @@ const App = () => {
     const [otherTransportFare, setOtherTransportFare] = useState(0);
     const [otherTransportDraft, setOtherTransportDraft] = useState("");
     const transportPopupOriginalOtherRef = useRef(0);
+    // UI-09: 메인의 특수교통비 버튼이 기존 교통비 Quick의 정확한 구간 입력행을 가리킨다.
+    const transportQuickFocusLegRef = useRef("");
     // R5-K3B: 감액팝업은 핵심 입력만 기본 노출하고 증빙·근거는 필요할 때만 펼친다.
     const [dedAccordionOpen, setDedAccordionOpen] = useState({ daily: false, transport: false, meal: false });
     // R10.2: 감액 입력창은 토글 아래 한 곳에서만 열리고 ✓로 접는다.
@@ -28138,6 +28347,9 @@ const App = () => {
     const [tabletGroupPopoverOpen, setTabletGroupPopoverOpen] = useState(false);
     const [lodgingTotal, setLodgingTotal] = useState(0);
     const [lodgingTotalInput, setLodgingTotalInput] = useState("");
+    // LODGING-01 2026-09-13: 이동일 숙박은 현지숙박 영수증 총액과 분리된 별도 실비 입력이다.
+    const [travelLodgingTotal, setTravelLodgingTotal] = useState(0);
+    const [travelLodgingTotalInput, setTravelLodgingTotalInput] = useState("");
     // FREEZE-20260821: 공무원 여비 규정 여비 지급구분. 기본은 제2호, 모든 UI 모드가 동일 state를 공유한다.
     const [travelExpenseClass, setTravelExpenseClass] = useState(2); // 1 | 2
     // R8-20260821: 여비 지급구분 안내는 native <details> 대신 모든 모드 공통 modal을 사용한다.
@@ -28145,6 +28357,7 @@ const App = () => {
     // C8-R4: 교통비 i / 숙박비 i는 각각 해당 안내만 표시한다.
     const [travelClassInfoKind, setTravelClassInfoKind] = useState("transport");
     const lodgingFocused = useRef(false);
+    const travelLodgingFocused = useRef(false);
     // D28 Tablet: 이동일 숙박은 현지숙박과 독립된 상시 0~2박 입력이다.
     // 현지숙박은 출장기간 안, 이동일 숙박은 출장 전·후 숙박으로 분리한다.
     const [tabletTravelLodgingNights, setTabletTravelLodgingNights] = useState(0);
@@ -28186,6 +28399,8 @@ const App = () => {
     // LODGING-QUICK-C6: 숙박비 Quick은 기존 shared 숙박 state를 읽고 수정하며 별도 계산 state를 만들지 않는다.
     const [lodgingQuickOpen, setLodgingQuickOpen] = useState(false);
     const [lodgingQuickEvidenceOpen, setLodgingQuickEvidenceOpen] = useState(false);
+    // LODGING-02: 메인 친지집/이동일 금액 버튼에서 숙박 Quick의 해당 편집 위치로 바로 이동한다.
+    const [lodgingQuickTarget, setLodgingQuickTarget] = useState("");
     // C6: 연수+공용차량은 입교/일비지급 중간일/수료일 배분을 별도 presentation-input state로 관리한다.
     const [trainingGovVehicleAlloc, setTrainingGovVehicleAlloc] = useState({ entry:false, middle:0, exit:false, forDays:0 });
     // TRIP-QUICK-C5: 실제 계산이 완료된 도착지 변경만 새 출장으로 보고 출장조건을 초기화한다.
@@ -28210,7 +28425,24 @@ const App = () => {
     const closeLodgingQuick = useCallback(() => {
         setLodgingQuickOpen(false);
         setLodgingQuickEvidenceOpen(false);
+        setLodgingQuickTarget("");
     }, []);
+    useEffect(() => {
+        if (!lodgingQuickOpen || !lodgingQuickTarget || typeof window === "undefined") return;
+        let cancelled = false;
+        const focusTarget = () => {
+            if (cancelled) return;
+            const selector = `.lodging-quick-overlay [data-lodging-quick-target="${lodgingQuickTarget}"]`;
+            const row = document.querySelector(selector);
+            if (!row) return;
+            try { row.scrollIntoView({ block:"center", inline:"nearest", behavior:"auto" }); } catch (_) {}
+            const input = row.querySelector('input:not([disabled])');
+            if (input) { try { input.focus({ preventScroll:true }); input.select && input.select(); } catch (_) {} }
+            setLodgingQuickTarget("");
+        };
+        const raf = window.requestAnimationFrame(() => window.requestAnimationFrame(focusTarget));
+        return () => { cancelled = true; window.cancelAnimationFrame(raf); };
+    }, [lodgingQuickOpen, lodgingQuickTarget]);
     useEffect(() => {
         if (!lodgingQuickOpen || typeof window === "undefined") return;
         const onKey = (e) => {
@@ -28248,6 +28480,9 @@ const App = () => {
         setGroupNights(0);
         setFriendLodgingNights(0);
         setTabletTravelLodgingNights(0);
+        setTravelLodgingTotal(0);
+        setTravelLodgingTotalInput("");
+        travelLodgingFocused.current = false;
         setTabletLodgingPopoverOpen(false);
         setTabletGroupPopoverOpen(false);
         setFriendLodgingPopoverOpen(false);
@@ -28749,12 +28984,10 @@ const App = () => {
             return changed ? next : prev;
         });
     }, [effectiveTransportTripMultiplier]);
-    // D28 Tablet: 유상 숙박 박수는 출장 안 현지숙박 + 앞·뒤 이동일 숙박을 합산한다.
-    // 두 입력은 서로 독립하며 숙박비 총액 입력값 자체는 변경하지 않는다.
+    // LODGING-01 2026-09-13: 현지숙박 영수증과 이동일 숙박 실비를 서로 독립 정산한다.
     const effectiveLocalLodgingNightsForCap = lodgingSelected && lodgingNights > 0
         ? Math.max(0, Number(lodgingNights) || 0)
         : 0;
-    // D29 common: 이동일 숙박은 Desktop/Tablet/Mini/Compact/Mobile 모두 동일 계산에 포함한다.
     const effectiveTravelLodgingNightsForCap = Math.max(0, Number(tabletTravelLodgingNights) || 0);
     const effectiveLodgingNightsForCap = effectiveLocalLodgingNightsForCap + effectiveTravelLodgingNightsForCap;
     const effectiveFriendLodgingNightsForPay = Math.max(0, Number(friendLodgingNights) || 0);
@@ -28770,17 +29003,33 @@ const App = () => {
         const perNight = seoul ? 100000 : metro ? 80000 : 70000;
         return { target: target || nz(dest) || "도착지", perNight, label: seoul ? "서울" : metro ? "광역시" : "기타지역" };
     }, [dest]);
-    const lodgingCapTotal = effectiveLodgingNightsForCap > 0 ? lodgingCapInfo.perNight * effectiveLodgingNightsForCap : 0;
-    // FREEZE-20260821: 일반 숙박은 기존 지역별 상한을 유지하고, 친지집은 1박당 20,000원을 별도로 합산한다.
-    const recognizedRegularLodging = effectiveLodgingNightsForCap <= 0
+    const localLodgingCapTotal = effectiveLocalLodgingNightsForCap > 0 ? lodgingCapInfo.perNight * effectiveLocalLodgingNightsForCap : 0;
+    const travelLodgingCapTotal = effectiveTravelLodgingNightsForCap > 0 ? lodgingCapInfo.perNight * effectiveTravelLodgingNightsForCap : 0;
+    const lodgingCapTotal = localLodgingCapTotal + travelLodgingCapTotal;
+    // 현지숙박 영수증 총액은 현지숙박 박수에만, 이동일 숙박비는 이동일 박수에만 상한을 적용한다.
+    const recognizedRegularLodging = effectiveLocalLodgingNightsForCap <= 0
         ? 0
         : (travelExpenseClass === 1
             ? Math.max(0, Number(lodgingTotal) || 0)
-            : Math.min(Math.max(0, Number(lodgingTotal) || 0), lodgingCapTotal));
-    const recognizedLodging = recognizedRegularLodging + friendLodgingAmount;
+            : Math.min(Math.max(0, Number(lodgingTotal) || 0), localLodgingCapTotal));
+    const recognizedTravelLodging = effectiveTravelLodgingNightsForCap <= 0
+        ? 0
+        : (travelExpenseClass === 1
+            ? Math.max(0, Number(travelLodgingTotal) || 0)
+            : Math.min(Math.max(0, Number(travelLodgingTotal) || 0), travelLodgingCapTotal));
+    const recognizedLodging = recognizedRegularLodging + recognizedTravelLodging + friendLodgingAmount;
     useEffect(() => {
         if (!lodgingFocused.current) setLodgingTotalInput(lodgingTotal > 0 ? String(lodgingTotal) : "");
     }, [lodgingTotal]);
+    useEffect(() => {
+        if (!travelLodgingFocused.current) setTravelLodgingTotalInput(travelLodgingTotal > 0 ? String(travelLodgingTotal) : "");
+    }, [travelLodgingTotal]);
+    useEffect(() => {
+        if (effectiveTravelLodgingNightsForCap > 0) return;
+        if (travelLodgingTotal !== 0) setTravelLodgingTotal(0);
+        if (travelLodgingTotalInput !== "") setTravelLodgingTotalInput("");
+        travelLodgingFocused.current = false;
+    }, [effectiveTravelLodgingNightsForCap, travelLodgingTotal, travelLodgingTotalInput]);
     // C6: 숙박영수증 총액은 숙박형태를 추론하거나 변경하지 않는다.
     // 현지숙박/이동일/친지집/합숙은 사용자가 정한 shared state만 authority로 사용한다.
     const onlyDigits = (v) => String(v || "").replace(/[^0-9]/g, "");
@@ -39540,6 +39789,71 @@ const App = () => {
         const route = String((leg && (leg.route || leg.ferryRoute)) || "특수구간").replace(/\s*→\s*/g, "→").trim();
         return `${kind}|${route}`;
     };
+    // UI-09: 농어촌버스/선박의 편집 UI는 교통비 Quick 한 곳으로 일원화한다.
+    // 삭제 예정인 Mini/Tablet/Compact의 기존 입력 UI는 건드리지 않는다.
+    const ui09SpecialQuickEnabled = !isDesktopMini && !isDesktopTablet && !isDesktopCompact;
+    const r108p6eLegAmount = (kind, leg) => {
+        const key = r108p6eLegKey(kind, leg);
+        if (kind === "rural") return Math.max(0, Number((ruralManualFareByLeg || {})[key] || 0));
+        if (kind === "ferry") return Math.max(0, Number((shipFareByLeg || {})[key] || 0));
+        return 0;
+    };
+    const ui09QuickRouteText = (leg, fallback) => String((leg && (leg.route || leg.ferryRoute)) || fallback || "특수구간")
+        .replace(/\s*→\s*/g, " → ").replace(/\s*↔\s*/g, " ↔ ").trim();
+    const openTransportQuickForLegUI09 = (kind, leg) => {
+        transportQuickFocusLegRef.current = r108p6eLegKey(kind, leg);
+        openDeductionModal("transport", "quick");
+    };
+    useEffect(() => {
+        if (!ui09SpecialQuickEnabled || activeModal !== "transport" || transportModalMode !== "quick" || typeof document === "undefined") return;
+        const wanted = String(transportQuickFocusLegRef.current || "");
+        if (!wanted) return;
+        let retryTimer = null;
+        const focusWanted = () => {
+            const rows = Array.from(document.querySelectorAll("[data-ybez-quick-leg-key]"));
+            const row = rows.find(el => String(el.getAttribute("data-ybez-quick-leg-key") || "") === wanted);
+            if (!row) return false;
+            try { row.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" }); } catch (_) {}
+            const input = row.querySelector("input");
+            if (input) {
+                try { input.focus({ preventScroll: true }); } catch (_) { try { input.focus(); } catch (_) {} }
+                try { input.select(); } catch (_) {}
+            }
+            transportQuickFocusLegRef.current = "";
+            return true;
+        };
+        const firstTimer = setTimeout(() => {
+            if (!focusWanted()) retryTimer = setTimeout(focusWanted, 140);
+        }, 40);
+        return () => {
+            clearTimeout(firstTimer);
+            if (retryTimer) clearTimeout(retryTimer);
+        };
+    }, [activeModal, transportModalMode, r108p6eManualRuralLegs, r108p6eManualFerryLegs]);
+    const renderR108P6EQuickEntryButtonUI09 = (kind, leg, routeOverride = "", ui09Context = "main") => {
+        const isRural = kind === "rural";
+        const isFerry = kind === "ferry";
+        const amount = r108p6eLegAmount(kind, leg);
+        const route = String(routeOverride || ui09QuickRouteText(leg, isRural ? "농어촌버스 구간" : "승선 구간")).trim();
+        const hasValue = amount > 0;
+        const isExpense = ui09Context === "expense";
+        const idleText = isExpense
+            ? (isRural ? "농어촌버스 요금 입력" : "승선요금 입력")
+            : (isRural ? `${route} 농어촌버스 요금 입력` : `${route} 승선요금 입력`);
+        const title = hasValue ? `${route} ${isRural ? "농어촌버스 요금" : "승선요금"} 수정` : idleText;
+        return React.createElement("button", {
+            type: "button",
+            className: `ui09-special-quick-btn ${kind} ${hasValue ? "has-value" : "needs-value"}`,
+            onClick: e => { e.stopPropagation(); openTransportQuickForLegUI09(kind, leg); },
+            title,
+            "aria-label": title
+        },
+            hasValue
+                ? React.createElement("span", { className: "ui09-special-quick-amount" },
+                    isRural ? React.createElement(M510RuralBusIcon, null) : React.createElement(M510ShipIcon, null),
+                    React.createElement("span", { className: "ui09-special-quick-text" }, `${fmt(amount)}원`))
+                : React.createElement("span", { className: "ui09-special-quick-text" }, idleText));
+    };
     const r108p6eLegRaw = (kind, leg) => {
         const key = r108p6eLegKey(kind, leg);
         const raw = kind === "rural"
@@ -39631,12 +39945,18 @@ const App = () => {
                     routeCell(leg), localMeta(), React.createElement("span", null));
             }
             if (kind === "rural" && leg.manualCost) {
-                return React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row rural", onClick: e => e.stopPropagation() },
-                    routeCell(leg), renderR108P6ESpecialFareEntry("rural", leg), React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"));
+                return ui09SpecialQuickEnabled
+                    ? React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row rural ui09-special-quick-row", onClick: e => e.stopPropagation() },
+                        renderR108P6EQuickEntryButtonUI09("rural", leg, routeText(leg)))
+                    : React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row rural", onClick: e => e.stopPropagation() },
+                        routeCell(leg), renderR108P6ESpecialFareEntry("rural", leg), React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"));
             }
             if (kind === "ferry" && (leg.realCost || leg.fare == null)) {
-                return React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row ferry", onClick: e => e.stopPropagation() },
-                    routeCell(leg), renderR108P6ESpecialFareEntry("ferry", leg), React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"));
+                return ui09SpecialQuickEnabled
+                    ? React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row ferry ui09-special-quick-row", onClick: e => e.stopPropagation() },
+                        renderR108P6EQuickEntryButtonUI09("ferry", leg, routeText(leg)))
+                    : React.createElement("div", { key: `p6d-leg-${idx}`, className: "r108p6c-special-row ferry", onClick: e => e.stopPropagation() },
+                        routeCell(leg), renderR108P6ESpecialFareEntry("ferry", leg), React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"));
             }
             if ((kind === "ferry" || kind === "rural") && leg.fare != null) {
                 return React.createElement("div", { key: `p6d-leg-${idx}`, className: `r108p6c-special-row ${kind}`, onClick: e => e.stopPropagation() },
@@ -39645,7 +39965,11 @@ const App = () => {
             return null;
         }).filter(Boolean);
         if (!rows.length) return null;
-        return React.createElement("div", { className: "r108p6c-main-special-wrap", onClick: e => e.stopPropagation() }, ...rows);
+        const ui09QuickOnly = ui09SpecialQuickEnabled && legs.every(leg => {
+            const kind = String((leg && leg.kind) || "");
+            return (kind === "rural" && !!leg.manualCost) || (kind === "ferry" && (leg.realCost || leg.fare == null));
+        });
+        return React.createElement("div", { className: `r108p6c-main-special-wrap ${ui09QuickOnly ? "ui09-main-quick-wrap" : ""}`.trim(), onClick: e => e.stopPropagation() }, ...rows);
     };
     /* ── 패치 2R.4 접근비용 최종 선택카드 ── */
     /* ── 패치 2R.4 접근비용 최종 선택카드 ── */
@@ -41662,19 +41986,38 @@ const App = () => {
         const summaryTitle = result
             ? (displayRouteLabel || `${displayCityName(nz(origin)) || nz(origin)} → ${displayCityName(nz(dest)) || nz(dest)}`)
             : "";
-        const hasSpecialTransportNotice = !!(result && mobileSpecialTransportNotices.length > 0);
-        const specialNoticeNode = hasSpecialTransportNotice
-            ? React.createElement("div", { className: "m510-special-transport-wrap m512-main-special-transport m515-inline-special" },
-                mobileSpecialTransportNotices.map((n, i) =>
-                    React.createElement("div", { className: `m510-special-transport-note ${n.type}`, key: `${n.route}-${i}` },
-                        React.createElement("div", { className: "m510-special-route" },
-                            n.type === "rural"
-                                ? React.createElement(M510RuralBusIcon, null)
-                                : React.createElement(M510ShipIcon, null),
-                            React.createElement("span", null, n.route)),
-                        React.createElement("div", { className: "m510-special-main" }, n.line1),
-                        React.createElement("div", { className: "m510-special-sub" }, n.line2))))
-            : null;
+        const mobileManualQuickLegs = (() => {
+            if (!ui09SpecialQuickEnabled) return [];
+            const seen = new Set();
+            return [
+                ...r108p6eManualRuralLegs.map(leg => ({ kind: "rural", leg })),
+                ...r108p6eManualFerryLegs.map(leg => ({ kind: "ferry", leg }))
+            ].filter(item => {
+                const key = r108p6eLegKey(item.kind, item.leg);
+                if (!key || seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        })();
+        const hasManualQuick = mobileManualQuickLegs.length > 0;
+        const hasSpecialTransportNotice = !!(result && (hasManualQuick || mobileSpecialTransportNotices.length > 0));
+        const specialNoticeNode = hasManualQuick
+            ? React.createElement("div", { className: "m510-special-transport-wrap m512-main-special-transport m515-inline-special ui09-mobile-main-special" },
+                mobileManualQuickLegs.map((item, i) =>
+                    React.createElement("div", { className: "ui09-special-quick-inline", key: `${r108p6eLegKey(item.kind, item.leg)}-${i}` },
+                        renderR108P6EQuickEntryButtonUI09(item.kind, item.leg, ui09QuickRouteText(item.leg, item.kind === "rural" ? "농어촌버스 구간" : "승선 구간")))))
+            : (hasSpecialTransportNotice
+                ? React.createElement("div", { className: "m510-special-transport-wrap m512-main-special-transport m515-inline-special" },
+                    mobileSpecialTransportNotices.map((n, i) =>
+                        React.createElement("div", { className: `m510-special-transport-note ${n.type}`, key: `${n.route}-${i}` },
+                            React.createElement("div", { className: "m510-special-route" },
+                                n.type === "rural"
+                                    ? React.createElement(M510RuralBusIcon, null)
+                                    : React.createElement(M510ShipIcon, null),
+                                React.createElement("span", null, n.route)),
+                            React.createElement("div", { className: "m510-special-main" }, n.line1),
+                            React.createElement("div", { className: "m510-special-sub" }, n.line2))))
+                : null);
 
         const fareNode = React.createElement("div", { className: "m34-result-fares" },
             React.createElement("div", { className: "m34-fare-row primary" },
@@ -43496,18 +43839,30 @@ const App = () => {
                 }) : null));
     };
 
-    const renderLodgingQuickStayRow = ({ label, value, max, onChange, disabled = false, extraControl = null }) => {
+    const renderLodgingQuickStayRow = ({ label, value, max, onChange, disabled = false, extraControl = null, targetKey = "" }) => {
         const safe = Math.max(0, Number(value) || 0);
         const stepperControl = React.createElement("div", { className:"lodging-quick-stay-control" },
             React.createElement("span", { className:"lodging-quick-stay-count", "aria-hidden":"true" }, safe > 0 ? `${safe}박` : ""),
             renderTripQuickStepper({ value:safe, onChange, max:disabled ? 0 : max, ariaLabel:label }));
-        return React.createElement("div", { className:`lodging-quick-stay-row ${disabled ? "disabled" : ""} ${extraControl ? "has-schedule" : ""}`.trim() },
+        return React.createElement("div", {
+            className:`lodging-quick-stay-row ${disabled ? "disabled" : ""} ${extraControl ? "has-schedule" : ""}`.trim(),
+            ...(targetKey ? { "data-lodging-quick-target":targetKey } : {})
+        },
             React.createElement("div", { className:"lodging-quick-stay-label" }, label),
             extraControl
                 ? React.createElement("div", { className:"lodging-quick-stay-group-side" },
                     stepperControl,
                     React.createElement("div", { className:"lodging-quick-schedule-slot" }, extraControl))
                 : stepperControl);
+    };
+
+    const openLodgingQuickAt = (target) => {
+        if (!result) return;
+        setFriendLodgingPopoverOpen(false);
+        setTabletTravelLodgingPopoverOpen(false);
+        setLodgingQuickEvidenceOpen(false);
+        setLodgingQuickTarget(target || "");
+        setLodgingQuickOpen(true);
     };
 
     const qe4Open = (key) => {
@@ -44427,9 +44782,12 @@ const App = () => {
                         const ChoiceCard = ({ key: reactKey, selected, onClick, route, price, tag, island = null, specialInputs = false }) => {
                             const p6dManualMainInput = !!(result && result.manualTransportOnly && result.p6dMainTransportInline);
                             const ferryInput = island && island.realCost
-                                ? React.createElement("div", { className: "r108p6c-inline-ferry-entry", onClick: e => e.stopPropagation() },
-                                    renderR108P6ESpecialFareEntry("ferry", { route: island.ferryRoute || "여객선 구간", fareKey: island.fareKey || "" }),
-                                    React.createElement("span", { className: "r108p6c-round-tag" }, "왕복"))
+                                ? (ui09SpecialQuickEnabled
+                                    ? React.createElement("div", { className: "r108p6c-inline-ferry-entry ui09-special-quick-inline", onClick: e => e.stopPropagation() },
+                                        renderR108P6EQuickEntryButtonUI09("ferry", { route: island.ferryRoute || "여객선 구간", fareKey: island.fareKey || "" }, island.ferryRoute || "여객선 구간"))
+                                    : React.createElement("div", { className: "r108p6c-inline-ferry-entry", onClick: e => e.stopPropagation() },
+                                        renderR108P6ESpecialFareEntry("ferry", { route: island.ferryRoute || "여객선 구간", fareKey: island.fareKey || "" }),
+                                        React.createElement("span", { className: "r108p6c-round-tag" }, "왕복")))
                                 : null;
                             const body = island
                                 ? React.createElement("div", { className: "final-island-card" },
@@ -44903,8 +45261,21 @@ const App = () => {
                                 }, trainingGroupScheduleComplete ? "합숙일 지정완료" : "합숙일 미지정")
                                 : null
                         }),
-                        renderLodgingQuickStayRow({ label:"친지집", value:friendLodgingNights, max:tripQuickFriendCeiling, onChange:tripQuickChangeFriendNights }),
-                        renderLodgingQuickStayRow({ label:"이동일", value:tripQuickTravelNights, max:tripQuickTravelCeiling, onChange:tripQuickChangeTravelNights })),
+                        renderLodgingQuickStayRow({ label:"친지집", value:friendLodgingNights, max:tripQuickFriendCeiling, onChange:tripQuickChangeFriendNights, targetKey:"friend" }),
+                        renderLodgingQuickStayRow({ label:"이동일", value:tripQuickTravelNights, max:tripQuickTravelCeiling, onChange:tripQuickChangeTravelNights, targetKey:"travel" }),
+                        tripQuickTravelNights > 0 && React.createElement("div", { className:"lodging-quick-travel-amount-inline", "data-lodging-quick-target":"travel-amount" },
+                            React.createElement("div", { className:"lodging-quick-travel-amount-spacer", "aria-hidden":"true" }),
+                            React.createElement("div", { className:"lodging-quick-money-control" },
+                                React.createElement("input", {
+                                    type:"tel", inputMode:"numeric", enterKeyHint:"done", pattern:"[0-9]*",
+                                    value:travelLodgingTotalInput === "" ? "" : fmt(Number(onlyDigits(travelLodgingTotalInput) || 0)),
+                                    placeholder:"0", className:"lodging-quick-money-input",
+                                    onFocus:e => { travelLodgingFocused.current = true; e.target.select(); },
+                                    onBlur:() => { travelLodgingFocused.current = false; setTravelLodgingTotalInput(travelLodgingTotal > 0 ? String(travelLodgingTotal) : ""); },
+                                    onKeyDown:mobileNumericDoneKey,
+                                    onChange:e => { const v=onlyDigits(e.target.value); setTravelLodgingTotalInput(v); setTravelLodgingTotal(v === "" ? 0 : Number(v)); },
+                                    "aria-label":"이동일 숙박비"
+                                }), React.createElement("span", null, "원")))),
                     React.createElement("div", { className:"lodging-quick-money-stack" },
                         React.createElement("div", { className:"lodging-quick-money-row editable" },
                             React.createElement("div", { className:"lodging-quick-money-label" }, "숙박영수증", React.createElement("span", { className:"transport-expense-tag round" }, "총액")),
@@ -44922,6 +45293,9 @@ const App = () => {
                         React.createElement("div", { className:"lodging-quick-money-row" },
                             React.createElement("div", { className:"lodging-quick-money-label" }, "숙박비", React.createElement("span", { className:"transport-expense-tag oneway" }, "인정액")),
                             React.createElement("div", { className:"lodging-quick-money-value" }, React.createElement("strong", null, fmt(recognizedRegularLodging)), React.createElement("span", null, "원"))),
+                        effectiveTravelLodgingNightsForCap > 0 && React.createElement("div", { className:"lodging-quick-money-row travel" },
+                            React.createElement("div", { className:"lodging-quick-money-label" }, "이동일"),
+                            React.createElement("div", { className:"lodging-quick-money-value" }, React.createElement("strong", null, fmt(recognizedTravelLodging)), React.createElement("span", null, "원"))),
                         friendLodgingAmount > 0 && React.createElement("div", { className:"lodging-quick-money-row friend" },
                             React.createElement("div", { className:"lodging-quick-money-label" }, `친지집 ${effectiveFriendLodgingNightsForPay}박`),
                             React.createElement("div", { className:"lodging-quick-money-value" }, React.createElement("strong", null, fmt(friendLodgingAmount)), React.createElement("span", null, "원"))),
@@ -45495,7 +45869,7 @@ const App = () => {
                                 r108p6eManualRuralLegs.map((leg, idx) => {
                                     const raw = r108p6eLegRaw("rural", leg);
                                     const route = String(leg.route || "농어촌버스 구간").replace(/\s*→\s*/g, " → ");
-                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-rural-${r108p6eLegKey("rural", leg)}` },
+                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-rural-${r108p6eLegKey("rural", leg)}`, "data-ybez-quick-leg-key": r108p6eLegKey("rural", leg) },
                                         React.createElement("div", { className: "transport-expense-extra-label" }, `◎ ${route} 농어촌버스 요금${r108p6eManualRuralLegs.length > 1 ? ` ${idx + 1}` : ""}`),
                                         React.createElement("div", { className: "transport-expense-extra-edit" },
                                             transportPopupMoneyInput(raw, v => r108p6eSetLegRaw("rural", leg, v), "농어촌버스 왕복 실비"), transportPopupTag("round")));
@@ -45510,7 +45884,7 @@ const App = () => {
                                 r108p6eManualFerryLegs.map((leg, idx) => {
                                     const raw = r108p6eLegRaw("ferry", leg);
                                     const route = String(leg.route || "승선 구간").replace(/\s*→\s*/g, " → ");
-                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-ferry-${r108p6eLegKey("ferry", leg)}` },
+                                    return React.createElement("div", { className: "transport-expense-extra-row", key: `tp-ferry-${r108p6eLegKey("ferry", leg)}`, "data-ybez-quick-leg-key": r108p6eLegKey("ferry", leg) },
                                         React.createElement("div", { className: "transport-expense-extra-label" }, `◎ ${route} 승선요금${r108p6eManualFerryLegs.length > 1 ? ` ${idx + 1}` : ""}`),
                                         React.createElement("div", { className: "transport-expense-extra-edit" },
                                             transportPopupMoneyInput(raw, v => r108p6eSetLegRaw("ferry", leg, v), "승선 왕복 실비"), transportPopupTag("round")));
@@ -45534,6 +45908,19 @@ const App = () => {
         // changing useTabletExpenseUi (which also participates in shared calculation/state rules).
         const desktopTabletPresentationD42 = desktopD39Layout || isDesktopCompact;
         const presentationTabletUiD42 = useTabletExpenseUi || desktopTabletPresentationD42;
+        // UI-08: Desktop + Mobile 메인에는 계산상태/직접입력에 꼭 필요한 안내만 남긴다.
+        // Tablet/Mini/Compact는 기존 표현을 보호한다.
+        const ui08CleanMainNotes = desktopD39Layout || mobilePagerEnabledM6A2;
+        const ui09ExpenseQuickEnabled = ui09SpecialQuickEnabled && (desktopD39Layout || mobilePagerEnabledM6A2);
+        // LODGING-02: Desktop + real Mobile만 메인 숙박 세부표현을 금액 Quick 버튼으로 단순화한다.
+        const lodging02MainAmountUi = desktopD39Layout || mobilePagerEnabledM6A2;
+        const ui08RoutePairLabel = (route, fallback = "해당") => {
+            const raw = String(route || "").trim();
+            if (!raw) return fallback;
+            const parts = raw.split(/\s*(?:→|↔|->)\s*/).map(x => x.trim()).filter(Boolean);
+            const joined = parts.length > 1 ? parts.join("·") : raw;
+            return joined.replace(/\s+구간$/, "").trim() || fallback;
+        };
         // D29 common: 숙박비 총액 입력과 이동일 숙박 0~2박 컨트롤은 모든 UI 모드에서 사용한다.
         const showLodging = true;
         const tabletTravelLodgingMode = true;
@@ -45851,18 +46238,15 @@ const App = () => {
                                         setTrainingGroupScheduleOpen(true);
                                     }
                                 }, trainingGroupScheduleComplete ? "✓ 합숙 적용일 지정 완료" : "합숙일 미지정")))),
-                    trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "training-review-note" }, desktopTabletPresentationD42 ? "합숙 일부일 · 날짜별 체재순서 확인 필요" : "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. 여비이지는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
+                    !ui08CleanMainNotes && trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "training-review-note" }, desktopTabletPresentationD42 ? "합숙 일부일 · 날짜별 체재순서 확인 필요" : "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. 여비이지는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
 
             React.createElement("div", { className: "expense-ledger" },
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
-                        React.createElement("div", { className: "expense-label-cell ybez-class-label-stack" },
-                            React.createElement("span", { className: "expense-result-label" }, "교통비"),
-                            React.createElement("div", { className:"travel-class-control ybez-class-toggle-control ybez-class-under-title" },
-                                React.createElement(YbezClassToggleR2, { ariaLabel: "교통비 여비 지급구분", extraClass: "main" }),
-                                React.createElement("button", { type:"button", className:"travel-class-info-btn ybez-class-info-r2", title:"여비 지급구분 안내", "aria-label":"여비 지급구분 안내", onClick:() => { setTravelClassInfoKind("transport"); setTravelClassInfoOpen(true); } }, "i"))),
+                        React.createElement("div", { className: "expense-label-cell" },
+                            React.createElement("span", { className: "expense-result-label" }, "교통비(합계)")),
                         React.createElement("div", { className: "expense-tag-cell" },
-                            !mobilePagerEnabledM6A2 && React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복"),
+                            (!ui09ExpenseQuickEnabled && !mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복"),
                             (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
                         React.createElement("div", { className: "expense-action-cell" },
                             React.createElement("button", { onClick: () => openDeductionModal("transport"), className: `deduct-btn ${(transportReasonDeductionUnits > 0 || vehicleDaysInput > 0) ? "active" : ""}` }, isDesktopMini ? "감액" : presentationDeductionButtonLabelD42(detailCost.transportDeduction))),
@@ -45874,6 +46258,13 @@ const App = () => {
                     hasManualRural && r108p6eManualRuralLegs.map((leg, idx) => {
                         const raw = r108p6eLegRaw("rural", leg);
                         const route = String(leg.route || "농어촌버스 구간").replace(/\s*→\s*/g, " → ");
+                        if (ui09ExpenseQuickEnabled) {
+                            return React.createElement("div", { key: `p6e-right-rural-${r108p6eLegKey("rural", leg)}`, className: "expense-main-row r108p6-rural-manual-row ui09-expense-special-row" },
+                                React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, r108p6eManualRuralLegs.length > 1 ? `농어촌버스 ${idx + 1}` : "농어촌버스")),
+                                React.createElement("div", { className: "expense-tag-cell" }),
+                                React.createElement("div", null), React.createElement("div", null),
+                                renderR108P6EQuickEntryButtonUI09("rural", leg, route, "expense"));
+                        }
                         return React.createElement(React.Fragment, { key: `p6e-right-rural-${r108p6eLegKey("rural", leg)}` },
                             React.createElement("div", { className: "expense-main-row r108p6-rural-manual-row" },
                                 React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, r108p6eManualRuralLegs.length > 1 ? `농어촌버스 ${idx + 1}` : "농어촌버스")),
@@ -45882,9 +46273,9 @@ const App = () => {
                                 renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("rural", leg, e.target.value), "농어촌버스 왕복 총 실비", false, "")),
                             r108p6eManualRuralLegs.length > 1 && React.createElement("div", { className: "expense-note-row right" }, route));
                     }),
-                    hasManualRural && React.createElement("div", { className: "expense-note-row right" }, ruralManualRoundTrip > 0 ? `농어촌버스 왕복 합계 ${fmt(ruralManualRoundTrip)}원 · 교통비에 포함` : "농어촌버스 왕복 실제 이용금액을 입력하세요."),
-                    !transportDeducted && generalMultiCalcActive && !lodgingSelected && payableTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${Number(payableTransportTripMultiplier).toFixed(payableTransportTripMultiplier % 1 ? 1 : 0)}회`),
-                    !transportDeducted && trainingMultiCalcActive && payableTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${Number(payableTransportTripMultiplier).toFixed(payableTransportTripMultiplier % 1 ? 1 : 0)}회`),
+                    !ui08CleanMainNotes && hasManualRural && React.createElement("div", { className: "expense-note-row right" }, ruralManualRoundTrip > 0 ? `농어촌버스 왕복 합계 ${fmt(ruralManualRoundTrip)}원 · 교통비에 포함` : "농어촌버스 왕복 실제 이용금액을 입력하세요."),
+                    !ui08CleanMainNotes && !transportDeducted && generalMultiCalcActive && !lodgingSelected && payableTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${Number(payableTransportTripMultiplier).toFixed(payableTransportTripMultiplier % 1 ? 1 : 0)}회`),
+                    !ui08CleanMainNotes && !transportDeducted && trainingMultiCalcActive && payableTransportTripMultiplier > 0 && React.createElement("div", { className: "expense-note-row right" }, `왕복 교통비 × ${Number(payableTransportTripMultiplier).toFixed(payableTransportTripMultiplier % 1 ? 1 : 0)}회`),
                     vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
                         generalMultiCalcActive && !lodgingSelected
                             ? (generalPaidCommuteTrips > 0 ? `관용차량 ${vehicleDaysInput}일 이용 · 유상 출퇴근 ${generalPaidCommuteTrips}회` : `관용차량 ${vehicleDaysInput}일 이용 · 교통비 미지급`)
@@ -45893,7 +46284,10 @@ const App = () => {
                                     ? `관용차량 ${vehicleDaysInput}일 이용 · 유상 출퇴근 ${trainingPaidCommuteTrips}회`
                                     : `관용차량 ${vehicleDaysInput}일 이용 · 교통비 미지급`)
                                 : `관용차량 ${vehicleDaysInput}일 이용, 왕복 1회`),
-                    transportReasonDeductionUnits > 0 && React.createElement("div", { className: "expense-note-row right" }, `교통비 감액 ${formatTransportUnits(transportReasonDeductionUnits)}일 반영`)),
+                    transportReasonDeductionUnits > 0 && React.createElement("div", { className: "expense-note-row right" }, `교통비 감액 ${formatTransportUnits(transportReasonDeductionUnits)}일 반영`),
+                    React.createElement("div", { className: "travel-class-control ybez-class-toggle-control ybez-class-bottom" },
+                        React.createElement(YbezClassToggleR2, { ariaLabel: "교통비 여비 지급구분", extraClass: "main" }),
+                        React.createElement("button", { type:"button", className:"travel-class-info-btn ybez-class-info-r2", title:"여비 지급구분 안내", "aria-label":"여비 지급구분 안내", onClick:() => { setTravelClassInfoKind("transport"); setTravelClassInfoOpen(true); } }, "i"))),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
@@ -45923,38 +46317,36 @@ const App = () => {
                                 },
                                 "혼합숙박 연수출장 일비")
                             : React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.daily), React.createElement("span", { className: "expense-result-unit" }, "원")))),
-                    generalMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `25,000원 × ${tripDays}일`),
-                    vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
+                    !ui08CleanMainNotes && generalMultiCalcActive && React.createElement("div", { className: "expense-note-row right" }, `25,000원 × ${tripDays}일`),
+                    !ui08CleanMainNotes && vehicleDaysInput > 0 && React.createElement("div", { className: "expense-note-row right vehicle-link-note" },
                         trainingMultiCalcActive
                             ? `관용차량 ${vehicleDaysInput}일 이용, 연수출장 일비는 해당 날짜 산정액의 50% 감액`
                             : `관용차량 ${vehicleDaysInput}일 이용, 출장일의 일부만 관용차 이용시 수정 가능`),
-                    trainingCommuteNoStay && (presentationTabletUiD42
+                    trainingCommuteNoStay && (ui08CleanMainNotes
                         ? React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 비합숙 중간일 50%")
-                        : React.createElement("div", { className: "expense-note-row" },
-                            React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
-                            React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
-                            React.createElement("div", { className: "training-rule-source" }, "「공무원 인재개발 업무처리지침」 [별표 1] 교육훈련여비 지급기준"))),
-                    trainingLodgingOnly && React.createElement("div", { className: "expense-note-row right" }, presentationTabletUiD42 ? "입교·수료일 100% · 비합숙 중간일 50%" : "입교·수료일 100% · 기타 교육일 50%"),
-                    trainingGroupOnly && !trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, presentationTabletUiD42 ? "입교·수료일 100% · 합숙 적용일 0%" : "입교·수료일 100% · 기타 교육일 0%"),
-                    trainingDailyMixedNeedsManual && (presentationTabletUiD42
+                        : (presentationTabletUiD42
+                            ? React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 비합숙 중간일 50%")
+                            : React.createElement("div", { className: "expense-note-row" },
+                                React.createElement("div", { className: "training-rule-note" }, "매일 출퇴근하는 연수출장은 규정상 ‘비합숙’으로 적용됩니다. 입교·수료일은 일비 100%, 중간 교육일(기타일)은 50%를 지급합니다."),
+                                React.createElement("div", { className: "training-rule-source" }, "「지방공무원 교육훈련 운영지침」 [별표 3] 지방공무원 교육훈련여비 지급기준"),
+                                React.createElement("div", { className: "training-rule-source" }, "「공무원 인재개발 업무처리지침」 [별표 1] 교육훈련여비 지급기준")))),
+                    trainingLodgingOnly && React.createElement("div", { className: "expense-note-row right" }, ui08CleanMainNotes ? "입교·수료일 100% · 비합숙 중간일 50%" : (presentationTabletUiD42 ? "입교·수료일 100% · 비합숙 중간일 50%" : "입교·수료일 100% · 기타 교육일 50%")),
+                    trainingGroupOnly && !trainingDailyNeedsReview && React.createElement("div", { className: "expense-note-row right" }, ui08CleanMainNotes ? "입교·수료일 100% · 합숙 적용일 0%" : (presentationTabletUiD42 ? "입교·수료일 100% · 합숙 적용일 0%" : "입교·수료일 100% · 기타 교육일 0%")),
+                    trainingDailyMixedNeedsManual && (ui08CleanMainNotes
                         ? React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%")
-                        : React.createElement("div", { className: "expense-note-row training-mixed-daily-note" },
-                            React.createElement("div", null, "입교·등록일과 수료일의 일비만 우선 반영되었습니다. 위의 ‘합숙 적용일 지정’을 완료하면 중간 교육일의 일비를 자동 계산합니다."),
-                            React.createElement("div", { className: "training-mixed-daily-rule" }, "연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0%"))),
-                    trainingMixedScheduleRequired && trainingGroupScheduleComplete && React.createElement("div", { className: "expense-note-row right training-schedule-complete-note" }, presentationTabletUiD42 ? "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%" : `연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0% · 합숙 적용 ${trainingGroupAppliedDays.map(d => `${d}일차`).join(", ")}`),
-                    trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "expense-note-row right" }, "합숙이 일부 날짜에 포함되어 날짜별 체재순서 확인 필요"),
-                    !(presentationTabletUiD42 || showDetail) && dailyDeductionLabel && React.createElement("div", { className: "expense-note-row deduction" }, dailyDeductionLabel)),
+                        : (presentationTabletUiD42
+                            ? React.createElement("div", { className: "expense-note-row right" }, "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%")
+                            : React.createElement("div", { className: "expense-note-row training-mixed-daily-note" },
+                                React.createElement("div", null, "입교·등록일과 수료일의 일비만 우선 반영되었습니다. 위의 ‘합숙 적용일 지정’을 완료하면 중간 교육일의 일비를 자동 계산합니다."),
+                                React.createElement("div", { className: "training-mixed-daily-rule" }, "연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0%")))),
+                    trainingMixedScheduleRequired && trainingGroupScheduleComplete && React.createElement("div", { className: "expense-note-row right training-schedule-complete-note" }, ui08CleanMainNotes ? "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%" : (presentationTabletUiD42 ? "입교·수료일 100% · 비합숙 중간일 50% · 합숙 적용일 0%" : `연수출장의 경우: 입교·수료일 100% · 비합숙 중간 교육일 50% · 합숙 중간 교육일 0% · 합숙 적용 ${trainingGroupAppliedDays.map(d => `${d}일차`).join(", ")}`)),
+                    !ui08CleanMainNotes && trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "expense-note-row right" }, "합숙이 일부 날짜에 포함되어 날짜별 체재순서 확인 필요"),
+                    !ui08CleanMainNotes && !(presentationTabletUiD42 || showDetail) && dailyDeductionLabel && React.createElement("div", { className: "expense-note-row deduction" }, dailyDeductionLabel)),
 
                 React.createElement("div", { className: "expense-item lodging-expense-item" },
                     React.createElement("div", { className: "expense-main-row lodging-main-row lodging-final-row" },
-                        React.createElement("div", { className: "expense-label-cell ybez-class-label-stack" },
-                            React.createElement("span", { className: "expense-result-label" }, "숙박비"),
-                            React.createElement("div", { className:"travel-class-control ybez-class-toggle-control ybez-class-under-title" },
-                                React.createElement(YbezClassToggleR2, { ariaLabel: "숙박비 여비 지급구분", extraClass: "main" }),
-                                React.createElement("button", {
-                                    type: "button", className: "travel-class-info-btn ybez-class-info-r2", title: "여비 지급구분 안내", "aria-label": "여비 지급구분 안내",
-                                    onClick: () => { setTravelClassInfoKind("lodging"); setTravelClassInfoOpen(true); }
-                                }, "i"))),
+                        React.createElement("div", { className: "expense-label-cell" },
+                            React.createElement("span", { className: "expense-result-label" }, "숙박비")),
                         React.createElement("div", { className: "expense-tag-cell" },
                             (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
                         React.createElement("div", null),
@@ -45971,7 +46363,7 @@ const App = () => {
                                 setLodgingTotalInput(v);
                                 setLodgingTotal(amount);
                             }, "숙박영수증 총액", !showLodging, ""))),
-                    (friendLodgingDisplayNights > 0 || tabletTravelLodgingDisplayNights > 0) && React.createElement("div", { className: "lodging-main-breakdown", "aria-label": "숙박비 자동 반영 내역" },
+                    !lodging02MainAmountUi && (friendLodgingDisplayNights > 0 || tabletTravelLodgingDisplayNights > 0) && React.createElement("div", { className: "lodging-main-breakdown", "aria-label": "숙박비 자동 반영 내역" },
                         friendLodgingDisplayNights > 0 && React.createElement("div", { className: "lodging-main-breakdown-line friend" },
                             React.createElement("span", { className: "lodging-main-breakdown-amount" }, `+${fmt(friendLodgingDisplayNights * 20000)}원`),
                             React.createElement("span", { className: "lodging-main-breakdown-label" }, `친지집 ${friendLodgingDisplayNights}박`)),
@@ -45984,14 +46376,15 @@ const App = () => {
                                 React.createElement("button", {
                                     type: "button",
                                     disabled: !isMultiDayTrip,
-                                    className: `d6-d26-travel-lodging-btn ybez-friend-lodging-btn ${friendLodgingDisplayNights > 0 ? "has-nights" : ""} ${friendLodgingPopoverOpen ? "adjusting" : ""}`,
+                                    className: `d6-d26-travel-lodging-btn ybez-friend-lodging-btn ${friendLodgingDisplayNights > 0 ? "has-nights" : ""} ${friendLodgingPopoverOpen ? "adjusting" : ""} ${lodging02MainAmountUi && friendLodgingDisplayNights > 0 ? "lodging02-amount-btn" : ""}`.trim(),
                                     onClick: () => {
                                         if (!isMultiDayTrip) return;
+                                        if (lodging02MainAmountUi) { openLodgingQuickAt("friend"); return; }
                                         setTabletTravelLodgingPopoverOpen(false);
                                         setFriendLodgingPopoverOpen(v => !v);
                                     },
-                                    "aria-label": "친지집 숙박 박수 조정"
-                                }, friendLodgingDisplayNights > 0 ? `친지집 ${friendLodgingDisplayNights}박` : "친지집"),
+                                    "aria-label": lodging02MainAmountUi ? "친지집 숙박 Quick 열기" : "친지집 숙박 박수 조정"
+                                }, lodging02MainAmountUi && friendLodgingDisplayNights > 0 ? `🙂 ${fmt(friendLodgingAmount)}원` : (friendLodgingDisplayNights > 0 ? `친지집 ${friendLodgingDisplayNights}박` : "친지집")),
                                 ui07bFriendPopoverVisible && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ybez-friend-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""} ${ui07bStayPopoverMotionClass(friendLodgingPopoverOpen, ui07bFriendPopoverMounted)}`.trim(), role: "dialog", "aria-label": "친지집 숙박 박수 조정" },
                                     React.createElement("button", {
                                         type: "button", className: "d6-d10-night-step", "aria-label": "친지집 숙박 1박 줄이기",
@@ -46022,10 +46415,13 @@ const App = () => {
                             React.createElement("div", { className: `d6-d26-travel-lodging-wrap d6-r9-travel-lodging-wrap ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-option" : ""}`.trim() },
                                 React.createElement("button", {
                                     type: "button",
-                                    className: `d6-d26-travel-lodging-btn ${tabletTravelLodgingDisplayNights > 0 ? "has-nights" : ""} ${tabletTravelLodgingPopoverOpen ? "adjusting" : ""}`,
-                                    onClick: () => { setFriendLodgingPopoverOpen(false); setTabletTravelLodgingPopoverOpen(v => !v); },
-                                    "aria-label": "이동일 숙박 박수 조정"
-                                }, tabletTravelLodgingDisplayNights > 0 ? `이동일 ${tabletTravelLodgingDisplayNights}박` : "이동일"),
+                                    className: `d6-d26-travel-lodging-btn ${tabletTravelLodgingDisplayNights > 0 ? "has-nights" : ""} ${tabletTravelLodgingPopoverOpen ? "adjusting" : ""} ${lodging02MainAmountUi && tabletTravelLodgingDisplayNights > 0 ? "lodging02-amount-btn" : ""}`.trim(),
+                                    onClick: () => {
+                                        if (lodging02MainAmountUi) { openLodgingQuickAt(tabletTravelLodgingDisplayNights > 0 ? "travel-amount" : "travel"); return; }
+                                        setFriendLodgingPopoverOpen(false); setTabletTravelLodgingPopoverOpen(v => !v);
+                                    },
+                                    "aria-label": lodging02MainAmountUi ? "이동일 숙박 Quick 열기" : "이동일 숙박 박수 조정"
+                                }, lodging02MainAmountUi && tabletTravelLodgingDisplayNights > 0 ? `🚗 ${fmt(recognizedTravelLodging)}원` : (tabletTravelLodgingDisplayNights > 0 ? `이동일 ${tabletTravelLodgingDisplayNights}박` : "이동일")),
                                 ui07bTravelPopoverVisible && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""} ${ui07bStayPopoverMotionClass(tabletTravelLodgingPopoverOpen, ui07bTravelPopoverMounted)}`.trim(), role: "dialog", "aria-label": "이동일 숙박 박수 조정" },
                                     React.createElement("button", {
                                         type: "button", className: "d6-d10-night-step", "aria-label": "이동일 숙박 1박 줄이기",
@@ -46052,7 +46448,10 @@ const App = () => {
                                     (isDesktopMini || isDesktopTablet || isDesktopCompact) && React.createElement("button", {
                                         type: "button", className: "d6-d21-night-confirm", "aria-label": "이동일 숙박 박수 확인",
                                         onClick: e => { e.stopPropagation(); setTabletTravelLodgingPopoverOpen(false); }
-                                    }, "✓")))))),
+                                    }, "✓"))))),
+                    React.createElement("div", { className: "travel-class-control ybez-class-toggle-control ybez-class-bottom" },
+                        React.createElement(YbezClassToggleR2, { ariaLabel: "숙박비 여비 지급구분", extraClass: "main" }),
+                        React.createElement("button", { type:"button", className:"travel-class-info-btn ybez-class-info-r2", title:"여비 지급구분 안내", "aria-label":"여비 지급구분 안내", onClick:() => { setTravelClassInfoKind("lodging"); setTravelClassInfoOpen(true); } }, "i"))),
 
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
@@ -46062,7 +46461,7 @@ const App = () => {
                         React.createElement("div", { className: "expense-action-cell" }, React.createElement("button", { onClick: () => openDeductionModal("meal"), className: `deduct-btn ${mealProvidedCount > 0 ? "active" : ""}` }, presentationDeductionButtonLabelD42(detailCost.mealDeduction))),
                         React.createElement("div", null),
                         React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-result-amount" }, fmt(detailCost.meal), React.createElement("span", { className: "expense-result-unit" }, "원")))),
-                    !(presentationTabletUiD42 || showDetail) && mealProvidedCount > 0 && React.createElement("div", { className: "expense-note-row deduction" }, `-${fmt(detailCost.mealDeduction)}원`)),
+                    !ui08CleanMainNotes && !(presentationTabletUiD42 || showDetail) && mealProvidedCount > 0 && React.createElement("div", { className: "expense-note-row deduction" }, `-${fmt(detailCost.mealDeduction)}원`)),
 
                 /* C6A: 기타비용은 기본 접힘, 필요/값 발생 시 자동 펼침. */
                 React.createElement("div", { className: "expense-other-toggle-row" },
@@ -46075,31 +46474,56 @@ const App = () => {
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
                             React.createElement("div", { className: "expense-label-cell" },
-                                React.createElement("span", { className: "expense-result-label" }, "기타교통비")),
+                                React.createElement("span", { className: "expense-result-label" }, "기타교통비(합계)")),
                             React.createElement("div", { className: "expense-tag-cell" },
-                                React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
+                                !ui09ExpenseQuickEnabled && React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
                             React.createElement("div", null),
                             React.createElement("div", null),
-                            r108p6eManualFerryLegs.length > 1
-                                ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
-                                : r108p6eManualFerryLegs.length === 1
-                                    ? (() => { const leg = r108p6eManualFerryLegs[0]; const raw = r108p6eLegRaw("ferry", leg); return renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "선박 왕복요금", false, ""); })()
+                            ui09ExpenseQuickEnabled
+                                ? (r108p6eManualFerryLegs.length > 0
+                                    ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
                                     : shipAutoSummary.total > 0
                                         ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
-                                        : renderMoneyEntry(otherTransportFare === 0 ? "" : fmt(otherTransportFare), e => e.target.select(), () => {}, e => { const v = onlyDigits(e.target.value); setOtherTransportFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, "")),
-                        r108p6eManualFerryLegs.length > 1 && r108p6eManualFerryLegs.map((leg, idx) => {
-                            const raw = r108p6eLegRaw("ferry", leg);
-                            const route = String(leg.route || "여객선 구간").replace(/\s*→\s*/g, " → ");
-                            return React.createElement(React.Fragment, { key: `p6e-right-ferry-${r108p6eLegKey("ferry", leg)}` },
-                                React.createElement("div", { className: "expense-main-row r108p6e-ferry-manual-row" },
-                                    React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, `승선요금 ${idx + 1}`)),
-                                    React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
+                                        : renderMoneyEntry(otherTransportFare === 0 ? "" : fmt(otherTransportFare), e => e.target.select(), () => {}, e => { const v = onlyDigits(e.target.value); setOtherTransportFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, ""))
+                                : (r108p6eManualFerryLegs.length > 1
+                                    ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
+                                    : r108p6eManualFerryLegs.length === 1
+                                        ? (() => { const leg = r108p6eManualFerryLegs[0]; const raw = r108p6eLegRaw("ferry", leg); return renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "선박 왕복요금", false, ""); })()
+                                        : shipAutoSummary.total > 0
+                                            ? React.createElement("div", { className: "expense-value-cell" }, React.createElement("span", { className: "expense-value-text" }, fmt(detailCost.etc), React.createElement("span", { className: "expense-result-unit" }, "원")))
+                                            : renderMoneyEntry(otherTransportFare === 0 ? "" : fmt(otherTransportFare), e => e.target.select(), () => {}, e => { const v = onlyDigits(e.target.value); setOtherTransportFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, ""))),
+                        ui09ExpenseQuickEnabled
+                            ? React.createElement(React.Fragment, null,
+                                r108p6eManualFerryLegs.map((leg, idx) => {
+                                    const route = String(leg.route || "여객선 구간").replace(/\s*→\s*/g, " → ");
+                                    return React.createElement("div", { key: `p6e-right-ferry-${r108p6eLegKey("ferry", leg)}`, className: "expense-main-row r108p6e-ferry-manual-row ui09-expense-special-row" },
+                                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, r108p6eManualFerryLegs.length > 1 ? `승선요금 ${idx + 1}` : "승선요금")),
+                                        React.createElement("div", { className: "expense-tag-cell" }),
+                                        React.createElement("div", null), React.createElement("div", null),
+                                        renderR108P6EQuickEntryButtonUI09("ferry", leg, route, "expense"));
+                                }),
+                                (r108p6eManualFerryLegs.length > 0 || shipAutoSummary.total > 0) && React.createElement("div", { className: "expense-main-row ui09-other-transport-manual-row" },
+                                    React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "기타교통비")),
+                                    React.createElement("div", { className: "expense-tag-cell" }),
                                     React.createElement("div", null), React.createElement("div", null),
-                                    renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "승선요금 왕복 실비", false, "")),
-                                React.createElement("div", { className: "expense-note-row right" }, route));
-                        }),
-                        shipFareHint && React.createElement("div", { className: "expense-note-row right" }, shipFareHint),
-                        otherTransportFare > 0 && Number(shipFare || 0) > 0 && React.createElement("div", { className: "expense-note-row right tp-other-transport-total-note" }, `기타교통비 추가 ${fmt(otherTransportFare)}원 · 기타교통비 합계 ${fmt(detailCost.etc)}원`)),
+                                    renderMoneyEntry(otherTransportFare === 0 ? "" : fmt(otherTransportFare), e => e.target.select(), () => {}, e => { const v = onlyDigits(e.target.value); setOtherTransportFare(v === "" ? 0 : Number(v)); }, "기타교통비", false, "")))
+                            : (r108p6eManualFerryLegs.length > 1 ? r108p6eManualFerryLegs.map((leg, idx) => {
+                                const raw = r108p6eLegRaw("ferry", leg);
+                                const route = String(leg.route || "여객선 구간").replace(/\s*→\s*/g, " → ");
+                                return React.createElement(React.Fragment, { key: `p6e-right-ferry-${r108p6eLegKey("ferry", leg)}` },
+                                    React.createElement("div", { className: "expense-main-row r108p6e-ferry-manual-row" },
+                                        React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, `승선요금 ${idx + 1}`)),
+                                        React.createElement("div", { className: "expense-tag-cell" }, React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
+                                        React.createElement("div", null), React.createElement("div", null),
+                                        renderMoneyEntry(raw, e => e.target.select(), () => {}, e => r108p6eSetLegRaw("ferry", leg, e.target.value), "승선요금 왕복 실비", false, "")),
+                                    React.createElement("div", { className: "expense-note-row right" }, route));
+                            }) : null),
+                        !ui09ExpenseQuickEnabled && r108p6eManualFerryLegs.length === 1 && (() => {
+                            const leg = r108p6eManualFerryLegs[0];
+                            return React.createElement("div", { className: "expense-note-row right" }, String(leg.route || "여객선 구간").replace(/\s*→\s*/g, " → "));
+                        })(),
+                        !ui08CleanMainNotes && shipFareHint && React.createElement("div", { className: "expense-note-row right" }, shipFareHint),
+                        !ui08CleanMainNotes && otherTransportFare > 0 && Number(shipFare || 0) > 0 && React.createElement("div", { className: "expense-note-row right tp-other-transport-total-note" }, `기타교통비 추가 ${fmt(otherTransportFare)}원 · 기타교통비 합계 ${fmt(detailCost.etc)}원`)),
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
                             React.createElement("div", { className: "expense-label-cell" }, React.createElement("span", { className: "expense-result-label" }, "기타숙박비")),
@@ -46204,7 +46628,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(
   var TARGET_SELECTORS = [
     ".expense-ledger > .expense-item:nth-child(1) .expense-action-cell",   // 교통비
     ".expense-ledger > .expense-item:nth-child(2) .expense-action-cell",   // 일비
-    ".expense-ledger > .expense-item:nth-child(3) .expense-lodging-entry", // 숙박비
+    ".expense-ledger > .expense-item:nth-child(3) > .lodging-main-row .expense-lodging-entry", // 숙박비 (메인행 전용 — 영수증 총액은 더 이상 타깃 아님)
     ".expense-ledger > .expense-item:nth-child(4) .expense-action-cell"    // 식비
   ];
 
@@ -53183,6 +53607,306 @@ body :is(
 </style>
 <!-- UI-07B 2026-09-13: Mobile stay popovers now share a 145ms enter/exit presentation lifecycle; calculations unchanged. -->
 
+
+<!-- UI-09B 2026-09-13: Desktop/Mobile special-transport Quick refinement; lodging/daily untouched. -->
+
+
+<style id="ybez-lodging03-receipt-axis-20260913">
+/* LODGING-03 · Receipt amount-axis correction only.
+   Keep lodging buttons/vertical spacing untouched.
+   Desktop receipt follows d42 col 4; real Mobile receipt follows B17 col 5. */
+@media (min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .lodging-expense-item .lodging-receipt-row > .expense-lodging-entry{
+    grid-column:4!important;
+    width:100%!important;
+    min-width:0!important;
+    justify-self:stretch!important;
+    justify-content:flex-end!important;
+    margin-left:0!important;
+    padding:0!important;
+  }
+}
+@media (max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d6-b17-expense-sheet.m510-swipe-surface .lodging-expense-item .lodging-receipt-row > .expense-lodging-entry{
+    grid-column:5!important;
+    width:100%!important;
+    min-width:0!important;
+    justify-self:stretch!important;
+    justify-content:flex-end!important;
+    margin-left:0!important;
+    padding:0!important;
+  }
+}
+</style>
+<!-- LODGING-03 2026-09-13: receipt total only follows the amount axis; button axis and vertical geometry untouched. -->
+
+
+<style id="ybez-lodging03b-desktop-receipt-axis-20260913">
+/* LODGING-03B · Desktop-only receipt-axis recovery.
+   Mobile LODGING-03 (col 5) stays untouched.
+   Desktop d42 is a 4-track ledger, so the receipt entry must occupy track 4 only. */
+@media (min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+  .lodging-expense-item .lodging-receipt-row > .expense-lodging-entry{
+    grid-column:4 / 5!important;
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+    justify-self:end!important;
+    justify-content:flex-end!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding:0!important;
+    left:auto!important;
+    right:auto!important;
+    transform:none!important;
+  }
+}
+</style>
+<!-- LODGING-03B 2026-09-13: Desktop receipt stays in d42 track 4; Mobile track 5 remains unchanged. -->
+
+
+<!--
+LODGING-03C DISABLED 2026-09-14 (VFLOW-P4):
+근본 원인이 이 규칙의 right:0 계산이 아니라, D5.4-AXIS-ALIGN 스크립트가
+.expense-item:nth-child(3) .expense-lodging-entry(영수증 총액)를 "숙박비 조작요소"로
+착각해 매 로드/리사이즈마다 style.translate로 다른 곳으로 끌고 가던 것으로 확인됨
+(D5.4 TARGET_SELECTORS를 .lodging-main-row 전용으로 수정함, 위 script 참고).
+JS가 더 이상 영수증을 건드리지 않으므로, absolute로 grid를 빠져나가는 이 실험 규칙은
+불필요해졌고 오히려 03B의 in-flow grid-column:4 배치와 이중으로 경쟁할 수 있어 제거함.
+원래 규칙 전문은 기록 목적으로 주석 안에 보존:
+
+<style id="ybez-lodging03c-desktop-receipt-red-axis-20260913">
+/* LODGING-03C · Desktop receipt red-axis correction only.
+   The receipt editor is anchored to the receipt row's physical right edge,
+   bypassing legacy d42 lodging-entry track ownership. Mobile stays untouched. */
+@media (min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation
+  .lodging-expense-item .lodging-receipt-row{
+    position:relative!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation
+  .lodging-expense-item .lodging-receipt-row > .expense-lodging-entry{
+    position:absolute!important;
+    right:0!important;
+    left:auto!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    grid-column:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    justify-self:auto!important;
+    justify-content:flex-end!important;
+    margin:0!important;
+    padding:0!important;
+  }
+}
+</style>
+-->
+<!-- LODGING-03C 2026-09-14: disabled by VFLOW-P4, see comment above. -->
+
+<style id="ybez-vflow-p1-20260914">
+/* VFLOW-P1 2026-09-14 · 세로 레이아웃 content-driven 전환 1차 패치.
+   범위: 교통비/일비/식비 고정 min-height 제거, 1호/2호 토글 하단 이동 후 크기 재정의.
+   숙박비 min-height:150px / travel-class-moving-row min-height:64px / Mobile
+   lodging-receipt-row min-height:34px 는 이번 패치에서 건드리지 않음(2차/3차 예정).
+   Desktop 영수증 총액 금액축 문제도 이번 패치와 무관, 별도 미해결. */
+
+/* A. 교통비(1)/일비(2)/식비(4) 고정 높이 제거 — 안내문 없는 상태에서의 빈 공간 원인 */
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(1),
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(2),
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(4){
+  min-height:0!important;
+}
+
+/* D. 블록 하단으로 이동한 1호/2호 토글(.ybez-class-bottom) 크기 재정의.
+   기존 .ybez-class-under-title 크기 규칙을 그대로 계승 — 시각적 크기 변화 없음. */
+.ybez-class-bottom{
+  margin-top:4px!important;
+}
+.ybez-class-bottom .ybez-class-toggle-r2.main{
+  width:60px!important;
+  min-width:60px!important;
+  height:22px!important;
+  min-height:22px!important;
+}
+.ybez-class-bottom .ybez-class-info-r2{
+  width:16px!important;
+  height:16px!important;
+  min-width:16px!important;
+  min-height:16px!important;
+}
+@media(max-width:699px){
+  .d6-b17-expense-sheet .ybez-class-bottom .ybez-class-toggle-r2.main{
+    width:52px!important;
+    min-width:52px!important;
+    height:20px!important;
+    min-height:20px!important;
+  }
+  .d6-b17-expense-sheet .ybez-class-bottom .ybez-class-info-r2{
+    width:14px!important;
+    min-width:14px!important;
+    height:14px!important;
+    min-height:14px!important;
+  }
+  .d6-b17-expense-sheet .ybez-class-bottom{gap:2px!important;}
+}
+</style>
+<!-- VFLOW-P1 2026-09-14: 1차 패치 끝. 숙박비/moving-row/Mobile receipt 고정 높이는 2·3차에서 처리. -->
+<style id="ybez-vflow-p2-20260914">
+/* VFLOW-P2 2026-09-14 · 세로 레이아웃 content-driven 전환 2차 패치.
+   범위: .lodging-expense-item min-height:150px, .travel-class-moving-row min-height:64px
+   두 개만 승인됨(Hunter 확정). 아래 3번째 규칙은 새 범위가 아니라 위 두 규칙을
+   실제로 동작시키기 위해 반드시 같이 지워야 하는 짝: 확인 결과 .travel-class-moving-row
+   의 min-height:64px만 지워도, 그 안의 .ybez-lodging-side-stack 에 별도로 걸린
+   min-height:64px!important 가 그대로 남아 있어서 행 높이가 똑같이 64px로 유지됨.
+   즉 이 셀렉터를 같이 지우지 않으면 승인된 항목이 화면에 반영되지 않음.
+
+   검증한 안전성 근거(둘 다 이번 변경으로 움직이지 않음):
+   - .lodging-main-breakdown-line.friend 는 .lodging-main-breakdown(자체 position:relative,
+     height:0)을 기준으로 top:8px/right:4px 절대배치됨 — .lodging-expense-item 의
+     min-height 와 무관.
+   - 이동일/친지집 팝오버(.d6-d26-travel-night-popover)는 .d6-r9-travel-lodging-wrap
+     (자체 position:relative)을 기준으로 top:calc(100% + 4px) — .travel-class-moving-row
+     / .ybez-lodging-side-stack 의 min-height 와 무관.
+   따라서 셋 다 지워도 breakdown/popover 위치는 그대로 유지됨.
+
+   범위 외(이번에 건드리지 않음): .travel-class-moving-row 의 margin-top:46px!important
+   (LODGING-FINAL-R2, 이 파일 다른 위치)는 min-height와 별개 속성이라 그대로 남음.
+   즉 이 패치 후에도 46px 여백은 남아있을 수 있음 — 필요하면 별도 패치로. */
+@media (min-width:1100px){
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .lodging-expense-item{
+    min-height:0!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .travel-class-moving-row{
+    min-height:0!important;
+  }
+  html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+  .d42-desktop-tablet-presentation .travel-class-moving-row .ybez-lodging-side-stack{
+    min-height:0!important;
+  }
+}
+</style>
+<!-- VFLOW-P2 2026-09-14: 2차 패치 끝. margin-top:46px(R2)와 태그간격/Mobile감액버튼/영수증"원"축/기타교통비 간격은 범위 밖, 별도 패치. -->
+<style id="ybez-vflow-p3-comprehensive-20260914">
+/* VFLOW-P3 2026-09-14 · 여비계산 정렬 마감 종합 패치.
+   계산/state/handler/Quick 무변경. 항목별 owner 분리, 전역 grid 재작성 없음.
+
+   ============================================================
+   [발견 사항 — 이번 패치 이전에는 몰랐던 것, 매우 중요]
+   ============================================================
+   1) .expense-ledger > .expense-item:nth-child(-n+4) 에 min-height:88px!important
+      가 별도로 걸려있었음(라인 24607/46569, "forced from @media(min-width:1500px)"
+      주석과 함께 있으나 실제로는 @media 래핑 없이 무조건 적용됨).
+      이 규칙의 specificity가 1차 패치의 nth-child(1)/(2)/(4) 개별 오버라이드보다
+      높아서, 1차 패치의 min-height 제거가 최근까지 화면에 반영되지 않았을 가능성이
+      있음. 이번에 같이 무력화함.
+
+   2) 감액 버튼에는 D5.4-AXIS-ALIGN 이라는 기존 런타임 JS(위 script 태그, id 없음,
+      "D5.4-AXIS-ALIGN" 주석)가 있음: 교통비/일비/식비의 .expense-action-cell과
+      숙박비의 .expense-lodging-entry를, "일반출장" 버튼의 실제 마지막 글자
+      오른쪽 끝에 매 로드/리사이즈마다 translate로 재정렬시키는, 의도적으로
+      설계된 "왼쪽 시작축 고정 + 오른쪽으로만 확장" 방식임.
+      이번 요청 5번(감액 버튼을 라벨~금액 사이 시각적 "중앙"에)은 이 JS의 설계와
+      정면으로 배치됨 — JS가 매번 셀의 rect.left를 재측정해 고정 축으로 되돌리므로,
+      CSS만으로 중앙 트랙(minmax(0,1fr)+justify-self:center)을 주면 JS가 그 중앙
+      위치를 다시 "왼쪽 고정축"으로 끌어당겨 오히려 더 어긋나 보일 수 있음.
+      => 5번(감액 버튼 중앙 정렬)은 이번 패치에서 보류함. 기존 JS를 끄거나 같이
+      고치는 결정은 별도로 확인받아야 해서, 함부로 건드리지 않음.
+
+   ============================================================
+   포함 항목: 1,2,3(모바일/데스크톱 best-effort),4,6,7(best-effort),8,9(무변경 확인)
+   보류 항목: 5 (위 사유)
+   ============================================================
+*/
+
+/* 1) 교통비/일비/숙박비/식비 — 새로 발견한 -n+4 min-height:88px 무력화.
+   (1차 패치의 nth-child(1)/(2)/(4) 개별 min-height:0 오버라이드는 그대로 유지, 이건 그 짝) */
+html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(-n+4){
+  min-height:0!important;
+}
+
+/* 4) 태그 간격 통일 — 라벨/태그 두 트랙만 콘텐츠 크기로, 조작/금액 트랙(3,4번)은
+   기존 그대로 유지 (D5.4 JS가 참조하는 action-cell 트랙 폭에는 영향 없음:
+   JS는 매번 rect.left를 재측정해 외부 기준점으로 translate하므로 이 열들의
+   폭이 바뀌어도 JS 쪽에서 자동 보정됨). 4개 핵심 행에만 스코프. */
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(-n+4) > .expense-main-row{
+  grid-template-columns:max-content max-content minmax(106px,1fr) 110px!important;
+  column-gap:6px!important;
+}
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(-n+4) > .expense-main-row .expense-label-cell{
+  padding-right:0!important;
+}
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-ledger > .expense-item:nth-child(-n+4) > .expense-main-row .expense-tag-cell{
+  margin-left:8px!important;
+}
+
+/* 2) 숙박비 46px 고정 여백 제거 → 친지집 breakdown 배지(top:8px, min-height:18~22px)와
+   겹치지 않는 최소한의 실제 간격만 유지. 완전히 0으로는 못 줄임(배지와 겹침 위험).
+   기존 LODGING-FINAL-R2(.dashboard.d51-dashboard-shell 접두 포함, specificity 최상위)
+   와 동일한 selector로 override. */
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+.expense-note-row.travel-class-moving-row{
+  margin:28px 0 2px!important;
+}
+
+/* 6) 기타교통비 세로 간격 — 아주 조금만. Desktop만, Mobile(UI-09E)은 무변경. */
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-other-group .r108p6e-ferry-manual-row,
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-other-group .ui09-other-transport-manual-row,
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .expense-other-group .expense-item + .expense-item{
+  margin-top:5px!important;
+}
+
+/* 3/8) 버튼축 정렬 — 친지집/이동일 묶음만, 기존 PASS한 농어촌버스/승선요금 축은
+   무변경. Mobile: travel-class-moving-row padding(0 4px) vs 일반 expense-item
+   padding(...7px) 차이 보정. Desktop: travel-class-moving-row padding(0 4px) vs
+   desktop expense-item 기본 좌우 padding 0 차이 보정.
+   ※ 실측 기반이 아닌 코드상 padding 차이 기반 best-effort — 스크린샷 대조 필요. */
+.d6-b17-expense-sheet .travel-class-moving-row .ybez-lodging-side-stack{
+  margin-right:3px!important;
+}
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .travel-class-moving-row{
+  padding-right:0!important;
+}
+
+/* 7) Desktop 영수증 총액 금액축 — best-effort 안전장치.
+   현재 활성 규칙(LODGING-03C)은 .lodging-receipt-row를 containing block으로 삼아
+   position:absolute;right:0 을 적용 중인데, 3차례 시도에도 계속 안쪽에 남는다고
+   보고됨. 코드 정적 분석으로는 .lodging-receipt-row가 .lodging-main-row와 다른
+   폭/여백을 가질 이유를 못 찾음(둘 다 일반 block, 특별한 width/padding 없음) —
+   즉 원인 불명 상태에서, 혹시 모를 폭 축소 요인을 차단하는 안전장치만 추가.
+   실패 시 이 규칙만 걷어내면 됨(다른 항목과 독립). */
+html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact)
+.d42-desktop-tablet-presentation .lodging-expense-item .lodging-receipt-row{
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+</style>
+<!-- VFLOW-P3 2026-09-14: 종합 정렬 패치 끝. 5번(감액 중앙정렬)은 D5.4-AXIS-ALIGN JS와
+     충돌 확인되어 보류. 3/8/7번은 best-effort, 스크린샷 대조 후 미세보정 필요. -->
 </body>
 </html>
 
