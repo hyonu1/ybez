@@ -3039,7 +3039,6 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     display:flex !important;
     flex-direction:column !important;
     overflow:hidden !important;
-    animation:m3SlideInRight .24s cubic-bezier(.22,.72,.3,1) both;
   }
   .travel-calc-header{
     flex:0 0 auto !important;
@@ -3226,10 +3225,6 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
   @keyframes m3SlideInLeft{
     from{transform:translateX(-100%);}
-    to{transform:translateX(0);}
-  }
-  @keyframes m3SlideInRight{
-    from{transform:translateX(100%);}
     to{transform:translateX(0);}
   }
   @keyframes m3QuickUp{
@@ -9499,7 +9494,6 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
     display:flex !important;
     flex-direction:column !important;
     overflow:hidden !important;
-    animation:m3SlideInRight .24s cubic-bezier(.22,.72,.3,1) both;
   }
   .travel-calc-header{
     flex:0 0 auto !important;
@@ -9686,10 +9680,6 @@ html,body{margin:0;padding:0;font-family:var(--pr);background:var(--bg);color:#1
 
   @keyframes m3SlideInLeft{
     from{transform:translateX(-100%);}
-    to{transform:translateX(0);}
-  }
-  @keyframes m3SlideInRight{
-    from{transform:translateX(100%);}
     to{transform:translateX(0);}
   }
   @keyframes m3QuickUp{
@@ -15604,7 +15594,6 @@ html.ybez-desktop-compact .mobile-result-card{padding-bottom:6px !important;}
   justify-content:center !important;
   background:rgba(15,23,42,.46) !important;
   backdrop-filter:blur(3px) !important;
-  animation:d6B17BackdropIn .18s ease-out both !important;
 }
 .d6-b17-bottom-sheet{
   position:relative !important;
@@ -15622,8 +15611,13 @@ html.ybez-desktop-compact .mobile-result-card{padding-bottom:6px !important;}
   flex-direction:column !important;
   overflow:hidden !important;
   transform:none !important;
-  animation:d6B17SheetUp .24s cubic-bezier(.22,.72,.28,1) both !important;
   pointer-events:auto !important;
+}
+.d6-b17-sheet-backdrop:not(.d6-b17-expense-backdrop){animation:d6B17BackdropIn .18s ease-out both !important;}
+.d6-b17-bottom-sheet:not(.d6-b17-expense-sheet){animation:d6B17SheetUp .24s cubic-bezier(.22,.72,.28,1) both !important;}
+@media(min-width:700px){
+.d6-b17-expense-backdrop{animation:d6B17BackdropIn .18s ease-out both !important;}
+.d6-b17-expense-sheet{animation:d6B17SheetUp .24s cubic-bezier(.22,.72,.28,1) both !important;}
 }
 .d6-b17-sheet-header{
   position:relative !important;
