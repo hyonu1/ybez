@@ -52721,6 +52721,175 @@ html body .modal-bg.ybez-c6e-anchored > .r104-final-top-scope > .r104-final-top-
 .modal-bg.training-schedule-overlay{z-index:620!important;}
 </style>
 
+<style id="ybez-ui01-scroll-lock-20260913">
+/* UI-01 2026-09-13 · Mobile Quick/감액 overlay background scroll lock only.
+   Scope: trip-quick-overlay / lodging-quick-overlay / deduction-modal-bg.
+   Popup geometry, Quick content, B17 grid, calculations and footer behavior stay untouched. */
+@media(max-width:699px){
+  html.ybez-ui01-scroll-locked,
+  html.ybez-ui01-scroll-locked body{
+    overscroll-behavior:none!important;
+  }
+  html body .modal-bg.trip-quick-overlay,
+  html body .modal-bg.lodging-quick-overlay,
+  html body .modal-bg.deduction-modal-bg{
+    overscroll-behavior:none!important;
+  }
+  html body .modal-bg.trip-quick-overlay > .r104-final-top-scope > .r104-final-top-body,
+  html body .modal-bg.lodging-quick-overlay > .r104-final-top-scope > .r104-final-top-body,
+  html body .modal-bg.deduction-modal-bg > .r104-final-top-scope > .r104-final-top-body{
+    overscroll-behavior:contain!important;
+  }
+}
+</style>
+<script id="ybez-ui01-scroll-lock-script-20260913">
+(function(){
+  'use strict';
+  if (window.__YBEZ_UI01_SCROLL_LOCK__) return;
+  window.__YBEZ_UI01_SCROLL_LOCK__ = true;
+
+  const TARGET_SELECTOR = [
+    '.modal-bg.trip-quick-overlay',
+    '.modal-bg.lodging-quick-overlay',
+    '.modal-bg.deduction-modal-bg'
+  ].join(',');
+
+  const BACKGROUND_SCROLL_SELECTOR = [
+    '.travel-calc-body',
+    '.d6-b17-sheet-body',
+    '.route-panel-body',
+    '.mobile-side-panel.route-panel .mobile-side-panel-body',
+    '.dashboard.d51-mobile-shell > .col-center'
+  ].join(',');
+
+  let snapshot = null;
+  let syncQueued = false;
+
+  function isMobile(){
+    return !!(window.matchMedia && window.matchMedia('(max-width:699px)').matches);
+  }
+
+  function hasTargetOverlay(){
+    return !!document.querySelector(TARGET_SELECTOR);
+  }
+
+  function saveInlineStyle(el, props){
+    const saved = {};
+    props.forEach(function(prop){ saved[prop] = el.style[prop] || ''; });
+    return saved;
+  }
+
+  function restoreInlineStyle(el, saved){
+    if (!el || !saved) return;
+    Object.keys(saved).forEach(function(prop){ el.style[prop] = saved[prop]; });
+  }
+
+  function backgroundScrollers(){
+    return Array.from(document.querySelectorAll(BACKGROUND_SCROLL_SELECTOR)).filter(function(el){
+      return !el.closest(TARGET_SELECTOR);
+    });
+  }
+
+  function lockBackground(){
+    if (snapshot || !isMobile() || !hasTargetOverlay() || !document.body) return;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const scrollX = window.scrollX || window.pageXOffset || 0;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const scrollNodes = backgroundScrollers().map(function(el){
+      return {
+        el: el,
+        top: el.scrollTop,
+        left: el.scrollLeft,
+        style: saveInlineStyle(el, ['overflow', 'overflowX', 'overflowY', 'overscrollBehavior', 'webkitOverflowScrolling'])
+      };
+    });
+
+    snapshot = {
+      root: root,
+      body: body,
+      scrollX: scrollX,
+      scrollY: scrollY,
+      rootStyle: saveInlineStyle(root, ['overflow', 'overscrollBehavior']),
+      bodyStyle: saveInlineStyle(body, ['position', 'top', 'left', 'right', 'width', 'overflow', 'overscrollBehavior']),
+      scrollNodes: scrollNodes
+    };
+
+    root.classList.add('ybez-ui01-scroll-locked');
+    root.style.overflow = 'hidden';
+    root.style.overscrollBehavior = 'none';
+
+    body.style.position = 'fixed';
+    body.style.top = (-scrollY) + 'px';
+    body.style.left = (-scrollX) + 'px';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+
+    scrollNodes.forEach(function(item){
+      item.el.style.overflow = 'hidden';
+      item.el.style.overflowY = 'hidden';
+      item.el.style.overscrollBehavior = 'none';
+    });
+  }
+
+  function unlockBackground(){
+    if (!snapshot) return;
+    const saved = snapshot;
+    snapshot = null;
+
+    saved.root.classList.remove('ybez-ui01-scroll-locked');
+    restoreInlineStyle(saved.root, saved.rootStyle);
+    restoreInlineStyle(saved.body, saved.bodyStyle);
+
+    saved.scrollNodes.forEach(function(item){
+      if (!item.el || !item.el.isConnected) return;
+      restoreInlineStyle(item.el, item.style);
+      item.el.scrollTop = item.top;
+      item.el.scrollLeft = item.left;
+    });
+
+    window.scrollTo(saved.scrollX, saved.scrollY);
+    requestAnimationFrame(function(){
+      window.scrollTo(saved.scrollX, saved.scrollY);
+      saved.scrollNodes.forEach(function(item){
+        if (!item.el || !item.el.isConnected) return;
+        item.el.scrollTop = item.top;
+        item.el.scrollLeft = item.left;
+      });
+    });
+  }
+
+  function sync(){
+    syncQueued = false;
+    if (isMobile() && hasTargetOverlay()) lockBackground();
+    else unlockBackground();
+  }
+
+  function queueSync(){
+    if (syncQueued) return;
+    syncQueued = true;
+    requestAnimationFrame(sync);
+  }
+
+  const observer = new MutationObserver(queueSync);
+
+  function start(){
+    if (!document.body) return;
+    observer.observe(document.body, {childList:true, subtree:true});
+    window.addEventListener('resize', queueSync, {passive:true});
+    window.addEventListener('orientationchange', queueSync, {passive:true});
+    window.addEventListener('pagehide', unlockBackground, {once:true});
+    sync();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
+  else start();
+})();
+</script>
+<!-- UI-01 2026-09-13: target Quick/deduction overlays lock only the Mobile background scroll and restore the exact prior position. -->
 </body>
 </html>
 
