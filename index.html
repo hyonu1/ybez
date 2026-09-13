@@ -28162,6 +28162,13 @@ const App = () => {
     // UI-03 2026-09-13: simple stay steppers drop the redundant ✓ only in Desktop + real Mobile.
     // Mini/Tablet (and legacy Compact guard) keep their existing presentation untouched.
     const ui03DesktopMobileStepperMode = !isDesktopMini && !isDesktopTablet && !isDesktopCompact;
+    // UI-07B 2026-09-13: presentation-only mount guards keep real-Mobile stay popovers
+    // in the DOM for 145ms after shared open state turns false, allowing a visual exit only.
+    // Calculation/open state semantics remain unchanged; Desktop/Mini/Tablet/Compact do not use these guards.
+    const [ui07bLodgingPopoverMounted, setUi07bLodgingPopoverMounted] = useState(false);
+    const [ui07bGroupPopoverMounted, setUi07bGroupPopoverMounted] = useState(false);
+    const [ui07bFriendPopoverMounted, setUi07bFriendPopoverMounted] = useState(false);
+    const [ui07bTravelPopoverMounted, setUi07bTravelPopoverMounted] = useState(false);
     // TRIP-QUICK-C2: 계산값은 기존 shared state를 그대로 쓰고, Quick 내부의 펼침 상태만 별도 관리한다.
     const [tripQuickOpen, setTripQuickOpen] = useState(false);
     const [tripQuickEditors, setTripQuickEditors] = useState({ lodging:false, group:false, friend:false, travel:false });
@@ -28273,6 +28280,85 @@ const App = () => {
     // M-Touch 20260821: real Mobile pager also uses the shared stay popovers; keep Mini/Compact/Tablet excluded.
     const mobileStayPopoverModeM = typeof window !== "undefined" && window.innerWidth <= 699 &&
         !isDesktopMini && !isDesktopCompact && !isDesktopTablet;
+    // UI-07B: one canonical 145ms exit lifecycle for real Mobile and the 390px Mobile/PiP preview.
+    // Open popovers render immediately from shared state; closing only delays DOM removal, never value/state updates.
+    useEffect(() => {
+        if (!mobileStayPopoverModeM) {
+            if (ui07bLodgingPopoverMounted) setUi07bLodgingPopoverMounted(false);
+            return;
+        }
+        if (tabletLodgingPopoverOpen) {
+            if (!ui07bLodgingPopoverMounted) setUi07bLodgingPopoverMounted(true);
+            return;
+        }
+        if (!ui07bLodgingPopoverMounted) return;
+        const timer = window.setTimeout(() => setUi07bLodgingPopoverMounted(false), 145);
+        return () => window.clearTimeout(timer);
+    }, [mobileStayPopoverModeM, tabletLodgingPopoverOpen, ui07bLodgingPopoverMounted]);
+    useEffect(() => {
+        if (!mobileStayPopoverModeM) {
+            if (ui07bGroupPopoverMounted) setUi07bGroupPopoverMounted(false);
+            return;
+        }
+        if (tabletGroupPopoverOpen) {
+            if (!ui07bGroupPopoverMounted) setUi07bGroupPopoverMounted(true);
+            return;
+        }
+        if (!ui07bGroupPopoverMounted) return;
+        const timer = window.setTimeout(() => setUi07bGroupPopoverMounted(false), 145);
+        return () => window.clearTimeout(timer);
+    }, [mobileStayPopoverModeM, tabletGroupPopoverOpen, ui07bGroupPopoverMounted]);
+    useEffect(() => {
+        if (!mobileStayPopoverModeM) {
+            if (ui07bFriendPopoverMounted) setUi07bFriendPopoverMounted(false);
+            return;
+        }
+        if (friendLodgingPopoverOpen) {
+            if (!ui07bFriendPopoverMounted) setUi07bFriendPopoverMounted(true);
+            return;
+        }
+        if (!ui07bFriendPopoverMounted) return;
+        const timer = window.setTimeout(() => setUi07bFriendPopoverMounted(false), 145);
+        return () => window.clearTimeout(timer);
+    }, [mobileStayPopoverModeM, friendLodgingPopoverOpen, ui07bFriendPopoverMounted]);
+    useEffect(() => {
+        if (!mobileStayPopoverModeM) {
+            if (ui07bTravelPopoverMounted) setUi07bTravelPopoverMounted(false);
+            return;
+        }
+        if (tabletTravelLodgingPopoverOpen) {
+            if (!ui07bTravelPopoverMounted) setUi07bTravelPopoverMounted(true);
+            return;
+        }
+        if (!ui07bTravelPopoverMounted) return;
+        const timer = window.setTimeout(() => setUi07bTravelPopoverMounted(false), 145);
+        return () => window.clearTimeout(timer);
+    }, [mobileStayPopoverModeM, tabletTravelLodgingPopoverOpen, ui07bTravelPopoverMounted]);
+
+    const ui07bLodgingPopoverVisible = mobileStayPopoverModeM
+        ? (tabletLodgingPopoverOpen || ui07bLodgingPopoverMounted)
+        : tabletLodgingPopoverOpen;
+    const ui07bGroupPopoverVisible = mobileStayPopoverModeM
+        ? (tabletGroupPopoverOpen || ui07bGroupPopoverMounted)
+        : tabletGroupPopoverOpen;
+    // Eligibility may change at the same moment an editor is forced closed (1-day trip, training -> general).
+    // In Mobile only, let the mounted tail outlive that eligibility change for the 145ms visual exit.
+    const ui07bLodgingPopoverRender = mobileStayPopoverModeM
+        ? ((isMultiDayTrip && tabletLodgingPopoverOpen) || ui07bLodgingPopoverMounted)
+        : (isMultiDayTrip && tabletLodgingPopoverOpen);
+    const ui07bGroupPopoverRender = mobileStayPopoverModeM
+        ? ((isMultiDayTrip && tripType === "training" && tabletGroupPopoverOpen) || ui07bGroupPopoverMounted)
+        : (isMultiDayTrip && tripType === "training" && tabletGroupPopoverOpen);
+    const ui07bFriendPopoverVisible = mobileStayPopoverModeM
+        ? (friendLodgingPopoverOpen || ui07bFriendPopoverMounted)
+        : friendLodgingPopoverOpen;
+    const ui07bTravelPopoverVisible = mobileStayPopoverModeM
+        ? (tabletTravelLodgingPopoverOpen || ui07bTravelPopoverMounted)
+        : tabletTravelLodgingPopoverOpen;
+    const ui07bStayPopoverMotionClass = (open, mounted) => {
+        if (!mobileStayPopoverModeM || !(open || mounted)) return "";
+        return open ? "ui07b-stay-popover-open" : "ui07b-stay-popover-closing";
+    };
     // R10.8A: stay-picker presentation only. Reuse the proven real-Mobile picker DOM in Mini/Tablet,
     // while keeping Compact/Desktop and the whole Mobile pager/swipe branches untouched.
     const sharedMobileStayPresentationR108A = mobileStayPopoverModeM || isDesktopMini || isDesktopTablet;
@@ -29042,11 +29128,10 @@ const App = () => {
         closeMobileAuxSheets();
         setMobileDetailOpen(false);
         setMobileRouteMotion("");
-        // 홈 → 여비계산 : 두 화면이 함께 왼쪽으로 이동
-        setMobileHomeMotion("m55-exit-left");
-        setMobileExpenseMotion("m55-enter-right");
+        // UI-07A-R: Mobile Home → Expense is an immediate surface swap.
+        clearMobilePagerMotion();
         setShowDetail(true);
-        finishMobileNavTransition(() => clearMobilePagerMotion());
+        finishMobileNavTransition(null, 0);
     };
     const mobileRouteToExpense = () => {
         if ((!result && !desktopPagerActive) || !beginMobileNavTransition()) return;
@@ -29091,20 +29176,15 @@ const App = () => {
     const mobileExpenseToHome = () => {
         if (!beginMobileNavTransition()) return;
         closeMobileAuxSheets();
-        // 여비계산 → 홈 : 여비계산과 홈이 함께 오른쪽으로 이동
+        // UI-07A-R: Mobile Expense → Home is an immediate surface swap.
         setMobileRouteMotion("");
-        setMobileExpenseMotion("m55-exit-right");
-        setMobileHomeMotion("m55-enter-left");
-        finishMobileNavTransition(() => {
-            setShowDetail(false);
-            clearMobilePagerMotion();
-        });
+        clearMobilePagerMotion();
+        setShowDetail(false);
+        finishMobileNavTransition(null, 0);
     };
-    // Patch 4P: Real Mobile is a true two-surface cyclic pager.
-    // The gesture decides the physical motion direction; the destination is always
-    // the opposite surface. This helper is Real-Mobile-only at its call sites.
-    // Patch 4R: cyclic Home/Expense motion gets a slightly slower 420ms cadence.
-    const MOBILE_CYCLIC_TRANSITION_MS_4R = 420;
+    // Patch 4P / UI-07A-R: Real Mobile remains a two-surface cyclic pager,
+    // but Home <-> Expense changes surface immediately after swipe/footer/PiP input.
+    // The direction argument is preserved for call-site compatibility; no slide motion is rendered.
     const mobileToggleSurface4P = (fromMode, direction = "left") => {
         const from = fromMode === "expense" ? "expense" : "home";
         if (from === "home" && !result) return;
@@ -29112,25 +29192,12 @@ const App = () => {
         closeMobileAuxSheets();
         setMobileDetailOpen(false);
         setMobileRouteMotion("");
+        clearMobilePagerMotion();
 
-        const moveRight = direction === "right";
-        const exitMotion = moveRight ? "m55-exit-right" : "m55-exit-left";
-        const enterMotion = moveRight ? "m55-enter-left" : "m55-enter-right";
+        if (from === "home") setShowDetail(true);
+        else setShowDetail(false);
 
-        if (from === "home") {
-            setMobileHomeMotion(exitMotion);
-            setMobileExpenseMotion(enterMotion);
-            setShowDetail(true);
-            finishMobileNavTransition(() => clearMobilePagerMotion(), MOBILE_CYCLIC_TRANSITION_MS_4R);
-            return;
-        }
-
-        setMobileExpenseMotion(exitMotion);
-        setMobileHomeMotion(enterMotion);
-        finishMobileNavTransition(() => {
-            setShowDetail(false);
-            clearMobilePagerMotion();
-        }, MOBILE_CYCLIC_TRANSITION_MS_4R);
+        finishMobileNavTransition(null, 0);
     };
     // M5.10: 버튼 Pager의 순환 방향을 실제 터치 스와이프에도 그대로 사용한다.
     // touchmove에서 가로/세로 축을 먼저 판별하고, 가로 제스처만 앱이 받는다.
@@ -45551,7 +45618,7 @@ const App = () => {
                                                 setTabletGroupPopoverOpen(false); setTabletLodgingPopoverOpen(v => !v);
                                             }
                                         }, `현지숙박${(isMultiDayTrip && lodgingSelected && lodgingNights > 0) ? ` ${lodgingNights}박` : ""}`),
-                                        isMultiDayTrip && tabletLodgingPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover ybez-shared-mobile-stay-popover", role: "dialog", "aria-label": "현지숙박 박수 조정" },
+                                        ui07bLodgingPopoverRender && React.createElement("div", { className: `d6-d10-night-popover ybez-shared-mobile-stay-popover ${ui07bStayPopoverMotionClass(tabletLodgingPopoverOpen, ui07bLodgingPopoverMounted)}`.trim(), role: "dialog", "aria-label": "현지숙박 박수 조정" },
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 줄이기",
                                                 disabled: lodgingNights <= 0,
@@ -45593,7 +45660,7 @@ const App = () => {
                                                 setTabletLodgingPopoverOpen(false); setTabletGroupPopoverOpen(v => !v);
                                             }
                                         }, (isMultiDayTrip && tripType === "training" && groupSelected && groupNights > 0) ? `합숙제공 ${groupNights}박` : "합숙제공"),
-                                        isMultiDayTrip && tripType === "training" && tabletGroupPopoverOpen && React.createElement("div", { className: "d6-d10-night-popover ybez-shared-mobile-stay-popover", role: "dialog", "aria-label": "합숙제공 박수 조정" },
+                                        ui07bGroupPopoverRender && React.createElement("div", { className: `d6-d10-night-popover ybez-shared-mobile-stay-popover ${ui07bStayPopoverMotionClass(tabletGroupPopoverOpen, ui07bGroupPopoverMounted)}`.trim(), role: "dialog", "aria-label": "합숙제공 박수 조정" },
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 줄이기",
                                                 disabled: groupNights <= 0,
@@ -45652,7 +45719,7 @@ const App = () => {
                                                 setTabletGroupPopoverOpen(false); setTabletLodgingPopoverOpen(v => !v);
                                             }
                                         }, `현지숙박${(isMultiDayTrip && lodgingSelected && lodgingNights > 0) ? ` ${lodgingNights}박` : ""}`),
-                                        isMultiDayTrip && tabletLodgingPopoverOpen && React.createElement("div", { className: `d6-d10-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""}`.trim(), role: "dialog", "aria-label": "현지숙박 박수 조정" },
+                                        ui07bLodgingPopoverRender && React.createElement("div", { className: `d6-d10-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""} ${ui07bStayPopoverMotionClass(tabletLodgingPopoverOpen, ui07bLodgingPopoverMounted)}`.trim(), role: "dialog", "aria-label": "현지숙박 박수 조정" },
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "현지숙박 1박 줄이기",
                                                 disabled: lodgingNights <= 0,
@@ -45702,7 +45769,7 @@ const App = () => {
                                                 setTabletLodgingPopoverOpen(false); setTabletGroupPopoverOpen(v => !v);
                                             }
                                         }, (isMultiDayTrip && tripType === "training" && groupSelected && groupNights > 0) ? `합숙 ${groupNights}박` : "합숙제공"),
-                                        isMultiDayTrip && tripType === "training" && tabletGroupPopoverOpen && React.createElement("div", { className: `d6-d10-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""}`.trim(), role: "dialog", "aria-label": "합숙제공 박수 조정" },
+                                        ui07bGroupPopoverRender && React.createElement("div", { className: `d6-d10-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""} ${ui07bStayPopoverMotionClass(tabletGroupPopoverOpen, ui07bGroupPopoverMounted)}`.trim(), role: "dialog", "aria-label": "합숙제공 박수 조정" },
                                             React.createElement("button", {
                                                 type: "button", className: "d6-d10-night-step", "aria-label": "합숙제공 1박 줄이기",
                                                 disabled: groupNights <= 0,
@@ -45931,7 +45998,7 @@ const App = () => {
                                     },
                                     "aria-label": "친지집 숙박 박수 조정"
                                 }, friendLodgingDisplayNights > 0 ? `친지집 ${friendLodgingDisplayNights}박` : "친지집"),
-                                friendLodgingPopoverOpen && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ybez-friend-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""}`.trim(), role: "dialog", "aria-label": "친지집 숙박 박수 조정" },
+                                ui07bFriendPopoverVisible && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ybez-friend-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""} ${ui07bStayPopoverMotionClass(friendLodgingPopoverOpen, ui07bFriendPopoverMounted)}`.trim(), role: "dialog", "aria-label": "친지집 숙박 박수 조정" },
                                     React.createElement("button", {
                                         type: "button", className: "d6-d10-night-step", "aria-label": "친지집 숙박 1박 줄이기",
                                         disabled: friendLodgingDisplayNights <= 0,
@@ -45965,7 +46032,7 @@ const App = () => {
                                     onClick: () => { setFriendLodgingPopoverOpen(false); setTabletTravelLodgingPopoverOpen(v => !v); },
                                     "aria-label": "이동일 숙박 박수 조정"
                                 }, tabletTravelLodgingDisplayNights > 0 ? `이동일 ${tabletTravelLodgingDisplayNights}박` : "이동일"),
-                                tabletTravelLodgingPopoverOpen && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""}`.trim(), role: "dialog", "aria-label": "이동일 숙박 박수 조정" },
+                                ui07bTravelPopoverVisible && React.createElement("div", { className: `d6-d10-night-popover d6-d26-travel-night-popover ${sharedMobileStayPresentationR108A ? "ybez-shared-mobile-stay-popover" : ""} ${ui07bStayPopoverMotionClass(tabletTravelLodgingPopoverOpen, ui07bTravelPopoverMounted)}`.trim(), role: "dialog", "aria-label": "이동일 숙박 박수 조정" },
                                     React.createElement("button", {
                                         type: "button", className: "d6-d10-night-step", "aria-label": "이동일 숙박 1박 줄이기",
                                         disabled: tabletTravelLodgingDisplayNights <= 0,
@@ -53088,81 +53155,39 @@ body :is(
 </style>
 <!-- UI-06 2026-09-13: Mobile condition right rail retired; schedule status moved below the full-width 2x2 grid. -->
 
-<style id="ui07a-mobile-home-expense-canonical-slide">
-/* UI-07A 2026-09-13 · Real Mobile + Mobile/PiP preview only.
-   Canonical Home <-> Expense slide:
-   - Keep the already-PASS 420ms / cubic-bezier(.22,.72,.28,1) motion.
-   - Home moves as its full page (.col-center).
-   - Expense now moves as the full fixed overlay, not only the nested sheet.
-   - Swipe/footer/PiP already share mobileToggleSurface4P; no calculation or handler changes. */
+
+<!-- UI-07A-R 2026-09-13: Real Mobile + Mobile/PiP Home <-> Expense uses immediate surface swaps; slide override removed. -->
+
+<style id="ui07b-mobile-stay-popover-easing">
+/* UI-07B 2026-09-13 · Real Mobile + Mobile/PiP preview only.
+   Presentation lifecycle only: shared calculation/open states stay immediate.
+   A 145ms mounted tail permits visual exit; a newly selected editor opens immediately. */
+@keyframes ui07bStayPopoverIn{
+  from{opacity:0;translate:0 -4px;}
+  to{opacity:1;translate:0 0;}
+}
+@keyframes ui07bStayPopoverOut{
+  from{opacity:1;translate:0 0;}
+  to{opacity:0;translate:0 -4px;}
+}
 @media(max-width:699px){
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet) body{
-    --ui07a-slide-ms:420ms;
-    --ui07a-slide-ease:cubic-bezier(.22,.72,.28,1);
-  }
-
-  /* Home: make the accepted winning motion explicit so both directions use one curve. */
   html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .dashboard.d51-dashboard-shell > .col-center.m55-enter-left{
-    animation:m55EnterLeft var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
+  body .d6-b17-expense-sheet.m510-swipe-surface :is(.d6-d10-night-popover,.d6-d26-travel-night-popover).ui07b-stay-popover-open{
+    animation:ui07bStayPopoverIn 145ms cubic-bezier(.22,.72,.28,1) both!important;
+    will-change:opacity,translate!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface :is(.d6-d10-night-popover,.d6-d26-travel-night-popover).ui07b-stay-popover-closing{
+    animation:ui07bStayPopoverOut 145ms cubic-bezier(.22,.72,.28,1) both!important;
     pointer-events:none!important;
-    will-change:transform!important;
-  }
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .dashboard.d51-dashboard-shell > .col-center.m55-enter-right{
-    animation:m55EnterRight var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .dashboard.d51-dashboard-shell > .col-center.m55-exit-left{
-    animation:m55ExitLeft var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .dashboard.d51-dashboard-shell > .col-center.m55-exit-right{
-    animation:m55ExitRight var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-
-  /* Expense: the full-screen overlay is the canonical moving page owner. */
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .travel-calc-overlay.m55-enter-left{
-    animation:m55EnterLeft var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .travel-calc-overlay.m55-enter-right{
-    animation:m55EnterRight var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .travel-calc-overlay.m55-exit-left{
-    animation:m55ExitLeft var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .travel-calc-overlay.m55-exit-right{
-    animation:m55ExitRight var(--ui07a-slide-ms) var(--ui07a-slide-ease) both!important;
-    pointer-events:none!important;
-    will-change:transform!important;
-  }
-
-  /* Disable the legacy nested-sheet animation so Expense is never animated twice. */
-  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
-  body .travel-calc-overlay:is(.m55-enter-left,.m55-enter-right,.m55-exit-left,.m55-exit-right) .travel-calc-sheet.d6-b17-expense-sheet{
-    animation:none!important;
-    transform:none!important;
-    will-change:auto!important;
+    will-change:opacity,translate!important;
   }
 }
+@media(prefers-reduced-motion:reduce){
+  .ui07b-stay-popover-open,.ui07b-stay-popover-closing{animation-duration:1ms!important;}
+}
 </style>
-<!-- UI-07A 2026-09-13: Home/Expense/PiP transition owner unified at full-screen page level; 420ms accepted motion preserved. -->
+<!-- UI-07B 2026-09-13: Mobile stay popovers now share a 145ms enter/exit presentation lifecycle; calculations unchanged. -->
 
 </body>
 </html>
