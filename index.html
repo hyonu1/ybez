@@ -20394,6 +20394,7 @@ html body .input-region-tag.region-gangwon,html body .sug-region-tag.region-gang
 
   html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .search-wrap{padding:12px 16px 9px !important;gap:6px !important;}
   html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .search-inputs-row{gap:6px !important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact) .search-inputs-row.d2-route-editor.no-via{gap:0 !important;row-gap:0 !important;}
   html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet) .ac-input-wrap .input-box{
     height:64px !important;
     padding:0 13px 0 15px !important;
@@ -24844,6 +24845,18 @@ html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-tablet)
     line-height:1.35!important;
   }
 
+}
+</style>
+
+<style id="ybez-v10-desktop-route-input-paint-fix">
+/* V10 · Desktop route input paint fix.
+   Keep the verified geometry/borders unchanged; only neutralize the inner
+   route input paint layer that masks the rounded outer border at wide Desktop widths. */
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact) body .d2-route-editor .d2-route-input .input-box{
+    background:transparent !important;
+    box-shadow:none !important;
+  }
 }
 </style>
 
