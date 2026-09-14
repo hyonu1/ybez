@@ -54420,6 +54420,480 @@ html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact
 }
 </style>
 
+
+
+<style id="ybez-v11-desktop-trip-condition-stable-20260914">
+/* V11 · Desktop trip-condition stabilization.
+   Approved visual baseline: verified wide-Desktop layout from 2026-09-14.
+   Scope is normal Desktop only; Mini / Tablet / Compact / Mobile remain untouched.
+   No calculation, state, route, fare, lodging, deduction, or menu logic changes. */
+@media (min-width:1100px){
+  /* One Desktop grammar for 출장일수 across the 1666px breakpoint. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-main-row{
+    display:grid!important;
+    grid-template-columns:minmax(84px,1fr) auto minmax(84px,1fr)!important;
+    align-items:center!important;
+    justify-content:start!important;
+    gap:6px!important;
+    min-height:54px!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    box-sizing:border-box!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-main-row .trip-main-label{
+    grid-column:1!important;
+    justify-self:start!important;
+    margin:0!important;
+    font-size:20px!important;
+    white-space:nowrap!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-main-row .trip-days-control{
+    grid-column:2!important;
+    justify-self:center!important;
+    margin:0!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-main-row .trip-days-control .m510-step-btn{
+    width:30px!important;
+    min-width:30px!important;
+    height:30px!important;
+    min-height:30px!important;
+    flex:0 0 30px!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-main-row .trip-days-input{
+    width:46px!important;
+    min-width:46px!important;
+    height:32px!important;
+    min-height:32px!important;
+  }
+
+  /* Keep 일반출장 / 연수출장 and the stay row on the approved 304px centered rail. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-condition-box{
+    position:relative!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-condition-grid{
+    display:grid!important;
+    width:min(100%,304px)!important;
+    max-width:304px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    justify-content:center!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:35px 35px!important;
+    grid-auto-rows:35px!important;
+    column-gap:8px!important;
+    row-gap:6px!important;
+    min-height:76px!important;
+    align-items:start!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-condition-grid > .trip-choice-btn,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-condition-grid .trip-stay-option > .trip-choice-btn{
+    width:100%!important;
+    min-width:0!important;
+    height:35px!important;
+    min-height:35px!important;
+  }
+
+  /* Bottom utility rail inside the condition card: 설명보기 left / 합숙일 right. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-help-wrap{
+    position:absolute!important;
+    top:auto!important;
+    right:9px!important;
+    bottom:8px!important;
+    left:9px!important;
+    width:auto!important;
+    height:34px!important;
+    margin:0!important;
+    padding:0!important;
+    z-index:8!important;
+    overflow:visible!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-help-wrap .trip-help-toggle-row{
+    position:static!important;
+    display:block!important;
+    width:100%!important;
+    height:34px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-help-wrap .trip-help-toggle{
+    position:absolute!important;
+    top:auto!important;
+    right:auto!important;
+    bottom:0!important;
+    left:0!important;
+    margin:0!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .d42-desktop-help-wrap .training-schedule-btn.c9-desktop-schedule{
+    position:absolute!important;
+    top:auto!important;
+    right:0!important;
+    bottom:0!important;
+    left:auto!important;
+    margin:0!important;
+  }
+}
+</style>
+
+
+
+<style id="ybez-v12-fixed-desktop-1920-20260914">
+/* V12 · Normal Desktop fixed 1920 viewport shell support.
+   - Normal Desktop is rendered inside a 1920px same-page iframe so CSS media queries
+     and viewport-dependent visual alignment JS behave exactly as they do at 1920px.
+   - Mini / Tablet / Compact are not restyled here.
+   - Mobile remains on the original page when opened below 700px.
+   - Click-through fix keeps 현지숙박 / 합숙제공 clickable while preserving
+     설명보기 / 합숙일 미지정 as interactive controls.
+   - 합숙일 미지정 popup behavior itself is intentionally not changed in V12. */
+@media (min-width:700px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-help-wrap.d42-desktop-help-wrap{
+    pointer-events:none!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-help-wrap.d42-desktop-help-wrap .trip-help-toggle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d42-desktop-tablet-presentation .trip-help-wrap.d42-desktop-help-wrap .training-schedule-btn{
+    pointer-events:auto!important;
+  }
+}
+
+html.ybez-fixed1920-shell,
+html.ybez-fixed1920-shell body{
+  margin:0!important;
+  padding:0!important;
+}
+html.ybez-fixed1920-shell body{
+  background:#fff;
+}
+#ybez-fixed-1920-frame{
+  display:block;
+  border:0;
+  margin:0;
+  padding:0;
+  background:#fff;
+}
+</style>
+
+<script id="ybez-v12-fixed-desktop-1920-shell-20260914">
+/* V12 · Fixed 1920 Normal Desktop shell.
+   This is the production form of the DevTools test that was visually verified on 2026-09-14.
+   The inner document gets a real 1920px viewport, so existing @media rules and
+   d5-4-desktop-axis-align keep their native 1920 behavior without element-by-element patches. */
+(function () {
+  "use strict";
+
+  var FLAG = "__ybez_fixed1920";
+  var params;
+  try {
+    params = new URLSearchParams(window.location.search || "");
+  } catch (e) {
+    params = null;
+  }
+
+  /* Inner document: render the existing app normally. */
+  if (params && params.get(FLAG) === "1") {
+    document.documentElement.classList.add("ybez-fixed1920-inner");
+    return;
+  }
+
+  /* Native mobile entry is preserved. */
+  if (window.innerWidth < 700) return;
+
+  function startFixedDesktopShell() {
+    var root = document.getElementById("root");
+    if (!root || document.getElementById("ybez-fixed-1920-frame")) return;
+
+    var html = document.documentElement;
+    var body = document.body;
+    var saved = {
+      htmlStyle: html.getAttribute("style"),
+      bodyStyle: body.getAttribute("style"),
+      rootStyle: root.getAttribute("style")
+    };
+
+    html.classList.add("ybez-fixed1920-shell");
+    root.style.setProperty("display", "none", "important");
+
+    var frame = document.createElement("iframe");
+    frame.id = "ybez-fixed-1920-frame";
+    frame.title = "YBEZ Fixed Desktop 1920";
+
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.set(FLAG, "1");
+      frame.src = u.toString();
+    } catch (e) {
+      var sep = window.location.href.indexOf("?") >= 0 ? "&" : "?";
+      frame.src = window.location.href + sep + FLAG + "=1";
+    }
+
+    frame.style.height = "100vh";
+    frame.style.minHeight = "100vh";
+    frame.style.maxHeight = "100vh";
+
+    function syncFrameHeightToScrollbarGutter() {
+      /* V13: reserve the outer horizontal scrollbar from first paint, then keep
+         the iframe above that reserved strip so the bottom action bar is never covered. */
+      var usableHeight = Math.max(document.documentElement.clientHeight || window.innerHeight || 0, 320);
+      frame.style.setProperty("height", usableHeight + "px", "important");
+      frame.style.setProperty("min-height", usableHeight + "px", "important");
+      frame.style.setProperty("max-height", usableHeight + "px", "important");
+      frame.style.setProperty("box-sizing", "border-box", "important");
+    }
+
+    function setOuterFixed1920() {
+      html.style.setProperty("width", "1920px", "important");
+      html.style.setProperty("min-width", "1920px", "important");
+      html.style.setProperty("overflow-x", "scroll", "important");
+      html.style.setProperty("overflow-y", "hidden", "important");
+
+      body.style.setProperty("margin", "0", "important");
+      body.style.setProperty("padding", "0", "important");
+      body.style.setProperty("width", "1920px", "important");
+      body.style.setProperty("min-width", "1920px", "important");
+      body.style.setProperty("height", "100vh", "important");
+      body.style.setProperty("overflow", "hidden", "important");
+
+      frame.style.width = "1920px";
+      frame.style.minWidth = "1920px";
+      frame.style.maxWidth = "1920px";
+    }
+
+    function setOuterAdaptiveWidth() {
+      var w = Math.max(window.innerWidth || 0, 320);
+
+      html.style.setProperty("width", "100%", "important");
+      html.style.setProperty("min-width", "0", "important");
+      html.style.setProperty("overflow-x", "hidden", "important");
+      html.style.setProperty("overflow-y", "hidden", "important");
+
+      body.style.setProperty("margin", "0", "important");
+      body.style.setProperty("padding", "0", "important");
+      body.style.setProperty("width", "100%", "important");
+      body.style.setProperty("min-width", "0", "important");
+      body.style.setProperty("height", "100vh", "important");
+      body.style.setProperty("overflow", "hidden", "important");
+
+      frame.style.width = w + "px";
+      frame.style.minWidth = w + "px";
+      frame.style.maxWidth = w + "px";
+    }
+
+    function innerUsesAlternateDesktopMode() {
+      try {
+        var de = frame.contentDocument && frame.contentDocument.documentElement;
+        if (!de) return false;
+        return de.classList.contains("ybez-desktop-mini") ||
+               de.classList.contains("ybez-desktop-tablet") ||
+               de.classList.contains("ybez-desktop-compact");
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function syncShellWidth() {
+      /* Normal Desktop remains a real 1920px viewport.
+         Alternate modes may keep their own responsive viewport. */
+      if (window.innerWidth < 700 || innerUsesAlternateDesktopMode()) {
+        setOuterAdaptiveWidth();
+      } else {
+        setOuterFixed1920();
+      }
+      requestAnimationFrame(syncFrameHeightToScrollbarGutter);
+    }
+
+    frame.addEventListener("load", function () {
+      syncShellWidth();
+
+      try {
+        var innerHtml = frame.contentDocument.documentElement;
+        var observer = new MutationObserver(syncShellWidth);
+        observer.observe(innerHtml, { attributes: true, attributeFilter: ["class"] });
+        frame.__ybezModeObserver = observer;
+      } catch (e) {
+        /* Same-page iframe is expected to be same-origin; if not, Normal Desktop
+           still remains fixed 1920, matching the verified test. */
+      }
+    }, { once: true });
+
+    window.addEventListener("resize", syncShellWidth, { passive: true });
+    body.appendChild(frame);
+    setOuterFixed1920();
+    requestAnimationFrame(syncFrameHeightToScrollbarGutter);
+
+    /* Debug / emergency restore helper; not used by normal UI. */
+    window.__ybezFixed1920Restore = function () {
+      try {
+        if (frame.__ybezModeObserver) frame.__ybezModeObserver.disconnect();
+      } catch (e) {}
+      window.removeEventListener("resize", syncShellWidth);
+      frame.remove();
+      html.classList.remove("ybez-fixed1920-shell");
+
+      function restoreAttr(el, value) {
+        if (value == null) el.removeAttribute("style");
+        else el.setAttribute("style", value);
+      }
+      restoreAttr(html, saved.htmlStyle);
+      restoreAttr(body, saved.bodyStyle);
+      restoreAttr(root, saved.rootStyle);
+      delete window.__ybezFixed1920Restore;
+    };
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startFixedDesktopShell, { once: true });
+  } else {
+    startFixedDesktopShell();
+  }
+})();
+</script>
+
+<style id="ybez-v13-fixed1920-finish-20260914">
+/* V13 · Fixed-1920 finish, based only on DevTools-verified adjustments.
+   Normal Desktop only. Mini / Tablet / Compact / native Mobile stay untouched.
+
+   1) Reserve vertical scrollbar width in Route Info (left) + YBEZ main (center)
+      from first paint. Right expense panel already owns its stable scrollbar lane.
+   2) Reduce the lodging control-row vertical gap using real flow (not translate),
+      so the lodging section bottom rises with the buttons.
+*/
+html.ybez-fixed1920-inner:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+.dashboard.d51-dashboard-shell > .col-left,
+html.ybez-fixed1920-inner:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+.dashboard.d51-dashboard-shell > .col-center{
+  overflow-y:auto!important;
+  scrollbar-gutter:stable!important;
+}
+
+html.ybez-fixed1920-inner:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+.dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+.expense-note-row.travel-class-moving-row{
+  margin-top:8px!important;
+  margin-bottom:2px!important;
+  min-height:0!important;
+}
+html.ybez-fixed1920-inner:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+.dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+.travel-class-moving-row .ybez-lodging-side-stack,
+html.ybez-fixed1920-inner:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+.dashboard.d51-dashboard-shell .d42-desktop-tablet-presentation
+.lodging-expense-item{
+  min-height:0!important;
+}
+</style>
+
+<script id="ybez-v13-fixed1920-axis-finish-20260914">
+/* V13 · Align the four right-side auxiliary controls to the physical right edge
+   of the lodging receipt amount INPUT. This is intentionally geometry-based:
+   the Fixed-1920 viewport makes the axis stable, while a MutationObserver reapplies
+   it when React adds/removes rural/ferry rows or lodging controls. */
+(function () {
+  "use strict";
+
+  if (!document.documentElement.classList.contains("ybez-fixed1920-inner")) return;
+
+  var scheduled = false;
+  var observer = null;
+
+  function isAlternateMode() {
+    var de = document.documentElement;
+    return de.classList.contains("ybez-desktop-mini") ||
+           de.classList.contains("ybez-desktop-tablet") ||
+           de.classList.contains("ybez-desktop-compact") ||
+           window.innerWidth < 700;
+  }
+
+  function clearAxis() {
+    document.querySelectorAll(".d42-desktop-tablet-presentation .ui09-expense-special-row > .ui09-special-quick-btn")
+      .forEach(function (btn) { btn.style.removeProperty("translate"); });
+    var stack = document.querySelector(".d42-desktop-tablet-presentation .travel-class-moving-row .ybez-lodging-side-stack");
+    if (stack) stack.style.removeProperty("translate");
+  }
+
+  function alignAxis() {
+    scheduled = false;
+    if (isAlternateMode()) {
+      clearAxis();
+      return;
+    }
+
+    var panel = document.querySelector(".col-right");
+    if (!panel) return;
+
+    var refInput = panel.querySelector(
+      '.lodging-expense-item .lodging-receipt-row input[aria-label="숙박영수증 총액"]'
+    ) || panel.querySelector(
+      ".lodging-expense-item .lodging-receipt-row .expense-money-input.ledger-money-input"
+    );
+    if (!refInput || !refInput.getClientRects().length) return;
+
+    var targetRight = refInput.getBoundingClientRect().right;
+
+    /* 농어촌버스 / 승선요금 quick buttons */
+    panel.querySelectorAll(
+      ".d42-desktop-tablet-presentation .ui09-expense-special-row > .ui09-special-quick-btn"
+    ).forEach(function (btn) {
+      if (!btn.getClientRects().length) return;
+      btn.style.removeProperty("translate");
+      var dx = targetRight - btn.getBoundingClientRect().right;
+      btn.style.setProperty("translate", dx + "px 0px", "important");
+    });
+
+    /* 친지집 / 이동일 move as one stack so their popovers keep the same anchor. */
+    var stack = panel.querySelector(
+      ".d42-desktop-tablet-presentation .travel-class-moving-row .ybez-lodging-side-stack"
+    );
+    if (stack && stack.getClientRects().length) {
+      stack.style.removeProperty("translate");
+      var sdx = targetRight - stack.getBoundingClientRect().right;
+      stack.style.setProperty("translate", sdx + "px 0px", "important");
+    }
+  }
+
+  function scheduleAlign() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(alignAxis);
+  }
+
+  function start() {
+    scheduleAlign();
+    observer = new MutationObserver(scheduleAlign);
+    observer.observe(document.body, { childList:true, subtree:true });
+    window.addEventListener("resize", scheduleAlign, { passive:true });
+    window.__ybezV13AxisFinish = {
+      realign: scheduleAlign,
+      disconnect: function () {
+        try { if (observer) observer.disconnect(); } catch (_) {}
+        window.removeEventListener("resize", scheduleAlign);
+        clearAxis();
+      }
+    };
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once:true });
+  } else {
+    start();
+  }
+})();
+</script>
+
 </body>
 </html>
 
