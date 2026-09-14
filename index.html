@@ -15955,7 +15955,7 @@ html.ybez-desktop-compact .d6-b17-route-open-btn{margin-top:3px !important;margi
 /* One stable compact ledger axis for every non-Desktop expense sheet.
    label | 왕복/총액 | 감액/input-start | breathing room | amount/input */
 .d6-b17-expense-sheet{
-  --d6-b18b-label:clamp(60px,16vw,72px);
+  --d6-b18b-label:clamp(66px,17vw,78px);
   --d6-b18b-tag:clamp(30px,8vw,38px);
   --d6-b18b-action:clamp(96px,25vw,116px);
   --d6-b18b-money:clamp(86px,24vw,112px);
@@ -26149,6 +26149,316 @@ html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact
   }
 }
 </style>
+
+
+<style id="ybez-menu-image-final-20260914">
+/* MENU-FINAL 2026-09-14
+   Approved scope only:
+   Desktop  [도움말][패들릿][증빙][즐겨찾기][히스토리]
+   Mobile   < [패들릿][증빙][히스토리][여비계산/홈] >
+   Existing handlers/state/popups remain intact. Mini/Tablet/Compact are not restyled here. */
+
+.ybez-final-menu-image{
+  display:block!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+
+/* Desktop: supplied image itself is the visible button; no text label under it. */
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar{
+    min-height:78px!important;
+    padding:8px 16px 8px!important;
+    gap:22px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .action-item{
+    min-width:62px!important;
+    gap:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-label{
+    display:none!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn{
+    width:62px!important;
+    height:62px!important;
+    min-width:62px!important;
+    min-height:62px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:inherit!important;
+    overflow:visible!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn:hover,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn.active{
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    transform:translateY(-1px) scale(1.03)!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn:active{
+    transform:translateY(1px) scale(.97)!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn .menu-icon.ybez-final-menu-image{
+    width:60px!important;
+    height:60px!important;
+  }
+
+  /* Visual and keyboard grouping target order follows approved layout. */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .action-item:nth-child(1){order:1!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .action-item:nth-child(2){order:2!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .d22-proof-item{order:3!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .d6-b17-favorite-item{order:4!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .action-item:nth-child(4){order:5!important;}
+}
+
+/* Real Mobile only: 4 image buttons, labels hidden, single edge chevrons retained as visual swipe hints. */
+@media (max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    min-height:72px!important;
+    padding-left:18px!important;
+    padding-right:18px!important;
+    gap:4px!important;
+    align-items:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m3-nav-label,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-label{
+    display:none!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m3-nav-item{
+    min-height:64px!important;
+    height:64px!important;
+    padding:2px 0!important;
+    gap:0!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle{
+    width:58px!important;
+    height:58px!important;
+    min-width:58px!important;
+    min-height:58px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle .ybez-final-menu-image,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle .ybez-final-menu-image{
+    width:58px!important;
+    height:58px!important;
+    padding:0!important;
+    object-fit:contain!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m3-nav-item.active .m34-nav-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-btn.active .m5-context-circle{
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m3-nav-item:active:not(:disabled) .m34-nav-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-btn:active .m5-context-circle{
+    transform:scale(.95)!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav::before,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav::before{
+    content:"‹"!important;
+    left:3px!important;
+    letter-spacing:0!important;
+    font-size:13px!important;
+    opacity:.52!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav::after,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav::after{
+    content:"›"!important;
+    right:3px!important;
+    letter-spacing:0!important;
+    font-size:13px!important;
+    opacity:.52!important;
+  }
+}
+
+@media (max-width:380px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle .ybez-final-menu-image,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle .ybez-final-menu-image{
+    width:54px!important;
+    height:54px!important;
+    min-width:54px!important;
+    min-height:54px!important;
+  }
+}
+</style>
+<!-- MENU-FINAL 2026-09-14: supplied PNG menu images + approved Desktop/Mobile order; labels hidden visually. -->
+
+
+<style id="ybez-menu-image-final-v2-20260914">
+/* MENU-FINAL v2
+   - normalized 256px PNG assets
+   - no visible labels
+   - Desktop: 5 equal-gap large icons, centered and moderately tightened
+   - Mobile: 4 large image-only icons + edge chevrons
+*/
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar{
+    min-height:86px!important;
+    padding:8px 16px!important;
+    gap:12px!important;
+    justify-content:center!important;
+    align-items:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar > .action-item{
+    min-width:68px!important;
+    width:68px!important;
+    gap:0!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-label{
+    display:none!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn{
+    width:68px!important;
+    height:68px!important;
+    min-width:68px!important;
+    min-height:68px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.d22-action-bar .action-btn .menu-icon.ybez-final-menu-image{
+    width:68px!important;
+    height:68px!important;
+    max-width:none!important;
+    max-height:none!important;
+    padding:0!important;
+    object-fit:contain!important;
+  }
+}
+
+@media (max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    min-height:78px!important;
+    padding-left:15px!important;
+    padding-right:15px!important;
+    gap:3px!important;
+    align-items:center!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m3-nav-label,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-label{
+    display:none!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle{
+    width:62px!important;
+    height:62px!important;
+    min-width:62px!important;
+    min-height:62px!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle .ybez-final-menu-image,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle .ybez-final-menu-image{
+    width:62px!important;
+    height:62px!important;
+    max-width:none!important;
+    max-height:none!important;
+    padding:0!important;
+    object-fit:contain!important;
+  }
+}
+@media (max-width:380px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .mobile-bottom-nav.m3-bottom-nav .m34-nav-circle .ybez-final-menu-image,
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .m5-context-nav .m5-context-circle .ybez-final-menu-image{
+    width:57px!important;
+    height:57px!important;
+    min-width:57px!important;
+    min-height:57px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -43335,6 +43645,29 @@ const App = () => {
         /* Route keeps the existing Korea-map asset; Home keeps the existing house glyph. */
         return React.createElement(M5NavGlyph, { type, className: glyphClass });
     };
+    // MENU-FINAL 2026-09-14: Desktop/real-Mobile menu image assets only.
+    // Existing handlers/state stay untouched; non-target modes can keep R108CMenuGlyph.
+    const YbezFinalMenuImage = ({ type, className = "" }) => {
+        const sources = {
+            help: "./menu_help.png",
+            padlet: "./menu_padlet.png",
+            proof: "./menu_proof.png",
+            favorite: "./menu_favorite.png",
+            history: "./menu_history.png",
+            expense: "./menu_calc.png",
+            home: "./menu_home.png"
+        };
+        const src = sources[type];
+        if (!src) return React.createElement(R108CMenuGlyph, { type, className });
+        return React.createElement("img", {
+            src,
+            className: `${className} ybez-final-menu-image`.trim(),
+            alt: "",
+            "aria-hidden": "true",
+            draggable: false
+        });
+    };
+
     // M5.14: transition 중에는 incoming 화면을 현재 page로 표시한다.
     const mobilePagerMode = mobileRouteMotion.includes("enter")
         ? "route"
@@ -43994,6 +44327,10 @@ const App = () => {
         const openFavorite = () => { setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(true); };
         const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
         const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
+        const openPadlet = () => {
+            closePopups();
+            window.open("https://padlet.com/jbyhee/at-4m26339lwedx23dc", "_blank", "noopener,noreferrer");
+        };
         const goHome = () => { closePopups(); if (mode === "route") mobileRouteToHome(); else mobileExpenseToHome(); };
         const goExpense = () => { if (!result) return; closePopups(); mobileRouteToExpense(); };
         const goRoute = () => {
@@ -44015,9 +44352,9 @@ const App = () => {
             ["history", "히스토리", openHistory]
         ];
         const mobileButtonsM6A2 = [
-            ["favorite", "즐겨찾기", openFavorite],
-            ["history", "히스토리", openHistory],
+            ["padlet", "패들릿", openPadlet],
             ["proof", "증빙", openProof],
+            ["history", "히스토리", openHistory],
             ["home", "홈", goHome]
         ];
 
@@ -44036,7 +44373,9 @@ const App = () => {
                 title: label
             },
                 React.createElement("span", { className: "m5-context-circle" },
-                    React.createElement(R108CMenuGlyph, { type })),
+                    isDesktopMini
+                        ? React.createElement(R108CMenuGlyph, { type })
+                        : React.createElement(YbezFinalMenuImage, { type, className: "m5-context-glyph" })),
                 React.createElement("span", { className: "m5-context-label" }, label))));
     };
 
@@ -44053,6 +44392,11 @@ const App = () => {
             setMobileDetailOpen(false); setShowDetail(false);
             setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false);
         };
+        const openPadlet = () => {
+            setMobileDetailOpen(false); setShowDetail(false);
+            setShowFav(false); setShowHist(false); setShowProof(false); setShowProofInfo(false);
+            window.open("https://padlet.com/jbyhee/at-4m26339lwedx23dc", "_blank", "noopener,noreferrer");
+        };
 
         let buttons;
         if (isDesktopMini) {
@@ -44066,16 +44410,15 @@ const App = () => {
         } else {
             buttons = mobilePagerEnabledM6A2
                 ? [
-                    ["favorite", "즐겨찾기", openFavorite, false],
-                    ["history", "히스토리", openHistory, false],
+                    ["padlet", "패들릿", openPadlet, false],
                     ["proof", "증빙", openProof, false],
+                    ["history", "히스토리", openHistory, false],
                     ["expense", "여비계산", () => { if (result) mobileHomeToExpense(); }, !result]
                 ]
                 : [
-                    ["route", "경로정보", openRouteSheetB17, !result],
-                    ["favorite", "즐겨찾기", openFavorite, false],
-                    ["history", "히스토리", openHistory, false],
+                    ["padlet", "패들릿", openPadlet, false],
                     ["proof", "증빙", openProof, false],
+                    ["history", "히스토리", openHistory, false],
                     ["expense", "여비계산", openExpenseSheetB17, !result]
                 ];
         }
@@ -44090,7 +44433,9 @@ const App = () => {
                 title: label
             },
                 React.createElement("span", { className: "m34-nav-circle" },
-                    React.createElement(R108CMenuGlyph, { type })),
+                    isDesktopMini
+                        ? React.createElement(R108CMenuGlyph, { type })
+                        : React.createElement(YbezFinalMenuImage, { type, className: "m3-nav-icon" })),
                 React.createElement("span", { className: "m3-nav-label" }, label))));
     };
 
@@ -44109,6 +44454,10 @@ const App = () => {
         const openFavorite = () => { setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(true); };
         const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
         const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
+        const openPadlet = () => {
+            closePopups();
+            window.open("https://padlet.com/jbyhee/at-4m26339lwedx23dc", "_blank", "noopener,noreferrer");
+        };
 
         const onExpense = mobilePagerMode === "expense" || (showDetail && !mobileHomeMotion.includes("enter"));
         const toggleSurface = () => {
@@ -44118,9 +44467,9 @@ const App = () => {
         };
 
         const buttons = [
-            ["favorite", "즐겨찾기", openFavorite, false],
-            ["history", "히스토리", openHistory, false],
+            ["padlet", "패들릿", openPadlet, false],
             ["proof", "증빙", openProof, false],
+            ["history", "히스토리", openHistory, false],
             [onExpense ? "home" : "expense", onExpense ? "홈" : "여비계산", toggleSurface, !onExpense && !result]
         ];
 
@@ -44138,7 +44487,7 @@ const App = () => {
                 title: label
             },
                 React.createElement("span", { className: "m34-nav-circle" },
-                    React.createElement(R108CMenuGlyph, { type })),
+                    React.createElement(YbezFinalMenuImage, { type, className: "m3-nav-icon" })),
                 React.createElement("span", { className: "m3-nav-label" }, label)))),
             document.body
         );
@@ -44900,7 +45249,7 @@ const App = () => {
                             onClick: (e) => e.stopPropagation(),
                             title: "도움말 · 링크 준비중",
                             "aria-label": "도움말 링크 준비중"
-                        }, React.createElement(R108CMenuGlyph, { type: "help", className: "menu-icon" })),
+                        }, React.createElement(YbezFinalMenuImage, { type: "help", className: "menu-icon" })),
                         React.createElement("span", { className: "action-label" }, "?")),
                     React.createElement("div", { className: "action-item" },
                         React.createElement("button", {
@@ -44912,11 +45261,11 @@ const App = () => {
                             },
                             title: "패들렛",
                             "aria-label": "패들렛 열기"
-                        }, React.createElement(R108CMenuGlyph, { type: "padlet", className: "menu-icon" })),
+                        }, React.createElement(YbezFinalMenuImage, { type: "padlet", className: "menu-icon" })),
                         React.createElement("span", { className: "action-label" }, "패들렛")),
                     React.createElement("div", { className: "action-item d6-b17-favorite-item", style: { position: "relative" }, onPointerDown: e => e.stopPropagation() },
                         React.createElement("button", { className: `action-btn fav-btn ${showFav ? "active" : ""}`, onClick: (e) => { e.stopPropagation(); setShowHist(false); setShowProof(false); setShowProofInfo(false); setShowFav(v => !v); }, title: "즐겨찾기" },
-                            React.createElement(R108CMenuGlyph, { type: "favorite", className: "menu-icon" })),
+                            React.createElement(YbezFinalMenuImage, { type: "favorite", className: "menu-icon" })),
                         React.createElement("span", { className: "action-label" }, "즐겨찾기"),
                         showFav && React.createElement("div", { className: "hist-popup fav-popup", onClick: e => e.stopPropagation() },
                             React.createElement("div", { className: "fav-popup-head" },
@@ -44929,7 +45278,7 @@ const App = () => {
                                     React.createElement("button", { type: "button", className: "fav-delete", title: "즐겨찾기 삭제", "aria-label": `${h.from}에서 ${h.to} 즐겨찾기 삭제`, onClick: (e) => { e.stopPropagation(); removeFavorite(i); } }, "×"))))),
                     React.createElement("div", { className: "action-item", style: { position: "relative" }, onPointerDown: e => e.stopPropagation() },
                         React.createElement("button", { className: `action-btn hist-btn ${showHist ? "active" : ""}`, onClick: (e) => { e.stopPropagation(); setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(v => !v); }, title: "히스토리" },
-                            React.createElement(R108CMenuGlyph, { type: "history", className: "menu-icon" })),
+                            React.createElement(YbezFinalMenuImage, { type: "history", className: "menu-icon" })),
                         React.createElement("span", { className: "action-label" }, "히스토리"),
                         showHist && React.createElement("div", { className: "hist-popup", onClick: e => e.stopPropagation() },
                             React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#AEAEB2", padding: "4px 14px 8px", borderBottom: "1px solid #F2F2F7" } }, "최근 검색"),
@@ -44951,7 +45300,7 @@ const App = () => {
                             },
                             title: "받아야 할 증빙"
                         },
-                            React.createElement(R108CMenuGlyph, { type: "proof", className: "menu-icon" })),
+                            React.createElement(YbezFinalMenuImage, { type: "proof", className: "menu-icon" })),
                         React.createElement("span", { className: "action-label" }, "증빙")))),
             React.createElement(MobileResultCard, null),
             React.createElement(MobileInlineRoute4I, null),
@@ -46244,7 +46593,7 @@ const App = () => {
                 React.createElement("div", { className: "expense-item" },
                     React.createElement("div", { className: "expense-main-row" },
                         React.createElement("div", { className: "expense-label-cell" },
-                            React.createElement("span", { className: "expense-result-label" }, "교통비(합계)")),
+                            React.createElement("span", { className: "expense-result-label" }, "교통비 합계")),
                         React.createElement("div", { className: "expense-tag-cell" },
                             (!ui09ExpenseQuickEnabled && !mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복"),
                             (desktopD39Layout || mobilePagerEnabledM6A2) && React.createElement("span", { className: `tag-side expense-tag-compact c9-payment-tag ${tagStyle("왕복")}` }, "영수증처리")),
@@ -46474,7 +46823,7 @@ const App = () => {
                     React.createElement("div", { className: "expense-item" },
                         React.createElement("div", { className: "expense-main-row" },
                             React.createElement("div", { className: "expense-label-cell" },
-                                React.createElement("span", { className: "expense-result-label" }, "기타교통비(합계)")),
+                                React.createElement("span", { className: "expense-result-label" }, "기타교통비 합계")),
                             React.createElement("div", { className: "expense-tag-cell" },
                                 !ui09ExpenseQuickEnabled && React.createElement("span", { className: `tag-side expense-tag-compact ${tagStyle("왕복")}` }, "왕복")),
                             React.createElement("div", null),
@@ -53907,6 +54256,157 @@ html:not(.ybez-desktop-tablet):not(.ybez-desktop-mini):not(.ybez-desktop-compact
 </style>
 <!-- VFLOW-P3 2026-09-14: 종합 정렬 패치 끝. 5번(감액 중앙정렬)은 D5.4-AXIS-ALIGN JS와
      충돌 확인되어 보류. 3/8/7번은 best-effort, 스크린샷 대조 후 미세보정 필요. -->
+
+<style id="ybez-desktop-menu-final-v4-20260914">
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar{
+    display:grid!important;
+    grid-template-columns:repeat(5,62px)!important;
+    column-gap:24px!important;
+    row-gap:0!important;
+    justify-content:center!important;
+    justify-items:center!important;
+    align-items:center!important;
+    width:100%!important;
+    min-height:80px!important;
+    padding:8px 0!important;
+    margin:0!important;
+    background:rgba(248,250,252,.97)!important;
+    border-top:1px solid #DCE3EB!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar > .action-item{
+    width:62px!important;
+    min-width:62px!important;
+    max-width:62px!important;
+    height:62px!important;
+    min-height:62px!important;
+    margin:0!important;
+    padding:0!important;
+    gap:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar .action-label{
+    display:none!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar .action-btn{
+    width:62px!important;
+    height:62px!important;
+    min-width:62px!important;
+    min-height:62px!important;
+    max-width:62px!important;
+    max-height:62px!important;
+    flex:0 0 62px!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    background-image:none!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    transform:none!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar .action-btn img.menu-icon.ybez-final-menu-image{
+    display:block!important;
+    width:62px!important;
+    height:62px!important;
+    min-width:62px!important;
+    min-height:62px!important;
+    max-width:62px!important;
+    max-height:62px!important;
+    margin:0!important;
+    padding:0!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:none!important;
+  }
+
+  /* approved visual order: ? → Padlet → Proof → Favorite → History */
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar > .action-item:nth-child(1){order:1!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar > .action-item:nth-child(2){order:2!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar > .d22-proof-item{order:3!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar > .d6-b17-favorite-item{order:4!important;}
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar > .action-item:nth-child(4){order:5!important;}
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar .action-btn:hover{
+    transform:translateY(-1px) scale(1.02)!important;
+  }
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .bottom-action-bar.desktop-only.d22-action-bar .action-btn:active{
+    transform:translateY(1px) scale(.98)!important;
+  }
+}
+</style>
+
+
+<style id="ybez-desktop-menu-bottom-anchor-v5-20260914">
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell .bottom-action-bar.desktop-only.d22-action-bar{
+    margin-top:auto!important;
+    margin-right:0!important;
+    margin-bottom:0!important;
+    margin-left:0!important;
+    flex:0 0 auto!important;
+    align-self:stretch!important;
+  }
+}
+</style>
+
+
+<style id="ybez-desktop-menu-axis-v6-20260914">
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell .bottom-action-bar.desktop-only.d22-action-bar{
+    height:78px!important;
+    min-height:78px!important;
+    max-height:78px!important;
+    flex:0 0 78px!important;
+    flex-basis:78px!important;
+    padding:8px 14px 9px!important;
+    box-sizing:border-box!important;
+    margin-top:auto!important;
+    margin-right:0!important;
+    margin-bottom:0!important;
+    margin-left:0!important;
+  }
+}
+</style>
+
+
+<style id="ybez-desktop-menu-width-v8-20260914">
+@media (min-width:1100px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .dashboard.d51-dashboard-shell
+  .result-wrap
+  .bottom-action-bar.desktop-only.d22-action-bar{
+    width:100%!important;
+    min-width:100%!important;
+    max-width:100%!important;
+  }
+}
+</style>
+
 </body>
 </html>
 
