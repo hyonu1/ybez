@@ -26472,6 +26472,11 @@ html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact
 }
 </style>
 
+
+<script id="ybez-build-marker-stay-v1">
+window.__YBEZ_BUILD__ = "STAY-V1-20260915";
+console.info("[YBEZ BUILD] STAY-V1-20260915");
+</script>
 </head>
 <body>
 <!-- R10.2 20260822: deduction modal unit UX; transport proof/passenger/institution half-unit counters; gov daily remains integer -->
@@ -28511,6 +28516,18 @@ const App = () => {
     // Document Picture-in-Picture만 사용해 항상 위 특성을 보장하고, 미지원 환경은 일반 popup으로 fallback하지 않는다.
     const mobilePipWindowRef = useRef(null);
     const openMobilePipPreview = useCallback(async () => {
+        // V14: Fixed-1920 Desktop runs the real app inside a same-origin iframe.
+        // Document Picture-in-Picture must be opened by the top-level window, so
+        // delegate the request synchronously through the shell helper when present.
+        try {
+            if (typeof window !== "undefined" && window.top && window.top !== window &&
+                typeof window.top.__YBEZ_OPEN_MOBILE_PIP__ === "function") {
+                const delegatedWin = await window.top.__YBEZ_OPEN_MOBILE_PIP__(window.location.href);
+                if (delegatedWin) mobilePipWindowRef.current = delegatedWin;
+                return;
+            }
+        } catch (_) {}
+
         if (typeof window === "undefined" || !window.documentPictureInPicture ||
             typeof window.documentPictureInPicture.requestWindow !== "function") {
             window.alert("이 환경에서는 항상 위 mobile(Document Picture-in-Picture)을 지원하지 않습니다.");
@@ -43484,7 +43501,10 @@ const App = () => {
                 React.createElement("div", { className: "vroute-title" },
                     React.createElement("span", null, "경로 정보"),
                     React.createElement("small", null, `${nz(dest) || nz(origin)} 관내`)),
-                RouteMapPanel(intraRegionMapModel, null, ""));
+                RouteMapPanel(
+                    mobilePagerEnabledM6A2 ? null : intraRegionMapModel,
+                    mobilePagerEnabledM6A2 ? mascotMap : null,
+                    mobilePagerEnabledM6A2 ? intraMascotName : ""));
         if (!rows.length) {
             if (intraMascotName)
                 return React.createElement("div", { className: "vertical-route-card" },
@@ -44359,7 +44379,6 @@ const App = () => {
 
         const miniButtons = [
             ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard")],
-            ["tablet", "태블릿모드", () => requestDesktopUiMode("tablet")],
             ["proof", "증빙", openProof],
             ["favorite", "즐겨찾기", openFavorite],
             ["history", "히스토리", openHistory]
@@ -44483,7 +44502,7 @@ const App = () => {
             ["padlet", "패들릿", openPadlet, false],
             ["proof", "증빙", openProof, false],
             ["history", "히스토리", openHistory, false],
-            [onExpense ? "home" : "expense", onExpense ? "홈" : "여비계산", toggleSurface, !onExpense && !result]
+            [onExpense ? "home" : "expense", onExpense ? "홈" : "여비계산", toggleSurface, !onExpense && (!result || endpointIntraMode)]
         ];
 
         return ReactDOM.createPortal(
@@ -44539,7 +44558,6 @@ const App = () => {
         const openHistory = () => { setShowFav(false); setShowProof(false); setShowProofInfo(false); setShowHist(true); };
         const openProof = () => { setShowFav(false); setShowHist(false); setShowProof(true); setShowProofInfo(false); };
         const buttons = [
-            ["mini", "미니모드", () => requestDesktopUiMode("mini"), false],
             ["dashboard", "데스크톱", () => requestDesktopUiMode("dashboard"), false],
             ["favorite", "즐겨찾기", openFavorite, false],
             ["history", "히스토리", openHistory, false],
@@ -45315,7 +45333,9 @@ const App = () => {
                         },
                             React.createElement(YbezFinalMenuImage, { type: "proof", className: "menu-icon" })),
                         React.createElement("span", { className: "action-label" }, "증빙")))),
-            React.createElement(MobileResultCard, null),
+            endpointIntraMode && mobilePagerEnabledM6A2
+                ? React.createElement(IntraMainFareCardC6DR, null)
+                : React.createElement(MobileResultCard, null),
             React.createElement(MobileInlineRoute4I, null),
             React.createElement(NonDesktopRouteButtonB17, null),
             !mobilePagerEnabledM6A2 && React.createElement(MobileHomeBottomNavW3, null)),
@@ -54613,6 +54633,56 @@ html.ybez-fixed1920-shell body{
   /* Native mobile entry is preserved. */
   if (window.innerWidth < 700) return;
 
+  // V14: top-level owner for the existing Mobile UI in Document Picture-in-Picture.
+  // The Fixed-1920 app itself lives in an iframe, but requestWindow() must be made
+  // from the top document. No separate Mobile UI is created: the existing page is
+  // reloaded in ybez_mobile_test + ybez_mobile_pip_child mode, exactly as before.
+  var mobilePipTopWindow = null;
+  window.__YBEZ_OPEN_MOBILE_PIP__ = async function (sourceHref) {
+    if (!window.documentPictureInPicture ||
+        typeof window.documentPictureInPicture.requestWindow !== "function") {
+      window.alert("이 환경에서는 항상 위 mobile(Document Picture-in-Picture)을 지원하지 않습니다.");
+      return null;
+    }
+
+    try {
+      if (mobilePipTopWindow && !mobilePipTopWindow.closed) {
+        try { mobilePipTopWindow.close(); } catch (_) {}
+      }
+
+      var pipWin = await window.documentPictureInPicture.requestWindow({ width:430, height:844 });
+      mobilePipTopWindow = pipWin;
+
+      var pipDoc = pipWin.document;
+      pipDoc.title = "여비이지 · mobile";
+      pipDoc.documentElement.style.cssText = "margin:0;width:100%;height:100%;background:#fff;";
+      pipDoc.body.style.cssText = "margin:0;width:100%;height:100%;overflow:hidden;background:#fff;position:relative;";
+
+      var previewUrl = new URL(sourceHref || window.location.href, window.location.href);
+      previewUrl.searchParams.delete(FLAG);
+      previewUrl.searchParams.set("ybez_mobile_test", "1");
+      previewUrl.searchParams.set("ybez_mobile_pip_child", "1");
+
+      var mobileFrame = pipDoc.createElement("iframe");
+      mobileFrame.src = previewUrl.toString();
+      mobileFrame.title = "여비이지 mobile";
+      mobileFrame.style.cssText = "position:absolute;left:0;top:0;width:430px;min-width:430px;max-width:430px;height:100%;border:0;margin:0;padding:0;background:#fff;display:block;";
+      mobileFrame.setAttribute("aria-label", "여비이지 mobile");
+      pipDoc.body.appendChild(mobileFrame);
+
+      pipWin.addEventListener("pagehide", function () {
+        if (mobilePipTopWindow === pipWin) mobilePipTopWindow = null;
+        try { window.focus(); } catch (_) {}
+      }, { once:true });
+
+      return pipWin;
+    } catch (err) {
+      console.error("YBEZ Mobile PiP top-level failed", err);
+      window.alert("mobile 항상 위 창을 열지 못했습니다. Chrome/Edge의 Document Picture-in-Picture 지원 상태를 확인해 주세요.");
+      return null;
+    }
+  };
+
   function startFixedDesktopShell() {
     var root = document.getElementById("root");
     if (!root || document.getElementById("ybez-fixed-1920-frame")) return;
@@ -54743,6 +54813,11 @@ html.ybez-fixed1920-shell body{
       window.removeEventListener("resize", syncShellWidth);
       frame.remove();
       html.classList.remove("ybez-fixed1920-shell");
+      try {
+        if (mobilePipTopWindow && !mobilePipTopWindow.closed) mobilePipTopWindow.close();
+      } catch (_) {}
+      mobilePipTopWindow = null;
+      try { delete window.__YBEZ_OPEN_MOBILE_PIP__; } catch (_) { window.__YBEZ_OPEN_MOBILE_PIP__ = undefined; }
 
       function restoreAttr(el, value) {
         if (value == null) el.removeAttribute("style");
@@ -54893,6 +54968,517 @@ html.ybez-fixed1920-inner:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(
   }
 })();
 </script>
+
+<style id="ybez-v14-mode-entry-cleanup-20260914">
+/* V14 phase 1: Desktop + Mobile are the supported entry paths.
+   Keep Mini/Tablet implementation code for rollback, but remove any stale user entry controls. */
+html.ybez-fixed1920-inner button[title="미니모드"],
+html.ybez-fixed1920-inner button[title="태블릿모드"],
+html.ybez-fixed1920-inner .d22-mode-btn[title="미니모드"],
+html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
+  display:none!important;
+}
+</style>
+
+
+<style id="ybez-v15-mobile430-final-20260914">
+/* V15 · Verified Mobile 430 finish.
+   Scope: ybez_mobile_test (the existing Mobile UI used by Document PiP).
+   No calculation/state logic changes. No MutationObserver/ResizeObserver loops.
+
+   Verified values from DevTools on 2026-09-14:
+   - Mobile canvas: 430px fixed.
+   - Main: HTML owns the single real scrollbar, with a stable reserved gutter.
+   - Expense: root scrollbar is locked; .travel-calc-body owns the single real scrollbar.
+   - Core payment tags sit immediately after their title.
+   - Other-transport subrow vertical spacing: 3px.
+*/
+@media (max-width:699px){
+  /* Fixed Mobile canvas. The PiP host itself has overflow:hidden, so no outer/dead scrollbar. */
+  html.ybez-mobile-test{
+    width:430px!important;
+    min-width:430px!important;
+    max-width:430px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    scrollbar-gutter:stable!important;
+    box-sizing:border-box!important;
+  }
+  html.ybez-mobile-test body{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Expense pager is its own proven live scroller. Remove the dead root scrollbar only while open. */
+  html.ybez-mobile-test:has(body .travel-calc-overlay.d6-b17-expense-backdrop){
+    overflow-y:hidden!important;
+    scrollbar-gutter:auto!important;
+  }
+  html.ybez-mobile-test:has(body .travel-calc-overlay.d6-b17-expense-backdrop) body{
+    overflow:hidden!important;
+  }
+  html.ybez-mobile-test body .travel-calc-overlay.d6-b17-expense-backdrop
+  .travel-calc-body.d6-b17-sheet-body{
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    scrollbar-gutter:stable!important;
+  }
+
+  /* Core four rows: title + payment tag use their content width instead of a fixed tag lane. */
+  html.ybez-mobile-test .travel-calc-body
+  .expense-ledger > .expense-item:nth-child(-n+4)
+  > .expense-main-row:first-child{
+    grid-template-columns:max-content max-content minmax(0,1fr) 92px!important;
+    column-gap:7px!important;
+  }
+  html.ybez-mobile-test .travel-calc-body
+  .expense-ledger > .expense-item:nth-child(-n+4)
+  > .expense-main-row:first-child > .expense-label-cell,
+  html.ybez-mobile-test .travel-calc-body
+  .expense-ledger > .expense-item:nth-child(-n+4)
+  > .expense-main-row:first-child > .expense-tag-cell{
+    width:auto!important;
+    min-width:0!important;
+    justify-self:start!important;
+    justify-content:flex-start!important;
+    margin:0!important;
+  }
+  html.ybez-mobile-test .travel-calc-body
+  .expense-ledger > .expense-item:nth-child(-n+4)
+  > .expense-main-row:first-child .expense-tag-compact{
+    width:auto!important;
+    min-width:0!important;
+    white-space:nowrap!important;
+  }
+
+  /* UI09 special rows: anonymous spacers are not layout columns on fixed Mobile.
+     Button width may change after fare entry, but its own row always keeps it on the right rail. */
+  html.ybez-mobile-test .travel-calc-body
+  .ui09-expense-special-row > div:not([class]):empty{
+    display:none!important;
+  }
+  html.ybez-mobile-test .travel-calc-body
+  .ui09-expense-special-row > .ui09-special-quick-btn{
+    grid-column:4!important;
+    justify-self:end!important;
+    align-self:center!important;
+    margin-left:0!important;
+    max-width:100%!important;
+  }
+
+  /* Lodging auxiliary controls keep one common right rail; JS below fine-aligns it to the input edge. */
+  html.ybez-mobile-test .travel-calc-body
+  .travel-class-moving-row .ybez-lodging-side-stack{
+    align-items:flex-end!important;
+    margin-left:auto!important;
+  }
+
+  /* DevTools-verified spacing: total → ferry → other transport. */
+  html.ybez-mobile-test .travel-calc-body
+  .expense-other-group > .expense-item:first-child
+  .r108p6e-ferry-manual-row{
+    margin-top:3px!important;
+  }
+  html.ybez-mobile-test .travel-calc-body
+  .expense-other-group > .expense-item:first-child
+  .ui09-other-transport-manual-row{
+    margin-top:3px!important;
+  }
+}
+</style>
+
+<script id="ybez-v15-mobile430-axis-20260914">
+/* V15 · Mobile visual-axis finisher.
+   Event-driven only: no MutationObserver / ResizeObserver.
+   It reuses the DevTools-verified geometry after an actual click/input/change/touchend,
+   so width-changing 농어촌버스/승선요금 buttons stay aligned without a polling loop. */
+(function () {
+  "use strict";
+
+  var params;
+  try { params = new URLSearchParams(window.location.search || ""); }
+  catch (_) { params = null; }
+  if (!params || params.get("ybez_mobile_test") !== "1") return;
+
+  var queued = false;
+  var timer = 0;
+
+  function visible(el) {
+    if (!el || !el.getClientRects || !el.getClientRects().length) return false;
+    var r = el.getBoundingClientRect();
+    if (!(r.width > 0 && r.height > 0)) return false;
+    var s = window.getComputedStyle(el);
+    return s.display !== "none" && s.visibility !== "hidden";
+  }
+
+  function textOf(el) {
+    return String((el && el.textContent) || "").replace(/\s+/g, " ").trim();
+  }
+
+  function expenseBody() {
+    var el = document.querySelector(".travel-calc-body.d6-b17-sheet-body");
+    return visible(el) ? el : null;
+  }
+
+  function alignDeduct(calc) {
+    var anchor = calc.querySelector(
+      ".expense-ledger > .expense-item:first-child > .expense-main-row:first-child .deduct-btn"
+    );
+    if (!visible(anchor)) return;
+
+    anchor.style.removeProperty("translate");
+    var targetLeft = anchor.getBoundingClientRect().left;
+
+    Array.prototype.forEach.call(calc.querySelectorAll(".deduct-btn"), function (btn) {
+      if (!visible(btn)) return;
+      btn.style.removeProperty("translate");
+      var dx = targetLeft - btn.getBoundingClientRect().left;
+      btn.style.setProperty("translate", dx + "px 0px", "important");
+    });
+  }
+
+  function alignRightAxis(calc) {
+    var cr = calc.getBoundingClientRect();
+    var inputs = Array.prototype.filter.call(calc.querySelectorAll("input"), function (el) {
+      if (!visible(el)) return false;
+      if (el.matches(".d6-d10-night-count.m-touch-night-input") &&
+          el.closest('.ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"]')) {
+        el.style.removeProperty("translate");
+        return false;
+      }
+      var r = el.getBoundingClientRect();
+      return r.width >= 45 && r.width <= 120 && r.right > (cr.left + cr.width * 0.68);
+    });
+    if (!inputs.length) return;
+
+    var targetRight = Math.max.apply(null, inputs.map(function (el) {
+      return el.getBoundingClientRect().right;
+    }));
+
+    /* Keep all visible money inputs on the same physical right edge. */
+    inputs.forEach(function (el) {
+      el.style.removeProperty("translate");
+      var dx = targetRight - el.getBoundingClientRect().right;
+      el.style.setProperty("translate", dx + "px 0px", "important");
+    });
+
+    /* 농어촌버스 / 승선요금: selector is structural, so text/value changes do not matter. */
+    Array.prototype.forEach.call(
+      calc.querySelectorAll(".ui09-expense-special-row > .ui09-special-quick-btn"),
+      function (btn) {
+        if (!visible(btn)) return;
+        btn.style.removeProperty("translate");
+        var dx = targetRight - btn.getBoundingClientRect().right;
+        btn.style.setProperty("translate", dx + "px 0px", "important");
+      }
+    );
+
+    /* 친지집 / 이동일 move as one stack so their popovers keep the same anchor. */
+    var stack = calc.querySelector(".travel-class-moving-row .ybez-lodging-side-stack");
+    if (visible(stack)) {
+      stack.style.removeProperty("translate");
+      var sdx = targetRight - stack.getBoundingClientRect().right;
+      stack.style.setProperty("translate", sdx + "px 0px", "important");
+    }
+  }
+
+  function realign() {
+    queued = false;
+    timer = 0;
+    var calc = expenseBody();
+    if (!calc) return;
+    alignDeduct(calc);
+    alignRightAxis(calc);
+  }
+
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    window.requestAnimationFrame(function () {
+      /* React may commit a value/text change after the originating event. */
+      timer = window.setTimeout(realign, 0);
+    });
+  }
+
+  ["click", "input", "change", "touchend"].forEach(function (type) {
+    document.addEventListener(type, schedule, true);
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      window.setTimeout(realign, 60);
+    }, { once:true });
+  } else {
+    window.setTimeout(realign, 60);
+  }
+
+  window.__ybezV15Mobile430 = {
+    realign: schedule,
+    disconnect: function () {
+      ["click", "input", "change", "touchend"].forEach(function (type) {
+        document.removeEventListener(type, schedule, true);
+      });
+      if (timer) window.clearTimeout(timer);
+      queued = false;
+    }
+  };
+})();
+</script>
+
+
+<style id="ybez-mobile-group-stay-v1">
+/* STAY-V1 · Mobile group-stay only.
+   DevTools-confirmed 3-cell layout: [−][N][+].
+   No confirm button. No lodging/travel-day/desktop/tablet/mini/compact changes. */
+@media (max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option{
+    position:relative!important;
+    overflow:visible!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option > .ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"]{
+    position:absolute!important;
+    left:auto!important;
+    right:0!important;
+    top:calc(100% + 5px)!important;
+    bottom:auto!important;
+    transform:none!important;
+
+    width:168px!important;
+    min-width:168px!important;
+    max-width:168px!important;
+    height:48px!important;
+    min-height:48px!important;
+    max-height:48px!important;
+
+    margin:0!important;
+    padding:4px!important;
+    display:grid!important;
+    grid-template-columns:44px 64px 44px!important;
+    grid-template-rows:40px!important;
+    column-gap:4px!important;
+    row-gap:0!important;
+    align-items:stretch!important;
+    justify-content:start!important;
+    box-sizing:border-box!important;
+    z-index:2000!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option > .ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"] > :nth-child(-n+3){
+    position:static!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    translate:none!important;
+    margin:0!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    align-self:stretch!important;
+    justify-self:stretch!important;
+    box-sizing:border-box!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option > .ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"] > :nth-child(1){
+    grid-column:1!important;
+    grid-row:1!important;
+    width:44px!important;
+    min-width:44px!important;
+    max-width:44px!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option > .ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"] > :nth-child(2){
+    grid-column:2!important;
+    grid-row:1!important;
+    width:64px!important;
+    min-width:64px!important;
+    max-width:64px!important;
+    padding:0!important;
+    text-align:center!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option > .ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"] > :nth-child(3){
+    grid-column:3!important;
+    grid-row:1!important;
+    width:44px!important;
+    min-width:44px!important;
+    max-width:44px!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-compact):not(.ybez-desktop-tablet)
+  body .d6-b17-expense-sheet.m510-swipe-surface
+  .m5-mobile-group-option > .ybez-shared-mobile-stay-popover[aria-label="합숙제공 박수 조정"] > .d6-d21-night-confirm{
+    display:none!important;
+  }
+}
+</style>
+
+
+
+<style id="ybez-mobile-tripdays-v1-20260915">
+/* Mobile 출장일수 final PASS candidate · geometry/paint only.
+   Scope: Mobile swipe expense sheet only. No calculation/state/other controls. */
+@media (max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper{
+    display:flex!important;
+    width:max-content!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    padding:0!important;
+    margin:0!important;
+    gap:6px!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    box-sizing:border-box!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper .m510-step-btn{
+    width:42px!important;
+    min-width:42px!important;
+    max-width:42px!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    flex:0 0 42px!important;
+    padding:0!important;
+    margin:0!important;
+    border:1px solid #AEBDCD!important;
+    border-radius:50%!important;
+    background:#F8FAFC!important;
+    color:#173B63!important;
+    box-shadow:0 1px 3px rgba(30,50,70,.13),inset 0 1px 0 rgba(255,255,255,.95)!important;
+    font-size:25px!important;
+    font-weight:800!important;
+    line-height:1!important;
+    text-align:center!important;
+    cursor:pointer!important;
+    transition:border-color .10s ease,box-shadow .08s ease,transform .06s ease!important;
+    filter:none!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper .trip-days-input{
+    width:66px!important;
+    min-width:66px!important;
+    max-width:66px!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    line-height:42px!important;
+    padding:0!important;
+    margin:0!important;
+    border:1px solid #CDD7E4!important;
+    border-radius:10px!important;
+    background:#FFFFFF!important;
+    color:#123B65!important;
+    box-shadow:0 1px 3px rgba(20,45,75,.10)!important;
+    font-size:22px!important;
+    font-weight:900!important;
+    text-align:center!important;
+    align-self:center!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper .trip-unit{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:13px!important;
+    font-weight:700!important;
+    line-height:1!important;
+    color:#173A63!important;
+  }
+
+  @media (hover:hover) and (pointer:fine){
+    html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+    body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper .m510-step-btn:hover:not(:disabled){
+      background:#F8FAFC!important;
+      color:#173B63!important;
+      border-color:#315F8F!important;
+      box-shadow:0 1px 4px rgba(30,50,70,.18),inset 0 1px 0 rgba(255,255,255,.95)!important;
+      transform:none!important;
+    }
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper .m510-step-btn:active:not(:disabled){
+    background:#F8FAFC!important;
+    color:#173B63!important;
+    border-color:#173B63!important;
+    transform:translateY(1px)!important;
+    box-shadow:inset 0 2px 3px rgba(25,45,65,.18),0 0 1px rgba(25,45,65,.12)!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body .d6-b17-expense-sheet.m510-swipe-surface .trip-days-control.m510-trip-stepper .m510-step-btn:focus-visible{
+    outline:2px solid rgba(23,59,99,.24)!important;
+    outline-offset:2px!important;
+  }
+}
+</style>
+<!-- YBEZ MOBILE TRIPDAYS V1 2026-09-15: DevTools PASS value only; no logic changes. -->
+
+
+<!-- YBEZ MOBILE FINISH V3 2026-09-15: group-stay night input excluded from generic right-axis alignment; no positional override. -->
+
+<style id="ybez-mobile-finish-v2-20260915">
+/* MOBILE-FINISH-V2 · DevTools PASS values only.
+   Scope: regular mobile <=699 only.
+   1) Intra main card rail = 14px each side.
+   2) Intra deduction chips centered.
+   Footer expense disabled logic is handled in existing React button state above. */
+@media (max-width:699px){
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body #root .ybez-intra-main-fare-wrap{
+    width:calc(100% - 28px)!important;
+    max-width:calc(100% - 28px)!important;
+    margin-left:14px!important;
+    margin-right:14px!important;
+    box-sizing:border-box!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body #root .ybez-intra-main-fare-wrap > .ybez-intra-main-fare-card{
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+
+  html:not(.ybez-desktop-mini):not(.ybez-desktop-tablet):not(.ybez-desktop-compact)
+  body #root .ybez-intra-main-fare-card .ybez-intra-main-actions{
+    justify-content:center!important;
+  }
+}
+</style>
+<!-- YBEZ MOBILE FINISH V2 2026-09-15: intra card rail/center PASS + real footer disabled condition only. -->
 
 </body>
 </html>
