@@ -29961,13 +29961,17 @@ const App = () => {
             const autoMini = false; // Patch 1B: Mini is explicit only; resizing Desktop never changes mode.
             const mini = !mobileTestModeM6A2 && (desktopUiMode === "mini" || autoMini);
             const tablet = !mobileTestModeM6A2 && desktopUiMode === "tablet";
+            // MOBILE430-SYNC: reuse the existing YBEZ environment test for real mobile.
+            // Desktop/fine-pointer/hover environments stay out even when the window is narrow.
+            const liveMobile430 = !mobileTestModeM6A2 && window.innerWidth <= 699 && !isDesktopLikeEnvironment();
             setIsDesktopMini(mini);
             document.documentElement.classList.toggle("ybez-desktop-mini", mini);
             document.documentElement.classList.toggle("ybez-desktop-tablet", tablet || mini);
             document.documentElement.classList.toggle("ybez-mobile-test", mobileTestModeM6A2);
+            document.documentElement.classList.toggle("ybez-mobile-live430", liveMobile430);
             document.documentElement.setAttribute(
                 "data-ybez-ui-mode",
-                mobileTestModeM6A2 ? "mobile" : (tablet ? "tablet" : (mini ? "mini" : "dashboard"))
+                (mobileTestModeM6A2 || liveMobile430) ? "mobile" : (tablet ? "tablet" : (mini ? "mini" : "dashboard"))
             );
         };
         syncDesktopMode();
@@ -29979,6 +29983,7 @@ const App = () => {
             document.documentElement.classList.remove("ybez-desktop-mini");
             document.documentElement.classList.remove("ybez-desktop-tablet");
             document.documentElement.classList.remove("ybez-mobile-test");
+            document.documentElement.classList.remove("ybez-mobile-live430");
             document.documentElement.removeAttribute("data-ybez-ui-mode");
         };
     }, [desktopUiMode]);
@@ -54995,7 +55000,7 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
 */
 @media (max-width:699px){
   /* Fixed Mobile canvas. The PiP host itself has overflow:hidden, so no outer/dead scrollbar. */
-  html.ybez-mobile-test{
+  html:is(.ybez-mobile-test,.ybez-mobile-live430){
     width:430px!important;
     min-width:430px!important;
     max-width:430px!important;
@@ -55004,7 +55009,7 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
     scrollbar-gutter:stable!important;
     box-sizing:border-box!important;
   }
-  html.ybez-mobile-test body{
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) body{
     width:100%!important;
     min-width:0!important;
     max-width:100%!important;
@@ -55013,14 +55018,14 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
   }
 
   /* Expense pager is its own proven live scroller. Remove the dead root scrollbar only while open. */
-  html.ybez-mobile-test:has(body .travel-calc-overlay.d6-b17-expense-backdrop){
+  html:is(.ybez-mobile-test,.ybez-mobile-live430):has(body .travel-calc-overlay.d6-b17-expense-backdrop){
     overflow-y:hidden!important;
     scrollbar-gutter:auto!important;
   }
-  html.ybez-mobile-test:has(body .travel-calc-overlay.d6-b17-expense-backdrop) body{
+  html:is(.ybez-mobile-test,.ybez-mobile-live430):has(body .travel-calc-overlay.d6-b17-expense-backdrop) body{
     overflow:hidden!important;
   }
-  html.ybez-mobile-test body .travel-calc-overlay.d6-b17-expense-backdrop
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) body .travel-calc-overlay.d6-b17-expense-backdrop
   .travel-calc-body.d6-b17-sheet-body{
     overflow-x:hidden!important;
     overflow-y:auto!important;
@@ -55028,16 +55033,16 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
   }
 
   /* Core four rows: title + payment tag use their content width instead of a fixed tag lane. */
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .expense-ledger > .expense-item:nth-child(-n+4)
   > .expense-main-row:first-child{
     grid-template-columns:max-content max-content minmax(0,1fr) 92px!important;
     column-gap:7px!important;
   }
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .expense-ledger > .expense-item:nth-child(-n+4)
   > .expense-main-row:first-child > .expense-label-cell,
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .expense-ledger > .expense-item:nth-child(-n+4)
   > .expense-main-row:first-child > .expense-tag-cell{
     width:auto!important;
@@ -55046,7 +55051,7 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
     justify-content:flex-start!important;
     margin:0!important;
   }
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .expense-ledger > .expense-item:nth-child(-n+4)
   > .expense-main-row:first-child .expense-tag-compact{
     width:auto!important;
@@ -55056,11 +55061,11 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
 
   /* UI09 special rows: anonymous spacers are not layout columns on fixed Mobile.
      Button width may change after fare entry, but its own row always keeps it on the right rail. */
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .ui09-expense-special-row > div:not([class]):empty{
     display:none!important;
   }
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .ui09-expense-special-row > .ui09-special-quick-btn{
     grid-column:4!important;
     justify-self:end!important;
@@ -55070,19 +55075,19 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
   }
 
   /* Lodging auxiliary controls keep one common right rail; JS below fine-aligns it to the input edge. */
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .travel-class-moving-row .ybez-lodging-side-stack{
     align-items:flex-end!important;
     margin-left:auto!important;
   }
 
   /* DevTools-verified spacing: total → ferry → other transport. */
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .expense-other-group > .expense-item:first-child
   .r108p6e-ferry-manual-row{
     margin-top:3px!important;
   }
-  html.ybez-mobile-test .travel-calc-body
+  html:is(.ybez-mobile-test,.ybez-mobile-live430) .travel-calc-body
   .expense-other-group > .expense-item:first-child
   .ui09-other-transport-manual-row{
     margin-top:3px!important;
@@ -55101,7 +55106,11 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
   var params;
   try { params = new URLSearchParams(window.location.search || ""); }
   catch (_) { params = null; }
-  if (!params || params.get("ybez_mobile_test") !== "1") return;
+
+  function targetMobile430() {
+    if (params && params.get("ybez_mobile_test") === "1") return true;
+    return !!(document.documentElement && document.documentElement.classList.contains("ybez-mobile-live430"));
+  }
 
   var queued = false;
   var timer = 0;
@@ -55188,6 +55197,7 @@ html.ybez-fixed1920-inner .d22-tablet-switch-btn[title="태블릿모드"]{
   function realign() {
     queued = false;
     timer = 0;
+    if (!targetMobile430()) return;
     var calc = expenseBody();
     if (!calc) return;
     alignDeduct(calc);
