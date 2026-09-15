@@ -1,7 +1,7 @@
 {
   "version": "connected_7_core_1",
   "apply": true,
-  "generated_at": "2026-09-09T21:56:00+09:00",
+  "generated_at": "2026-09-15T17:13:53+09:00",
   "connected_scope_id": 7,
   "connected_scope_label": "전남광주",
   "fare_authority": "routes.json",
@@ -9532,11 +9532,11 @@
       "destination": "강릉",
       "status": "APPROVED",
       "primary": {
-        "route_key": "52daf0e56f42296ebdfa",
+        "route_key": "7df7761fbcf5e8b40eac",
         "node_path": [
           "NODE_0174",
           "NODE_0053",
-          "NODE_0001",
+          "NODE_0002",
           "NODE_0061"
         ],
         "segments": [
@@ -9546,14 +9546,14 @@
           ],
           [
             "NODE_0053",
-            "NODE_0001"
+            "NODE_0002"
           ],
           [
-            "NODE_0001",
+            "NODE_0002",
             "NODE_0061"
           ]
         ],
-        "fare_snapshot": 66200,
+        "fare_snapshot": 62200,
         "grade_snapshot": "시외우등 + 고속우등 + 고속우등",
         "direct": false,
         "transfers": 2
