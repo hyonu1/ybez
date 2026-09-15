@@ -14738,6 +14738,11 @@ html.ybez-desktop-tablet .d6-w32-expense-body .expense-money-unit{
   }
 }
 
+
+/* TDAY1 · 연수 관용차/합숙 공통 적용일 지정 */
+.training-schedule-section + .training-schedule-section.with-divider{margin-top:14px;padding-top:14px;border-top:1px solid #E5E7EB;}
+.training-schedule-section-title{margin:0 0 8px;font-family:var(--gm);font-size:13px;font-weight:900;color:#173A63;}
+@media(max-width:699px){.training-schedule-section-title{font-size:12px;}}
 </style>
 <style id="d6-w35r1-desktop-choice-polish">
 
@@ -28805,6 +28810,11 @@ const App = () => {
     const [trainingGroupDraftDays, setTrainingGroupDraftDays] = useState([]);
     const [trainingGroupScheduleConfirmed, setTrainingGroupScheduleConfirmed] = useState(false);
     const [trainingGroupScheduleError, setTrainingGroupScheduleError] = useState("");
+    // TDAY1: 비합숙/부분합숙 연수의 관용차 이용일을 실제 출장일차로 지정한다.
+    // 합숙 전박은 기존 자동배분(입교일→수료일 우선)을 그대로 보호한다.
+    const [trainingGovAppliedDays, setTrainingGovAppliedDays] = useState([]);
+    const [trainingGovDraftDays, setTrainingGovDraftDays] = useState([]);
+    const [trainingGovScheduleConfirmed, setTrainingGovScheduleConfirmed] = useState(false);
     const resetTripConditionsForDestination = useCallback((nextDest) => {
         const confirmedDest = nz(nextDest);
         if (!confirmedDest) return;
@@ -28842,6 +28852,9 @@ const App = () => {
         setTrainingGroupAppliedDays([]);
         setTrainingGroupDraftDays([]);
         setTrainingGroupScheduleConfirmed(false);
+        setTrainingGovAppliedDays([]);
+        setTrainingGovDraftDays([]);
+        setTrainingGovScheduleConfirmed(false);
         setTrainingGroupScheduleError("");
     }, []);
     const isMultiDayTrip = tripDays > 1;
@@ -29197,6 +29210,9 @@ const App = () => {
         setTrainingGroupAppliedDays([]);
         setTrainingGroupDraftDays([]);
         setTrainingGroupScheduleConfirmed(false);
+        setTrainingGovAppliedDays([]);
+        setTrainingGovDraftDays([]);
+        setTrainingGovScheduleConfirmed(false);
         setTrainingGroupScheduleOpen(false);
         setTrainingGroupScheduleError("");
     }, [tripDays, tripType, lodgingSelected, groupSelected, lodgingNights, friendLodgingNights, groupNights]);
@@ -29218,6 +29234,11 @@ const App = () => {
     const totalStayNights = Math.min(maxLodgingNights, Math.max(0, lodgingNights) + Math.max(0, friendLodgingNights) + Math.max(0, groupNights));
     const commuteNights = Math.max(0, maxLodgingNights - totalStayNights);
     const vehicleDaysInput = Math.min(Math.max(0, Number(ded.gov_vehicle_days) || 0), Math.max(1, tripDays));
+    useEffect(() => {
+        setTrainingGovAppliedDays([]);
+        setTrainingGovDraftDays([]);
+        setTrainingGovScheduleConfirmed(false);
+    }, [vehicleDaysInput]);
     // D29 common regression guard: 전액 관용차 여부는 stale boolean이 아니라 현재 출장일수/이용일수에서 재판정한다.
     const govVehicleFullyCoversTrip = vehicleDaysInput > 0 && vehicleDaysInput >= Math.max(1, tripDays);
     const tripSummaryLabel = useMemo(() => {
@@ -29559,16 +29580,10 @@ const App = () => {
             return next;
         });
     }, [persistFavorites]);
-    // PC UI 1D: 일반/우등은 현재 페이지 사용 중에만 유지한다.
-    // F5-P: 일반/우등은 노선별 기억이 아니라 현재 탭 전체에서 공통으로 유지한다.
-    // sessionStorage는 새로고침에는 유지되고 탭/창을 닫으면 초기화된다.
-    const [grade, setGrade] = useState(() => {
-        try {
-            const remembered = sessionStorage.getItem("ybez_grade_session_F5P");
-            return remembered === "gen" || remembered === "pre" ? remembered : "pre";
-        }
-        catch (_a) { return "pre"; }
-    }); // gen/pre · 최초 기본 우등
+    // Choice-State v1: 일반/우등은 현재 결과에서 사용자가 자유롭게 바꿀 수 있지만,
+    // 새 선택축/새 등급쌍의 안정적인 기본값은 항상 우등(pre)으로 시작한다.
+    // 이전 탭/축의 선택을 복원하지 않아 Connected 축 변경 시 상태 결합을 막는다.
+    const [grade, setGrade] = useState("pre"); // gen/pre · 기본 우등
     const [gradeGuideShown, setGradeGuideShown] = useState(false);
     const [gradeSegmentSelections, setGradeSegmentSelections] = useState({});
     const [segmentChoiceModal, setSegmentChoiceModal] = useState(null);
@@ -40439,15 +40454,13 @@ const App = () => {
                     ? React.createElement(React.Fragment, null, zeroCard, paidCard)
                     : React.createElement(React.Fragment, null, paidCard, zeroCard))));
     };
-    // F5-P: 일반/우등은 페이지(탭) 전체 공통 선택값이다.
-    // 일반/우등이 없는 노선을 거쳐도 sessionStorage 값을 지우지 않는다.
+    // Choice-State v1: 전체 일반/우등 버튼은 현재 결과의 공통 선택값만 바꾼다.
+    // 축 변경/새 등급쌍에서는 아래 effect가 다시 우등(pre)을 기본값으로 세운다.
     const r5dGradeRecalcRef = useRef(false);
     const chooseRuntimeGrade = useCallback((nextGrade) => {
         const safe = nextGrade === "gen" ? "gen" : "pre";
         if (result && result.r5ActualPromotion && safe !== grade) r5dGradeRecalcRef.current = true;
         setGrade(safe);
-        try { sessionStorage.setItem("ybez_grade_session_F5P", safe); }
-        catch (_a) { }
     }, [result, grade]);
     useEffect(() => {
         if (!r5dGradeRecalcRef.current) return;
@@ -40456,11 +40469,9 @@ const App = () => {
     }, [grade]);
     useEffect(() => {
         if (!activeJneGradePair) return;
-        try {
-            const remembered = sessionStorage.getItem("ybez_grade_session_F5P");
-            setGrade(remembered === "gen" || remembered === "pre" ? remembered : "pre");
-        }
-        catch (_a) { setGrade("pre"); }
+        // 새 축/새 등급쌍은 항상 우등을 기본값으로 시작한다.
+        // 해당 축에 우등 선택쌍이 없으면 activeJneGradePair 자체가 없으므로 단일 실제요금은 그대로 유지된다.
+        setGrade("pre");
     }, [activeJneGradePair]);
     /* 여비 상세 계산 */
     const generalCalcDays = generalMultiCalcActive ? tripDays : 1;
@@ -40502,6 +40513,31 @@ const App = () => {
         && trainingGroupScheduleConfirmed
         && trainingGroupAppliedDays.length === trainingScheduleRequiredDays
         && trainingGroupAppliedDays.every(day => day >= 2 && day <= tripDays - 1);
+    // TDAY1: 전박 합숙은 기존 자동배분을 유지하고, 비합숙/부분합숙만 관용차 이용일을 직접 지정한다.
+    const trainingVehicleScheduleRequired = trainingMultiCalcActive
+        && vehicleDaysInput > 0
+        && !trainingGroupFull;
+    const trainingVehicleScheduleRequiredDays = trainingVehicleScheduleRequired
+        ? Math.min(vehicleDaysInput, Math.max(1, tripDays))
+        : 0;
+    const trainingGovScheduleComplete = trainingVehicleScheduleRequired
+        && trainingGovScheduleConfirmed
+        && trainingGovAppliedDays.length === trainingVehicleScheduleRequiredDays
+        && trainingGovAppliedDays.every(day => day >= 1 && day <= tripDays);
+    const trainingCombinedScheduleRequired = trainingVehicleScheduleRequired && trainingMixedScheduleRequired;
+    const trainingAnyScheduleRequired = trainingVehicleScheduleRequired || trainingMixedScheduleRequired;
+    const trainingScheduleAllComplete = trainingAnyScheduleRequired
+        && (!trainingVehicleScheduleRequired || trainingGovScheduleComplete)
+        && (!trainingMixedScheduleRequired || trainingGroupScheduleComplete);
+    const trainingScheduleButtonTitle = trainingCombinedScheduleRequired
+        ? "관용·합숙"
+        : (trainingVehicleScheduleRequired ? "관용차" : "합숙일");
+    const trainingScheduleDialogTitle = trainingCombinedScheduleRequired
+        ? "관용·합숙 적용일 지정"
+        : (trainingVehicleScheduleRequired ? "관용차 이용일 지정" : "합숙 적용일 지정");
+    const trainingScheduleDialogSubtitle = trainingCombinedScheduleRequired
+        ? `관용차 ${vehicleDaysInput}일 · 합숙제공 ${groupNights}박`
+        : (trainingVehicleScheduleRequired ? `관용차 ${vehicleDaysInput}일 · 날짜를 선택하세요.` : `합숙제공 ${groupNights}박 · 날짜를 선택하세요.`);
     // D44.5A3 common: 일부 합숙의 적용일이 미지정이면 안전값 50,000원을 유지한다.
     // 지정 완료 후에는 입교·수료일 100%, 비합숙 중간일 50%, 합숙 적용 중간일 0%로 자동 계산한다.
     const trainingDailyMixedNeedsManual = trainingMixedScheduleRequired && !trainingGroupScheduleComplete;
@@ -40520,24 +40556,44 @@ const App = () => {
                 : Math.min(trainingMiddleDays, Math.max(0, Number(groupNights) || 0))))
         : 0;
     const trainingPayableMiddleDays = Math.max(0, trainingMiddleDays - trainingGroupMiddleDaysCount);
-    const trainingGovEntry = trainingMultiCalcActive && !!trainingGovVehicleAlloc.entry;
-    const trainingGovExit = trainingMultiCalcActive && tripDays > 1 && !!trainingGovVehicleAlloc.exit;
+    const trainingGovScheduledDays = trainingVehicleScheduleRequired && trainingGovScheduleComplete
+        ? trainingGovAppliedDays
+        : [];
+    const trainingGovEntry = trainingMultiCalcActive && (trainingVehicleScheduleRequired
+        ? trainingGovScheduledDays.includes(1)
+        : !!trainingGovVehicleAlloc.entry);
+    const trainingGovExit = trainingMultiCalcActive && tripDays > 1 && (trainingVehicleScheduleRequired
+        ? trainingGovScheduledDays.includes(tripDays)
+        : !!trainingGovVehicleAlloc.exit);
+    const trainingGovScheduledMiddleDays = trainingVehicleScheduleRequired
+        ? trainingGovScheduledDays.filter(day => day >= 2 && day <= tripDays - 1)
+        : [];
+    const trainingGovScheduledPayableMiddleDays = trainingVehicleScheduleRequired
+        ? trainingGovScheduledMiddleDays.filter(day => !trainingGroupScheduleComplete || !trainingGroupAppliedDays.includes(day))
+        : [];
     const trainingGovMiddle = trainingMultiCalcActive
-        ? Math.min(trainingPayableMiddleDays, Math.max(0, Number(trainingGovVehicleAlloc.middle) || 0))
+        ? (trainingVehicleScheduleRequired
+            ? trainingGovScheduledPayableMiddleDays.length
+            : Math.min(trainingPayableMiddleDays, Math.max(0, Number(trainingGovVehicleAlloc.middle) || 0)))
         : 0;
     // 합숙 적용일이 아직 미지정인 혼합연수는 중간일 일비 자체가 확정되지 않았으므로 중간일 공용차 감액도 보류한다.
     const trainingGovMiddleDeductible = trainingDailyMixedNeedsManual ? 0 : trainingGovMiddle;
-    const trainingGovAllocatedPaidDays = (trainingGovEntry ? 1 : 0) + trainingGovMiddle + (trainingGovExit ? 1 : 0);
-    const trainingGovZeroDailyDays = trainingMultiCalcActive ? Math.max(0, vehicleDaysInput - trainingGovAllocatedPaidDays) : 0;
+    const trainingGovAllocatedPaidDays = (trainingGovEntry ? 1 : 0) + trainingGovMiddleDeductible + (trainingGovExit ? 1 : 0);
+    const trainingGovZeroDailyDays = trainingMultiCalcActive
+        ? (trainingVehicleScheduleRequired
+            ? (trainingGovScheduleComplete ? Math.max(0, trainingGovAppliedDays.length - trainingGovAllocatedPaidDays) : 0)
+            : Math.max(0, vehicleDaysInput - trainingGovAllocatedPaidDays))
+        : 0;
     const trainingVehicleDailyDeduction = trainingMultiCalcActive
         ? (trainingGovEntry ? 12500 : 0) + (trainingGovExit ? 12500 : 0) + trainingGovMiddleDeductible * 6250
         : 0;
     useEffect(() => {
-        if (!trainingMultiCalcActive || vehicleDaysInput <= 0) {
+        if (!trainingMultiCalcActive || vehicleDaysInput <= 0 || trainingVehicleScheduleRequired) {
             setTrainingGovVehicleAlloc(prev => (prev.entry || prev.middle || prev.exit || prev.forDays)
                 ? { entry:false, middle:0, exit:false, forDays:0 } : prev);
             return;
         }
+        // 전박 합숙만 기존 자동배분을 유지: 1일=입교일, 2일 이상=입교일+수료일 우선.
         setTrainingGovVehicleAlloc(prev => {
             const count = Math.max(0, Number(vehicleDaysInput) || 0);
             const maxMiddle = Math.max(0, Number(trainingPayableMiddleDays) || 0);
@@ -40563,7 +40619,7 @@ const App = () => {
             if (entry === !!prev.entry && exit === !!prev.exit && middle === Number(prev.middle) && Number(prev.forDays) === count) return prev;
             return { entry, middle, exit, forDays:count };
         });
-    }, [trainingMultiCalcActive, vehicleDaysInput, tripDays, trainingPayableMiddleDays]);
+    }, [trainingMultiCalcActive, vehicleDaysInput, tripDays, trainingPayableMiddleDays, trainingVehicleScheduleRequired]);
     useEffect(() => {
         if (trainingDailyMixedNeedsManual) {
             setTrainingDailyManual(50000);
@@ -42442,6 +42498,12 @@ const App = () => {
     const selectConnectedAxis = (axisId) => {
         const wanted = String(axisId || "");
         if (!wanted) return;
+        // Choice-State v1: 축 선택은 경로 authority만 교체하고 선택 UI는 안정적인 기본값으로 독립 초기화한다.
+        // 등급은 우등(pre), 접근비용은 추천요금(fare). 없는 등급/접근옵션은 기존 실제 데이터가 그대로 결정한다.
+        setGrade("pre");
+        setGradeSegmentSelections({});
+        setAccessSelections({ origin: "fare", destination: "fare" });
+        setAccessSelection("fare");
         setResult(prev => {
             if (!prev) return prev;
             const options = Array.isArray(prev.connectedAxisOptions) ? prev.connectedAxisOptions.filter(Boolean) : [];
@@ -42733,17 +42795,31 @@ const App = () => {
     // - complete draft: 기존처럼 applied/confirmed 반영
     // - incomplete draft: partial 값을 계산에 반영하지 않고 applied=[] / confirmed=false
     // - X / ESC / backdrop은 기존 편집취소 의미를 그대로 유지한다.
+    const openTrainingScheduleR104 = () => {
+        if (trainingVehicleScheduleRequired) setTrainingGovDraftDays([...trainingGovAppliedDays]);
+        if (trainingMixedScheduleRequired) setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
+        setTrainingGroupScheduleError("");
+        setTrainingGroupScheduleOpen(true);
+    };
     const confirmTrainingScheduleR104 = () => {
-        const requiredDays = trainingScheduleRequiredDays;
-        if (trainingGroupDraftDays.length !== requiredDays) {
-            setTrainingGroupAppliedDays([]);
-            setTrainingGroupScheduleConfirmed(false);
-            setTrainingGroupScheduleError("");
-            setTrainingGroupScheduleOpen(false);
-            return;
+        if (trainingVehicleScheduleRequired) {
+            if (trainingGovDraftDays.length === trainingVehicleScheduleRequiredDays) {
+                setTrainingGovAppliedDays([...trainingGovDraftDays].sort((a,b) => a-b));
+                setTrainingGovScheduleConfirmed(true);
+            } else {
+                setTrainingGovAppliedDays([]);
+                setTrainingGovScheduleConfirmed(false);
+            }
         }
-        setTrainingGroupAppliedDays([...trainingGroupDraftDays].sort((a,b) => a-b));
-        setTrainingGroupScheduleConfirmed(true);
+        if (trainingMixedScheduleRequired) {
+            if (trainingGroupDraftDays.length === trainingScheduleRequiredDays) {
+                setTrainingGroupAppliedDays([...trainingGroupDraftDays].sort((a,b) => a-b));
+                setTrainingGroupScheduleConfirmed(true);
+            } else {
+                setTrainingGroupAppliedDays([]);
+                setTrainingGroupScheduleConfirmed(false);
+            }
+        }
         setTrainingGroupScheduleError("");
         setTrainingGroupScheduleOpen(false);
     };
@@ -45264,7 +45340,7 @@ const App = () => {
                                 const selected = axisId && axisId === connectedAxisSelectedId;
                                 const axisFare = selected
                                     ? displayOneWayFare
-                                    : Number((opt.gradeDefault === "pre" && opt.pre) ? opt.pre : (opt.gen || opt.pre || opt.cost || 0));
+                                    : Number(opt.pre || opt.gen || opt.cost || 0);
                                 return ChoiceCard({
                                     key: `connected-axis-${axisId || axisIdx}`,
                                     selected,
@@ -45667,13 +45743,9 @@ const App = () => {
                             extraControl: tripType === "training" && trainingMixedScheduleRequired
                                 ? React.createElement("button", {
                                     type:"button",
-                                    className:`trip-quick-schedule lodging-quick-schedule ${trainingGroupScheduleComplete ? "complete" : "required"}`.trim(),
-                                    onClick:() => {
-                                        setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
-                                        setTrainingGroupScheduleError("");
-                                        setTrainingGroupScheduleOpen(true);
-                                    }
-                                }, trainingGroupScheduleComplete ? "합숙일 지정완료" : "합숙일 미지정")
+                                    className:`trip-quick-schedule lodging-quick-schedule ${trainingScheduleAllComplete ? "complete" : "required"}`.trim(),
+                                    onClick:openTrainingScheduleR104
+                                }, trainingScheduleAllComplete ? `${trainingScheduleButtonTitle} 지정완료` : `${trainingScheduleButtonTitle} 미지정`)
                                 : null
                         }),
                         renderLodgingQuickStayRow({ label:"친지집", value:friendLodgingNights, max:tripQuickFriendCeiling, onChange:tripQuickChangeFriendNights, targetKey:"friend" }),
@@ -45814,17 +45886,13 @@ const App = () => {
                             applied:tripQuickTravelNights > 0,
                             disabled:false
                         })),
-                    tripType === "training" && trainingMixedScheduleRequired
+                    tripType === "training" && trainingAnyScheduleRequired
                         ? React.createElement("div", { className:"trip-quick-schedule-row" },
                             React.createElement("button", {
                                 type:"button",
-                                className:`trip-quick-schedule ${trainingGroupScheduleComplete ? "complete" : ""}`.trim(),
-                                onClick:() => {
-                                    setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
-                                    setTrainingGroupScheduleError("");
-                                    setTrainingGroupScheduleOpen(true);
-                                }
-                            }, trainingGroupScheduleComplete ? "합숙일 지정완료" : "합숙일 미지정"),
+                                className:`trip-quick-schedule ${trainingScheduleAllComplete ? "complete" : ""}`.trim(),
+                                onClick:openTrainingScheduleR104
+                            }, trainingScheduleAllComplete ? `${trainingScheduleButtonTitle} 지정완료` : `${trainingScheduleButtonTitle} 미지정`),
                             React.createElement("div", { className:"trip-quick-schedule-spacer", "aria-hidden":"true" }))
                         : null,
                     React.createElement("button", {
@@ -45865,38 +45933,63 @@ const App = () => {
             )
         ),
         trainingGroupScheduleOpen && React.createElement("div", { className: "modal-bg training-schedule-overlay", onClick: () => setTrainingGroupScheduleOpen(false) },
-            React.createElement(OverlayCloseR108P2, { onClose: () => setTrainingGroupScheduleOpen(false), label: "합숙 적용일 지정 보조 닫기" }),
-            React.createElement("div", { className: "modal-box training-schedule-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": "합숙 적용일 지정", onClick: e => e.stopPropagation() },
-                React.createElement(PopupHeaderR104, { title: "합숙 적용일 지정", subtitle: `합숙제공 ${groupNights}박 · 날짜를 선택하세요.`, onConfirm: confirmTrainingScheduleR104 }),
+            React.createElement(OverlayCloseR108P2, { onClose: () => setTrainingGroupScheduleOpen(false), label: `${trainingScheduleDialogTitle} 보조 닫기` }),
+            React.createElement("div", { className: "modal-box training-schedule-modal r104-final-top-scope", role: "dialog", "aria-modal": "true", "aria-label": trainingScheduleDialogTitle, onClick: e => e.stopPropagation() },
+                React.createElement(PopupHeaderR104, { title: trainingScheduleDialogTitle, subtitle: trainingScheduleDialogSubtitle, onConfirm: confirmTrainingScheduleR104 }),
                 React.createElement("div", { className: "modal-body training-schedule-body r104-final-top-body" },
-                    React.createElement("div", { className: "training-schedule-lead" }, "첫날(입교일)과 마지막 날(수료일)은 체크 여부와 관계없이 일비 100%가 자동 지급됩니다."),
-                    React.createElement("div", { className: "training-schedule-sub" }, "중간 교육일 중 연수원 기숙사·합숙 등 숙소 제공일만 체크(☑)하세요. 체크한 날은 일비 0원(지급 제외), 미체크한 현지 숙박·출퇴근일은 일비 50%(5할)로 자동 계산됩니다. 실수 방지: 연수원이나 기관에서 숙소를 제공해 준 날짜만 찾아 체크(☑)하면 됩니다."),
-                    React.createElement("div", { className: "training-schedule-counter" }, `합숙제공 ${groupNights}박 · 교육일 합숙 적용 ${trainingGroupDraftDays.length}/${trainingScheduleRequiredDays}일`),
-                    React.createElement("div", { className: "training-schedule-days" },
-                        React.createElement("div", { className: "training-schedule-day training-day-locked" },
-                            React.createElement("div", { className: "training-schedule-day-title" }, "입교/등록일"),
-                            React.createElement("div", { className: "training-schedule-day-sub" }, "일비 100%")),
-                        Array.from({ length: trainingMiddleDays }, (_, idx) => idx + 2).map(dayNo => {
-                            const selected = trainingGroupDraftDays.includes(dayNo);
-                            const label = `교육일 ${dayNo - 1}`;
-                            const toggleDay = () => {
-                                setTrainingGroupScheduleError("");
-                                setTrainingGroupDraftDays(prev => {
-                                    if (prev.includes(dayNo)) return prev.filter(v => v !== dayNo);
-                                    if (prev.length >= trainingScheduleRequiredDays) {
-                                        setTrainingGroupScheduleError(`합숙제공 ${groupNights}박이므로 중간 교육일의 합숙 적용은 ${trainingScheduleRequiredDays}일까지 지정할 수 있습니다.`);
-                                        return prev;
-                                    }
-                                    return [...prev, dayNo].sort((a,b) => a-b);
-                                });
-                            };
-                            return React.createElement("button", { type: "button", key: dayNo, className: `training-schedule-day selectable ${selected ? "selected" : ""}`, onClick: toggleDay },
-                                React.createElement("div", { className: "training-schedule-day-title" }, label),
-                                React.createElement("div", { className: "training-schedule-check" }, selected ? "☑ 합숙 적용" : "☐ 합숙 적용"));
-                        }),
-                        React.createElement("div", { className: "training-schedule-day training-day-locked" },
-                            React.createElement("div", { className: "training-schedule-day-title" }, "수료일"),
-                            React.createElement("div", { className: "training-schedule-day-sub" }, "일비 100%"))),
+                    trainingVehicleScheduleRequired && React.createElement("div", { className:"training-schedule-section training-vehicle-schedule-section" },
+                        React.createElement("div", { className:"training-schedule-section-title" }, "관용차 이용일"),
+                        React.createElement("div", { className: "training-schedule-counter" }, `관용차 ${vehicleDaysInput}일 · 이용일 지정 ${trainingGovDraftDays.length}/${trainingVehicleScheduleRequiredDays}일`),
+                        React.createElement("div", { className: "training-schedule-days" },
+                            Array.from({ length: Math.max(1, tripDays) }, (_, idx) => idx + 1).map(dayNo => {
+                                const selected = trainingGovDraftDays.includes(dayNo);
+                                const dayTitle = dayNo === 1 ? "입교/등록일" : (dayNo === tripDays ? "수료일" : `교육일 ${dayNo - 1}`);
+                                const toggleDay = () => {
+                                    setTrainingGroupScheduleError("");
+                                    setTrainingGovDraftDays(prev => {
+                                        if (prev.includes(dayNo)) return prev.filter(v => v !== dayNo);
+                                        if (prev.length >= trainingVehicleScheduleRequiredDays) {
+                                            setTrainingGroupScheduleError(`관용차 이용 ${vehicleDaysInput}일이므로 ${trainingVehicleScheduleRequiredDays}일까지만 지정할 수 있습니다.`);
+                                            return prev;
+                                        }
+                                        return [...prev, dayNo].sort((a,b) => a-b);
+                                    });
+                                };
+                                return React.createElement("button", { type:"button", key:`gov-${dayNo}`, className:`training-schedule-day selectable ${selected ? "selected" : ""}`, onClick:toggleDay },
+                                    React.createElement("div", { className:"training-schedule-day-title" }, dayTitle),
+                                    React.createElement("div", { className:"training-schedule-check" }, selected ? "☑ 관용차 이용" : "☐ 관용차 이용"));
+                            }))),
+                    trainingMixedScheduleRequired && React.createElement("div", { className:`training-schedule-section training-group-schedule-section ${trainingVehicleScheduleRequired ? "with-divider" : ""}`.trim() },
+                        React.createElement("div", { className:"training-schedule-section-title" }, "합숙일"),
+                        !trainingVehicleScheduleRequired && React.createElement(React.Fragment, null,
+                            React.createElement("div", { className: "training-schedule-lead" }, "첫날(입교일)과 마지막 날(수료일)은 체크 여부와 관계없이 일비 100%가 자동 지급됩니다."),
+                            React.createElement("div", { className: "training-schedule-sub" }, "중간 교육일 중 연수원 기숙사·합숙 등 숙소 제공일만 체크(☑)하세요. 체크한 날은 일비 0원(지급 제외), 미체크한 현지 숙박·출퇴근일은 일비 50%(5할)로 자동 계산됩니다. 실수 방지: 연수원이나 기관에서 숙소를 제공해 준 날짜만 찾아 체크(☑)하면 됩니다.")),
+                        React.createElement("div", { className: "training-schedule-counter" }, `합숙제공 ${groupNights}박 · 교육일 합숙 적용 ${trainingGroupDraftDays.length}/${trainingScheduleRequiredDays}일`),
+                        React.createElement("div", { className: "training-schedule-days" },
+                            React.createElement("div", { className: "training-schedule-day training-day-locked" },
+                                React.createElement("div", { className: "training-schedule-day-title" }, "입교/등록일"),
+                                React.createElement("div", { className: "training-schedule-day-sub" }, "일비 100%")),
+                            Array.from({ length: trainingMiddleDays }, (_, idx) => idx + 2).map(dayNo => {
+                                const selected = trainingGroupDraftDays.includes(dayNo);
+                                const label = `교육일 ${dayNo - 1}`;
+                                const toggleDay = () => {
+                                    setTrainingGroupScheduleError("");
+                                    setTrainingGroupDraftDays(prev => {
+                                        if (prev.includes(dayNo)) return prev.filter(v => v !== dayNo);
+                                        if (prev.length >= trainingScheduleRequiredDays) {
+                                            setTrainingGroupScheduleError(`합숙제공 ${groupNights}박이므로 중간 교육일의 합숙 적용은 ${trainingScheduleRequiredDays}일까지 지정할 수 있습니다.`);
+                                            return prev;
+                                        }
+                                        return [...prev, dayNo].sort((a,b) => a-b);
+                                    });
+                                };
+                                return React.createElement("button", { type: "button", key: dayNo, className: `training-schedule-day selectable ${selected ? "selected" : ""}`, onClick: toggleDay },
+                                    React.createElement("div", { className: "training-schedule-day-title" }, label),
+                                    React.createElement("div", { className: "training-schedule-check" }, selected ? "☑ 합숙 적용" : "☐ 합숙 적용"));
+                            }),
+                            React.createElement("div", { className: "training-schedule-day training-day-locked" },
+                                React.createElement("div", { className: "training-schedule-day-title" }, "수료일"),
+                                React.createElement("div", { className: "training-schedule-day-sub" }, "일비 100%")))),
                     trainingGroupScheduleError && React.createElement("div", { className: "training-schedule-error" }, trainingGroupScheduleError),
                     null))) ,
         activeModal && (() => {
@@ -46153,7 +46246,7 @@ const App = () => {
                                         },
                                         ariaLabel: "관용차 이용일수"
                                     })),
-                                trainingMultiCalcActive && vehicleDaysInput > 0 && React.createElement("div", { className:"c6-gov-training-alloc" },
+                                trainingMultiCalcActive && vehicleDaysInput > 0 && !trainingVehicleScheduleRequired && React.createElement("div", { className:"c6-gov-training-alloc" },
                                     React.createElement("div", { className:"c6-gov-training-title" }, "연수출장 사용일 배분"),
                                     React.createElement("div", { className:"c6-gov-training-grid" },
                                         React.createElement("button", {
@@ -46388,7 +46481,7 @@ const App = () => {
                 (isMultiDayTrip || useTabletExpenseUi || desktopD39Layout || mobilePagerEnabledM6A2 || isDesktopCompact) && React.createElement(React.Fragment, null,
                     React.createElement("div", { className: "trip-condition-box" },
                         React.createElement("div", { className: "m5-mobile-condition-slot-shell" },
-                            React.createElement("div", { className: `trip-condition-grid ${presentationTabletUiD42 ? "d6-d10-trip-condition-grid" : ""} ${desktopTabletPresentationD42 ? "d42-desktop-condition-grid" : ""} ${mobilePagerEnabledM6A2 ? "m5-mobile-condition-grid" : ""} ${mobilePagerEnabledM6A2 && trainingMixedScheduleRequired ? "has-schedule" : ""}`.trim() },
+                            React.createElement("div", { className: `trip-condition-grid ${presentationTabletUiD42 ? "d6-d10-trip-condition-grid" : ""} ${desktopTabletPresentationD42 ? "d42-desktop-condition-grid" : ""} ${mobilePagerEnabledM6A2 ? "m5-mobile-condition-grid" : ""} ${mobilePagerEnabledM6A2 && trainingAnyScheduleRequired ? "has-schedule" : ""}`.trim() },
                             mobilePagerEnabledM6A2
                                 ? React.createElement(React.Fragment, null,
                                     React.createElement("button", {
@@ -46619,40 +46712,28 @@ const App = () => {
                                                 React.createElement("span", { className: "trip-unit" }, "박")),
                                             React.createElement("button", { type: "button", className: "m511-mini-step-btn", "aria-label": "합숙제공 1박 늘리기", disabled: groupNights >= Math.max(0, maxLodgingNights - Math.max(0, Number(lodgingNights) || 0)), onClick: () => handleGroupNightsChange(groupNights + 1) }, "+"))))),
                             mobilePagerEnabledM6A2 && React.createElement("div", { className: "m5-mobile-condition-rail-slot" },
-                                trainingMixedScheduleRequired && React.createElement("button", {
+                                trainingAnyScheduleRequired && React.createElement("button", {
                                     type: "button",
-                                    className: `training-schedule-btn m5-mobile-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
-                                    onClick: () => {
-                                        setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
-                                        setTrainingGroupScheduleError("");
-                                        setTrainingGroupScheduleOpen(true);
-                                    }
+                                    className: `training-schedule-btn m5-mobile-schedule-btn ${trainingScheduleAllComplete ? "complete" : "required"}`,
+                                    onClick: openTrainingScheduleR104
                                 },
-                                    React.createElement("span", { className: "c9-schedule-line c9-schedule-title" }, "합숙일"),
-                                    React.createElement("span", { className: "c9-schedule-line c9-schedule-state" }, trainingGroupScheduleComplete ? "지정완료" : "미지정")))),
-                        (((desktopTabletPresentationD42 && !isDesktopCompact) || !(useTabletExpenseUi || showDetail) || (!desktopTabletPresentationD42 && trainingMixedScheduleRequired))) && React.createElement("div", { className: `trip-help-wrap ${desktopTabletPresentationD42 ? "d42-desktop-help-wrap" : ""}`.trim() },
-                            React.createElement("div", { className: `trip-help-toggle-row ${(!desktopTabletPresentationD42 && trainingMixedScheduleRequired) ? "k5g-actions" : ""}` },
+                                    React.createElement("span", { className: "c9-schedule-line c9-schedule-title" }, trainingScheduleButtonTitle),
+                                    React.createElement("span", { className: "c9-schedule-line c9-schedule-state" }, trainingScheduleAllComplete ? "지정완료" : "미지정")))),
+                        (((desktopTabletPresentationD42 && !isDesktopCompact) || !(useTabletExpenseUi || showDetail) || (!desktopTabletPresentationD42 && trainingAnyScheduleRequired))) && React.createElement("div", { className: `trip-help-wrap ${desktopTabletPresentationD42 ? "d42-desktop-help-wrap" : ""}`.trim() },
+                            React.createElement("div", { className: `trip-help-toggle-row ${(!desktopTabletPresentationD42 && trainingAnyScheduleRequired) ? "k5g-actions" : ""}` },
                                 (desktopTabletPresentationD42 || !(useTabletExpenseUi || showDetail)) && React.createElement("button", { type: "button", className: "trip-help-toggle", onClick: () => setTripTypeHelpOpen(true) }, desktopTabletPresentationD42 ? React.createElement(React.Fragment, null, "설명", React.createElement("br", null), "보기") : "설명보기"),
-                                desktopD39Layout && trainingMixedScheduleRequired && React.createElement("button", {
+                                desktopD39Layout && trainingAnyScheduleRequired && React.createElement("button", {
                                     type:"button",
-                                    className:`training-schedule-btn c9-desktop-schedule ${trainingGroupScheduleComplete ? "complete" : "required"}`,
-                                    onClick:() => {
-                                        setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
-                                        setTrainingGroupScheduleError("");
-                                        setTrainingGroupScheduleOpen(true);
-                                    }
+                                    className:`training-schedule-btn c9-desktop-schedule ${trainingScheduleAllComplete ? "complete" : "required"}`,
+                                    onClick:openTrainingScheduleR104
                                 },
-                                    React.createElement("span", { className:"c9-schedule-line c9-schedule-title" }, "합숙일"),
-                                    React.createElement("span", { className:"c9-schedule-line c9-schedule-state" }, trainingGroupScheduleComplete ? "지정완료" : "미지정")),
-                                !desktopTabletPresentationD42 && !mobilePagerEnabledM6A2 && trainingMixedScheduleRequired && React.createElement("button", {
+                                    React.createElement("span", { className:"c9-schedule-line c9-schedule-title" }, trainingScheduleButtonTitle),
+                                    React.createElement("span", { className:"c9-schedule-line c9-schedule-state" }, trainingScheduleAllComplete ? "지정완료" : "미지정")),
+                                !desktopTabletPresentationD42 && !mobilePagerEnabledM6A2 && trainingAnyScheduleRequired && React.createElement("button", {
                                     type: "button",
-                                    className: `training-schedule-btn ${trainingGroupScheduleComplete ? "complete" : "required"}`,
-                                    onClick: () => {
-                                        setTrainingGroupDraftDays([...trainingGroupAppliedDays]);
-                                        setTrainingGroupScheduleError("");
-                                        setTrainingGroupScheduleOpen(true);
-                                    }
-                                }, trainingGroupScheduleComplete ? "✓ 합숙 적용일 지정 완료" : "합숙일 미지정")))),
+                                    className: `training-schedule-btn ${trainingScheduleAllComplete ? "complete" : "required"}`,
+                                    onClick: openTrainingScheduleR104
+                                }, trainingScheduleAllComplete ? `✓ ${trainingScheduleButtonTitle} 지정 완료` : `${trainingScheduleButtonTitle} 미지정`)))),
                     !ui08CleanMainNotes && trainingDailyNeedsReview && !trainingMixedScheduleRequired && React.createElement("div", { className: "training-review-note" }, desktopTabletPresentationD42 ? "합숙 일부일 · 날짜별 체재순서 확인 필요" : "합숙이 일부 날짜에만 포함되어 중간 교육일의 체재 순서를 박수만으로 확정할 수 없습니다. 여비이지는 임의 배정하지 않고 입교·수료 기본 일비만 우선 반영합니다."))),
 
             React.createElement("div", { className: "expense-ledger" },
