@@ -29503,6 +29503,12 @@ const App = () => {
     // 신안/완도 세부지역 선택/닫기 후 재계산 1회는 대표 팝업 재호출을 건너뛴다.
     // ybez.html의 isForce와 같은 역할이며, performCalc 인자 구조는 건드리지 않는다.
     const skipPopupOnceRef = useRef(false);
+    // WANDO-ONCE: 완도→완도는 동일지역 0원 short-circuit 전에 출발지 팝업을 딱 1회만 허용한다.
+    // 기존 전역 팝업 규칙은 건드리지 않고, 이 pair의 직후 재계산에서만 반대쪽 완도 팝업을 한 번 건너뛴다.
+    const wandoSamePairHandledRef = useRef(false);
+    const wandoSamePairSkipPopupOnceRef = useRef(false);
+    // WANDO-SLOT: 완도→완도 특수 팝업은 마지막으로 완도를 입력한 슬롯에 귀속한다.
+    const wandoSamePairTriggerSlotRef = useRef(null);
     // 2R.6A-2: normalizeCity가 동일 권역의 세부 시군명을 대표명으로 바꾸기 전에
     // 사용자가 입력한 원문 endpoint를 보존해 양방향 보정 항목을 정확히 구분한다.
     const routeCorrectionRequestRef = useRef({ fromRaw: "", toRaw: "", fromAreaId: "", toAreaId: "" });
@@ -29887,6 +29893,11 @@ const App = () => {
         if (popupPrevInputRef.current.destination !== d) {
             popupPrevInputRef.current.destination = d;
             popupResolvedRef.current.destination = "";
+        }
+        // 완도→완도 1회 팝업 완료상태는 해당 pair를 벗어나면 해제한다.
+        // 직후 재계산용 one-shot skip은 popup 선택 직후 performCalc가 소비해야 하므로 여기서 초기화하지 않는다.
+        if (!(o === "완도" && !v && d === "완도")) {
+            wandoSamePairHandledRef.current = false;
         }
         // FREEZE-20260821: 출발지/도착지가 실제로 바뀌는 새 여정은 항상 제2호에서 시작한다.
         if (endpointChanged) setTravelExpenseClass(2);
@@ -37859,6 +37870,8 @@ const App = () => {
         const toNormN = to.replace(/\s/g, "");
         const skipPopup = skipPopupOnceRef.current;
         skipPopupOnceRef.current = false;
+        const skipWandoSamePairPopup = wandoSamePairSkipPopupOnceRef.current;
+        wandoSamePairSkipPopupOnceRef.current = false;
         if ([from, to, rawFrom, rawTo].some(x => /광주비아|비아정류|^비아$/.test(nz(x)))) {
             applyCalcResult(null);
             setBypassInfo(["⚠ 광주비아는 광주유스퀘어 하위정류장이므로 여비 산정 목적지로 별도 계산하지 않습니다."]);
@@ -37871,6 +37884,21 @@ const App = () => {
             setBypassInfo(["⚠ 고성은 동명이역입니다. 고성(강원) 또는 고성(경남)을 선택해 주세요."]);
             setCalcSt("error_no_route");
             return;
+        }
+        // WANDO-ONCE: 완도→완도만 동일지역 0원 처리보다 먼저 출발지 완도 팝업을 1회 허용한다.
+        // 팝업에서 다시 완도를 고르면 2회차는 그대로 0원 종료하고, 다른 지역을 고르면 직후 재계산에서
+        // 도착지 완도 팝업을 한 번 더 띄우지 않도록 one-shot skip만 사용한다.
+        const isExactWandoSamePair = !nz(viaCity) && rawFrom === "완도" && rawTo === "완도";
+        if (isExactWandoSamePair && !wandoSamePairHandledRef.current && !modalSt.type) {
+            const wandoPopupData = POPUP["완도"];
+            if (wandoPopupData) {
+                wandoSamePairHandledRef.current = true;
+                wandoSamePairSkipPopupOnceRef.current = true;
+                setCalcSt("idle");
+                const triggerSlot = wandoSamePairTriggerSlotRef.current === "destination" ? "destination" : "origin";
+                setModalSt({ type: triggerSlot, data: wandoPopupData, popupKey: "완도" });
+                return;
+            }
         }
         if (from && to && !nz(viaCity) && from === to && rawFrom === rawTo) {
             const sameRes = { gen: 0, pre: null, cost: 0, surcharge: 0, shipCost: 0,
@@ -38763,7 +38791,7 @@ const App = () => {
                 return;
             }
         }
-        {
+        if (!skipWandoSamePairPopup) {
             // D2-R2: 신안·완도 팝업은 출발 → 경유 → 도착 순서로 한 번에 하나만 검사한다.
             // resolved는 슬롯별로 관리하므로 완도 팝업에서 '완도'를 선택해도 같은 슬롯이 즉시 재호출되지 않는다.
             const fromPopupData = POPUP[fromN] || POPUP[fromNormN];
@@ -45046,7 +45074,7 @@ const App = () => {
                         React.createElement("div", { className: "d2-route-marker-cell has-next", "aria-hidden": "true" },
                             React.createElement("span", { className: "d2-route-dot origin" })),
                         React.createElement("div", { className: "ac-input-wrap mobile-origin-wrap d2-route-input" },
-                            React.createElement(AcInput, { label: "", placeholder: "\uCD9C\uBC1C\uC9C0", value: origin, onChange: v => setOrigin(v), onSelect: c => { setOrigin(c); performCalc(c, dest, via); }, list: originSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }))),
+                            React.createElement(AcInput, { label: "", placeholder: "\uCD9C\uBC1C\uC9C0", value: origin, onChange: v => setOrigin(v), onSelect: c => { if (nz(c) === "완도") wandoSamePairTriggerSlotRef.current = "origin"; setOrigin(c); performCalc(c, dest, via); }, list: originSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }))),
                     showVia && React.createElement("div", { className: "d2-route-row d2-route-via" },
                         React.createElement("div", { className: "d2-route-marker-cell has-next", "aria-hidden": "true" },
                             React.createElement("span", { className: "d2-route-dot via" })),
@@ -45062,7 +45090,7 @@ const App = () => {
                         React.createElement("div", { className: "d2-route-marker-cell", "aria-hidden": "true" },
                             React.createElement("span", { className: "d2-route-dot dest" })),
                         React.createElement("div", { className: "ac-input-wrap mobile-dest-wrap d2-route-input" },
-                            React.createElement(AcInput, { label: "", placeholder: "\uB3C4\uCC29\uC9C0", value: dest, onChange: v => setDest(v), onSelect: c => { if (nz(c) !== nz(dest)) resetTripConditionsForDestination(c); setDest(c); performCalc(origin, c, via); }, list: destSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }))),
+                            React.createElement(AcInput, { label: "", placeholder: "\uB3C4\uCC29\uC9C0", value: dest, onChange: v => setDest(v), onSelect: c => { if (nz(c) === "완도") wandoSamePairTriggerSlotRef.current = "destination"; if (nz(c) !== nz(dest)) resetTripConditionsForDestination(c); setDest(c); performCalc(origin, c, via); }, list: destSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }))),
                     React.createElement("div", { className: "d2-route-action-rail", "aria-label": "경로 조작" },
                         React.createElement("button", {
                             type: "button", className: "d2-route-action d2-reset-action", onClick: resetToMainKeepOrigin,
@@ -45084,7 +45112,7 @@ const App = () => {
                         }, showVia ? "−" : "+"))),
                 React.createElement("div", { className: "search-inputs-row d2-legacy-route-editor", style: { display: "flex", flexDirection: "column", gap: 8 } },
                     React.createElement("div", { className: "ac-input-wrap mobile-origin-wrap" },
-                        React.createElement(AcInput, { label: "", placeholder: "\uCD9C\uBC1C\uC9C0", value: origin, onChange: v => setOrigin(v), onSelect: c => { setOrigin(c); performCalc(c, dest, via); }, list: originSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }),
+                        React.createElement(AcInput, { label: "", placeholder: "\uCD9C\uBC1C\uC9C0", value: origin, onChange: v => setOrigin(v), onSelect: c => { if (nz(c) === "완도") wandoSamePairTriggerSlotRef.current = "origin"; setOrigin(c); performCalc(c, dest, via); }, list: originSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }),
                         !showVia && React.createElement("button", { type: "button", className: "mobile-inline-action mobile-via-add", onClick: () => setShowVia(true), title: "경유지 추가", "aria-label": "경유지 추가" }, "+")),
                     React.createElement("button", { className: "swap-btn", onClick: handleSwap, title: "\uCD9C\uBC1C\uC9C0\u2194\uB3C4\uCC29\uC9C0 \uAD50\uD658" },
                         React.createElement("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "rgba(201,125,32,0.8)", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
@@ -45107,7 +45135,7 @@ const App = () => {
                                 } }, list: cityList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName })),
                         React.createElement("button", { type: "button", className: "via-remove-btn", onClick: () => { setShowVia(false); setVia(""); performCalc(origin, dest, ""); }, title: "경유지 제거", "aria-label": "경유지 제거" }, "\u2212"))))),
                     React.createElement("div", { className: "ac-input-wrap mobile-dest-wrap" },
-                        React.createElement(AcInput, { label: "", placeholder: "\uB3C4\uCC29\uC9C0", value: dest, onChange: v => setDest(v), onSelect: c => { if (nz(c) !== nz(dest)) resetTripConditionsForDestination(c); setDest(c); performCalc(origin, c, via); }, list: destSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }),
+                        React.createElement(AcInput, { label: "", placeholder: "\uB3C4\uCC29\uC9C0", value: dest, onChange: v => setDest(v), onSelect: c => { if (nz(c) === "완도") wandoSamePairTriggerSlotRef.current = "destination"; if (nz(c) !== nz(dest)) resetTripConditionsForDestination(c); setDest(c); performCalc(origin, c, via); }, list: destSearchList, mascotMap: mascotMap, regionLabelForName: inputRegionLabelForName }),
                         React.createElement("button", { type: "button", className: "mobile-inline-action mobile-swap-action", onClick: handleSwap, title: "출발지·도착지 교환", "aria-label": "출발지와 도착지 교환" },
                             React.createElement("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.4", strokeLinecap: "round", strokeLinejoin: "round" },
                                 React.createElement("path", { d: "M8 4v15m0 0-4-4m4 4 4-4" }),
