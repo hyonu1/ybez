@@ -1,0 +1,50 @@
+{
+  "version": "2R6B7C1A",
+  "generated_at": "2026-08-07T11:35:00+09:00",
+  "status": "VERIFIED_FIX",
+  "scope": "남양주 구리 중심 공동생활권 선처리 및 해남↔남양주 양방향 메인경로",
+  "runtime_policy": "기존 C-1 보정표와 보호파일을 수정하지 않고 정확한 해남↔남양주 사용자 지역쌍에만 추가 적용",
+  "forced_routes": [
+    {
+      "id": "HN_NYJ_VIA_GJ_GURI",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_GURI_CENTER_ACCESS",
+      "from": "해남",
+      "to": "남양주",
+      "route_label_forward": "해남 → 광주 → 구리 → 남양주",
+      "route_label_reverse": "남양주 → 구리 → 광주 → 해남",
+      "display_route_label_forward": "해남 → 남양주",
+      "display_route_label_reverse": "남양주 → 해남",
+      "segments_forward": [
+        {
+          "from": "해남",
+          "to": "광주",
+          "gen": 13700,
+          "pre": 16900,
+          "sourceLabel": "2026.1.1.자 전라남도 여비기준표",
+          "source": "JNE2026",
+          "note": "전남·광주 메인 교통비",
+          "kind": "bus"
+        },
+        {
+          "from": "광주유스퀘어",
+          "to": "구리시외버스정류장",
+          "gen": 30600,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "광주→구리 사용자 전수조사 검증요금",
+          "kind": "bus"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "구리",
+        "lv5": "남양주",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "access_type": "OFFICIAL_DISTANCE_FARE",
+        "note": "구남권 공동생활권 0원 또는 경기도 일반형 시내버스 기본요금 선택"
+      }
+    }
+  ]
+}

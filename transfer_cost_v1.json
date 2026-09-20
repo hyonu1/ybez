@@ -1,0 +1,91 @@
+{
+  "version": "transfer_cost_v1",
+  "generated_at": "2026-09-17T12:04:00+09:00",
+  "status": "CANDIDATE_ONLY",
+  "scope": "Route Repair LIVE_PASS transfer_required 162 pair / unique 3 segments",
+  "policy": {
+    "under_2km_display": "환승",
+    "under_2km_show_zero_fare": false,
+    "under_2km_show_distance": false,
+    "transfer_separate_from_access": true,
+    "no_main_fare_mutation": true,
+    "no_expense_total_mutation_in_candidate": true
+  },
+  "segments": {
+    "NODE_0046>NODE_0650": {
+      "kind": "transfer",
+      "from_node_id": "NODE_0046",
+      "from_name": "동대구터미널",
+      "to_node_id": "NODE_0650",
+      "to_name": "대구북부시외버스터미널",
+      "fare": 1500,
+      "fare_display": true,
+      "display_label": "환승",
+      "display_value": "환승 1,500원",
+      "fare_mode": "DAEGU_URBAN_TRANSIT_CARD_FLAT",
+      "distance_policy": "OVER_2KM",
+      "evidence_grade": "OFFICIAL_CURRENT",
+      "source": "대구광역시 공식 교통요금/터미널 자료 + transfer_review_v1",
+      "pair_count": 23,
+      "candidate_only": true,
+      "included_in_main_fare": false,
+      "included_in_expense": false
+    },
+    "NODE_0047>NODE_0650": {
+      "kind": "transfer",
+      "from_node_id": "NODE_0047",
+      "from_name": "서대구고속버스터미널",
+      "to_node_id": "NODE_0650",
+      "to_name": "대구북부시외버스터미널",
+      "fare": null,
+      "fare_display": false,
+      "display_label": "환승",
+      "display_value": "환승",
+      "fare_mode": "NO_FARE_DISPLAY_UNDER_2KM",
+      "distance_policy": "UNDER_2KM",
+      "evidence_grade": "OFFICIAL_ADDRESS_PLUS_PROJECT_GPS",
+      "source": "대구광역시 공식 교통요금/터미널 자료 + transfer_review_v1",
+      "pair_count": 36,
+      "candidate_only": true,
+      "included_in_main_fare": false,
+      "included_in_expense": false
+    },
+    "NODE_0273>NODE_0650": {
+      "kind": "transfer",
+      "from_node_id": "NODE_0273",
+      "from_name": "대구서부정류장",
+      "to_node_id": "NODE_0650",
+      "to_name": "대구북부시외버스터미널",
+      "fare": 1500,
+      "fare_display": true,
+      "display_label": "환승",
+      "display_value": "환승 1,500원",
+      "fare_mode": "DAEGU_URBAN_TRANSIT_CARD_FLAT",
+      "distance_policy": "OVER_2KM",
+      "evidence_grade": "OFFICIAL_CURRENT",
+      "source": "대구광역시 공식 교통요금/터미널 자료 + transfer_review_v1",
+      "pair_count": 103,
+      "candidate_only": true,
+      "included_in_main_fare": false,
+      "included_in_expense": false
+    }
+  },
+  "source_review_sha256": "5eecc4dbf4a3c6927bdcd87c1c4c877b488a35738156d990ba7542de86369faf",
+  "research_sources": {
+    "daegu_terminal_official": {
+      "url": "https://www.daegu.go.kr/tra/index.do?menu_id=00001766",
+      "checked": "2026-09-17",
+      "supports": "동대구·서부·북부·서대구고속 터미널 공식 명칭/주소; 페이지 최근수정일 2026-02-04"
+    },
+    "daegu_bus_fare_official": {
+      "url": "https://www.daegu.go.kr/tra/index.do?menu_id=00000354",
+      "checked": "2026-09-17",
+      "supports": "일반 시내버스 교통카드 일반 1,500원; 환승 30분 이내 2회"
+    },
+    "daegu_metro_fare_official": {
+      "url": "https://www.daegu.go.kr/tra/index.do?menu_id=00000351",
+      "checked": "2026-09-17",
+      "supports": "대구 도시철도 교통카드 일반 1,500원, 전구간 균일요금"
+    }
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "version": "ybez_2gen_desktop_release_manifest_v1",
+  "release": "2Gen Desktop 1st release",
+  "generated_at": "2026-09-21T00:04:28+09:00",
+  "index_sha256": "f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4",
+  "runtime_version": "connected_7_routes_v11_patch1_v1_r3d2c",
+  "policy": {
+    "index_html": "FINAL_PASS",
+    "index_candidate_html": "CREATE_ONLY_FOR_NEXT_PATCH",
+    "images": "EXCLUDED; user will copy assets later",
+    "mobile_ui": "FOLLOW_UP",
+    "map_ui": "FOLLOW_UP"
+  },
+  "verification": {
+    "island_cases": 1822,
+    "island_changed": 0,
+    "nationwide_cases": 12340,
+    "nationwide_changed": 0,
+    "status": "PASS"
+  },
+  "files": [
+    {
+      "path": ".nojekyll",
+      "size": 18,
+      "sha256": "d4b2a0060e0b32a4fc3e2cf16bd8442b647e442d309f9fd6a1c6a3492c85e317",
+      "role": "packaging",
+      "github": true,
+      "runtime": false
+    },
+    {
+      "path": "README.md",
+      "size": 715,
+      "sha256": "5698ed58b9ff3006e9aac99414f01009ed8e4a59b41311be4925e5fd65ebf110",
+      "role": "packaging",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "YBEZ_2gen_area_graph_final_v2.json",
+      "size": 465768,
+      "sha256": "ebe39a082fa4b6dc5d3f486193ff6666db0b908a63f1a70134fce71dca72ae86",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "_runtime/run.bat",
+      "size": 1210,
+      "sha256": "b5979ad34832b02c6e7efccaef98be0ad2dec762a5139aacfa8c2557ea149628",
+      "role": "local_launcher",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "_runtime/run_m.bat",
+      "size": 1458,
+      "sha256": "a2d1011ee863649379ee03280e69e070e312a79f149c4ea9184fc92be73c0979",
+      "role": "local_launcher",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "alias_linked.json",
+      "size": 29339,
+      "sha256": "14b24797e73994fa6e290b4c44e144613cbba225d0507cc5a8a74cb475b700a4",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "assets/README.txt",
+      "size": 478,
+      "sha256": "a75dfc9ac4ab8d73d97065da241746040f646f80011c75ad558aac065e4447fd",
+      "role": "asset_note",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "connected_7_repair_runtime_v1.json",
+      "size": 3915679,
+      "sha256": "0716175b5a1aa08d088f85dfc367806af6192097749868a80b97a0b8b273f91b",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "connected_core.js",
+      "size": 839,
+      "sha256": "badc05f9357611fd1fa5f42bb656acc1f969cc8d69a8ac804dd0f2261494ddc8",
+      "role": "runtime_js",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "connected_runtime_patch1_r3d2c.js",
+      "size": 66881,
+      "sha256": "8c7df0bc0ff4195de2a3ffa297b9421824412c5835a1936cfae0c79b8693637b",
+      "role": "runtime_js",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/access_cost_nationwide_v2_candidate_3.json",
+      "size": 363936,
+      "sha256": "5a4a09a0abe15a3547e7938e0f5d2ef054c75833cfa5c34c66adc7766abcc58f",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/access_fare_table.json",
+      "size": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/fare_runtime_overrides_2R6B5.json",
+      "size": 74310,
+      "sha256": "50bc5f8f68d451fec5807b90973f6fcb686abf7fd2d82834436548e60e0e4891",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/mascot_map.json",
+      "size": 36857,
+      "sha256": "cf7dd5a93af6847cb1271b65de9fa16d9db4af71f30c3479c30178226df331d5",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_audit_closeout_2R6B7F4.json",
+      "size": 3281,
+      "sha256": "200193e8f1be0de94a0d9413431361b162e93027b980139cf48b140761013220",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_bidirectional_route_corrections.json",
+      "size": 14662,
+      "sha256": "cfae50a6d34bafdfbd326b7ee76f8f92afa04416939710e9cfbb7dfd0e7ea9b3",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_display_hub_policy_2R6B7E.json",
+      "size": 4634,
+      "sha256": "ccb56b314187762b11cf38070b7353ab9814da4e60f13bc785b7d753f9cde5ee",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_gwangju_lv4_connection_overrides_2R6B2.json",
+      "size": 29238,
+      "sha256": "561d1a473a87e630b73bfa4b62ce9336e86c9c8cf44dc670257ce1a2840e5302",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_gyeonggi_access_policy_2R6B7D1.json",
+      "size": 10442,
+      "sha256": "31536f9d47420ab5da9e8f66dfd21c9df05e8dc351ce93082da64a305af6b1a8",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_gyeonggi_access_policy_2R6B7F2B.json",
+      "size": 8960,
+      "sha256": "979aaa52e2a7284784c1bc2791a25a85edad0755fb6afbfc99495e3c6d7fb872",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_lv4_verified_fallback.json",
+      "size": 13796,
+      "sha256": "10f4bf0542af6245552f584ba7da656d28c1b4339835deaf7c250fcca25245e2",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_region_role_index.json",
+      "size": 285089,
+      "sha256": "e80efd0c8ea25156f47d74bd4efa860d22cbda479c9472cae62544cc71bb6fa6",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_route_corrections_2R6B7C1.json",
+      "size": 2346,
+      "sha256": "b007ca6ede39c89342b4a61bbac5cbb89cd6146ff8c692a14aa92cdccf8e676c",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_route_corrections_2R6B7C1A.json",
+      "size": 1829,
+      "sha256": "81a373a3ee42493776fc4e6f95f1bb8449647ba82e1546d9e729816974df3fa6",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_route_corrections_2R6B7C2.json",
+      "size": 6126,
+      "sha256": "209e69dfe85d3080ed07a839aa6f8aa0f01fc71667fd19edb22a47b12c4a108a",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "data/ybez_suncheon_lv4_connection_overrides_2R6B2.json",
+      "size": 13325,
+      "sha256": "2c309f22b89045262310588e91c982ee5829c64cfb24e4ea540f6e846f7c4341",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "index.html",
+      "size": 6384674,
+      "sha256": "f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4",
+      "role": "main",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "nodes.json",
+      "size": 373587,
+      "sha256": "301ad71a621f6c40738f30b46fe17aed653a3f706f6eedbbabc1e69272ad0f18",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "routes.json",
+      "size": 28412777,
+      "sha256": "b1b44437caad811ffeb23c608e0ead05118b8ca70506c37c46d3c7bf43b32506",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "transfer_cost_v1.json",
+      "size": 3469,
+      "sha256": "0b668571e7fe6e8eee12f5caf9d439aee0c5bb5da8f87c11cd421932d8306897",
+      "role": "runtime_data",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "verify/island_baseline.json",
+      "size": 103695,
+      "sha256": "93f38193464da326a150a0076c6042daa1ce01bfdefcd33a79c7496c41643110",
+      "role": "verification",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "verify/island_regression.py",
+      "size": 27382,
+      "sha256": "bbe546a76f3a78941bd2702ece1363707bdceb3d9bc2385ec8c04cbf77578dd7",
+      "role": "verification",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "verify/nationwide_baseline.json",
+      "size": 702475,
+      "sha256": "b82763c172d52a89d5125ee496cbbd0ba1cf51f2a8b901f668678eb67cb9bd77",
+      "role": "verification",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "verify/nationwide_regression.py",
+      "size": 6832,
+      "sha256": "46bff14dd55788e3206d116b888f0a149edaa1944c86dccdb85efa42ccfcfd1d",
+      "role": "verification",
+      "github": true,
+      "runtime": true
+    },
+    {
+      "path": "verify/regression_report.json",
+      "size": 1036,
+      "sha256": "ed3bd16aa8386900e10e1f826dd3e1b0cb58fedc51539dae0251d8f557cbf7d1",
+      "role": "verification",
+      "github": true,
+      "runtime": true
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "version": "2R6B7C2",
+  "generated_at": "2026-08-07T16:00:00+09:00",
+  "status": "VERIFIED_FIX",
+  "scope": "광주↔청주·아산·세종·증평·부천 사용자 검증 경로",
+  "runtime_policy": "기존 routes/graph/접근비용 원자료를 수정하지 않고 정확한 광주↔대상지역 pair에만 기존 광주 exact/LV4-LV5 처리보다 우선 적용",
+  "notes": [
+    "청주: 복수 일반/우등 선택기는 후속 전국 Fare Collector 완성 이후 지원. 이번에는 우등+우등 고정.",
+    "아산: 천안↔아산 2,500원은 접근비용 선택형이 아니라 실제 시외버스 운임 세그먼트.",
+    "세종·증평·부천: 사용자 검증 직행을 양방향 동일 구조로 적용."
+  ],
+  "forced_routes": [
+    {
+      "id": "GJ_CHEONGJU_VIA_JEONJU_UDEUNG",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_BUSTAGO",
+      "from": "광주",
+      "to": "청주",
+      "route_label_forward": "광주 → 전주 → 청주",
+      "route_label_reverse": "청주 → 전주 → 광주",
+      "area_method": "광주↔청주 전주 경유 확정",
+      "area_detail": "직행 없음 · 광주↔전주 시외우등 11,500원 + 전주↔청주 시외우등 15,900원 · Bustago · 일반요금은 참고만 표시",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "전주",
+          "gen": 11500,
+          "sourceLabel": "Bustago",
+          "source": "bustago",
+          "note": "시외우등 · 일반 7,900원 참고 · 복수 등급선택 후속",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "전주고속버스터미널",
+          "reference_general_fare": 7900
+        },
+        {
+          "from": "전주",
+          "to": "청주",
+          "gen": 15900,
+          "sourceLabel": "Bustago",
+          "source": "bustago",
+          "note": "시외우등 · 일반 12,300원 참고 · 복수 등급선택 후속",
+          "kind": "bus",
+          "terminalFrom": "전주고속버스터미널",
+          "terminalTo": "청주시외버스터미널",
+          "reference_general_fare": 12300
+        }
+      ],
+      "expected_oneway": 27400
+    },
+    {
+      "id": "GJ_ASAN_VIA_CHEONAN",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_KOBUS_TMONEY",
+      "from": "광주",
+      "to": "아산",
+      "route_label_forward": "광주 → 천안 → 아산",
+      "route_label_reverse": "아산 → 천안 → 광주",
+      "area_method": "광주↔아산 천안 경유 실제 버스운임",
+      "area_detail": "광주↔천안 고속우등 22,200원(KOBUS) + 천안↔아산 실제 시외버스 2,500원(Tmoney)",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "천안",
+          "gen": 22200,
+          "sourceLabel": "KOBUS",
+          "source": "kobus",
+          "note": "고속우등",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "천안고속버스터미널"
+        },
+        {
+          "from": "천안",
+          "to": "아산",
+          "gen": 2500,
+          "sourceLabel": "Tmoney",
+          "source": "tmoney",
+          "note": "실제 시외버스 운임 · 접근비용 아님",
+          "kind": "bus",
+          "terminalFrom": "천안고속버스터미널",
+          "terminalTo": "아산고속버스터미널"
+        }
+      ],
+      "expected_oneway": 24700
+    },
+    {
+      "id": "GJ_SEJONG_DIRECT_KOBUS",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_KOBUS",
+      "from": "광주",
+      "to": "세종",
+      "route_label_forward": "광주 → 세종",
+      "route_label_reverse": "세종 → 광주",
+      "area_method": "광주↔세종 검증 직행",
+      "area_detail": "광주유스퀘어↔세종고속시외버스터미널 고속우등 20,600원 · KOBUS",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "세종",
+          "gen": 20600,
+          "sourceLabel": "KOBUS",
+          "source": "kobus",
+          "note": "고속우등 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "세종고속시외버스터미널"
+        }
+      ],
+      "expected_oneway": 20600
+    },
+    {
+      "id": "GJ_JEUNGPYEONG_DIRECT_BUSTAGO",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_BUSTAGO",
+      "from": "광주",
+      "to": "증평",
+      "route_label_forward": "광주 → 증평",
+      "route_label_reverse": "증평 → 광주",
+      "area_method": "광주↔증평 검증 직행",
+      "area_detail": "광주유스퀘어↔증평시외버스터미널 시외우등 24,000원 · Bustago",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "증평",
+          "gen": 24000,
+          "sourceLabel": "Bustago",
+          "source": "bustago",
+          "note": "시외우등 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "증평시외버스터미널"
+        }
+      ],
+      "expected_oneway": 24000
+    },
+    {
+      "id": "GJ_BUCHEON_DIRECT_BUSTAGO",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_BUSTAGO",
+      "from": "광주",
+      "to": "부천",
+      "route_label_forward": "광주 → 부천",
+      "route_label_reverse": "부천 → 광주",
+      "area_method": "광주↔부천 검증 직행",
+      "area_detail": "광주유스퀘어↔부천터미널소풍 시외우등 30,900원 · Bustago · 기존 인천 경유 supersede",
+      "segments_forward": [
+        {
+          "from": "광주",
+          "to": "부천",
+          "gen": 30900,
+          "sourceLabel": "Bustago",
+          "source": "bustago",
+          "note": "시외우등 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "부천터미널소풍"
+        }
+      ],
+      "expected_oneway": 30900,
+      "supersedes": [
+        "광주→인천→부천",
+        "인천→부천 접근비용 1,650원"
+      ]
+    }
+  ]
+}

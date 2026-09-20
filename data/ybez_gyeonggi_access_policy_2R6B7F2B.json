@@ -1,0 +1,201 @@
+{
+  "version": "2R6B7F2B",
+  "scope": "광주↔안양 직행 및 안군의과 공동생활권, 광주↔구리→남양주 직행 보정",
+  "policy_notes": [
+    "F2A까지 화면검수 통과한 기존 LV5/canonical 기능은 변경하지 않는다.",
+    "광주↔안양은 KOBUS 사용자 확인 직행 30,800원을 메인으로 사용하고 안산 경유를 폐기한다.",
+    "군포·의왕·과천은 안양 LV4 공동생활권으로 0원/경기 시내버스 1,650원 선택을 유지한다.",
+    "남양주는 구리 LV4 공동생활권으로 광주↔구리 30,600원 검증값 + 0원/1,650원 선택을 사용하고 동서울 경유를 제거한다."
+  ],
+  "forced_routes": [
+    {
+      "id": "GJ_ANYANG_DIRECT_30800_2R6B7F2B",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_KOBUS_DIRECT",
+      "from": "광주",
+      "to": "안양",
+      "route_label_forward": "광주 → 안양",
+      "route_label_reverse": "안양 → 광주",
+      "display_route_label_forward": "광주 → 안양",
+      "display_route_label_reverse": "안양 → 광주",
+      "area_method": "광주↔안양 KOBUS 직행",
+      "area_detail": "광주유스퀘어↔안양역시외버스터미널 KOBUS 직행 30,800원. 기존 안산 경유는 사용하지 않음.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안양역시외버스터미널",
+          "gen": 30800,
+          "sourceLabel": "KOBUS",
+          "source": "KOBUS",
+          "note": "사용자 확인 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안양역시외버스터미널"
+        }
+      ],
+      "supersedes": [
+        "광주→안산→안양 경유"
+      ]
+    },
+    {
+      "id": "GJ_ANYANG_ACCESS_군포_2R6B7F2B",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_ANYANG_CENTER_ACCESS",
+      "from": "광주",
+      "to": "군포",
+      "route_label_forward": "광주 → 안양 → 군포",
+      "route_label_reverse": "군포 → 안양 → 광주",
+      "display_route_label_forward": "광주 → 안양 → 군포",
+      "display_route_label_reverse": "군포 → 안양 → 광주",
+      "area_method": "광주↔안군의과 안양 중심 공동생활권 보정",
+      "area_detail": "광주↔군포: 광주유스퀘어↔안양역시외버스터미널 KOBUS 직행 30,800원을 메인으로 사용하고 안양→군포은 공동생활권 0원/경기 시내버스 1,650원 선택.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안양역시외버스터미널",
+          "gen": 30800,
+          "sourceLabel": "KOBUS",
+          "source": "KOBUS",
+          "note": "사용자 확인 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안양역시외버스터미널"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "안양",
+        "lv5": "군포",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "안양→군포: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주→안산→안양→군포 경유",
+        "군포 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_ANYANG_ACCESS_의왕_2R6B7F2B",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_ANYANG_CENTER_ACCESS",
+      "from": "광주",
+      "to": "의왕",
+      "route_label_forward": "광주 → 안양 → 의왕",
+      "route_label_reverse": "의왕 → 안양 → 광주",
+      "display_route_label_forward": "광주 → 안양 → 의왕",
+      "display_route_label_reverse": "의왕 → 안양 → 광주",
+      "area_method": "광주↔안군의과 안양 중심 공동생활권 보정",
+      "area_detail": "광주↔의왕: 광주유스퀘어↔안양역시외버스터미널 KOBUS 직행 30,800원을 메인으로 사용하고 안양→의왕은 공동생활권 0원/경기 시내버스 1,650원 선택.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안양역시외버스터미널",
+          "gen": 30800,
+          "sourceLabel": "KOBUS",
+          "source": "KOBUS",
+          "note": "사용자 확인 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안양역시외버스터미널"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "안양",
+        "lv5": "의왕",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "안양→의왕: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주→안산→안양→의왕 경유",
+        "의왕 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_ANYANG_ACCESS_과천_2R6B7F2B",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_ANYANG_CENTER_ACCESS",
+      "from": "광주",
+      "to": "과천",
+      "route_label_forward": "광주 → 안양 → 과천",
+      "route_label_reverse": "과천 → 안양 → 광주",
+      "display_route_label_forward": "광주 → 안양 → 과천",
+      "display_route_label_reverse": "과천 → 안양 → 광주",
+      "area_method": "광주↔안군의과 안양 중심 공동생활권 보정",
+      "area_detail": "광주↔과천: 광주유스퀘어↔안양역시외버스터미널 KOBUS 직행 30,800원을 메인으로 사용하고 안양→과천은 공동생활권 0원/경기 시내버스 1,650원 선택.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "안양역시외버스터미널",
+          "gen": 30800,
+          "sourceLabel": "KOBUS",
+          "source": "KOBUS",
+          "note": "사용자 확인 직행",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "안양역시외버스터미널"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "안양",
+        "lv5": "과천",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "안양→과천: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주→안산→안양→과천 경유",
+        "과천 접근비용 누락"
+      ]
+    },
+    {
+      "id": "GJ_NYJ_VIA_GURI_30600_2R6B7F2B",
+      "status": "VERIFIED_FIX",
+      "policy": "USER_CONFIRMED_GURI_CENTER_ACCESS",
+      "from": "광주",
+      "to": "남양주",
+      "route_label_forward": "광주 → 구리 → 남양주",
+      "route_label_reverse": "남양주 → 구리 → 광주",
+      "display_route_label_forward": "광주 → 구리 → 남양주",
+      "display_route_label_reverse": "남양주 → 구리 → 광주",
+      "area_method": "광주↔남양주 구리 중심 공동생활권 보정",
+      "area_detail": "광주유스퀘어↔구리시외버스정류장 30,600원 사용자 검증값을 메인으로 사용하고 구리↔남양주는 공동생활권 0원/경기 시내버스 1,650원 선택. 동서울 경유는 사용하지 않음.",
+      "segments_forward": [
+        {
+          "from": "광주유스퀘어",
+          "to": "구리시외버스정류장",
+          "gen": 30600,
+          "sourceLabel": "NAVER",
+          "source": "NAVER",
+          "note": "사용자 네이버지도 전수조사 검증요금",
+          "kind": "bus",
+          "terminalFrom": "광주유스퀘어",
+          "terminalTo": "구리시외버스정류장"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "구리",
+        "lv5": "남양주",
+        "oneway": 1650,
+        "source": "경기도 시내버스 요금",
+        "source_url": "https://www.gg.go.kr/contents/contents.do?ciIdx=629&menuId=2344",
+        "access_type": "경기 공동생활권 시내버스 선택",
+        "note": "구리→남양주: 공동생활권 처리 0원 또는 경기 일반형 시내버스 교통카드 기본요금 1,650원"
+      },
+      "supersedes": [
+        "광주→동서울→구리→남양주 경유",
+        "남양주 접근비용 누락"
+      ]
+    }
+  ]
+}

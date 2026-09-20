@@ -1,0 +1,463 @@
+{
+  "version": "2R.6B-2-suncheonfix",
+  "status": "VERIFIED_EXACT_ONLY",
+  "scope": "순천 exact 출발·도착 ↔ 부울경·대경 남동축 15개",
+  "source_basis": "YBEZ_access_cost_handover_2R6B1_UI_20260802.md · 순천 NAVER 15개 확정경로",
+  "policy": {
+    "origin_area_id": "jg_sc",
+    "origin_exact_names": [
+      "순천"
+    ],
+    "destination_exact_match": true,
+    "max_transfers": 1,
+    "main_fare_only": true,
+    "source_label": "NAVER",
+    "access_cost_display_split": [
+      "김해",
+      "양산"
+    ],
+    "notes_only_reclass_candidates": [
+      "양산은 부산 LV4→양산 LV5 재분류 후보",
+      "사천은 진주권 재분류 후보"
+    ]
+  },
+  "overrides": [
+    {
+      "id": "SC_EXACT_JINJU_10600",
+      "destination": "진주",
+      "target_area_id": "pk_jj",
+      "fare": 10600,
+      "route_label_forward": "순천 → 진주",
+      "route_label_reverse": "진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 시외우등 · 1시간 28분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_BUSAN_18300",
+      "destination": "부산",
+      "target_area_id": "pk_bs",
+      "fare": 18300,
+      "route_label_forward": "순천 → 부산",
+      "route_label_reverse": "부산 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "부산서부사상버스터미널",
+          "gen": 18300,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 고속우등 · 2시간 1분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_ULSAN_25500",
+      "destination": "울산",
+      "target_area_id": "pk_us",
+      "fare": 25500,
+      "route_label_forward": "순천 → 섬진강휴게소 → 울산",
+      "route_label_reverse": "울산 → 섬진강휴게소 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "섬진강휴게소 고속버스환승정류소",
+          "gen": 3600,
+          "sourceLabel": "NAVER",
+          "note": "고속우등",
+          "kind": "bus"
+        },
+        {
+          "from": "섬진강휴게소 고속버스환승정류소",
+          "to": "울산신복정류소",
+          "gen": 21900,
+          "sourceLabel": "NAVER",
+          "note": "고속우등 · 총 2시간 20분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_CHANGWON_19000",
+      "destination": "창원",
+      "target_area_id": "pk_cw",
+      "fare": 19000,
+      "route_label_forward": "순천 → 진주 → 창원",
+      "route_label_reverse": "창원 → 진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "시외우등",
+          "kind": "bus"
+        },
+        {
+          "from": "진주시외버스터미널",
+          "to": "창원종합버스터미널",
+          "gen": 8400,
+          "sourceLabel": "NAVER",
+          "note": "시외우등 · 총 2시간 35분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_MASAN_16400",
+      "destination": "마산",
+      "target_area_id": "pk_cw",
+      "fare": 16400,
+      "route_label_forward": "순천 → 진주 → 마산",
+      "route_label_reverse": "마산 → 진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "시외우등",
+          "kind": "bus"
+        },
+        {
+          "from": "진주시외버스터미널",
+          "to": "마산시외버스터미널",
+          "gen": 5800,
+          "sourceLabel": "NAVER",
+          "note": "단일시외 · 총 2시간 29분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_ACCESS_GIMHAE_AIRPORT_23200_1800",
+      "destination": "김해",
+      "target_area_id": "pk_kh",
+      "fare": 23200,
+      "route_label_forward": "순천 → 김해공항 → 김해",
+      "route_label_reverse": "김해 → 김해공항 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "main_segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "김해공항정류소",
+          "gen": 23200,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 고속우등",
+          "kind": "bus"
+        }
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "김해공항정류소",
+          "gen": 23200,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 고속우등",
+          "kind": "bus"
+        },
+        {
+          "from": "김해공항정류소",
+          "to": "김해여객터미널",
+          "gen": 1800,
+          "sourceLabel": "NAVER",
+          "note": "김해공항→김해 접근비용 선택",
+          "kind": "access"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "김해공항",
+        "lv5": "김해",
+        "oneway": 1800,
+        "source": "NAVER",
+        "note": "김해는 김해공항정류소 기준 접근비용 선택으로 처리"
+      }
+    },
+    {
+      "id": "SC_ACCESS_YANGSAN_BUSAN_18300_1800",
+      "destination": "양산",
+      "target_area_id": "pk_ys",
+      "fare": 18300,
+      "route_label_forward": "순천 → 부산 → 양산",
+      "route_label_reverse": "양산 → 부산 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "main_segments_forward": [
+        {
+          "from": "순천신대지구CGV정류소",
+          "to": "부산서부사상버스터미널",
+          "gen": 18300,
+          "sourceLabel": "NAVER",
+          "note": "고속우등 · 부산 LV4 기준",
+          "kind": "bus"
+        }
+      ],
+      "segments_forward": [
+        {
+          "from": "순천신대지구CGV정류소",
+          "to": "부산서부사상버스터미널",
+          "gen": 18300,
+          "sourceLabel": "NAVER",
+          "note": "고속우등 · 부산 LV4 기준",
+          "kind": "bus"
+        },
+        {
+          "from": "부산서부사상버스터미널",
+          "to": "양산",
+          "gen": 1800,
+          "sourceLabel": "NAVER",
+          "note": "부산→양산 지하철 접근비용 선택",
+          "kind": "access"
+        }
+      ],
+      "access_choice": {
+        "mode": "JOINT_ZONE_CHOICES",
+        "lv4": "부산",
+        "lv5": "양산",
+        "oneway": 1800,
+        "source": "NAVER",
+        "note": "양산은 부산 LV4→양산 LV5 재분류 후보이며 이번 패치에서는 접근비용 선택으로 처리"
+      }
+    },
+    {
+      "id": "SC_EXACT_TONGYEONG_17400",
+      "destination": "통영",
+      "target_area_id": "pk_tg",
+      "fare": 17400,
+      "route_label_forward": "순천 → 진주 → 통영",
+      "route_label_reverse": "통영 → 진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "시외우등",
+          "kind": "bus"
+        },
+        {
+          "from": "진주시외버스터미널",
+          "to": "통영종합버스터미널",
+          "gen": 6800,
+          "sourceLabel": "NAVER",
+          "note": "단일시외 · 총 2시간 37분",
+          "kind": "bus"
+        }
+      ],
+      "supersedes": [
+        "legacy inline 순천↔통영 13800"
+      ]
+    },
+    {
+      "id": "SC_EXACT_SACHEON_12900",
+      "destination": "사천",
+      "target_area_id": "pk_jj",
+      "fare": 12900,
+      "route_label_forward": "순천 → 진주 → 사천",
+      "route_label_reverse": "사천 → 진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "시외우등",
+          "kind": "bus"
+        },
+        {
+          "from": "진주시외버스터미널",
+          "to": "사천시외버스터미널",
+          "gen": 2300,
+          "sourceLabel": "NAVER",
+          "note": "진주사천 완행 · 단일시외 · 진주권 재분류 후보는 notes 보관",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_GOSEONG_GN_15200",
+      "destination": "고성(경남)",
+      "destination_aliases": [
+        "경남고성"
+      ],
+      "target_area_id": "pk_tg",
+      "fare": 15200,
+      "route_label_forward": "순천 → 진주 → 고성(경남)",
+      "route_label_reverse": "고성(경남) → 진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "시외우등",
+          "kind": "bus"
+        },
+        {
+          "from": "진주시외버스터미널",
+          "to": "고성여객자동차터미널",
+          "gen": 4600,
+          "sourceLabel": "NAVER",
+          "note": "단일시외 · 총 2시간 16분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_GEOJE_19300",
+      "destination": "거제",
+      "target_area_id": "pk_tg",
+      "fare": 19300,
+      "route_label_forward": "순천 → 진주 → 거제",
+      "route_label_reverse": "거제 → 진주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "진주시외버스터미널",
+          "gen": 10600,
+          "sourceLabel": "NAVER",
+          "note": "시외우등",
+          "kind": "bus"
+        },
+        {
+          "from": "진주시외버스터미널",
+          "to": "고현버스터미널",
+          "gen": 8700,
+          "sourceLabel": "NAVER",
+          "note": "단일시외 · 총 2시간 46분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_MIRYANG_25100",
+      "destination": "밀양",
+      "target_area_id": "pk_my",
+      "fare": 25100,
+      "route_label_forward": "순천 → 부산 → 밀양",
+      "route_label_reverse": "밀양 → 부산 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천신대지구CGV정류소",
+          "to": "부산서부사상터미널",
+          "gen": 19500,
+          "sourceLabel": "NAVER",
+          "note": "시외우등 · 밀양 exact 경로의 19,500원 유지",
+          "kind": "bus"
+        },
+        {
+          "from": "부산서부사상터미널",
+          "to": "밀양터미널",
+          "gen": 5600,
+          "sourceLabel": "NAVER",
+          "note": "단일시외 · 총 3시간 31분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_DAEGU_26200",
+      "destination": "대구",
+      "target_area_id": "tk_dgdc",
+      "fare": 26200,
+      "route_label_forward": "순천 → 대구",
+      "route_label_reverse": "대구 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "대구서부정류장",
+          "gen": 26200,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 시외우등 · 2시간 41분",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_GYEONGJU_25000",
+      "destination": "경주",
+      "target_area_id": "tk_gy",
+      "fare": 25000,
+      "route_label_forward": "순천 → 경주",
+      "route_label_reverse": "경주 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "경주시외버스터미널",
+          "gen": 25000,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 시외우등 · 3시간",
+          "kind": "bus"
+        }
+      ]
+    },
+    {
+      "id": "SC_EXACT_POHANG_30500",
+      "destination": "포항",
+      "target_area_id": "tk_pu",
+      "fare": 30500,
+      "route_label_forward": "순천 → 포항",
+      "route_label_reverse": "포항 → 순천",
+      "sources": [
+        "NAVER"
+      ],
+      "segments_forward": [
+        {
+          "from": "순천종합버스터미널",
+          "to": "포항터미널",
+          "gen": 30500,
+          "sourceLabel": "NAVER",
+          "note": "직행 · 시외우등 · 3시간 36분",
+          "kind": "bus"
+        }
+      ]
+    }
+  ]
+}
