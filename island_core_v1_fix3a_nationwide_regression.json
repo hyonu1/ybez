@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "baseline": "/mnt/data/nationwide_baseline.json",
+  "case_count": 12340,
+  "changed_case_count": 0,
+  "runtime_version": "connected_7_routes_v11_patch1_v1_r3d2c",
+  "snapshot_hash": "2e871ffedda543b3de79e970b83e5af2d61e68777a4d1a88c532d3d9983c8a04",
+  "differences": []
+}

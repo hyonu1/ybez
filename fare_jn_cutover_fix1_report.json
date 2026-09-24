@@ -1,0 +1,47 @@
+{
+  "candidate": "index_candidate_fare_jn_v4_fix1.html",
+  "candidate_sha256": "a799d5cf822ade36bcbc2651baf8cdaa3ec34a330676f651018a851f9d597b50",
+  "candidate_size": 7053723,
+  "checks": {
+    "js_syntax_15_of_15": true,
+    "registry_506_of_506": true,
+    "registry_values_match_v4": true,
+    "old_jne_reference_not_indexed": true,
+    "old_jne_ui_label_removed": true,
+    "live_JNE_FARES_identifier_removed": true,
+    "central_gate_defined_once": true,
+    "central_gate_called_twice": true,
+    "island_regression_returncode_0": true,
+    "nationwide_regression_returncode_0": true
+  },
+  "issues": {
+    "missing": [],
+    "fare": [],
+    "path": [],
+    "source": []
+  },
+  "gate": {
+    "definitions": 1,
+    "calls": 2
+  },
+  "regression": {
+    "island": {
+      "returncode": 0,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"baseline\": \"/mnt/data/island_baseline.json\",\n  \"baseline_case_count\": 1822,\n  \"changed_case_count\": 0,\n  \"reproducibility_mismatch_count\": 0,\n  \"source_hash_changes\": {\n    \"index\": {\n      \"baseline\": \"f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4\",\n      \"current\": null\n    }\n  },\n  \"differences\": [],\n  \"extra_random\": null\n}\n",
+      "stderr": "Spreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 720, in _warm_feature_flows\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 704, in _warm_collaboration_flows\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/generated/interface/models.py\", line 32317, in hydrate_crdt_from_proto\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/remote.py\", line 749, in __call__\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/client.py\", line 150, in call\nartifact_tool.rpc.client.RemoteError: hydrateCrdtFromProto requires an empty collaborative document.\n"
+    },
+    "nationwide": {
+      "returncode": 0,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"baseline\": \"/mnt/data/nationwide_baseline.json\",\n  \"case_count\": 12340,\n  \"changed_case_count\": 0,\n  \"runtime_version\": \"connected_7_routes_v11_patch1_v1_r3d2c\",\n  \"snapshot_hash\": \"2e871ffedda543b3de79e970b83e5af2d61e68777a4d1a88c532d3d9983c8a04\",\n  \"differences\": []\n}\n",
+      "stderr": "Spreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 720, in _warm_feature_flows\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 704, in _warm_collaboration_flows\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/generated/interface/models.py\", line 32317, in hydrate_crdt_from_proto\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/remote.py\", line 749, in __call__\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/client.py\", line 150, in call\nartifact_tool.rpc.client.RemoteError: hydrateCrdtFromProto requires an empty collaborative document.\n"
+    }
+  },
+  "protected_unchanged": {
+    "fix3c": true,
+    "routes": true,
+    "nodes": true,
+    "connected_7": true,
+    "fare_jn_v4": true
+  },
+  "pass": true
+}

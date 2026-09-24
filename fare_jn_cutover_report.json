@@ -1,0 +1,35 @@
+{
+  "candidate": "index_candidate_fare_jn_v4.html",
+  "candidate_sha256": "2772f1f300bc33e612bf73e057db0117a7dd794344068e65bfd1e083c4c17cbd",
+  "candidate_size": 7053339,
+  "checks": {
+    "js_syntax_15_of_15": true,
+    "registry_506_of_506": true,
+    "registry_values_match_v4": true,
+    "direct_compat_216_exact": true,
+    "old_jne_reference_not_indexed": true,
+    "old_jne_ui_label_removed": true,
+    "central_gate_defined_once": true,
+    "central_gate_called_twice": true,
+    "protected_files_unchanged": true
+  },
+  "issues": {
+    "missing": [],
+    "fare": [],
+    "path": [],
+    "segment": [],
+    "source": []
+  },
+  "gate": {
+    "definitions": 1,
+    "calls": 2
+  },
+  "protected_unchanged": {
+    "fix3c": true,
+    "routes": true,
+    "nodes": true,
+    "connected_7": true,
+    "fare_jn_v4": true
+  },
+  "pass": true
+}

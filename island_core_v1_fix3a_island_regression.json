@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "baseline": "/mnt/data/island_baseline.json",
+  "baseline_case_count": 1822,
+  "changed_case_count": 0,
+  "reproducibility_mismatch_count": 0,
+  "source_hash_changes": {
+    "index": {
+      "baseline": "f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4",
+      "current": null
+    }
+  },
+  "differences": [],
+  "extra_random": null
+}

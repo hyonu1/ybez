@@ -1,0 +1,110 @@
+{
+  "source": "index_candidate_island_core_v1_fix2.html",
+  "output": "index_candidate_island_core_v1_fix3a.html",
+  "scope": "PATCH A only - restore ferry fare input on multi-axis island_core cards",
+  "target_function": "connectedAxisIslandDisplay",
+  "replacement_count": 1,
+  "deleted_existing_code_lines": 1,
+  "added_code_lines": 8,
+  "diff": [
+    "--- index_candidate_island_core_v1_fix2.html",
+    "+++ index_candidate_island_core_v1_fix3a.html",
+    "@@ -48389,7 +48389,14 @@",
+    "                             const ferry = (Array.isArray(opt && opt.areaSegments) ? opt.areaSegments : [])",
+    "                                 .find(seg => [\"ferry\",\"dosun\"].includes(String(seg && (seg.kind || seg.segment_type) || \"\").toLowerCase()));",
+    "                             if (!ferry) return null;",
+    "-                            const p3Meta = ybezP3ConnectedFerryMeta(opt, ferry);",
+    "+                            let p3Meta = ybezP3ConnectedFerryMeta(opt, ferry);",
+    "+                            if (!p3Meta && opt && opt.__islandCoreV1) {",
+    "+                                const ferryRoute = String(",
+    "+                                    ferry.route",
+    "+                                    || [ferry.from || ferry.terminalFrom, ferry.to || ferry.terminalTo].filter(Boolean).join(\" → \")",
+    "+                                ).trim();",
+    "+                                if (ferryRoute) p3Meta = { ferryRoute };",
+    "+                            }",
+    "                             if (!p3Meta) return null;",
+    "                             const fareKey = String(opt.connectedAxisOptionId || \"\").trim();",
+    "                             const key = fareKey ? `ferry|${fareKey}` : \"\";"
+  ],
+  "sha256": "89e91acd3e4d110f997fec26157fe33842101414e1a0b6a33c3fb09f73d78e55",
+  "size": 6505347,
+  "inline_script_count": 15,
+  "syntax_pass": true,
+  "syntax_checks": [
+    {
+      "script": 0,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 1,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 2,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 3,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 4,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 5,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 6,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 7,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 8,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 9,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 10,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 11,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 12,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 13,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 14,
+      "ok": true,
+      "stderr": ""
+    }
+  ]
+}

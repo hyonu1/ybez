@@ -1,0 +1,84 @@
+{
+  "status": "BUILD_READY_USER_SCREEN_TEST",
+  "file": "index_candidate_island_core_v1.html",
+  "sha256": "b3897349ea6be0df5d5d0cd969d6f86163dd45d3c51400191ff9053e7b323243",
+  "size": 6504530,
+  "canonical": {
+    "managed_islands": 20,
+    "axis_count": 23,
+    "direct_mapping_count": 7,
+    "islands": [
+      "안마도",
+      "가사도",
+      "금오도",
+      "서거차도",
+      "관사도",
+      "연도",
+      "개도",
+      "거문도",
+      "낙월도",
+      "어불도",
+      "조도",
+      "대마도(진도)",
+      "모도(진도 의신)",
+      "넙도",
+      "서넙도",
+      "대모도",
+      "대경도",
+      "대두라도",
+      "여자도",
+      "시산도"
+    ]
+  },
+  "guards": {
+    "promotion_central_gate": true,
+    "takeover_before_e1": true,
+    "e1_explicit_guard": true,
+    "f1_explicit_guard": true,
+    "silent_fallback_forbidden": true
+  },
+  "adapter": {
+    "areaSegments": true,
+    "islandLegs": true,
+    "portAccessAudits": true,
+    "fare_components": true,
+    "ferry_manualCost_true": true,
+    "reverse_missing_evidence": true
+  },
+  "scope_check": {
+    "merged_islandLegs_assignment": "merged is a fresh {...baseRes} local object inside mergeIslandMeta",
+    "base_islandLegs_assignment": "base is a fresh buildAreaResult(...) local object before assignment",
+    "assessment": "no cross-calculation shared-object reuse found at these two assignments"
+  },
+  "regression": {
+    "island": {
+      "status": "PASS",
+      "baseline": "/mnt/data/island_baseline.json",
+      "baseline_case_count": 1822,
+      "changed_case_count": 0,
+      "reproducibility_mismatch_count": 0,
+      "source_hash_changes": {
+        "index": {
+          "baseline": "f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4",
+          "current": null
+        }
+      },
+      "differences": [],
+      "extra_random": null
+    },
+    "nationwide": {
+      "status": "PASS",
+      "baseline": "/mnt/data/nationwide_baseline.json",
+      "case_count": 12340,
+      "changed_case_count": 0,
+      "runtime_version": "connected_7_routes_v11_patch1_v1_r3d2c",
+      "snapshot_hash": "2e871ffedda543b3de79e970b83e5af2d61e68777a4d1a88c532d3d9983c8a04",
+      "differences": []
+    }
+  },
+  "notes": [
+    "Operational index.html/index_runtime.html untouched.",
+    "Legacy P3B/RUN2/E1/F1/H1 code remains physically present for rollback; managed 20-island pairs are intercepted before legacy early-return and Connected promotion.",
+    "This artifact is the takeover test candidate; promotion to index_candidate.html still requires user screen validation."
+  ]
+}

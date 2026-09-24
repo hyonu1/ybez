@@ -1,0 +1,36 @@
+{
+  "candidate": "index_candidate_fare_jn_v4_fix2.html",
+  "sha256": "97dc4bee3afed90bc83203e8c6c22ebb3c383290fb5bd3f0349d91eb128a9f50",
+  "size": 7054352,
+  "inline_js_syntax": {
+    "passed": 15,
+    "total": 15,
+    "all_pass": true
+  },
+  "fare_jn_v4_registry": {
+    "directional_entries": 506,
+    "direct_entries": 216,
+    "status_counts": {
+      "DIRECT_PROVIDER": 200,
+      "DIRECT_WEB_VERIFIED": 2,
+      "TRANSFER_TRUSTED": 290,
+      "DIRECT_SOURCE_VERIFIED": 14
+    },
+    "mismatch_count": 0,
+    "mismatches": []
+  },
+  "jne2026_cutover": {
+    "reference_snapshot_symbol_count": 2,
+    "legacy_calculation_symbol_count": 0,
+    "remaining_JNE2026_string_literals": 3,
+    "registry_segments_with_JNE_source": 0,
+    "note": "Remaining JNE2026 strings are reference/display compatibility markers; no legacy JNE_FARES calculation symbol remains."
+  },
+  "protected_regression": {
+    "island_returncode": 0,
+    "island_stdout": "{\n  \"status\": \"PASS\",\n  \"baseline\": \"/mnt/data/island_baseline.json\",\n  \"baseline_case_count\": 1822,\n  \"changed_case_count\": 0,\n  \"reproducibility_mismatch_count\": 0,\n  \"source_hash_changes\": {\n    \"index\": {\n      \"baseline\": \"f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4\",\n      \"current\": null\n    }\n  },\n  \"differences\": [],\n  \"extra_random\": null\n}\n",
+    "nationwide_returncode": 0,
+    "nationwide_stdout": "{\n  \"status\": \"PASS\",\n  \"baseline\": \"/mnt/data/nationwide_baseline.json\",\n  \"case_count\": 12340,\n  \"changed_case_count\": 0,\n  \"runtime_version\": \"connected_7_routes_v11_patch1_v1_r3d2c\",\n  \"snapshot_hash\": \"2e871ffedda543b3de79e970b83e5af2d61e68777a4d1a88c532d3d9983c8a04\",\n  \"differences\": []\n}\n",
+    "note": "These suites exercise the unchanged Connected runtime/data and confirm protected baseline stability; candidate HTML behavior is additionally checked by the embedded-registry and JS checks above."
+  }
+}

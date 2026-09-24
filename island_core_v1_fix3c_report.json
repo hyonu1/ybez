@@ -1,0 +1,149 @@
+{
+  "source": "index_candidate_island_core_v1_fix3b.html",
+  "output": "index_candidate_island_core_v1_fix3c.html",
+  "scope": "Quick compatibility adapter only for verified island_core port_access",
+  "changes": [
+    "portAccessAudits adapter exposes legacy trusted-fare status while preserving canonical_status",
+    "fare_components.port_access adapter exposes CANDIDATE_TRUSTED_FARE + ACTUAL_DB_FARE_FIRST",
+    "canonical segment status remains ISLAND_CORE_ACTUAL_FARE"
+  ],
+  "replacement_counts": {
+    "audit": 1,
+    "fare_component": 1
+  },
+  "diff_removed_lines": 2,
+  "diff_added_lines": 15,
+  "diff": [
+    "--- index_candidate_island_core_v1_fix3b.html",
+    "+++ index_candidate_island_core_v1_fix3c.html",
+    "@@ -39170,7 +39170,9 @@",
+    "                 const accessAudit = accessSeg ? [{",
+    "                     side:reverse ? \"origin\" : \"destination\", parent_label:reverse ? gatewayDisplay : parentTerminal,",
+    "                     gateway_label:reverse ? parentTerminal : gatewayDisplay, distance_km:Number(cfg.distanceKm || 0), distance_km_rounded:Number(cfg.distanceKm || 0),",
+    "-                    status:accessSeg.fare != null ? \"ISLAND_CORE_ACTUAL_FARE\" : (reverse && cfg.access ? \"ISLAND_CORE_DIRECTION_EVIDENCE_MISSING\" : \"ISLAND_CORE_DISTANCE_ONLY\"),",
+    "+                    status:accessSeg.fare != null ? \"CANDIDATE_TRUSTED_FARE\" : (reverse && cfg.access ? \"ISLAND_CORE_DIRECTION_EVIDENCE_MISSING\" : \"ISLAND_CORE_DISTANCE_ONLY\"),",
+    "+                    canonical_status:accessSeg.status || null,",
+    "+                    recommendation_basis:accessSeg.fare != null ? \"ACTUAL_DB_FARE_FIRST\" : null,",
+    "                     candidate:accessSeg.fare != null, amount:accessSeg.fare, sourceLabel:accessSeg.sourceLabel || null,",
+    "                     sources:Array.isArray(accessSeg.sources) ? accessSeg.sources : [], parent_node_id:parentMeta.nodeId || null,",
+    "                     proxy_node_id:cfg.access && cfg.access.proxyNodeId || null, proxy_node_name:cfg.access && cfg.access.proxyNodeName || null,",
+    "@@ -39179,7 +39181,18 @@",
+    "                 const islandLegs = ferrySeg ? [{ kind:ferrySeg.kind === \"dosun\" ? \"ferry\" : ferrySeg.kind,",
+    "                     label:ferrySeg.label, route:ferrySeg.route, fare:null, source:\"실비 입력\", role:reverse ? \"origin\" : \"dest\",",
+    "                     realCost:true, manualCost:true, axis_id:axisId, __islandCoreV1:true }] : [];",
+    "-                const portAccessFC = accessSeg && accessSeg.fare != null ? [{ ...accessSeg, fare:accessSeg.fare, recommended_fare:accessSeg.fare }] : [];",
+    "+                const portAccessFC = accessSeg && accessSeg.fare != null ? [{",
+    "+                    ...accessSeg,",
+    "+                    fare:accessSeg.fare,",
+    "+                    recommended_fare:accessSeg.fare,",
+    "+                    canonical_status:accessSeg.status || null,",
+    "+                    status:\"CANDIDATE_TRUSTED_FARE\",",
+    "+                    recommendation_basis:\"ACTUAL_DB_FARE_FIRST\",",
+    "+                    selectable:true,",
+    "+                    quick_eligible:true,",
+    "+                    included_in_expense:true,",
+    "+                    __islandCoreV1:true",
+    "+                }] : [];",
+    "                 const candidateId = `${axisId}|parent|${reverse ? \"reverse\" : \"forward\"}`;",
+    "                 const cleanBase = { ...base };",
+    "                 [\"connectedAxisOptions\",\"connectedAxisReferenceOptions\",\"connectedAxisAllOptions\",\"islandLegs\",\"portAccessAudits\",\"fare_components\"].forEach(k => delete cleanBase[k]);"
+  ],
+  "guards": {
+    "canonical_segment_status_untouched": true,
+    "global_quick_filter_unchanged": true,
+    "ferry_manual_cost_pattern_unchanged": true
+  },
+  "syntax_pass": true,
+  "syntax_checks": [
+    {
+      "script": 0,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 1,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 2,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 3,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 4,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 5,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 6,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 7,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 8,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 9,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 10,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 11,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 12,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 13,
+      "ok": true,
+      "stderr": ""
+    },
+    {
+      "script": 14,
+      "ok": true,
+      "stderr": ""
+    }
+  ],
+  "island_regression": {
+    "cmd": "python /mnt/data/island_regression.py check --root /mnt/data --baseline /mnt/data/island_baseline.json",
+    "returncode": 0,
+    "stdout": "{\n  \"status\": \"PASS\",\n  \"baseline\": \"/mnt/data/island_baseline.json\",\n  \"baseline_case_count\": 1822,\n  \"changed_case_count\": 0,\n  \"reproducibility_mismatch_count\": 0,\n  \"source_hash_changes\": {\n    \"index\": {\n      \"baseline\": \"f14fedec1f174760aad08575f23fec5d149eb4827a1a719a929d70ad510590f4\",\n      \"current\": null\n    }\n  },\n  \"differences\": [],\n  \"extra_random\": null\n}\n",
+    "stderr": "Spreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 772, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/connection.py\", line 37, in get_or_create_client\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/daemon.py\", line 124, in start_daemon\nTimeoutError: Timed out waiting for artifact tool daemon socket. Set ARTIFACT_TOOL_RPC_DAEMON_STARTUP_TIMEOUT_S=<seconds> to increase the limit.\n"
+  },
+  "nationwide_regression": {
+    "cmd": "python /mnt/data/nationwide_regression.py check --root /mnt/data --baseline /mnt/data/nationwide_baseline.json",
+    "returncode": 0,
+    "stdout": "{\n  \"status\": \"PASS\",\n  \"baseline\": \"/mnt/data/nationwide_baseline.json\",\n  \"case_count\": 12340,\n  \"changed_case_count\": 0,\n  \"runtime_version\": \"connected_7_routes_v11_patch1_v1_r3d2c\",\n  \"snapshot_hash\": \"2e871ffedda543b3de79e970b83e5af2d61e68777a4d1a88c532d3d9983c8a04\",\n  \"differences\": []\n}\n",
+    "stderr": "Spreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/spreadsheet_warmup.py\", line 772, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/connection.py\", line 37, in get_or_create_client\n  File \"/tmp/tmp.L2TH2Y5coc/artifact_tool_v2-2.8.22/artifact_tool/rpc/daemon.py\", line 124, in start_daemon\nTimeoutError: Timed out waiting for artifact tool daemon socket. Set ARTIFACT_TOOL_RPC_DAEMON_STARTUP_TIMEOUT_S=<seconds> to increase the limit.\n"
+  },
+  "sha256": "17387d18ce53196ed5c37ed5a9c7463add2f5d75e50959d15379ade03d69d53d",
+  "size": 6506095,
+  "inline_script_count": 15
+}
